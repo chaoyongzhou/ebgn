@@ -1,0 +1,3838 @@
+#ifdef __cplusplus
+extern "C"{
+#endif/*__cplusplus*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <malloc.h>
+#include <unistd.h>
+#include <time.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#include "lib_cmpi.h"
+
+#include "lib_typeconst.h"
+#include "lib_type.h"
+#include "lib_char2int.h"
+#include "lib_task.h"
+#include "lib_mod.h"
+#include "lib_log.h"
+#include "lib_debug.h"
+#include "lib_rank.h"
+
+#include "lib_cstring.h"
+#include "lib_cvector.h"
+
+#include "lib_matrixr.h"
+#include "lib_dmatrixr.h"
+#include "lib_vmatrixr.h"
+
+#include "lib_bgnz.h"
+#include "lib_print.h"
+
+#include "lib_super.h"
+#include "lib_tbd.h"
+#include "lib_crun.h"
+
+#include "lib_taskc.h"
+#include "lib_cthread.h"
+
+#include "lib_cmpic.inc"
+#include "lib_findex.inc"
+
+#include "lib_chashalgo.h"
+
+#include "lib_cfile.h"
+#include "lib_cdir.h"
+#include "lib_cdfs.h"
+#include "lib_cdfsnp.h"
+
+#include "lib_cmon.h"
+#include "lib_ctimer.h"
+
+
+#define ASSERT(_conditon_should_be) do{if(!(_conditon_should_be)) {sys_log(LOGSTDERR, "%s:%d:abort\n", __FILE__, __LINE__); task_brd_default_abort();}}while(0)
+static void print_tcid(LOG *log, const UINT32 tcid)
+{
+    sys_log(log, "%s\n", uint32_to_ipv4(tcid));
+    return;
+}
+
+REAL ***matrix_r_data_zone_malloc(const UINT32 row_num, const UINT32 col_num)
+{
+    REAL ***pppdata;
+    REAL **ppdata;
+    REAL *pdata;
+
+    UINT32 row_idx;
+    UINT32 col_idx;
+
+    pppdata = (REAL ***)malloc(sizeof(REAL **) * row_num);
+    ASSERT(0 != pppdata);
+    for(row_idx = 0; row_idx < row_num; row_idx ++)
+    {
+        ppdata = (REAL **)malloc(sizeof(REAL *) * col_num);
+        ASSERT(0 != ppdata);
+
+        pppdata[ row_idx ] = ppdata;
+
+        pdata = (REAL *)malloc(sizeof(REAL) * col_num);
+        ASSERT(0 != pdata);
+        for(col_idx = 0; col_idx < col_num; col_idx ++)
+        {
+            ppdata[ col_idx ] = pdata + col_idx; /*WARNING: never changed it because pdata addr is stored at the first node here*/
+        }
+    }
+    return pppdata;
+}
+
+void matrix_r_data_zone_init(REAL ***pppdata, const UINT32 row_num, const UINT32 col_num, const REAL start_val, const REAL step_val)
+{
+    REAL **ppdata;
+    REAL *pdata;
+
+    UINT32 row_idx;
+    UINT32 col_idx;
+
+    REAL val;
+
+    val = start_val;
+
+    for(row_idx = 0; row_idx < row_num; row_idx ++)
+    {
+        ppdata = pppdata[ row_idx ];
+        for(col_idx = 0; col_idx < col_num; col_idx ++)
+        {
+            pdata = ppdata[ col_idx ];
+            *pdata = val;
+
+            val = val + step_val;
+        }
+    }
+    return;
+}
+
+void matrix_r_data_zone_free(REAL ***pppdata, const UINT32 row_num, const UINT32 col_num)
+{
+    REAL **ppdata;
+    REAL *pdata;
+
+    UINT32 row_idx;
+
+    for(row_idx = 0; row_idx < row_num; row_idx ++)
+    {
+        ppdata = pppdata[ row_idx ];
+        pdata = ppdata[ 0 ];
+
+        free(pdata);
+        free(ppdata);
+    }
+    free(pppdata);
+}
+
+/*matrix * matrix*/
+void test_case_10(void *mod_mgr_def)
+{
+    UINT32 matrixr_md_id;
+
+    MATRIX *src_matrix_1;
+    MATRIX *src_matrix_2;
+    MATRIX *des_matrix;
+    MATRIX *des_matrix_t;
+
+    void *mod_mgr;
+
+    #define _TEST_ROW_NUM 4000
+    #define _TEST_COL_NUM 4000
+
+    REAL ***pppdata;
+    REAL start_val;
+    REAL step_val;
+
+    UINT32 data_num;
+
+    start_val = 1.00000;
+    step_val  = 0.00001;
+    //step_val  = 0.1;
+
+    /*initialize input data zone*/
+    data_num = _TEST_ROW_NUM * _TEST_COL_NUM;
+    pppdata = matrix_r_data_zone_malloc(_TEST_ROW_NUM, _TEST_COL_NUM);
+    matrix_r_data_zone_init(pppdata, _TEST_ROW_NUM, _TEST_COL_NUM, start_val, step_val);
+
+    des_matrix = (MATRIX *)NULL_PTR;
+
+    matrixr_md_id = matrix_r_start();
+
+    matrix_r_new_matrix(matrixr_md_id, _TEST_ROW_NUM, _TEST_COL_NUM, &src_matrix_1);
+    matrix_r_new_matrix(matrixr_md_id, _TEST_COL_NUM, _TEST_ROW_NUM, &src_matrix_2);
+    matrix_r_new_matrix(matrixr_md_id, 0, 0, &des_matrix);
+    matrix_r_new_matrix(matrixr_md_id, 0, 0, &des_matrix_t);
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"src_matrix_1 addr info:\n");
+    //matrix_r_print_matrix_addr_info(matrixr_md_id, src_matrix_1);
+
+    matrix_r_insert_data_by_tbl(matrixr_md_id, (const REAL ***)pppdata, _TEST_ROW_NUM, _TEST_COL_NUM , src_matrix_1);/*src_matrix_1 type: _TEST_ROW_NUM x _TEST_COL_NUM*/
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    //sys_log(LOGSTDOUT,"src_matrix_1 data info:\n");
+    //matrix_r_print_matrix_data_info(matrixr_md_id, src_matrix_1);
+
+    matrix_r_rotate(matrixr_md_id, src_matrix_2);
+    matrix_r_clone(matrixr_md_id, src_matrix_1, src_matrix_2);/*src_matrix_2 type: _TEST_COL_NUM x _TEST_ROW_NUM*/
+    matrix_r_rotate(matrixr_md_id, src_matrix_2);
+
+    /*destroy input data zone*/
+    matrix_r_data_zone_free(pppdata, _TEST_ROW_NUM, _TEST_COL_NUM);
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    //sys_log(LOGSTDOUT,"src_matrix_2 data info:\n");
+    //matrix_r_print_matrix_data_info(matrixr_md_id, src_matrix_2);
+    //task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, (_TEST_COL_NUM + MATRIX_VECTOR_WIDTH - 1) / MATRIX_VECTOR_WIDTH, LOAD_BALANCING_RANK, TASK_PRIO_NORMAL, FI_matrix_r_start);
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, (_TEST_COL_NUM + MATRIX_VECTOR_WIDTH - 1) / MATRIX_VECTOR_WIDTH, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_matrix_r_start);
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    //sys_log_switch_off();
+    //mod_mgr_incl(matrixr_md_id, mod_mgr);
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_matrix_r_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    matrix_r_set_mod_mgr(matrixr_md_id, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGCONSOLE,"matrix_r_mul_p beg:\n");
+    matrix_r_mul_p(matrixr_md_id, src_matrix_1, src_matrix_2, des_matrix);
+    sys_log(LOGCONSOLE,"matrix_r_mul_p end:\n");
+#if 0
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGCONSOLE,"matrix_r_mul beg:\n");
+    matrix_r_mul(matrixr_md_id, src_matrix_1, src_matrix_2, des_matrix_t);
+    sys_log(LOGCONSOLE,"matrix_r_mul end:\n");
+    //mod_mgr_excl(matrixr_md_id, mod_mgr);
+    //sys_log_switch_on();
+#endif
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_matrix_r_end, ERR_MODULE_ID);
+#if 0
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    //sys_log(LOGSTDOUT,"matrix mul result des_matrix addr info:\n");
+    //matrix_r_print_matrix_addr_info(matrixr_md_id, des_matrix);
+    //sys_log(LOGSTDOUT,"matrix mul_p result des_matrix_t addr info:\n");
+    //matrix_r_print_matrix_addr_info(matrixr_md_id, des_matrix_t);
+    if(EC_TRUE == matrix_r_cmp(matrixr_md_id, des_matrix, des_matrix_t))
+    {
+        sys_log(LOGCONSOLE, "compare result: same\n");
+    }
+    else
+    {
+        sys_log(LOGCONSOLE, "compare result: NOT same\n");
+
+        //sys_log(LOGSTDOUT,"matrix mul result des_matrix data info:\n");
+        //sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+        //matrix_r_print_matrix_data_info(matrixr_md_id, des_matrix);
+        //sys_log(LOGSTDOUT,"matrix mul result des_matrix_t data info:\n");
+        //sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+        //matrix_r_print_matrix_data_info(matrixr_md_id, des_matrix_t);
+    }
+#endif
+    matrix_r_destroy_matrix(matrixr_md_id, src_matrix_1);
+    matrix_r_destroy_matrix(matrixr_md_id, src_matrix_2);
+    matrix_r_destroy_matrix(matrixr_md_id, des_matrix);
+    matrix_r_destroy_matrix(matrixr_md_id, des_matrix_t);
+
+    print_static_mem_diag_info(LOGSTDOUT);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    
+    matrix_r_end(matrixr_md_id);
+
+    print_static_mem_diag_info(LOGSTDOUT);
+
+    #undef _TEST_ROW_NUM
+    #undef _TEST_COL_NUM
+
+    return ;
+}
+
+/*matrix * matrix*/
+void test_case_13(void *mod_mgr_def)
+{
+    UINT32 matrixr_md_id;
+    UINT32 dmatrixr_md_id;
+
+    MATRIX *src_matrix_1;
+    MATRIX *src_matrix_2;
+    MATRIX *des_matrix;
+    MATRIX *des_matrix_t;
+
+    void *mod_mgr;
+
+    #define _TEST_ROW_NUM 2000
+    #define _TEST_COL_NUM 2000
+
+    REAL ***pppdata;
+    REAL start_val;
+    REAL step_val;
+
+    UINT32 data_num;
+
+    start_val = 1.00000;
+    step_val  = 0.00001;
+    //step_val  = 0.1;
+
+    /*initialize input data zone*/
+    data_num = _TEST_ROW_NUM * _TEST_COL_NUM;
+    pppdata = matrix_r_data_zone_malloc(_TEST_ROW_NUM, _TEST_COL_NUM);
+    matrix_r_data_zone_init(pppdata, _TEST_ROW_NUM, _TEST_COL_NUM, start_val, step_val);
+
+    des_matrix = (MATRIX *)NULL_PTR;
+
+    dmatrixr_md_id = dmatrix_r_start();
+    dmatrix_r_get_matrixr_md_id(dmatrixr_md_id, &matrixr_md_id);
+
+    matrix_r_new_matrix(matrixr_md_id, _TEST_ROW_NUM, _TEST_COL_NUM, &src_matrix_1);
+    matrix_r_new_matrix(matrixr_md_id, _TEST_COL_NUM, _TEST_ROW_NUM, &src_matrix_2);
+    matrix_r_new_matrix(matrixr_md_id, 0, 0, &des_matrix);
+    matrix_r_new_matrix(matrixr_md_id, 0, 0, &des_matrix_t);
+
+    matrix_r_insert_data_by_tbl(matrixr_md_id, (const REAL ***)pppdata, _TEST_ROW_NUM, _TEST_COL_NUM , src_matrix_1);/*src_matrix_1 type: _TEST_ROW_NUM x _TEST_COL_NUM*/
+    //sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    //sys_log(LOGSTDOUT,"src_matrix_1 data info:\n");
+    //matrix_r_print_matrix_data_info(matrixr_md_id, src_matrix_1);
+
+    matrix_r_rotate(matrixr_md_id, src_matrix_2);
+    matrix_r_clone(matrixr_md_id, src_matrix_1, src_matrix_2);/*src_matrix_2 type: _TEST_COL_NUM x _TEST_ROW_NUM*/
+    matrix_r_rotate(matrixr_md_id, src_matrix_2);
+
+    /*destroy input data zone*/
+    matrix_r_data_zone_free(pppdata, _TEST_ROW_NUM, _TEST_COL_NUM);
+#if 0
+    /*note: the remote mod number must not be less than the block number in one row due to only one adc cache for one DMATRIXR module*/
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, (_TEST_ROW_NUM + MATRIX_VECTOR_WIDTH - 1) / MATRIX_VECTOR_WIDTH, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_dmatrix_r_start);
+
+    //sys_log_switch_off();
+    //mod_mgr_incl(matrixr_md_id, mod_mgr);
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_dmatrix_r_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    dmatrix_r_set_mod_mgr(dmatrixr_md_id, mod_mgr);
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGCONSOLE,"dmatrix_r_mul_p beg:\n");
+    dmatrix_r_mul_p(dmatrixr_md_id, src_matrix_1, src_matrix_2, des_matrix);
+    sys_log(LOGCONSOLE,"dmatrix_r_mul_p end:\n");
+#endif
+    //sys_log(LOGSTDOUT,"des_matrix addr info:\n");
+    //matrix_r_print_matrix_addr_info(matrixr_md_id, des_matrix);
+#if 1
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGCONSOLE,"matrix_r_mul beg:\n");
+    matrix_r_mul(matrixr_md_id, src_matrix_1, src_matrix_2, des_matrix_t);
+    sys_log(LOGCONSOLE,"matrix_r_mul end:\n");
+    //mod_mgr_excl(matrixr_md_id, mod_mgr);
+    //sys_log_switch_on();
+
+    //task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL,FI_dmatrix_r_end, ERR_MODULE_ID);
+
+    //sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    //sys_log(LOGSTDOUT,"des_matrix data info:\n");
+    //matrix_r_print_matrix_data_info(matrixr_md_id, des_matrix);
+    //sys_log(LOGSTDOUT,"des_matrix addr info:\n");
+    //matrix_r_print_matrix_addr_info(matrixr_md_id, des_matrix);
+
+    //sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    //sys_log(LOGSTDOUT,"des_matrix_t data info:\n");
+    //matrix_r_print_matrix_data_info(matrixr_md_id, des_matrix_t);
+    //sys_log(LOGSTDOUT,"des_matrix_t addr info:\n");
+    //matrix_r_print_matrix_addr_info(matrixr_md_id, des_matrix_t);
+
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+#endif
+
+#if 0
+    if(EC_TRUE == matrix_r_cmp(matrixr_md_id, des_matrix, des_matrix_t))
+    {
+        sys_log(LOGCONSOLE, "compare result: same\n");
+    }
+    else
+    {
+        sys_log(LOGCONSOLE, "compare result: NOT same\n");
+    }
+#endif
+#if 0
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_dmatrix_r_end, ERR_MODULE_ID);
+#endif
+    matrix_r_destroy_matrix(matrixr_md_id, src_matrix_1);
+    matrix_r_destroy_matrix(matrixr_md_id, src_matrix_2);
+    matrix_r_destroy_matrix(matrixr_md_id, des_matrix);
+    matrix_r_destroy_matrix(matrixr_md_id, des_matrix_t);
+
+    dmatrix_r_end(dmatrixr_md_id);
+
+    #undef _TEST_ROW_NUM
+    #undef _TEST_COL_NUM
+
+    return ;
+}
+
+void test_case_15(void *mod_mgr_def)
+{
+    UINT32 tbd_md_id;
+
+    void *mod_mgr;
+    void *task_mgr;
+    CSTRING *cstring;
+
+    UINT32 ret;
+
+    tbd_md_id = tbd_start();
+
+    cstring = cstring_new((UINT8 *)"hello world!", 0);
+
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, 2, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_tbd_start);
+
+    //sys_log_switch_off();
+    //mod_mgr_incl(matrixr_md_id, mod_mgr);
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_tbd_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    tbd_set_mod_mgr(tbd_md_id, mod_mgr);
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    task_new(mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+
+    //tbd_run(tbd_md_id, cstring);
+    //task_inc(task_mgr, &ret, FI_tbd_run, tbd_md_id, cstring);
+    //task_inc(task_mgr, &ret, FI_tbd_run, tbd_md_id, cstring);
+    task_pos_inc(task_mgr, 0, &ret, FI_tbd_run, tbd_md_id, cstring);
+    task_pos_inc(task_mgr, 1, &ret, FI_tbd_run, tbd_md_id, cstring);
+    task_wait(task_mgr, TASK_ALWAYS_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_tbd_end, ERR_MODULE_ID);
+
+    cstring_free(cstring);
+
+    tbd_end(tbd_md_id);
+
+    return ;
+}
+
+/*matrix * matrix*/
+void test_case_17(void *mod_mgr_def)
+{
+    UINT32 vmatrixr_md_id;
+
+    void *src_matrix_vmm_1;
+    void *src_matrix_vmm_2;
+    void *des_matrix_vmm;
+    void *des_matrix_vmm_t;
+
+    void *mod_mgr;
+
+    #define _TEST_ROW_NUM 4000
+    #define _TEST_COL_NUM 4000
+
+    REAL start_val;
+    REAL step_val;
+
+    UINT32 data_num;
+
+    start_val = 1.00000;
+    step_val  = 0.00001;
+    //step_val  = 0.1;
+
+    /*initialize input data zone*/
+    data_num = _TEST_ROW_NUM * _TEST_COL_NUM;
+    //pppdata = matrix_r_data_zone_malloc(_TEST_ROW_NUM, _TEST_COL_NUM);
+    //matrix_r_data_zone_init(pppdata, _TEST_ROW_NUM, _TEST_COL_NUM, start_val, step_val);
+
+    des_matrix_vmm = NULL_PTR;
+
+    vmatrixr_md_id = vmatrix_r_start();
+    
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, (_TEST_COL_NUM + MATRIX_VECTOR_WIDTH - 1) / MATRIX_VECTOR_WIDTH, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_vmatrix_r_start);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_vmatrix_r_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    vmatrix_r_set_mod_mgr(vmatrixr_md_id, mod_mgr);
+
+    src_matrix_vmm_1 = vmatrix_r_alloc_vmm_node(vmatrixr_md_id);
+    src_matrix_vmm_2 = vmatrix_r_alloc_vmm_node(vmatrixr_md_id);
+    des_matrix_vmm   = vmatrix_r_alloc_vmm_node(vmatrixr_md_id);
+    des_matrix_vmm_t = vmatrix_r_alloc_vmm_node(vmatrixr_md_id);
+
+    vmatrix_r_new_matrix(vmatrixr_md_id, _TEST_ROW_NUM, _TEST_COL_NUM, src_matrix_vmm_1);
+    vmatrix_r_new_matrix(vmatrixr_md_id, _TEST_COL_NUM, _TEST_ROW_NUM, src_matrix_vmm_2);
+    vmatrix_r_new_matrix(vmatrixr_md_id, 0, 0, des_matrix_vmm);
+    vmatrix_r_new_matrix(vmatrixr_md_id, 0, 0, des_matrix_vmm_t);
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"src_matrix_1 addr info:\n");
+    //matrix_r_print_matrix_addr_info(matrixr_md_id, src_matrix_1);
+
+    //matrix_r_insert_data_by_tbl(matrixr_md_id, (const REAL ***)pppdata, _TEST_ROW_NUM, _TEST_COL_NUM , src_matrix_1);/*src_matrix_1 type: _TEST_ROW_NUM x _TEST_COL_NUM*/
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    //sys_log(LOGSTDOUT,"src_matrix_1 data info:\n");
+    //matrix_r_print_matrix_data_info(matrixr_md_id, src_matrix_1);
+
+    //matrix_r_rotate(matrixr_md_id, src_matrix_2);
+    //matrix_r_clone(matrixr_md_id, src_matrix_1, src_matrix_2);/*src_matrix_2 type: _TEST_COL_NUM x _TEST_ROW_NUM*/
+    //matrix_r_rotate(matrixr_md_id, src_matrix_2);
+
+    /*destroy input data zone*/
+    //matrix_r_data_zone_free(pppdata, _TEST_ROW_NUM, _TEST_COL_NUM);
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    //sys_log(LOGSTDOUT,"src_matrix_2 data info:\n");
+    //matrix_r_print_matrix_data_info(matrixr_md_id, src_matrix_2);
+    //task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, (_TEST_COL_NUM + MATRIX_VECTOR_WIDTH - 1) / MATRIX_VECTOR_WIDTH, LOAD_BALANCING_RANK, TASK_PRIO_NORMAL, FI_matrix_r_start);
+
+    //sys_log_switch_off();
+    //mod_mgr_incl(matrixr_md_id, mod_mgr);
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"vmatrix_r_mul_p beg:\n");
+    vmatrix_r_mul_p(vmatrixr_md_id, src_matrix_vmm_1, src_matrix_vmm_2, des_matrix_vmm);
+    sys_log(LOGSTDOUT,"vmatrix_r_mul_p end:\n");
+
+    //sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    //sys_log(LOGSTDOUT,"matrix_r_mul beg:\n");
+    //matrix_r_mul(matrixr_md_id, src_matrix_1, src_matrix_2, des_matrix_t);
+    //sys_log(LOGSTDOUT,"matrix_r_mul end:\n");
+    //mod_mgr_excl(matrixr_md_id, mod_mgr);
+    //sys_log_switch_on();
+
+    vmatrix_r_destroy_matrix(vmatrixr_md_id, src_matrix_vmm_1);
+    vmatrix_r_destroy_matrix(vmatrixr_md_id, src_matrix_vmm_2);
+    vmatrix_r_destroy_matrix(vmatrixr_md_id, des_matrix_vmm  );
+    vmatrix_r_destroy_matrix(vmatrixr_md_id, des_matrix_vmm_t);
+
+    vmatrix_r_free_vmm_node(vmatrixr_md_id, src_matrix_vmm_1);
+    vmatrix_r_free_vmm_node(vmatrixr_md_id, src_matrix_vmm_2);
+    vmatrix_r_free_vmm_node(vmatrixr_md_id, des_matrix_vmm  );
+    vmatrix_r_free_vmm_node(vmatrixr_md_id, des_matrix_vmm_t);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_vmatrix_r_end, ERR_MODULE_ID);
+#if 0
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    //sys_log(LOGSTDOUT,"matrix mul result des_matrix addr info:\n");
+    //matrix_r_print_matrix_addr_info(matrixr_md_id, des_matrix);
+    //sys_log(LOGSTDOUT,"matrix mul_p result des_matrix_t addr info:\n");
+    //matrix_r_print_matrix_addr_info(matrixr_md_id, des_matrix_t);
+    if(EC_TRUE == matrix_r_cmp(matrixr_md_id, des_matrix, des_matrix_t))
+    {
+        sys_log(LOGSTDOUT, "compare result: same\n");
+    }
+    else
+    {
+        sys_log(LOGSTDOUT, "compare result: NOT same\n");
+
+        //sys_log(LOGSTDOUT,"matrix mul result des_matrix data info:\n");
+        //sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+        //matrix_r_print_matrix_data_info(matrixr_md_id, des_matrix);
+        //sys_log(LOGSTDOUT,"matrix mul result des_matrix_t data info:\n");
+        //sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+        //matrix_r_print_matrix_data_info(matrixr_md_id, des_matrix_t);
+    }
+#endif
+
+
+    vmatrix_r_end(vmatrixr_md_id);
+
+    #undef _TEST_ROW_NUM
+    #undef _TEST_COL_NUM
+
+    return ;
+}
+
+void cfile_node_tcid_make(void *cfile_node_tcid_vec, const UINT32 max_cfile_node_tcid)
+{
+    UINT32 seg_tcid;
+
+    for(seg_tcid = 1; seg_tcid <= max_cfile_node_tcid; seg_tcid ++)
+    {
+        cvector_push(cfile_node_tcid_vec, (void *)seg_tcid);
+    }
+}
+
+void cfile_seg_tcid_make(void *cfile_seg_tcid_vec, const UINT32 max_seg_tcid)
+{
+    UINT32 seg_tcid;
+
+    for(seg_tcid = 1; seg_tcid <= max_seg_tcid; seg_tcid ++)
+    {
+        cvector_push(cfile_seg_tcid_vec, (void *)seg_tcid);
+    }
+}
+
+void test_case_20(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+    
+    void    *cfile_node_tcid_vec;
+    void    *cfile_seg_tcid_vec;
+    CSTRING *node_dir_name;
+    CSTRING *file_name;
+    void *   mod_mgr;
+
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    node_dir_name  = cstring_new((UINT8 *)"/tmp/cfile_node", 0);
+    file_name      = cstring_new((UINT8 *)"/tmp/cfile_upload/test.log", 0);
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_20:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    cfile_upload(cfile_md_id, file_name, node_dir_name, cfile_node_tcid);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+    
+    cstring_free(node_dir_name);
+    cstring_free(file_name);    
+    return;
+}
+
+void test_case_21(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+    void    *cfile_node_tcid_vec;
+    void    *cfile_seg_tcid_vec;
+    
+    CSTRING *in_file_name;
+    CSTRING *out_file_name;
+    void *   mod_mgr;
+
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    in_file_name  = cstring_new((UINT8 *)"/tmp/cfile_node/test.log", 0);
+    out_file_name = cstring_new((UINT8 *)"/tmp/cfile_download/test_download.log", 0);
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_21:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    /*download file from cfile_node_tcid to local*/
+    cfile_download(cfile_md_id, in_file_name, out_file_name, cfile_node_tcid);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+
+    cstring_free(in_file_name);
+    cstring_free(out_file_name);
+    return;
+}
+
+void test_case_22(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+    void    *cfile_node_tcid_vec;
+    void    *cfile_seg_tcid_vec;
+    
+    CSTRING *src_file_name;
+    CSTRING *des_file_name;
+    void *   mod_mgr;
+
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    src_file_name = cstring_new((UINT8 *)"/tmp/cfile_node/test.log", 0);
+    des_file_name = cstring_new((UINT8 *)"/tmp/cfile_node/test_cloned.log", 0);
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_22:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    cfile_clone_on_node_tcid(cfile_md_id, src_file_name, des_file_name, cfile_node_tcid);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+
+    cstring_free(src_file_name);    
+    cstring_free(des_file_name); 
+    return;
+}
+
+void test_case_23(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+    void    *cfile_node_tcid_vec;
+    void    *cfile_seg_tcid_vec;
+    
+    CSTRING *file_name;
+    void *   mod_mgr;
+
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    file_name      = cstring_new((UINT8 *)"/tmp/cfile_node/test.log", 0);
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_23:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    cfile_rmv_on_node_tcid(cfile_md_id, file_name, cfile_node_tcid);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+
+    cstring_free(file_name);    
+    return;
+}
+
+void test_case_24(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+    void    *cfile_node_tcid_vec;
+    void    *cfile_seg_tcid_vec;
+    void    *cfile_node;
+    CSTRING *des_file_name;
+    void *   mod_mgr;
+    
+    UINT32   file_size;
+    UINT32   des_tcid;
+
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    mod_num   = 20;
+    file_size = 1024 * 1024 * 2 + 10;
+    des_tcid  = 1;
+    
+    des_file_name  = cstring_new((UINT8 *)"/tmp/cfile_node/createx.log", 0);
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_24:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    cfile_node = cfile_node_new(cfile_md_id, file_size, des_file_name);
+
+    cfile_fcreate_on_node_tcid(cfile_md_id, cfile_node, des_tcid);
+
+    cfile_node_free(cfile_md_id, cfile_node);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+
+    cstring_free(des_file_name);   
+    return;
+}
+
+void test_case_25(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+    void    *cfile_node_tcid_vec;
+    void    *cfile_seg_tcid_vec;
+    void    *cfile_node;
+    
+    void *   mod_mgr;
+
+    CSTRING *file_name;
+
+    UINT32   src_tcid;
+
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+    
+    file_name  = cstring_new((UINT8 *)"/tmp/cfile_node/create.log", 0);
+    
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+   
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_25:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    cfile_node = cfile_node_new(cfile_md_id, 0, file_name);
+
+    if(EC_TRUE == cfile_fcheck_on_node_tcid(cfile_md_id, cfile_node, CFILE_MASK_EXIST, src_tcid))
+    {
+        sys_log(LOGSTDOUT, "test_case_25: file %s exist\n", (char *)cstring_get_str(file_name));
+    }
+    else
+    {
+        sys_log(LOGSTDOUT, "test_case_25: file %s NOT exist\n", (char *)cstring_get_str(file_name));
+    }
+
+    cfile_node_free(cfile_md_id, cfile_node);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+
+    cstring_free(file_name);   
+    return;
+}
+
+void test_case_26(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+
+    CSTRING *file_name;
+    void *   mod_mgr;
+
+    void *   cfile_node_tcid_vec;
+    void *   cfile_seg_tcid_vec;
+    void *   cfile_node;
+
+    UINT32   des_tcid;
+
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+    
+    file_name  = cstring_new((UINT8 *)"/tmp/cfile_node/create.log", 0);
+    
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_26:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    cfile_node = cfile_node_new(cfile_md_id, 0, file_name);
+
+    if(EC_TRUE == cfile_fsearch_on_node_tcid(cfile_md_id, cfile_node, &des_tcid))
+    {
+        sys_log(LOGSTDOUT, "test_case_26: file %s found on tcid %s\n", (char *)cstring_get_str(file_name), uint32_to_ipv4(des_tcid));
+    }
+    else
+    {
+        sys_log(LOGSTDOUT, "test_case_26: file %s NOT exist\n", (char *)cstring_get_str(file_name));
+    }
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_node_free(cfile_md_id, cfile_node);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+
+    cstring_free(file_name);   
+    return;
+}
+
+void test_case_27(void *mod_mgr_def)
+{
+    UINT32 cfile_md_id;
+
+    CSTRING *file_name;
+    void *   mod_mgr;
+
+    void *   cfile_node_tcid_vec;
+    void *   cfile_seg_tcid_vec;
+    void *   cfile_node;
+    void *   kbuff_vec;
+    
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+    
+    file_name  = cstring_new((UINT8 *)"/tmp/cfile_node/create.log", 0);
+   
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_27:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    cfile_node = cfile_node_new(cfile_md_id, 0, file_name);
+    cfile_fsearch_on_node_tcid(cfile_md_id, cfile_node, &cfile_node_tcid);
+
+    kbuff_vec = cfile_kbuff_vec_new(cfile_md_id, cfile_seg_num(cfile_md_id, cfile_node));
+    cfile_fread_on_node_tcid(cfile_md_id, cfile_node, kbuff_vec, cfile_node_tcid);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_node_free(cfile_md_id, cfile_node);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+
+    cstring_free(file_name);   
+    return;
+}
+
+void test_case_28(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+    void    *cfile_node_tcid_vec;
+    void    *cfile_seg_tcid_vec;
+    
+    CSTRING *src_file_name;
+    CSTRING *des_file_name;
+    void *   mod_mgr;
+   
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+
+    src_file_name = cstring_new((UINT8 *)"/tmp/cfile_node/test.log", 0);
+    des_file_name = cstring_new((UINT8 *)"/tmp/cfile_node/test_cloned.log", 0);
+    
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_28:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    if(EC_TRUE == cfile_cmp_on_node_tcid(cfile_md_id, src_file_name, des_file_name, cfile_node_tcid))
+    {
+        sys_log(LOGSTDOUT, "test_case_28: same nodes\n");
+    }
+    else
+    {
+        sys_log(LOGSTDOUT, "test_case_28: NOT same nodes\n");
+    }
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+
+    cstring_free(src_file_name);    
+    cstring_free(des_file_name); 
+    return;
+}
+
+void test_case_29(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+    void    *cfile_node_tcid_vec;
+    void    *cfile_seg_tcid_vec;
+    
+    CSTRING *src_file_name;
+    CSTRING *des_file_name;
+    void *   mod_mgr;
+
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+
+    src_file_name = cstring_new((UINT8 *)"/tmp/cfile_node/test.log", 0);
+    des_file_name = cstring_new((UINT8 *)"/tmp/cfile_node/test_copy.log", 0);
+
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_29:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    cfile_copy_on_node_tcid(cfile_md_id, src_file_name, des_file_name, cfile_node_tcid);
+    
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+
+    cstring_free(src_file_name);    
+    cstring_free(des_file_name); 
+    return;
+}
+
+void test_case_30(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+    UINT32   cdir_md_id;
+    
+    void    *cfile_node_tcid_vec;
+    void    *cfile_seg_tcid_vec;
+
+    CSTRING *dir_name;
+    UINT32   dir_mode;
+    
+    void *   mod_mgr;
+
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+
+    dir_name  = cstring_new((UINT8 *)"/tmp/cfile_node", 0);
+
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_30:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    cfile_get_cdir_md_id(cfile_md_id, &cdir_md_id);
+
+    dir_mode = 0755;
+    cdir_create_trans(cdir_md_id, dir_name, dir_mode);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+    
+    cstring_free(dir_name);
+}
+
+void test_case_31(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+    UINT32   cdir_md_id;
+    
+    void    *cfile_node_tcid_vec;
+    void    *cfile_seg_tcid_vec;
+
+    CSTRING *dir_name;
+    void    *cdir_node;
+    
+    void *   mod_mgr;
+
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+
+    dir_name  = cstring_new((UINT8 *)"/tmp/cfile_node", 0);
+
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_31:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    cfile_get_cdir_md_id(cfile_md_id, &cdir_md_id);
+
+    cdir_node = cdir_node_new(cdir_md_id);
+    cdir_read_trans(cfile_md_id, dir_name, cdir_node);
+
+    sys_log(LOGSTDOUT, "test_case_31: dir node info:\n");
+    cdir_node_xml_print(LOGSTDOUT, cdir_node, 0);
+   
+    cdir_node_free(cfile_md_id, cdir_node);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+
+    cstring_free(dir_name);
+}
+
+void test_case_32(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+    UINT32   cdir_md_id;
+    
+    void    *cfile_node_tcid_vec;
+    void    *cfile_seg_tcid_vec;
+
+    CSTRING *dir_name;
+    void    *cdir_node;
+    
+    void *   mod_mgr;
+
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+
+    dir_name  = cstring_new((UINT8 *)"/tmp/cfile_node", 0);
+
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_32:mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    cfile_get_cdir_md_id(cfile_md_id, &cdir_md_id);
+
+    cdir_node = cdir_node_new(cdir_md_id);
+    cdir_read_trans(cdir_md_id, dir_name, cdir_node);
+    cdir_clean_trans(cdir_md_id, cdir_node);
+    cdir_node_free(cfile_md_id, cdir_node);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+
+    cstring_free(dir_name);
+}
+
+void test_case_33(void *mod_mgr_def)
+{
+    UINT32   cfile_md_id;
+    UINT32   cdir_md_id;
+    
+    void    *cfile_node_tcid_vec;
+    void    *cfile_seg_tcid_vec;
+
+    CSTRING *dir_name;
+    void    *cdir_node;
+
+    CSTRING *src_file_name;
+    CSTRING *download_file_name;
+    CSTRING *upload_file_name;
+    
+    void *   mod_mgr;
+
+    UINT32   mod_num;
+    UINT32   cfile_node_tcid_num;
+    UINT32   cfile_seg_tcid_num;
+    
+    UINT32   cfile_node_tcid;
+
+    mod_num        = 20;
+    cfile_node_tcid_num  = 1;
+    cfile_seg_tcid_num   = 3;
+    cfile_node_tcid      = 1;
+
+    cfile_node_tcid_vec = cvector_new(cfile_node_tcid_num, MM_UINT32, 0);
+    cfile_node_tcid_make(cfile_node_tcid_vec, cfile_node_tcid_num);
+
+    cfile_seg_tcid_vec = cvector_new(cfile_seg_tcid_num, MM_UINT32, 0);
+    cfile_seg_tcid_make(cfile_seg_tcid_vec, cfile_seg_tcid_num);
+
+    dir_name  = cstring_new((UINT8 *)"/tmp/cfile_node", 0);
+   
+    src_file_name   = cstring_new((UINT8 *)"/tmp/cfile_node/test.log", 0);
+    
+    download_file_name  = cstring_new((UINT8 *)"/tmp/cfile_download/test_download.log", 0);
+    upload_file_name    = cstring_new((UINT8 *)"/tmp/cfile_upload/test.log", 0);
+
+    cfile_md_id = cfile_start(cfile_node_tcid_vec, cfile_seg_tcid_vec);
+  
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_cfile_start, cfile_node_tcid_vec, cfile_seg_tcid_vec);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_33:cfile mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cfile_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cfile_set_mod_mgr(cfile_md_id, mod_mgr);
+
+    cfile_get_cdir_md_id(cfile_md_id, &cdir_md_id);
+
+    cdir_create_trans(cdir_md_id, dir_name, 0755);
+
+    cfile_upload(cfile_md_id, upload_file_name, dir_name, cfile_node_tcid);
+    cfile_download(cfile_md_id, src_file_name, download_file_name, cfile_node_tcid);
+
+    cdir_node = cdir_node_new(cdir_md_id);
+    cdir_read_trans(cdir_md_id, dir_name, cdir_node);
+
+    sys_log(LOGSTDOUT, "test_case_33: dir node info:\n");
+    cdir_node_xml_print(LOGSTDOUT, cdir_node, 0);
+
+#if 1
+    cdir_node_free(cdir_md_id, cdir_node);
+#endif
+#if 0
+    cdir_clean(cfile_md_id, cfile_md_id, cdir_node);
+   
+    cdir_node_free(cfile_md_id, cdir_node);
+#endif
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cfile_end, ERR_MODULE_ID);
+    cfile_end(cfile_md_id);
+
+    cvector_free(cfile_node_tcid_vec, 0);
+    cvector_free(cfile_seg_tcid_vec, 0);
+
+    cstring_free(dir_name);
+    cstring_free(src_file_name);
+    cstring_free(download_file_name);
+    cstring_free(upload_file_name);    
+}
+
+void test_case_40(void *mod_mgr_def)
+{
+    UINT32 tbd_md_id;
+    UINT32 mod_num;
+    
+    void *mod_mgr;
+    void *task_mgr;
+
+    CSTRING *cstring_01;
+    CSTRING *cstring_02;
+    CSTRING *cstring_03;
+    CSTRING *cstring_04;
+    
+    UINT32 tbd_ret_01;
+    UINT32 tbd_ret_02;
+    
+    UINT32 usr_ret_01;
+    UINT32 usr_ret_02;
+
+    tbd_md_id= tbd_start();
+
+    mod_num = 10;
+    
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_MOD, TASK_PRIO_NORMAL, FI_tbd_start);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_40:tbd mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_tbd_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    tbd_set_mod_mgr(tbd_md_id, mod_mgr);
+
+    cstring_01 = cstring_new((UINT8 *)"hello world!", 0);
+    cstring_02 = cstring_new((UINT8 *)"oh, I am god!", 0);
+    cstring_03 = cstring_new(NULL_PTR, 0);
+    cstring_04 = cstring_new(NULL_PTR, 0);
+    
+    task_new(mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+    task_pos_inc(task_mgr, 0, &tbd_ret_01, FI_tbd_run, ERR_MODULE_ID, &usr_ret_01, FI_usr_run_01, cstring_01);
+    task_pos_inc(task_mgr, 1, &tbd_ret_02, FI_tbd_run, ERR_MODULE_ID, &usr_ret_02, FI_usr_run_02, cstring_01, cstring_02, cstring_03);
+    task_wait(task_mgr, TASK_ALWAYS_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_tbd_end, ERR_MODULE_ID);
+    
+    sys_log(LOGSTDOUT, "tbd_ret_01 = %ld, usr_ret_01 = %ld\n", tbd_ret_01, usr_ret_01);
+    sys_log(LOGSTDOUT, "tbd_ret_02 = %ld, usr_ret_02 = %ld\n", tbd_ret_02, usr_ret_02);
+    
+    sys_log(LOGSTDOUT, "cstring_01: %s\n", (char *)cstring_get_str(cstring_01));
+    sys_log(LOGSTDOUT, "cstring_02: %s\n", (char *)cstring_get_str(cstring_02));
+    sys_log(LOGSTDOUT, "cstring_03: %s\n", (char *)cstring_get_str(cstring_03));
+    sys_log(LOGSTDOUT, "cstring_04: %s\n", (char *)cstring_get_str(cstring_04));
+
+    cstring_free(cstring_01);
+    cstring_free(cstring_02);
+    cstring_free(cstring_03);
+    cstring_free(cstring_04);
+
+    tbd_end(tbd_md_id);
+}
+
+void test_case_41(void *mod_mgr_def)
+{
+    CSTRING *cstring_src;
+    CSTRING *cstring_pattern;
+    void  *cvector;
+    UINT32 pos;
+
+    cstring_src = cstring_new((UINT8 *) "111 <title>Hello World</title> 222", 0);
+    cstring_pattern = cstring_new((UINT8 *) "<title>(.*)</title>", 0);
+
+    cvector = cvector_new(0, MM_CSTRING, 0);
+    cstring_regex(cstring_src, cstring_pattern, cvector);
+
+    for(pos = 0; pos < cvector_size(cvector); pos ++)
+    {
+        CSTRING *sub_cstring;
+
+        sub_cstring = (CSTRING *)cvector_get(cvector, pos);
+        sys_log(LOGSTDOUT, "matched # %ld: %s\n", pos, (char *)cstring_get_str(sub_cstring));
+    }
+
+    cstring_free(cstring_src);
+    cstring_free(cstring_pattern);
+
+    cvector_clean(cvector, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+    cvector_free(cvector, 0);
+}
+
+void test_case_51(void *mod_mgr_def)
+{
+    UINT32 bgnz_md_id;
+    UINT32 mod_num;
+
+    void *mod_mgr;
+    void *task_mgr;
+
+    UINT32 task_req_idx;
+    UINT32 task_req_num;
+    UINT32 task_need_rsp_num;
+#if (32 == WORDSIZE)
+    BIGINT bgn_a = {6, 0x1, 0x2, 0x3, 0x4,0x5, 0x6};
+    BIGINT bgn_b = {6, 0x6, 0x5, 0x4, 0x3,0x2, 0x1};
+#endif
+#if (64 == WORDSIZE)
+    BIGINT bgn_a = {3, 0x1, 0x2, 0x3, };
+    BIGINT bgn_b = {3, 0x6, 0x5, 0x4, };
+#endif
+    BIGINT bgn_c;
+    UINT32 carry;    
+
+    mod_num           = 5;
+    task_req_num      = 10000;
+    task_need_rsp_num = 1;
+
+    bgnz_md_id = bgn_z_start();
+    
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_RANK, TASK_PRIO_NORMAL, FI_bgn_z_start);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_51:bgnz mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);    
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_bgn_z_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    bgn_z_set_mod_mgr(bgnz_md_id, mod_mgr);
+
+    task_new(mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, task_need_rsp_num, &task_mgr);
+    for(task_req_idx = 0; task_req_idx < task_req_num; task_req_idx ++)
+    {
+        task_inc(task_mgr, &carry, FI_bgn_z_add, ERR_MODULE_ID, &bgn_a, &bgn_b, &bgn_c);
+    }
+    task_wait(task_mgr, TASK_ALWAYS_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_bgn_z_end,ERR_MODULE_ID);
+
+    //bgn_z_add(bgnz_md_id, &bgn_a, &bgn_b, &bgn_c);
+
+    sys_log(LOGSTDOUT, "test_case_51: carry = %ld, bgn_c = \n", carry);
+    print_bigint(LOGSTDOUT, &bgn_c);
+
+    bgn_z_end(bgnz_md_id);
+
+    return;    
+}
+
+EC_BOOL carry_is_not_zero(const UINT32 carry)
+{
+    sys_log(LOGSTDOUT, "carry_is_not_zero: check carry = %lx\n", carry);
+    if(0 < carry)
+    {
+        return (EC_TRUE);
+    }
+    return (EC_FALSE);
+}
+
+void test_case_52(void *mod_mgr_def)
+{
+    UINT32 bgnz_md_id;
+    UINT32 mod_num;
+
+    void *mod_mgr;
+    void *task_mgr;
+
+    UINT32 task_req_idx;
+    UINT32 task_req_num;
+    UINT32 task_need_rsp_num;
+
+    BIGINT bgn_a;
+    BIGINT bgn_c;
+    UINT32 num;
+    UINT32 carry;
+
+    mod_num           = 5;
+    task_req_num      = 1000;
+    task_need_rsp_num = 1;
+
+    bgnz_md_id = bgn_z_start();
+    bgn_z_set_max(bgnz_md_id, &bgn_a);
+    bgn_z_ssub(bgnz_md_id, &bgn_a, 500, &bgn_a);/*on 32 bit OS, bgn_a = 0xFFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFF6*/
+    
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_RANK, TASK_PRIO_NORMAL, FI_bgn_z_start);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_52:bgnz mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);    
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_bgn_z_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    bgn_z_set_mod_mgr(bgnz_md_id, mod_mgr);
+
+    task_new(mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, task_need_rsp_num, &task_mgr);
+    for(task_req_idx = 0; task_req_idx < task_req_num; task_req_idx ++)
+    {
+        num = task_req_idx;
+        task_inc(task_mgr, &carry, FI_bgn_z_sadd, ERR_MODULE_ID, &bgn_a, num, &bgn_c);
+    }
+    task_wait(task_mgr, TASK_ALWAYS_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, carry_is_not_zero);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_bgn_z_end,ERR_MODULE_ID);
+
+    sys_log(LOGSTDOUT, "test_case_52: carry = %ld, bgn_c = \n", carry);
+    print_bigint(LOGSTDOUT, &bgn_c);
+
+    bgn_z_end(bgnz_md_id);
+
+    return;    
+}
+
+void test_case_53(void *mod_mgr_def)
+{
+    UINT32 bgnz_md_id;
+    UINT32 mod_num;
+
+    void *mod_mgr;
+    void *task_mgr;
+
+    UINT32 task_req_idx;
+    UINT32 task_req_num;
+    UINT32 task_need_rsp_num;
+
+    BIGINT bgn_a;
+    BIGINT bgn_c;
+    UINT32 num;
+    UINT32 carry;
+
+    //sleep(10);
+
+    mod_num           = 10;
+    task_req_num      = 1000;
+    task_need_rsp_num = 1;
+
+    bgnz_md_id = bgn_z_start();
+    bgn_z_set_max(bgnz_md_id, &bgn_a);
+    bgn_z_ssub(bgnz_md_id, &bgn_a, 500, &bgn_a);/*on 32 bit OS, bgn_a = 0xFFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFF6*/
+    bgn_z_set_zero(bgnz_md_id, &bgn_c);
+    
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_RANK, TASK_PRIO_NORMAL, FI_bgn_z_start);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"test_case_53:bgnz mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);    
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    //task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_bgn_z_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    //bgn_z_set_mod_mgr(bgnz_md_id, mod_mgr);
+
+    task_new(mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, task_need_rsp_num, &task_mgr);
+    for(task_req_idx = 0; task_req_idx < task_req_num; task_req_idx ++)
+    {
+        num = task_req_idx;
+        task_inc(task_mgr, &carry, FI_bgn_z_sadd, ERR_MODULE_ID, &bgn_a, num, &bgn_c);
+    }
+    //task_wait(task_mgr, TASK_ALWAYS_LIVE, task_need_rsp_num, TASK_NOT_NEED_RESCHEDULE_FLAG, carry_is_not_zero);
+    task_wait(task_mgr, 1, TASK_NOT_NEED_RESCHEDULE_FLAG, carry_is_not_zero);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_bgn_z_end,ERR_MODULE_ID);
+
+    sys_log(LOGSTDOUT, "test_case_53: carry = %ld, bgn_c = \n", carry);
+    print_bigint(LOGSTDOUT, &bgn_c);
+
+    bgn_z_end(bgnz_md_id);
+
+    return;
+}
+
+void test_case_61(void *mod_mgr_def)
+{
+    UINT32 cmon_md_id;
+    void * cmon_obj_vec_01;
+    void * cmon_obj_vec_03;
+    void * cmon_obj_vec_05;
+    void * cmon_obj_vec_15;
+    void * cmon_obj_vec_30;
+
+    void * mod_mgr;
+    UINT32 mod_node_num;
+
+    void *ctimer_node_01;
+    void *ctimer_node_03;
+    void *ctimer_node_05;
+    void *ctimer_node_15;
+    void *ctimer_node_30;
+
+    void *ctimer_node_02_report_01;/*report timer # 1*/
+    void *ctimer_node_02_report_02;/*report timer # 2*/
+    void *ctimer_node_02_report_03;/*report timer # 3*/
+    void *ctimer_node_02_report_04;/*report timer # 4*/
+    void *ctimer_node_02_report_05;/*report timer # 5*/
+    
+    UINT32 ret;
+
+    cmon_md_id = cmon_start();
+
+    mod_mgr_remote_num(mod_mgr_def, &mod_node_num);
+    sys_log(LOGSTDOUT, "mod_node_num: %ld\n", mod_node_num);
+
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_node_num, LOAD_BALANCING_LOOP, TASK_PRIO_NORMAL, FI_cmon_start);
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cmon_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cmon_set_mod_mgr(cmon_md_id, mod_mgr);
+
+    cmon_obj_vec_01 = cmon_obj_vec_new(cmon_md_id);
+    cmon_obj_vec_03 = cmon_obj_vec_new(cmon_md_id);
+    cmon_obj_vec_05 = cmon_obj_vec_new(cmon_md_id);
+    cmon_obj_vec_15 = cmon_obj_vec_new(cmon_md_id);
+    cmon_obj_vec_30 = cmon_obj_vec_new(cmon_md_id);
+
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_OCCUPY_PL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec_03);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_OCCUPY_CL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec_05);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_LOAD_PL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec_03);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_LOAD_CL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec_05);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_TASKC_NODE_VEC_CL   , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_FWD_RANK, CMPI_ANY_MODI, cmon_obj_vec_30);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CSOCKET_CNODE_VEC_CL, CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_FWD_RANK, CMPI_ANY_MODI, cmon_obj_vec_30);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_THREAD_NUM_PL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec_01);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_THREAD_NUM_CL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec_01);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_DSK_LOAD_SL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec_15);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CPU_LOAD_PL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec_15);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CPU_LOAD_CL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec_15);
+
+    /*star CTIMER module*/
+    ctimer_start(10);
+
+    /*define measurement timers*/
+    ctimer_node_01 = ctimer_node_new();
+    ctimer_node_03 = ctimer_node_new();
+    ctimer_node_05 = ctimer_node_new();
+    ctimer_node_15 = ctimer_node_new();
+    ctimer_node_30 = ctimer_node_new();
+
+    ctimer_node_add(ctimer_node_01,  1 * 1000, &ret, FI_cmon_obj_vec_meas, cmon_md_id, TASK_DEFAULT_LIVE, cmon_obj_vec_01);
+    ctimer_node_add(ctimer_node_03,  3 * 1000, &ret, FI_cmon_obj_vec_meas, cmon_md_id, TASK_DEFAULT_LIVE, cmon_obj_vec_03);
+    ctimer_node_add(ctimer_node_05,  5 * 1000, &ret, FI_cmon_obj_vec_meas, cmon_md_id, TASK_DEFAULT_LIVE, cmon_obj_vec_05);
+    ctimer_node_add(ctimer_node_15, 15 * 1000, &ret, FI_cmon_obj_vec_meas, cmon_md_id, TASK_DEFAULT_LIVE, cmon_obj_vec_15);
+    ctimer_node_add(ctimer_node_30, 30 * 1000, &ret, FI_cmon_obj_vec_meas, cmon_md_id, TASK_DEFAULT_LIVE, cmon_obj_vec_30);
+
+    /*define print timers*/
+    ctimer_node_02_report_01 = ctimer_node_new();
+    ctimer_node_02_report_02 = ctimer_node_new();
+    ctimer_node_02_report_03 = ctimer_node_new();
+    ctimer_node_02_report_04 = ctimer_node_new();
+    ctimer_node_02_report_05 = ctimer_node_new();
+    
+    ctimer_node_add(ctimer_node_02_report_01, 2 * 1000, &ret, FI_cmon_obj_vec_print, cmon_md_id, LOGSTDOUT, cmon_obj_vec_01);
+    ctimer_node_add(ctimer_node_02_report_02, 2 * 1000, &ret, FI_cmon_obj_vec_print, cmon_md_id, LOGSTDOUT, cmon_obj_vec_03);
+    ctimer_node_add(ctimer_node_02_report_03, 2 * 1000, &ret, FI_cmon_obj_vec_print, cmon_md_id, LOGSTDOUT, cmon_obj_vec_05);
+    ctimer_node_add(ctimer_node_02_report_04, 2 * 1000, &ret, FI_cmon_obj_vec_print, cmon_md_id, LOGSTDOUT, cmon_obj_vec_15);
+    ctimer_node_add(ctimer_node_02_report_05, 2 * 1000, &ret, FI_cmon_obj_vec_print, cmon_md_id, LOGSTDOUT, cmon_obj_vec_30);
+    
+    /*start all timers*/      
+    ctimer_node_start(ctimer_node_01);
+    ctimer_node_start(ctimer_node_03);
+    ctimer_node_start(ctimer_node_05);
+    ctimer_node_start(ctimer_node_15);
+    ctimer_node_start(ctimer_node_30);
+
+    ctimer_node_start(ctimer_node_02_report_01);
+    ctimer_node_start(ctimer_node_02_report_02);
+    ctimer_node_start(ctimer_node_02_report_03);
+    ctimer_node_start(ctimer_node_02_report_04);
+    ctimer_node_start(ctimer_node_02_report_05);
+
+    /*enter loop*/
+    do_mon_default();
+
+    /*optional: delete ctimer_node, all added ctimer_node will be destroyed when CTIMER module stop*/
+    ctimer_node_del(ctimer_node_01);
+    ctimer_node_del(ctimer_node_03);
+    ctimer_node_del(ctimer_node_05);
+    ctimer_node_del(ctimer_node_15);
+    ctimer_node_del(ctimer_node_30);
+
+    ctimer_node_del(ctimer_node_02_report_01);
+    ctimer_node_del(ctimer_node_02_report_02);
+    ctimer_node_del(ctimer_node_02_report_03);
+    ctimer_node_del(ctimer_node_02_report_04);
+    ctimer_node_del(ctimer_node_02_report_05);
+
+    /*stop CTIMER module*/
+    ctimer_end();
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cmon_end, ERR_MODULE_ID);
+
+    sys_log(LOGSTDOUT, "CMON_OBJ_VEC measurement come back!\n");
+
+    cmon_obj_vec_free(cmon_md_id, cmon_obj_vec_01);
+    cmon_obj_vec_free(cmon_md_id, cmon_obj_vec_03);
+    cmon_obj_vec_free(cmon_md_id, cmon_obj_vec_05);
+    cmon_obj_vec_free(cmon_md_id, cmon_obj_vec_15);
+    cmon_obj_vec_free(cmon_md_id, cmon_obj_vec_30);
+
+    cmon_end(cmon_md_id);    
+    return;
+}
+
+
+
+
+
+
+void test_case_66(void *mod_mgr_def)
+{
+    UINT32 cmon_md_id;
+    void * cmon_obj_vec;
+
+    void * mod_mgr;
+    UINT32 mod_node_num;
+  
+    cmon_md_id = cmon_start();
+
+    mod_mgr_remote_num(mod_mgr_def, &mod_node_num);
+    sys_log(LOGSTDOUT, "mod_node_num: %ld\n", mod_node_num);
+
+    /*note: should start only one CMON module on each process*/
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_node_num, LOAD_BALANCING_LOOP, TASK_PRIO_NORMAL, FI_cmon_start);
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cmon_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cmon_set_mod_mgr(cmon_md_id, mod_mgr);
+
+    /*define measurement scope and measurement object: add OID to cmon_obj_vec, different OIDs may add to same cmon_obj_vec*/
+    cmon_obj_vec = cmon_obj_vec_new(cmon_md_id);
+    cmon_obj_vec_bind(cmon_md_id, cmon_obj_vec);
+#if 0
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_OCCUPY_PL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_OCCUPY_CL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_OCCUPY_SL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_LOAD_PL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_LOAD_CL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_LOAD_SL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_TASKC_NODE_VEC_CL   , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_FWD_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CSOCKET_CNODE_VEC_CL, CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_FWD_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_THREAD_NUM_PL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_THREAD_NUM_CL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_DSK_LOAD_SL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CPU_LOAD_PL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CPU_LOAD_CL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CPU_LOAD_SL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CPU_LOAD_EL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+#endif    
+
+#if 0
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_THREAD_NUM_PL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MM_MAN_OCCUPY_PL    , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MM_MAN_LOAD_PL      , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+#endif
+
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MODULE_NUM_PL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MODULE_NUM_CL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+
+    cmon_obj_vec_meas(cmon_md_id, TASK_DEFAULT_LIVE, cmon_obj_vec);
+    cmon_obj_vec_merge_print(cmon_md_id, cmon_obj_vec, LOGSTDOUT);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cmon_end, ERR_MODULE_ID);
+
+    sys_log(LOGSTDOUT, "CMON_OBJ_VEC measurement come back!\n");
+
+    //cmon_obj_vec_result(cmon_md_id, cmon_obj_vec);
+
+    cmon_obj_vec_free(cmon_md_id, cmon_obj_vec);
+
+    cmon_end(cmon_md_id);    
+
+    return;
+}
+
+void test_case_67(void *mod_mgr_def)
+{
+    UINT32 cmon_md_id;
+    void * cmon_obj_vec;
+    void * ctimer_node_meas;
+    void * ctimer_node_print;
+
+    void * mod_mgr;
+    UINT32 mod_node_num;
+  
+    UINT32 ret;
+
+    //sleep(10);
+
+    cmon_md_id = cmon_start();
+
+    mod_mgr_remote_num(mod_mgr_def, &mod_node_num);
+    sys_log(LOGSTDOUT, "mod_node_num: %ld\n", mod_node_num);
+
+    /*note: should start only one CMON module on each process*/
+    task_act(mod_mgr_def, &mod_mgr, TASK_DEFAULT_LIVE, mod_node_num, LOAD_BALANCING_LOOP, TASK_PRIO_NORMAL, FI_cmon_start);
+
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+    sys_log(LOGSTDOUT,"mod_mgr %lx is:\n", mod_mgr);
+    mod_mgr_print(LOGSTDOUT, mod_mgr);
+    sys_log(LOGSTDOUT,"------------------------------------------------------------------------------------------------\n");
+
+    //task_bcast(mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, FI_cmon_set_mod_mgr, ERR_MODULE_ID, mod_mgr);
+    cmon_set_mod_mgr(cmon_md_id, mod_mgr);
+
+    /*define measurement scope and measurement object: add OID to cmon_obj_vec, different OIDs may add to same cmon_obj_vec*/
+    cmon_obj_vec = cmon_obj_vec_new(cmon_md_id);
+    cmon_obj_vec_bind(cmon_md_id, cmon_obj_vec);
+
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_OCCUPY_PL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_OCCUPY_CL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_OCCUPY_SL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_LOAD_PL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_LOAD_CL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MEM_LOAD_SL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_TASKC_NODE_VEC_CL   , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_FWD_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CSOCKET_CNODE_VEC_CL, CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_FWD_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_THREAD_NUM_PL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_THREAD_NUM_CL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_DSK_LOAD_SL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CPU_LOAD_PL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CPU_LOAD_CL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CPU_LOAD_SL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_CPU_LOAD_EL         , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MM_MAN_OCCUPY_PL    , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MM_MAN_LOAD_PL      , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MODULE_NUM_PL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+    cmon_obj_vec_incl(cmon_md_id, CMON_OID_MODULE_NUM_CL       , CMPI_ANY_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, cmon_obj_vec);
+
+    /*star CTIMER module*/
+    ctimer_start(10);
+
+    /*define measurement timers: bind ctimer_node and cmon_obj_vec*/
+    ctimer_node_meas = ctimer_node_new();
+    ctimer_node_add(ctimer_node_meas,  5 * 1000, &ret, FI_cmon_obj_vec_meas, cmon_md_id, TASK_DEFAULT_LIVE, cmon_obj_vec);
+
+    ctimer_node_print = ctimer_node_new();
+    ctimer_node_add(ctimer_node_print,  5 * 1000, &ret, FI_cmon_obj_vec_merge_print, cmon_md_id, cmon_obj_vec, LOGSTDOUT);
+
+    /*start all timers*/      
+    ctimer_node_start(ctimer_node_meas);
+    ctimer_node_start(ctimer_node_print);
+
+    /*enter loop*/
+    do_mon_default();
+
+    /*optional: delete ctimer_node, all added ctimer_node will be destroyed when CTIMER module stop*/
+    ctimer_node_del(ctimer_node_meas);
+    ctimer_node_del(ctimer_node_print);
+
+    task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cmon_end, ERR_MODULE_ID);
+
+    sys_log(LOGSTDOUT, "CMON_OBJ_VEC measurement come back!\n");
+
+    cmon_obj_vec_free(cmon_md_id, cmon_obj_vec);
+
+    cmon_end(cmon_md_id);    
+
+    return;
+}
+
+void test_case_70(void *mod_mgr_def)
+{
+    UINT32 bgnz_md_id;
+
+    BIGINT bgn_a;
+    BIGINT bgn_c;
+    UINT32 carry;
+
+    struct 
+    {
+        UINT32         tcid;              /* which taskComm*/
+        UINT32         comm;              /* which communicator */
+        UINT32         rank;              /* which rank process */
+        UINT32         modi;              /* which module identity */
+
+        UINT32         load;              /* the load on this mod_node*/    
+    }recv_mod_node;
+
+    recv_mod_node.tcid = ipv4_to_uint32("10.10.20.1");
+    recv_mod_node.comm = CMPI_ANY_COMM;
+    recv_mod_node.rank = 1;
+    recv_mod_node.modi = CMPI_ANY_MODI;
+
+    bgnz_md_id = bgn_z_start();
+    bgn_z_set_max(bgnz_md_id, &bgn_a);
+    bgn_z_ssub(bgnz_md_id, &bgn_a, 500, &bgn_a);/*on 32 bit OS, bgn_a = 0xFFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFF6*/
+   
+    task_super_mono(mod_mgr_def, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, &recv_mod_node, &carry, FI_bgn_z_sadd, ERR_MODULE_ID, &bgn_a, 100, &bgn_c);
+
+    sys_log(LOGSTDOUT, "test_case_70: carry = %ld, bgn_c = \n", carry);
+    print_bigint(LOGSTDOUT, &bgn_c);
+
+    bgn_z_end(bgnz_md_id);
+
+    return;
+}
+
+void test_case_80(void *mod_mgr_def)
+{
+    UINT32 cdfs_md_id;
+    
+    CSTRING *db_name;
+
+    db_name = cstring_new((UINT8 *)"/tmp/cdfsnp.dat", 0);
+
+    cdfs_md_id = cdfs_start();
+
+    if(EC_FALSE == cdfs_create_np(cdfs_md_id, db_name, CDFSNP_4K_MODE, CHASH_AP_ALGO_ID, CHASH_SDBM_ALGO_ID))
+    {
+        sys_log(LOGSTDOUT, "error:test_case_80: create name node %s failed\n", (char *)cstring_get_str(db_name));
+    }
+    else
+    {
+        sys_log(LOGSTDOUT, "test_case_80: create name node %s successfully\n", (char *)cstring_get_str(db_name));
+    }
+    
+    cdfs_open_np(cdfs_md_id, db_name);
+    cdfs_close_np(cdfs_md_id);
+    
+    cdfs_end(cdfs_md_id);
+
+    print_static_mem_status(LOGSTDOUT);
+    return;
+}
+
+static void *g_cdfs_buff[32];
+static UINT32 g_cdfs_buff_max_len = sizeof(g_cdfs_buff)/sizeof(g_cdfs_buff[0]);
+static UINT32 g_cdfs_buff_used_num = 9;
+
+#define CDFS_TEST_WRITE_MAX_FILES 128
+#define CDFS_TEST_READ_MAX_FILES  128
+
+static EC_BOOL init_g_cdfs_buff(const UINT32 cdfs_md_id, const UINT32 max_num)
+{
+    UINT32 pos;
+    UINT32 max_cfg_num;
+
+    struct
+    {
+        char  *file_name;
+        UINT32 file_size;
+    }file_cfg_tbl[] = {
+#if 0
+        {"../../data_files/1K.dat",     1 * 1024},
+        {"../../data_files/2K.dat",     2 * 1024},
+        {"../../data_files/3K.dat",     3 * 1024},
+        {"../../data_files/4K.dat",     4 * 1024},
+        {"../../data_files/5K.dat",     5 * 1024},
+        {"../../data_files/6K.dat",     6 * 1024},
+        {"../../data_files/7K.dat",     7 * 1024},
+        {"../../data_files/8K.dat",     8 * 1024},
+        {"../../data_files/9K.dat",     9 * 1024},
+        {"../../data_files/10K.dat",   10 * 1024},
+        {"../../data_files/11K.dat",   11 * 1024},    
+        {"../../data_files/12K.dat",   12 * 1024},
+        {"../../data_files/13K.dat",   13 * 1024},    
+        {"../../data_files/14K.dat",   14 * 1024},
+        {"../../data_files/15K.dat",   15 * 1024},    
+        {"../../data_files/16K.dat",   16 * 1024},    
+#endif        
+#if 1
+        {"../../data_files/4K.dat",     4 * 1024},
+        {"../../data_files/8K.dat",     8 * 1024},
+        {"../../data_files/16K.dat",   16 * 1024},
+        {"../../data_files/32K.dat",   32 * 1024},
+        {"../../data_files/64K.dat",   64 * 1024},
+        {"../../data_files/128K.dat", 128 * 1024},
+        {"../../data_files/256K.dat", 256 * 1024},
+        {"../../data_files/512K.dat", 512 * 1024},
+        {"../../data_files/1M.dat",     1 * 1024 * 1024},
+        {"../../data_files/2M.dat",     2 * 1024 * 1024},
+        {"../../data_files/4M.dat",     4 * 1024 * 1024},
+#endif        
+    };
+
+    max_cfg_num = sizeof(file_cfg_tbl)/sizeof(file_cfg_tbl[0]);
+    if(max_num > max_cfg_num)
+    {
+        sys_log(LOGSTDOUT, "error:init_g_cdfs_buff: max_num %ld but max_cfg_num %ld\n", max_num, max_cfg_num);
+        return (EC_FALSE);
+    }
+
+    if(max_num > g_cdfs_buff_max_len)
+    {
+        sys_log(LOGSTDOUT, "error:init_g_cdfs_buff: max_num %ld but g_cdfs_buff_max_len %ld\n", max_num, g_cdfs_buff_max_len);
+        return (EC_FALSE);
+    }    
+
+    for(pos = 0; pos < g_cdfs_buff_max_len; pos ++)
+    {
+        g_cdfs_buff[ pos ] = NULL_PTR;
+    }
+
+    for(pos = 0; pos < max_num; pos ++)
+    {
+        char   *file_name;
+        UINT32  file_size;
+        void   *cdfs_buff;
+        int fd;        
+
+        file_name = file_cfg_tbl[ pos ].file_name;
+        file_size = file_cfg_tbl[ pos ].file_size;
+        //cdfs_buff = ;
+        
+        if(0 != access(file_name, F_OK))
+        {
+            sys_log(LOGSTDOUT, "error:init_g_cdfs_buff: file %s not exist or inaccessable\n", file_name);
+            return (EC_FALSE);
+        }
+
+        fd = open(file_name, O_RDONLY, 0666);
+        if(-1 == fd)
+        {
+            sys_log(LOGSTDOUT, "error:init_g_cdfs_buff: open file %s to read failed\n", file_name);
+            return (EC_FALSE);
+        }
+
+        cdfs_buff = cdfs_buff_new(cdfs_md_id, file_size);
+        if(file_size != read(fd, cdfs_buff_val(cdfs_md_id, cdfs_buff), file_size))
+        {
+            sys_log(LOGSTDOUT, "error:init_g_cdfs_buff: read file %s with size %ld failed\n", file_name, file_size);
+            cdfs_buff_free(cdfs_md_id, cdfs_buff);
+            return (EC_FALSE);
+        }      
+
+        g_cdfs_buff[ pos ] = cdfs_buff;
+
+        close(fd);
+    }
+
+    return (EC_TRUE);
+}
+
+static EC_BOOL clean_g_cdfs_buff(const UINT32 cdfs_md_id, const UINT32 max_num)
+{
+    UINT32 pos;
+    if(max_num > g_cdfs_buff_max_len)
+    {
+        sys_log(LOGSTDOUT, "error:clean_g_cdfs_buff: max_num %ld but g_cdfs_buff_max_len %ld\n", max_num, g_cdfs_buff_max_len);
+        return (EC_FALSE);
+    }
+
+    for(pos = 0; pos < max_num; pos ++)
+    {
+        void   *cdfs_buff;
+
+        cdfs_buff = g_cdfs_buff[ pos ];
+        if(NULL_PTR != cdfs_buff)
+        {
+            cdfs_buff_free(cdfs_md_id, cdfs_buff);
+            g_cdfs_buff[ pos ] = NULL_PTR;
+        }
+    }
+    return (EC_TRUE);
+}
+
+static void *fetch_g_cdfs_buff(const UINT32 cdfs_md_id, const UINT32 max_num, const UINT32 pos)
+{
+    if(max_num > g_cdfs_buff_max_len)
+    {
+        sys_log(LOGSTDOUT, "error:fetch_g_cdfs_buff: max_num %ld but g_cdfs_buff_max_len %ld\n", max_num, g_cdfs_buff_max_len);
+        return (NULL_PTR);
+    }
+
+    return g_cdfs_buff[ pos ];
+}
+
+
+void test_case_81(void *mod_mgr_def, const char *home, const UINT32 cdfsnp_tcid, const UINT32 cdfs_md_id, UINT32 *counter)
+{ 
+    void *cdfsnp_mod_mgr;
+    void *task_mgr;
+    
+    UINT32 index;  
+
+    CSTRING    *path[CDFS_TEST_WRITE_MAX_FILES];
+    void       *cdfs_buff[CDFS_TEST_WRITE_MAX_FILES];
+    EC_BOOL     ret[CDFS_TEST_WRITE_MAX_FILES];
+
+    for(index = 0; index < CDFS_TEST_WRITE_MAX_FILES; index ++)
+    {
+        path[ index ]      = NULL_PTR;
+        cdfs_buff[ index ] = NULL_PTR;
+        ret[ index ]       = EC_FALSE;        
+    }  
+
+    cdfsnp_mod_mgr = cdfs_get_np_mod_mgr(cdfs_md_id);
+
+    task_new(cdfsnp_mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+
+    for(index = 0; index < CDFS_TEST_WRITE_MAX_FILES; index ++, (*counter) ++)
+    {
+        char str_buff[64];
+
+        path[ index ] = cstring_new(NULL_PTR, 0);
+        cstring_format(path[ index ], "%s/%ld.dat", home, (*counter));
+        snprintf(str_buff, sizeof(str_buff), "hello, %ld!", (*counter));
+
+        cdfs_buff[ index ] = cdfs_buff_new(cdfs_md_id, 64);
+        cdfs_buff_set(cdfs_md_id, cdfs_buff[ index ], strlen(str_buff), (UINT8 *)str_buff);
+
+        ret[ index ] = EC_FALSE;
+
+        task_tcid_inc(task_mgr, cdfsnp_tcid, &(ret[ index ]), FI_cdfs_write, ERR_MODULE_ID, path[ index ], cdfs_buff[ index ], ((UINT32)3));
+    }
+
+    task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    for(index = 0; index < CDFS_TEST_WRITE_MAX_FILES; index ++)
+    {
+        if(NULL_PTR != path[ index ])
+        {
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+        }
+
+        if(NULL_PTR != cdfs_buff[ index ])
+        {
+            cdfs_buff_free(cdfs_md_id, cdfs_buff[ index ]);
+            cdfs_buff[ index ] = NULL_PTR;
+        }
+    }    
+    
+    return;
+}
+
+EC_BOOL test_case_82(void *mod_mgr_def, const char *home, const UINT32 cdfsnp_tcid, const UINT32 cdfs_md_id, const UINT32 max_test_data_files, UINT32 *counter)
+{ 
+    void *cdfsnp_mod_mgr;
+    void *task_mgr;
+    
+    UINT32 index;
+
+    CSTRING    *path[CDFS_TEST_READ_MAX_FILES];
+    void       *cdfs_buff[CDFS_TEST_READ_MAX_FILES];
+    EC_BOOL     ret[CDFS_TEST_READ_MAX_FILES];
+
+    EC_BOOL     continue_flag;
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++)
+    {
+        path[ index ]      = NULL_PTR;
+        cdfs_buff[ index ] = NULL_PTR;
+        ret[ index ]       = EC_FALSE;        
+    }  
+
+    cdfsnp_mod_mgr = cdfs_get_np_mod_mgr(cdfs_md_id);
+
+    task_new(cdfsnp_mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++, (*counter) ++)
+    {
+        path[ index ] = cstring_new(NULL_PTR, 0);
+        cstring_format(path[ index ], "%s%ld.dat", home, (*counter));
+
+        cdfs_buff[ index ] = cdfs_buff_new(cdfs_md_id, 0);
+
+        ret[ index ] = EC_FALSE;
+
+        task_tcid_inc(task_mgr, cdfsnp_tcid, &(ret[ index ]), FI_cdfs_read, ERR_MODULE_ID, path[ index ], cdfs_buff[ index ]);
+    }
+
+    task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    continue_flag = EC_TRUE;
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++)
+    {
+        void *cdfs_buff_des;
+
+        cdfs_buff_des = fetch_g_cdfs_buff(cdfsnp_tcid, max_test_data_files, (index % max_test_data_files));
+        if(NULL_PTR != cdfs_buff[ index ])
+        {
+            if(EC_TRUE == cdfs_buff_ncmp(cdfs_md_id, cdfs_buff[ index ], cdfs_buff_des, 16))
+            {
+                sys_log(LOGSTDOUT, "[SUCC] path: %s, text len = %ld ", 
+                                  (char *)cstring_get_str(path[ index ]), 
+                                  cdfs_buff_len(cdfs_md_id, cdfs_buff[ index ]));
+                sys_print(LOGSTDOUT, "text = %.*s\n", 
+                                  cdfs_buff_len(cdfs_md_id, cdfs_buff[ index ]) > 16 ? 16 : cdfs_buff_len(cdfs_md_id, cdfs_buff[ index ]), /*output up to 16 chars*/
+                                  (char *)cdfs_buff_val(cdfs_md_id, cdfs_buff[ index ]));
+            }
+            else
+            {
+                continue_flag = EC_FALSE;
+                
+                sys_log(LOGCONSOLE, "[FAIL] path: %s, text len = %ld ", 
+                                  (char *)cstring_get_str(path[ index ]), 
+                                  cdfs_buff_len(cdfs_md_id, cdfs_buff[ index ]));
+                sys_print(LOGCONSOLE, "text = %.*s <--> ", 
+                                  cdfs_buff_len(cdfs_md_id, cdfs_buff[ index ]) > 16 ? 16 : cdfs_buff_len(cdfs_md_id, cdfs_buff[ index ]), /*output up to 16 chars*/
+                                  (char *)cdfs_buff_val(cdfs_md_id, cdfs_buff[ index ]));
+
+                sys_print(LOGCONSOLE, "text len = %ld ", 
+                                    cdfs_buff_len(cdfs_md_id, cdfs_buff_des));
+                sys_print(LOGCONSOLE, "text = %.*s\n", 
+                                    cdfs_buff_len(cdfs_md_id, cdfs_buff_des) > 16 ? 16 : cdfs_buff_len(cdfs_md_id, cdfs_buff_des),
+                                    (char *)cdfs_buff_val(cdfs_md_id, cdfs_buff_des));
+            }
+        }        
+        
+        if(NULL_PTR != path[ index ])
+        {
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+        }
+
+        if(NULL_PTR != cdfs_buff[ index ])
+        {
+            cdfs_buff_free(cdfs_md_id, cdfs_buff[ index ]);
+            cdfs_buff[ index ] = NULL_PTR;
+        }
+    }    
+    
+    return (continue_flag);
+}
+
+
+void test_case_83(void *mod_mgr_def, const char *home, const UINT32 cdfsnp_tcid, const UINT32 cdfs_md_id, const UINT32 max_test_data_files, UINT32 *counter)
+{ 
+    void *cdfsnp_mod_mgr;
+    void *task_mgr;
+    
+    UINT32 index;  
+
+    CSTRING    *path[CDFS_TEST_WRITE_MAX_FILES];
+    EC_BOOL     ret[CDFS_TEST_WRITE_MAX_FILES];
+
+    for(index = 0; index < CDFS_TEST_WRITE_MAX_FILES; index ++)
+    {
+        path[ index ]      = NULL_PTR;
+        ret[ index ]       = EC_FALSE;        
+    }  
+
+    cdfsnp_mod_mgr = cdfs_get_np_mod_mgr(cdfs_md_id);
+
+    task_new(cdfsnp_mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+
+    for(index = 0; index < CDFS_TEST_WRITE_MAX_FILES; index ++, (*counter) ++)
+    {
+        void *cdfs_buff;
+
+        path[ index ] = cstring_new(NULL_PTR, 0);
+        cstring_format(path[ index ], "%s/%ld.dat", home, (*counter));
+
+        ret[ index ] = EC_FALSE;
+        cdfs_buff = fetch_g_cdfs_buff(cdfsnp_tcid, max_test_data_files, (index % max_test_data_files));
+        if(NULL_PTR == cdfs_buff)
+        {
+            sys_log(LOGSTDOUT, "error:test_case_83: cdfs buff is null where index = %ld, max_test_data_files = %ld\n", index, max_test_data_files);
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+            break;
+        }
+
+        task_tcid_inc(task_mgr, cdfsnp_tcid, &(ret[ index ]), FI_cdfs_write, ERR_MODULE_ID, path[ index ], cdfs_buff, ((UINT32)3));
+    }
+
+    task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    for(index = 0; index < CDFS_TEST_WRITE_MAX_FILES; index ++)
+    {
+        if(NULL_PTR != path[ index ])
+        {
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+        }
+    }    
+    
+    return;
+}
+
+/*check replica basic info*/
+EC_BOOL test_case_84(void *mod_mgr_def, const char *home, const UINT32 cdfsnp_tcid, const UINT32 cdfs_md_id, const UINT32 replica_num, const void *tcid_vec, UINT32 *counter)
+{ 
+    void *cdfsnp_mod_mgr;
+    void *task_mgr;
+    
+    UINT32 index;
+
+    CSTRING    *path[CDFS_TEST_READ_MAX_FILES];
+    EC_BOOL     ret[CDFS_TEST_READ_MAX_FILES];
+
+    EC_BOOL     continue_flag;
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++)
+    {
+        path[ index ]      = NULL_PTR;
+        ret[ index ]       = EC_FALSE;        
+    }  
+
+    //sleep(15);
+
+    cdfsnp_mod_mgr = cdfs_get_np_mod_mgr(cdfs_md_id);
+
+    task_new(cdfsnp_mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++, (*counter) ++)
+    {
+        path[ index ] = cstring_new(NULL_PTR, 0);
+        cstring_format(path[ index ], "%s%ld.dat", home, (*counter));
+
+        ret[ index ] = EC_FALSE;
+
+        task_tcid_inc(task_mgr, cdfsnp_tcid, &(ret[ index ]), FI_cdfs_check_replicas, ERR_MODULE_ID, path[ index ], replica_num, tcid_vec);
+    }
+
+    task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    continue_flag = EC_TRUE;
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++)
+    {
+        if(EC_TRUE == ret[ index ])
+        {
+            sys_log(LOGSTDOUT, "[SUCC] path: %s\n", (char *)cstring_get_str(path[ index ]));
+        }
+        else
+        {
+            continue_flag = EC_FALSE;
+            sys_log(LOGCONSOLE, "[FAIL] path: %s\n", (char *)cstring_get_str(path[ index ]));
+        }
+        
+        if(NULL_PTR != path[ index ])
+        {
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+        }
+    }    
+    
+    return (continue_flag);
+}
+
+/*check replica files*/
+EC_BOOL test_case_85(void *mod_mgr_def, const char *home, const UINT32 cdfsnp_tcid, const UINT32 cdfs_md_id, const UINT32 max_test_data_files, UINT32 *counter)
+{ 
+    void *cdfsnp_mod_mgr;
+    void *task_mgr;
+    
+    UINT32 index;
+
+    CSTRING    *path[CDFS_TEST_READ_MAX_FILES];
+    CSTRING    *file_content_cstr[CDFS_TEST_READ_MAX_FILES];
+    EC_BOOL     ret[CDFS_TEST_READ_MAX_FILES];
+
+    EC_BOOL     continue_flag;
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++)
+    {
+        path[ index ]      = NULL_PTR;
+        file_content_cstr[ index ] = NULL_PTR;
+        ret[ index ]       = EC_FALSE;        
+    }  
+
+    cdfsnp_mod_mgr = cdfs_get_np_mod_mgr(cdfs_md_id);
+
+    task_new(cdfsnp_mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++, (*counter) ++)
+    {
+        void *cdfs_buff_des;
+        cdfs_buff_des = fetch_g_cdfs_buff(cdfsnp_tcid, max_test_data_files, (index % max_test_data_files));
+        
+        path[ index ] = cstring_new(NULL_PTR, 0);
+        cstring_format(path[ index ], "%s%ld.dat", home, (*counter));
+
+        file_content_cstr[ index ] = cstring_new(NULL_PTR, 0);
+        cstring_append_chars(file_content_cstr[ index ], 16, cdfs_buff_val(cdfs_md_id, cdfs_buff_des));
+
+        ret[ index ] = EC_FALSE;
+
+        task_tcid_inc(task_mgr, cdfsnp_tcid, &(ret[ index ]), 
+                        FI_cdfs_check_replica_files_content, ERR_MODULE_ID, path[ index ], cdfs_buff_len(cdfs_md_id, cdfs_buff_des), file_content_cstr[ index ]);
+    }
+
+    task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    continue_flag = EC_TRUE;
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++)
+    {
+        if(EC_TRUE == ret[ index ])
+        {
+            sys_log(LOGSTDOUT, "[SUCC] path: %s\n", (char *)cstring_get_str(path[ index ]));
+        }
+        else
+        {
+            continue_flag = EC_FALSE;
+            sys_log(LOGCONSOLE, "[FAIL] path: %s\n", (char *)cstring_get_str(path[ index ]));
+        }
+        
+        if(NULL_PTR != path[ index ])
+        {
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+        }
+        
+        if(NULL_PTR != path[ index ])
+        {
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+        }
+
+        if(NULL_PTR != file_content_cstr[ index ])
+        {
+            cstring_free(file_content_cstr[ index ]);
+            file_content_cstr[ index ] = NULL_PTR;
+        }
+    }    
+    
+    return (continue_flag);
+}
+
+void do_case(void *mod_mgr_def)
+{
+    //test_case_70(mod_mgr_def);
+#if 1
+    UINT32 count;
+    for(count = 0; count < 1; count ++)
+    {
+    //test_case_10(mod_mgr_def);
+    //test_case_13(mod_mgr_def);
+    //test_case_15(mod_mgr_def);
+    //test_case_17(mod_mgr_def);
+    //test_case_18(mod_mgr_def);
+
+    //test_case_20(mod_mgr_def); /*upload*/
+    //test_case_21(mod_mgr_def); /*download*/
+    //test_case_22(mod_mgr_def); /*clone*/
+    //test_case_23(mod_mgr_def); /*remove*/
+    //test_case_24(mod_mgr_def); /*create*/
+    //test_case_25(mod_mgr_def); /*fexist*/
+    //test_case_26(mod_mgr_def); /*fsearch*/
+    //test_case_27(mod_mgr_def); /*fread*/
+    //test_case_28(mod_mgr_def); /*cmp*/
+    //test_case_29(mod_mgr_def); /*copy*/
+    //test_case_23(mod_mgr_def); /*remove*/
+    
+    //test_case_30(mod_mgr_def); /*create dir*/
+    //test_case_31(mod_mgr_def); /*read dir*/
+    //test_case_32(mod_mgr_def); /*clean*/
+
+    //test_case_40(mod_mgr_def);
+    //test_case_41(mod_mgr_def);
+
+#if 0
+    test_case_30(mod_mgr_def); /*create dir*/
+    test_case_20(mod_mgr_def); /*upload*/
+    test_case_21(mod_mgr_def); /*download*/
+    test_case_29(mod_mgr_def); /*copy*/
+    test_case_31(mod_mgr_def); /*read dir*/
+    test_case_23(mod_mgr_def); /*remove*/
+    test_case_32(mod_mgr_def); /*clean*/
+#endif
+
+    //test_case_51(mod_mgr_def);
+    //test_case_52(mod_mgr_def);
+#if 0    
+    test_case_53(mod_mgr_def);
+    sys_log(LOGCONSOLE, "do_case: loop %ld completed\n", count);
+#endif    
+
+    test_case_80(mod_mgr_def);
+    }
+
+    sys_log(LOGCONSOLE, "do_case: end\n");
+#endif    
+    return;
+}
+
+
+int main1(int argc, char **argv)
+{
+    UINT32 this_tcid;
+    UINT32 this_comm;
+    UINT32 this_rank;
+
+    //sleep(10);
+
+    task_brd_default_init(argc, argv);
+    if(EC_FALSE == task_brd_default_check_validity())
+    {
+        sys_log(LOGSTDOUT, "error:main: validity checking failed\n");
+        task_brd_default_abort();
+        return (-1);
+    }
+    
+    this_tcid = task_brd_default_get_tcid();
+    this_comm = task_brd_default_get_comm();
+    this_rank = task_brd_default_get_rank();
+
+    //sleep(10);
+
+    if (EC_TRUE == task_brd_check_is_dbg_tcid(this_tcid) && CMPI_DBG_RANK == this_rank)
+    {
+        do_cmd_default();
+    }
+    else if (EC_TRUE == task_brd_check_is_monitor_tcid(this_tcid) && CMPI_MON_RANK == this_rank)
+    {
+        void * mod_mgr_def;
+
+        //sleep(20);/*wait until all connection established*/
+        
+        mod_mgr_def = mod_mgr_new(CMPI_ERROR_MODI, LOAD_BALANCING_LOOP);
+        mod_mgr_default_init(mod_mgr_def, CMPI_ANY_TCID, CMPI_ANY_RANK);
+
+        //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
+        
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr_def);
+
+        //test_case_61(mod_mgr_def);
+        //test_case_62(mod_mgr_def);
+        //test_case_63(mod_mgr_def);
+        //test_case_64(mod_mgr_def);
+        //test_case_66(mod_mgr_def);
+        test_case_67(mod_mgr_def);
+      
+        mod_mgr_free(mod_mgr_def);
+
+        do_slave_wait_default();
+    }
+#if 1
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+    /*user define the master process*/
+    else if (ipv4_to_uint32("10.10.10.1") == this_tcid && CMPI_CDFS_RANK == this_rank)/*name node*/
+    {
+        UINT32 max_hops;
+        UINT32 max_remotes;
+        UINT32 time_to_live;
+    
+        void *mod_mgr_def;
+
+        max_hops     = 5;
+        max_remotes  = 20;
+        time_to_live = 10;
+
+        /*generate default module manager with specific load balancing strategy and default rank set, initialize all modi to invalid value*/
+        /*forge a mod_mgr :-)*/
+        mod_mgr_def = mod_mgr_new(CMPI_ERROR_MODI, LOAD_BALANCING_LOOP);
+        mod_mgr_default_sync(max_hops, max_remotes, time_to_live, mod_mgr_def);
+
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        sys_log(LOGSTDOUT, "                       mod_mgr_default_sync finished [DEBUG]          \n");
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr_def);
+
+        //mod_mgr_excl(CMPI_ANY_TCID    , CMPI_ANY_COMM, CMPI_FWD_RANK, CMPI_ANY_MODI, mod_mgr_def);
+        mod_mgr_excl(CMPI_ANY_DBG_TCID, CMPI_ANY_COMM, CMPI_DBG_RANK, CMPI_ANY_MODI, mod_mgr_def);
+        mod_mgr_excl(CMPI_ANY_MON_TCID, CMPI_ANY_COMM, CMPI_MON_RANK, CMPI_ANY_MODI, mod_mgr_def);
+        mod_mgr_excl(CMPI_ANY_TCID    , CMPI_ANY_COMM, CMPI_FWD_RANK, CMPI_ANY_MODI, mod_mgr_def);
+        //mod_mgr_excl(this_tcid        , CMPI_ANY_COMM, CMPI_FWD_RANK, CMPI_ANY_MODI, mod_mgr_def);
+        //mod_mgr_excl(this_tcid        , CMPI_ANY_COMM, this_rank    , CMPI_ANY_MODI, mod_mgr_def);
+
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr_def);
+
+        do_case(mod_mgr_def);
+
+        mod_mgr_free(mod_mgr_def);
+
+        do_slave_wait_default();
+    }
+
+#if 0
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+
+    /*work process*/
+    else
+    {
+        do_slave_wait_default();
+    }
+
+    return (0);
+}
+
+int main2(int argc, char **argv)
+{
+    UINT32 this_tcid;
+    UINT32 this_comm;
+    UINT32 this_rank;
+
+    task_brd_default_init(argc, argv);
+    if(EC_FALSE == task_brd_default_check_validity())
+    {
+        sys_log(LOGSTDOUT, "error:main: validity checking failed\n");
+        task_brd_default_abort();
+        return (-1);
+    }
+    
+    this_tcid = task_brd_default_get_tcid();
+    this_comm = task_brd_default_get_comm();
+    this_rank = task_brd_default_get_rank();
+
+    //sleep(10);
+
+    if (EC_TRUE == task_brd_check_is_dbg_tcid(this_tcid) && CMPI_DBG_RANK == this_rank)
+    {
+        do_cmd_default();
+    }
+    else if (EC_TRUE == task_brd_check_is_monitor_tcid(this_tcid) && CMPI_MON_RANK == this_rank)
+    {
+        void * mod_mgr_def;
+
+        //sleep(20);/*wait until all connection established*/
+        
+        mod_mgr_def = mod_mgr_new(CMPI_ERROR_MODI, LOAD_BALANCING_LOOP);
+        mod_mgr_default_init(mod_mgr_def, CMPI_ANY_TCID, CMPI_ANY_RANK);
+
+        //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
+        
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr_def);
+
+        //test_case_61(mod_mgr_def);
+        //test_case_62(mod_mgr_def);
+        //test_case_63(mod_mgr_def);
+        //test_case_64(mod_mgr_def);
+        //test_case_66(mod_mgr_def);
+        test_case_67(mod_mgr_def);
+      
+        mod_mgr_free(mod_mgr_def);
+
+        do_slave_wait_default();
+    }
+#if 1
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+    /*user define the master process*/
+    else if (ipv4_to_uint32("10.10.10.1") == this_tcid && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+        
+        CSTRING *db_name;
+
+        db_name = cstring_new((UINT8 *)"/tmp/cdfsnp.dat", 0);        
+
+        cdfs_md_id = cdfs_start();
+#if 0        
+        cdfs_add_np(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.1"));
+#endif        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.4"));
+
+        cdfs_reg_np(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.1"));
+        cdfs_reg_np(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.2"));
+        cdfs_reg_np(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.3"));
+        cdfs_reg_np(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.4"));
+#if 1
+        cdfs_open_np(cdfs_md_id, db_name);
+#endif
+
+#if 0
+        cdfs_create_np(cdfs_md_id, db_name, CDFSNP_4K_MODE, CHASH_AP_ALGO_ID, CHASH_SDBM_ALGO_ID);
+#endif
+        do_slave_wait_default();
+    }
+    else if ((ipv4_to_uint32("10.10.10.2") == this_tcid || ipv4_to_uint32("10.10.10.3") == this_tcid || ipv4_to_uint32("10.10.10.4") == this_tcid)
+    && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+        
+        CSTRING *root_dir;
+
+        root_dir = cstring_new(NULL_PTR, 0);        
+        cstring_format(root_dir, "/tmp/%s", uint32_to_ipv4(this_tcid));
+
+        cdfs_md_id = cdfs_start();
+
+        cdfs_add_np(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.1"));
+#if 0        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.4"));  
+#endif
+        cdfs_reg_dn(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.1"));
+        cdfs_reg_dn(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.2"));
+        cdfs_reg_dn(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.3"));
+        cdfs_reg_dn(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.4"));
+#if 0
+        sys_log(LOGSTDOUT, "[DEBUG] main: check data node where root dir %s\n", (char *)cstring_get_str(root_dir));
+        //if(0 != access((char *)cstring_get_str(root_dir), F_OK))
+        {   
+            sys_log(LOGSTDOUT, "[DEBUG] main: start to create data node where root dir %s\n", (char *)cstring_get_str(root_dir));
+            cdfs_create_dn(cdfs_md_id, root_dir);
+        }
+#endif
+#if 1
+        cdfs_open_dn(cdfs_md_id, root_dir);
+#endif
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.5") == this_tcid && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+        
+        CSTRING *file_path;
+        void *cdfsnp_mod_mgr;
+        void *cdfs_buff;
+        UINT32 buff_len;
+        EC_BOOL ret;
+
+        struct tm *cur_time;
+        time_t timestamp;
+        char *str = "hello world!";
+        
+        time(&timestamp);
+        cur_time = localtime(&timestamp);
+#if 0        
+        file_path = cstring_new((UINT8 *)file_name, 0);
+#endif        
+#if 1       
+        file_path = cstring_new(NULL_PTR, 0);
+        cstring_format(file_path, "/%4d/%02d/%02d/%02d:%02d:%02d.dat",
+                cur_time->tm_year + 1900,
+                cur_time->tm_mon + 1,
+                cur_time->tm_mday,
+                cur_time->tm_hour,
+                cur_time->tm_min,
+                cur_time->tm_sec);
+#endif                
+        cdfs_md_id = cdfs_start();
+        cdfs_add_np(cdfs_md_id, ipv4_to_uint32((char *)"10.10.10.1"));
+
+        cdfsnp_mod_mgr = cdfs_get_np_mod_mgr(cdfs_md_id);
+
+        buff_len = 32;
+        cdfs_buff = cdfs_buff_new(cdfs_md_id, buff_len);
+        cdfs_buff_set(cdfs_md_id, cdfs_buff, strlen(str), (UINT8 *)str);
+    
+        ret = EC_FALSE;
+        task_tcid_mono(cdfsnp_mod_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, ipv4_to_uint32((char *)"10.10.10.1"), 
+                        &ret, FI_cdfs_write, ERR_MODULE_ID, file_path, cdfs_buff, 3);
+        
+        cdfs_buff_free(cdfs_md_id, cdfs_buff);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.6") == this_tcid && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+        UINT32 cdfsnp_tcid;
+        UINT32 counter;
+
+        cdfsnp_tcid = ipv4_to_uint32((char *)"10.10.10.1");
+        
+        cdfs_md_id = cdfs_start();
+        cdfs_add_np(cdfs_md_id, cdfsnp_tcid);
+
+        counter = 0;
+        test_case_81(NULL_PTR, "/home/ezhocha", cdfsnp_tcid, cdfs_md_id, &counter);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+#if 0
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+
+    /*work process*/
+    else
+    {
+        do_slave_wait_default();
+    }
+
+    return (0);
+}
+
+int main(int argc, char **argv)
+{
+    UINT32 this_tcid;
+    UINT32 this_comm;
+    UINT32 this_rank;
+
+    //sleep(10);
+
+    task_brd_default_init(argc, argv);
+    if(EC_FALSE == task_brd_default_check_validity())
+    {
+        sys_log(LOGSTDOUT, "error:main: validity checking failed\n");
+        task_brd_default_abort();
+        return (-1);
+    }
+    
+    this_tcid = task_brd_default_get_tcid();
+    this_comm = task_brd_default_get_comm();
+    this_rank = task_brd_default_get_rank();
+
+    //sleep(10);
+
+    if (EC_TRUE == task_brd_check_is_dbg_tcid(this_tcid) && CMPI_DBG_RANK == this_rank)
+    {
+        do_cmd_default();
+    }
+    else if (EC_TRUE == task_brd_check_is_monitor_tcid(this_tcid) && CMPI_MON_RANK == this_rank)
+    {
+        void * mod_mgr_def;
+
+        //sleep(20);/*wait until all connection established*/
+        
+        mod_mgr_def = mod_mgr_new(CMPI_ERROR_MODI, LOAD_BALANCING_LOOP);
+        mod_mgr_default_init(mod_mgr_def, CMPI_ANY_TCID, CMPI_ANY_RANK);
+
+        //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
+        
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr_def);
+
+        //test_case_61(mod_mgr_def);
+        //test_case_62(mod_mgr_def);
+        //test_case_63(mod_mgr_def);
+        //test_case_64(mod_mgr_def);
+        //test_case_66(mod_mgr_def);
+        test_case_67(mod_mgr_def);
+      
+        mod_mgr_free(mod_mgr_def);
+
+        do_slave_wait_default();
+    }
+#if 0
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+    /*user define the master process*/
+    else if (ipv4_to_uint32("10.10.10.1") == this_tcid && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+
+        char    *np_root = "/home/ezhocha/cdfs";
+        CSTRING *db_name;
+
+        db_name = cstring_new(NULL_PTR, 0);
+        cstring_format(db_name, "%s/%s/cdfsnp.dat", np_root, uint32_to_ipv4(this_tcid));
+  
+        cdfs_md_id = cdfs_start();
+        cdfs_open_np(cdfs_md_id, db_name);
+        cstring_free(db_name);
+
+        cdfs_add_np(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+
+        do_slave_wait_default();
+    }
+    else if ((ipv4_to_uint32("10.10.10.2") == this_tcid || ipv4_to_uint32("10.10.10.3") == this_tcid || ipv4_to_uint32("10.10.10.4") == this_tcid)
+    && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+
+        char    *dn_root = "/home/ezhocha/cdfs";
+        CSTRING *root_dir;
+
+        root_dir = cstring_new(NULL_PTR, 0);        
+        cstring_format(root_dir, "%s/%s", dn_root, uint32_to_ipv4(this_tcid));        
+
+        cdfs_md_id = cdfs_start();
+        cdfs_open_dn(cdfs_md_id, root_dir);
+        cstring_free(root_dir);
+
+        cdfs_add_np(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.5") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+        UINT32 cdfsnp_tcid;
+        UINT32 outer_loop;
+        UINT32 inner_loop;
+        UINT32 max_test_data_files;
+        
+        cdfsnp_tcid = ipv4_to_uint32((char *)"10.10.10.1");
+        
+        cdfs_md_id = cdfs_start();
+        cdfs_add_np(cdfs_md_id, cdfsnp_tcid);
+
+        max_test_data_files = g_cdfs_buff_used_num;/*ignore 2M or 4M data files*/
+        if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+        {
+            sys_log(LOGSTDOUT, "error:main:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+            cdfs_end(cdfs_md_id);
+
+            do_slave_wait_default();
+        }
+
+        for(outer_loop = 0; outer_loop < /*64*//*2*/512; outer_loop ++)
+        {
+            struct tm *cur_time;
+            time_t timestamp;
+            char home[64];
+            UINT32 counter;
+
+            sys_log(LOGCONSOLE, "[DEBUG] main: outer_loop = %ld\n", outer_loop);
+
+            time(&timestamp);
+            cur_time = localtime(&timestamp);
+
+            snprintf(home, sizeof(home), /*"/tianye/%4d%02d%02d_%02d%02d%02d"*/"/hansoul01/%4d%02d%02d_%02d%02d%02d", 
+                    cur_time->tm_year + 1900,
+                    cur_time->tm_mon + 1,
+                    cur_time->tm_mday,
+                    cur_time->tm_hour,
+                    cur_time->tm_min,
+                    cur_time->tm_sec);
+
+            counter = 0;    
+            for(inner_loop = 0; inner_loop < ((1024 + CDFS_TEST_WRITE_MAX_FILES - 1) / CDFS_TEST_WRITE_MAX_FILES); inner_loop ++)
+            {
+                //test_case_81(NULL_PTR, home, cdfsnp_tcid, cdfs_md_id, &counter);
+                test_case_83(NULL_PTR, home, cdfsnp_tcid, cdfs_md_id, max_test_data_files, &counter);
+            }
+        }
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.6") == this_tcid && CMPI_CDFS_RANK == this_rank)/*read*/
+    {
+        UINT32 cdfs_md_id;
+        UINT32 cdfsnp_tcid;
+        UINT32 outer_loop;
+        UINT32 inner_loop;
+        EC_BOOL ret;
+
+        CSTRING *file_path;
+        void    *path_cstr_vec;
+        UINT32   max_test_data_files;
+
+        EC_BOOL continue_flag;
+        
+        cdfsnp_tcid = ipv4_to_uint32((char *)"10.10.10.1");
+        file_path = cstring_new((UINT8 *)"/tianye", 0);
+        
+        cdfs_md_id = cdfs_start();
+        cdfs_add_np(cdfs_md_id, cdfsnp_tcid);
+
+        path_cstr_vec = cvector_new(0, MM_CSTRING, 0);
+
+        task_tcid_mono(cdfs_get_np_mod_mgr(cdfs_md_id), TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, cdfsnp_tcid, 
+                        &ret, FI_cdfs_qlist_path,  ERR_MODULE_ID, file_path, path_cstr_vec);
+
+        sys_log(LOGSTDOUT, "[DEBUG] main: path cstr vec:\n");
+        cvector_print(LOGSTDOUT, path_cstr_vec, (CVECTOR_DATA_PRINT)cstring_print);
+
+        max_test_data_files = g_cdfs_buff_used_num;/*ignore 2M or 4M data files*/
+        if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+        {
+            sys_log(LOGSTDOUT, "error:main:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+            cdfs_end(cdfs_md_id);
+
+            do_slave_wait_default();
+        }
+        
+#if 1
+        continue_flag = EC_TRUE;
+        for(outer_loop = 0; outer_loop < cvector_size(path_cstr_vec) && EC_TRUE == continue_flag; outer_loop ++)
+        {
+            CSTRING *path_cstr;
+            char *home;
+            UINT32 counter;            
+
+            sys_log(LOGCONSOLE, "[DEBUG] main: outer_loop = %ld\n", outer_loop);
+
+            path_cstr = (CSTRING *)cvector_get(path_cstr_vec, outer_loop);
+            if(NULL_PTR == path_cstr)
+            {
+                sys_log(LOGSTDOUT, "error:main: path cstring at %ld is null\n", outer_loop);
+                break;
+            }
+
+            home = (char *)cstring_get_str(path_cstr);
+
+            counter = 0;
+            for(inner_loop = 0; inner_loop < ((1024 + CDFS_TEST_READ_MAX_FILES - 1) / CDFS_TEST_READ_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
+            {
+                continue_flag = test_case_82(NULL_PTR, home, cdfsnp_tcid, cdfs_md_id, max_test_data_files, &counter);
+            }
+        }
+#endif       
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+        cdfs_end(cdfs_md_id);
+
+        cstring_free(file_path);
+        cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+        cvector_free(path_cstr_vec, 0);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.7") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+        UINT32 cdfsnp_tcid;
+        UINT32 outer_loop;
+        UINT32 inner_loop;
+        UINT32 max_test_data_files;
+        
+        cdfsnp_tcid = ipv4_to_uint32((char *)"10.10.10.1");
+        
+        cdfs_md_id = cdfs_start();
+        cdfs_add_np(cdfs_md_id, cdfsnp_tcid);
+
+        max_test_data_files = g_cdfs_buff_used_num;/*ignore 2M or 4M data files*/
+        if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+        {
+            sys_log(LOGSTDOUT, "error:main:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+            cdfs_end(cdfs_md_id);
+
+            do_slave_wait_default();
+        }
+
+        for(outer_loop = 0; outer_loop < /*64*//*2*/512; outer_loop ++)
+        {
+            struct tm *cur_time;
+            time_t timestamp;
+            char home[64];
+            UINT32 counter;
+
+            sys_log(LOGCONSOLE, "[DEBUG] main: outer_loop = %ld\n", outer_loop);
+
+            time(&timestamp);
+            cur_time = localtime(&timestamp);
+
+            snprintf(home, sizeof(home), /*"/ezhocha/%4d%02d%02d_%02d%02d%02d"*/"/hansoul02/%4d%02d%02d_%02d%02d%02d", 
+                    cur_time->tm_year + 1900,
+                    cur_time->tm_mon + 1,
+                    cur_time->tm_mday,
+                    cur_time->tm_hour,
+                    cur_time->tm_min,
+                    cur_time->tm_sec);
+
+            counter = 0;    
+            for(inner_loop = 0; inner_loop < ((1024 + CDFS_TEST_WRITE_MAX_FILES - 1) / CDFS_TEST_WRITE_MAX_FILES); inner_loop ++)
+            {
+                //test_case_81(NULL_PTR, home, cdfsnp_tcid, cdfs_md_id, &counter);
+                test_case_83(NULL_PTR, home, cdfsnp_tcid, cdfs_md_id, max_test_data_files, &counter);
+            }
+        }
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.8") == this_tcid && CMPI_CDFS_RANK == this_rank)/*read*/
+    {
+        UINT32 cdfs_md_id;
+        UINT32 cdfsnp_tcid;
+        UINT32 outer_loop;
+        UINT32 inner_loop;
+        EC_BOOL ret;
+
+        CSTRING *file_path;
+        void    *path_cstr_vec;
+        UINT32   max_test_data_files;
+
+        EC_BOOL continue_flag;
+        
+        cdfsnp_tcid = ipv4_to_uint32((char *)"10.10.10.1");
+        file_path = cstring_new((UINT8 *)"/tianye", 0);
+        
+        cdfs_md_id = cdfs_start();
+        cdfs_add_np(cdfs_md_id, cdfsnp_tcid);
+
+        path_cstr_vec = cvector_new(0, MM_CSTRING, 0);
+
+        task_tcid_mono(cdfs_get_np_mod_mgr(cdfs_md_id), TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, cdfsnp_tcid, 
+                        &ret, FI_cdfs_qlist_path,  ERR_MODULE_ID, file_path, path_cstr_vec);
+
+        sys_log(LOGSTDOUT, "[DEBUG] main: path cstr vec:\n");
+        cvector_print(LOGSTDOUT, path_cstr_vec, (CVECTOR_DATA_PRINT)cstring_print);
+
+        max_test_data_files = g_cdfs_buff_used_num;/*ignore 2M or 4M data files*/
+        if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+        {
+            sys_log(LOGSTDOUT, "error:main:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+            cdfs_end(cdfs_md_id);
+
+            do_slave_wait_default();
+        }
+        
+#if 1
+        continue_flag = EC_TRUE;
+        for(outer_loop = 0; outer_loop < cvector_size(path_cstr_vec) && EC_TRUE == continue_flag; outer_loop ++)
+        {
+            CSTRING *path_cstr;
+            char *home;
+            UINT32 counter;            
+
+            sys_log(LOGCONSOLE, "[DEBUG] main: outer_loop = %ld\n", outer_loop);
+
+            path_cstr = (CSTRING *)cvector_get(path_cstr_vec, outer_loop);
+            if(NULL_PTR == path_cstr)
+            {
+                sys_log(LOGSTDOUT, "error:main: path cstring at %ld is null\n", outer_loop);
+                break;
+            }
+
+            home = (char *)cstring_get_str(path_cstr);
+
+            counter = 0;
+            for(inner_loop = 0; inner_loop < ((1024 + CDFS_TEST_READ_MAX_FILES - 1) / CDFS_TEST_READ_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
+            {
+                continue_flag = test_case_82(NULL_PTR, home, cdfsnp_tcid, cdfs_md_id, max_test_data_files, &counter);
+            }
+        }
+#endif       
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+        cdfs_end(cdfs_md_id);
+
+        cstring_free(file_path);
+        cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+        cvector_free(path_cstr_vec, 0);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.90") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        UINT32 cdfsnp_tcid;
+        UINT32 outer_loop;
+        UINT32 inner_loop;
+        EC_BOOL ret;
+
+        CSTRING *file_path;
+        void    *path_cstr_vec;
+
+        void     *tcid_vec;
+        UINT32   max_test_data_files;
+
+        EC_BOOL continue_flag;
+        
+        cdfsnp_tcid = ipv4_to_uint32((char *)"10.10.10.1");
+        file_path = cstring_new((UINT8 *)"/tianye", 0);
+        
+        cdfs_md_id = cdfs_start();
+        cdfs_add_np(cdfs_md_id, cdfsnp_tcid);
+
+        path_cstr_vec = cvector_new(0, MM_CSTRING, 0);
+
+        task_tcid_mono(cdfs_get_np_mod_mgr(cdfs_md_id), TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, cdfsnp_tcid, 
+                        &ret, FI_cdfs_qlist_path,  ERR_MODULE_ID, file_path, path_cstr_vec);
+
+        sys_log(LOGSTDOUT, "[DEBUG] main: path cstr vec:\n");
+        cvector_print(LOGSTDOUT, path_cstr_vec, (CVECTOR_DATA_PRINT)cstring_print);
+
+        max_test_data_files = g_cdfs_buff_used_num;/*ignore 2M or 4M data files*/
+        if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+        {
+            sys_log(LOGSTDOUT, "error:main:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+            cdfs_end(cdfs_md_id);
+
+            do_slave_wait_default();
+        }
+
+        tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+      
+#if 1
+        continue_flag = EC_TRUE;
+        for(outer_loop = 0; outer_loop < cvector_size(path_cstr_vec) && EC_TRUE == continue_flag; outer_loop ++)
+        {
+            CSTRING *path_cstr;
+            char *home;
+            UINT32 counter;            
+
+            sys_log(LOGCONSOLE, "[DEBUG] main: outer_loop = %ld\n", outer_loop);
+
+            path_cstr = (CSTRING *)cvector_get(path_cstr_vec, outer_loop);
+            if(NULL_PTR == path_cstr)
+            {
+                sys_log(LOGSTDOUT, "error:main: path cstring at %ld is null\n", outer_loop);
+                break;
+            }
+
+            home = (char *)cstring_get_str(path_cstr);
+
+            counter = 0;
+            for(inner_loop = 0; inner_loop < ((1024 + CDFS_TEST_READ_MAX_FILES - 1) / CDFS_TEST_READ_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
+            {
+                continue_flag = test_case_84(NULL_PTR, home, cdfsnp_tcid, cdfs_md_id, 3, tcid_vec, &counter);
+            }
+        }
+#endif       
+
+        cvector_free(tcid_vec, 0);
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+        cdfs_end(cdfs_md_id);
+
+        cstring_free(file_path);
+        cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+        cvector_free(path_cstr_vec, 0);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.91") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        UINT32 cdfsnp_tcid;
+        UINT32 outer_loop;
+        UINT32 inner_loop;
+        EC_BOOL ret;
+
+        CSTRING *file_path;
+        void    *path_cstr_vec;
+
+        void     *tcid_vec;
+        UINT32   max_test_data_files;
+
+        EC_BOOL continue_flag;
+        
+        cdfsnp_tcid = ipv4_to_uint32((char *)"10.10.10.1");
+        file_path = cstring_new((UINT8 *)"/hansoul01", 0);
+        
+        cdfs_md_id = cdfs_start();
+        cdfs_add_np(cdfs_md_id, cdfsnp_tcid);
+
+        path_cstr_vec = cvector_new(0, MM_CSTRING, 0);
+
+        task_tcid_mono(cdfs_get_np_mod_mgr(cdfs_md_id), TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, cdfsnp_tcid, 
+                        &ret, FI_cdfs_qlist_path,  ERR_MODULE_ID, file_path, path_cstr_vec);
+
+        sys_log(LOGSTDOUT, "[DEBUG] main: path cstr vec:\n");
+        cvector_print(LOGSTDOUT, path_cstr_vec, (CVECTOR_DATA_PRINT)cstring_print);
+
+        max_test_data_files = g_cdfs_buff_used_num;/*ignore 2M or 4M data files*/
+        if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+        {
+            sys_log(LOGSTDOUT, "error:main:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+            cdfs_end(cdfs_md_id);
+
+            do_slave_wait_default();
+        }
+
+        tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+      
+#if 1
+        continue_flag = EC_TRUE;
+        for(outer_loop = 0; outer_loop < cvector_size(path_cstr_vec) && EC_TRUE == continue_flag; outer_loop ++)
+        {
+            CSTRING *path_cstr;
+            char *home;
+            UINT32 counter;            
+
+            sys_log(LOGCONSOLE, "[DEBUG] main: outer_loop = %ld\n", outer_loop);
+
+            path_cstr = (CSTRING *)cvector_get(path_cstr_vec, outer_loop);
+            if(NULL_PTR == path_cstr)
+            {
+                sys_log(LOGSTDOUT, "error:main: path cstring at %ld is null\n", outer_loop);
+                break;
+            }
+
+            home = (char *)cstring_get_str(path_cstr);
+
+            counter = 0;
+            for(inner_loop = 0; inner_loop < ((1024 + CDFS_TEST_READ_MAX_FILES - 1) / CDFS_TEST_READ_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
+            {
+                continue_flag = test_case_84(NULL_PTR, home, cdfsnp_tcid, cdfs_md_id, 3, tcid_vec, &counter);
+            }
+        }
+#endif       
+
+        cvector_free(tcid_vec, 0);
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+        cdfs_end(cdfs_md_id);
+
+        cstring_free(file_path);
+        cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+        cvector_free(path_cstr_vec, 0);
+
+        do_slave_wait_default();
+    }   
+    else if(ipv4_to_uint32("10.10.10.92") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        UINT32 cdfsnp_tcid;
+        UINT32 outer_loop;
+        UINT32 inner_loop;
+        EC_BOOL ret;
+
+        CSTRING *file_path;
+        void    *path_cstr_vec;
+
+        void     *tcid_vec;
+        UINT32   max_test_data_files;
+
+        EC_BOOL continue_flag;
+        
+        cdfsnp_tcid = ipv4_to_uint32((char *)"10.10.10.1");
+        file_path = cstring_new((UINT8 *)"/hansoul02", 0);
+        
+        cdfs_md_id = cdfs_start();
+        cdfs_add_np(cdfs_md_id, cdfsnp_tcid);
+
+        path_cstr_vec = cvector_new(0, MM_CSTRING, 0);
+
+        task_tcid_mono(cdfs_get_np_mod_mgr(cdfs_md_id), TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, cdfsnp_tcid, 
+                        &ret, FI_cdfs_qlist_path,  ERR_MODULE_ID, file_path, path_cstr_vec);
+
+        sys_log(LOGSTDOUT, "[DEBUG] main: path cstr vec:\n");
+        cvector_print(LOGSTDOUT, path_cstr_vec, (CVECTOR_DATA_PRINT)cstring_print);
+
+        max_test_data_files = g_cdfs_buff_used_num;/*ignore 2M or 4M data files*/
+        if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+        {
+            sys_log(LOGSTDOUT, "error:main:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+            cdfs_end(cdfs_md_id);
+
+            do_slave_wait_default();
+        }
+
+        tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+      
+#if 1
+        continue_flag = EC_TRUE;
+        for(outer_loop = 0; outer_loop < cvector_size(path_cstr_vec) && EC_TRUE == continue_flag; outer_loop ++)
+        {
+            CSTRING *path_cstr;
+            char *home;
+            UINT32 counter;            
+
+            sys_log(LOGCONSOLE, "[DEBUG] main: outer_loop = %ld\n", outer_loop);
+
+            path_cstr = (CSTRING *)cvector_get(path_cstr_vec, outer_loop);
+            if(NULL_PTR == path_cstr)
+            {
+                sys_log(LOGSTDOUT, "error:main: path cstring at %ld is null\n", outer_loop);
+                break;
+            }
+
+            home = (char *)cstring_get_str(path_cstr);
+
+            counter = 0;
+            for(inner_loop = 0; inner_loop < ((1024 + CDFS_TEST_READ_MAX_FILES - 1) / CDFS_TEST_READ_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
+            {
+                continue_flag = test_case_84(NULL_PTR, home, cdfsnp_tcid, cdfs_md_id, 3, tcid_vec, &counter);
+            }
+        }
+#endif       
+
+        cvector_free(tcid_vec, 0);
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+        cdfs_end(cdfs_md_id);
+
+        cstring_free(file_path);
+        cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+        cvector_free(path_cstr_vec, 0);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.100") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        UINT32 cdfsnp_tcid;
+        UINT32 outer_loop;
+        UINT32 inner_loop;
+        EC_BOOL ret;
+
+        CSTRING *file_path;
+        void    *path_cstr_vec;
+
+        UINT32   max_test_data_files;
+
+        EC_BOOL continue_flag;
+        
+        cdfsnp_tcid = ipv4_to_uint32((char *)"10.10.10.1");
+        file_path = cstring_new((UINT8 *)"/tianye", 0);
+        
+        cdfs_md_id = cdfs_start();
+        cdfs_add_np(cdfs_md_id, cdfsnp_tcid);
+
+        path_cstr_vec = cvector_new(0, MM_CSTRING, 0);
+
+        task_tcid_mono(cdfs_get_np_mod_mgr(cdfs_md_id), TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, cdfsnp_tcid, 
+                        &ret, FI_cdfs_qlist_path,  ERR_MODULE_ID, file_path, path_cstr_vec);
+
+        sys_log(LOGSTDOUT, "[DEBUG] main: path cstr vec:\n");
+        cvector_print(LOGSTDOUT, path_cstr_vec, (CVECTOR_DATA_PRINT)cstring_print);
+
+        max_test_data_files = g_cdfs_buff_used_num;/*ignore 2M or 4M data files*/
+        if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+        {
+            sys_log(LOGSTDOUT, "error:main:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+            cdfs_end(cdfs_md_id);
+
+            do_slave_wait_default();
+        }
+        
+#if 1
+        continue_flag = EC_TRUE;
+        for(outer_loop = 0; outer_loop < cvector_size(path_cstr_vec) && EC_TRUE == continue_flag; outer_loop ++)
+        {
+            CSTRING *path_cstr;
+            char *home;
+            UINT32 counter;            
+
+            sys_log(LOGCONSOLE, "[DEBUG] main: outer_loop = %ld\n", outer_loop);
+
+            path_cstr = (CSTRING *)cvector_get(path_cstr_vec, outer_loop);
+            if(NULL_PTR == path_cstr)
+            {
+                sys_log(LOGSTDOUT, "error:main: path cstring at %ld is null\n", outer_loop);
+                break;
+            }
+
+            home = (char *)cstring_get_str(path_cstr);
+
+            counter = 0;
+            for(inner_loop = 0; inner_loop < ((1024 + CDFS_TEST_READ_MAX_FILES - 1) / CDFS_TEST_READ_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
+            {
+                continue_flag = test_case_85(NULL_PTR, home, cdfsnp_tcid, cdfs_md_id, max_test_data_files, &counter);
+            }
+        }
+#endif       
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+        cdfs_end(cdfs_md_id);
+
+        cstring_free(file_path);
+        cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+        cvector_free(path_cstr_vec, 0);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.101") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        UINT32 cdfsnp_tcid;
+        UINT32 outer_loop;
+        UINT32 inner_loop;
+        EC_BOOL ret;
+
+        CSTRING *file_path;
+        void    *path_cstr_vec;
+
+        UINT32   max_test_data_files;
+
+        EC_BOOL continue_flag;
+        
+        cdfsnp_tcid = ipv4_to_uint32((char *)"10.10.10.1");
+        file_path = cstring_new((UINT8 *)"/hansoul01", 0);
+        
+        cdfs_md_id = cdfs_start();
+        cdfs_add_np(cdfs_md_id, cdfsnp_tcid);
+
+        path_cstr_vec = cvector_new(0, MM_CSTRING, 0);
+#if 0
+
+        task_tcid_mono(cdfs_get_np_mod_mgr(cdfs_md_id), TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, cdfsnp_tcid, 
+                        &ret, FI_cdfs_qlist_path,  ERR_MODULE_ID, file_path, path_cstr_vec);
+
+        sys_log(LOGSTDOUT, "[DEBUG] main: path cstr vec:\n");
+        cvector_print(LOGSTDOUT, path_cstr_vec, (CVECTOR_DATA_PRINT)cstring_print);
+#endif
+
+#if 1
+        {
+            CSTRING *path_cstr;
+
+            path_cstr = cstring_new("/hansoul01/20120614_134300/", 0);
+            cvector_push(path_cstr_vec, path_cstr);
+        }
+#endif
+        max_test_data_files = g_cdfs_buff_used_num;/*ignore 2M or 4M data files*/
+        if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+        {
+            sys_log(LOGSTDOUT, "error:main:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+            cdfs_end(cdfs_md_id);
+
+            do_slave_wait_default();
+        }
+
+
+        
+#if 1
+        continue_flag = EC_TRUE;
+        for(outer_loop = 0; outer_loop < cvector_size(path_cstr_vec) && EC_TRUE == continue_flag; outer_loop ++)
+        {
+            CSTRING *path_cstr;
+            char *home;
+            UINT32 counter;            
+
+            sys_log(LOGCONSOLE, "[DEBUG] main: outer_loop = %ld\n", outer_loop);
+
+            path_cstr = (CSTRING *)cvector_get(path_cstr_vec, outer_loop);
+            if(NULL_PTR == path_cstr)
+            {
+                sys_log(LOGSTDOUT, "error:main: path cstring at %ld is null\n", outer_loop);
+                break;
+            }
+
+            home = (char *)cstring_get_str(path_cstr);
+
+            counter = 0;
+            for(inner_loop = 0; inner_loop < ((1024 + CDFS_TEST_READ_MAX_FILES - 1) / CDFS_TEST_READ_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
+            {
+                continue_flag = test_case_85(NULL_PTR, home, cdfsnp_tcid, cdfs_md_id, max_test_data_files, &counter);
+            }
+        }
+#endif       
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+        cdfs_end(cdfs_md_id);
+
+        cstring_free(file_path);
+        cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+        cvector_free(path_cstr_vec, 0);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.102") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        UINT32 cdfsnp_tcid;
+        UINT32 outer_loop;
+        UINT32 inner_loop;
+        EC_BOOL ret;
+
+        CSTRING *file_path;
+        void    *path_cstr_vec;
+
+        UINT32   max_test_data_files;
+
+        EC_BOOL continue_flag;
+        
+        cdfsnp_tcid = ipv4_to_uint32((char *)"10.10.10.1");
+        file_path = cstring_new((UINT8 *)"/hansoul02", 0);
+        
+        cdfs_md_id = cdfs_start();
+        cdfs_add_np(cdfs_md_id, cdfsnp_tcid);
+
+        path_cstr_vec = cvector_new(0, MM_CSTRING, 0);
+
+        task_tcid_mono(cdfs_get_np_mod_mgr(cdfs_md_id), TASK_DEFAULT_LIVE, TASK_NEED_RSP_FLAG, TASK_PRIO_NORMAL, cdfsnp_tcid, 
+                        &ret, FI_cdfs_qlist_path,  ERR_MODULE_ID, file_path, path_cstr_vec);
+
+        sys_log(LOGSTDOUT, "[DEBUG] main: path cstr vec:\n");
+        cvector_print(LOGSTDOUT, path_cstr_vec, (CVECTOR_DATA_PRINT)cstring_print);
+
+        max_test_data_files = g_cdfs_buff_used_num;/*ignore 2M or 4M data files*/
+        if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+        {
+            sys_log(LOGSTDOUT, "error:main:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+            cdfs_end(cdfs_md_id);
+
+            do_slave_wait_default();
+        }
+        
+#if 1
+        continue_flag = EC_TRUE;
+        for(outer_loop = 0; outer_loop < cvector_size(path_cstr_vec) && EC_TRUE == continue_flag; outer_loop ++)
+        {
+            CSTRING *path_cstr;
+            char *home;
+            UINT32 counter;            
+
+            sys_log(LOGCONSOLE, "[DEBUG] main: outer_loop = %ld\n", outer_loop);
+
+            path_cstr = (CSTRING *)cvector_get(path_cstr_vec, outer_loop);
+            if(NULL_PTR == path_cstr)
+            {
+                sys_log(LOGSTDOUT, "error:main: path cstring at %ld is null\n", outer_loop);
+                break;
+            }
+
+            home = (char *)cstring_get_str(path_cstr);
+
+            counter = 0;
+            for(inner_loop = 0; inner_loop < ((1024 + CDFS_TEST_READ_MAX_FILES - 1) / CDFS_TEST_READ_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
+            {
+                continue_flag = test_case_85(NULL_PTR, home, cdfsnp_tcid, cdfs_md_id, max_test_data_files, &counter);
+            }
+        }
+#endif       
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+        cdfs_end(cdfs_md_id);
+
+        cstring_free(file_path);
+        cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+        cvector_free(path_cstr_vec, 0);
+
+        do_slave_wait_default();
+    }    
+#if 1
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+
+    /*work process*/
+    else
+    {
+        do_slave_wait_default();
+    }
+
+    return (0);
+}
+#ifdef __cplusplus
+}
+#endif/*__cplusplus*/
+

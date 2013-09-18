@@ -1,0 +1,2997 @@
+#ifdef __cplusplus
+extern "C"{
+#endif/*__cplusplus*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <malloc.h>
+#include <unistd.h>
+#include <time.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#include "lib_cmpi.h"
+
+#include "lib_typeconst.h"
+#include "lib_type.h"
+#include "lib_char2int.h"
+#include "lib_task.h"
+#include "lib_mod.h"
+#include "lib_log.h"
+#include "lib_debug.h"
+#include "lib_rank.h"
+
+#include "lib_cstring.h"
+#include "lib_cvector.h"
+
+#include "lib_super.h"
+#include "lib_tbd.h"
+#include "lib_crun.h"
+
+#include "lib_taskc.h"
+#include "lib_cthread.h"
+
+#include "lib_cmpic.inc"
+#include "lib_findex.inc"
+
+#include "lib_chashalgo.h"
+
+#include "lib_cdfs.h"
+#include "lib_cdfsnp.h"
+
+
+#define ASSERT(_conditon_should_be) do{if(!(_conditon_should_be)) {sys_log(LOGSTDERR, "%s:%d:abort\n", __FILE__, __LINE__); task_brd_default_abort();}}while(0)
+static void print_tcid(LOG *log, const UINT32 tcid)
+{
+    sys_log(log, "%s\n", uint32_to_ipv4(tcid));
+    return;
+}
+
+static const char *g_np_root = "/home/ezhocha/cdfs";
+static const char *g_dn_root = "/home/ezhocha/cdfs";
+
+static void *g_cdfs_buff[32];
+static UINT32 g_cdfs_buff_max_len = sizeof(g_cdfs_buff)/sizeof(g_cdfs_buff[0]);
+
+#define CDFS_TEST_SCENARIO_1K_TO_16K (1)
+#define CDFS_TEST_SCENARIO_4K_TO_1M  (2)
+#define CDFS_TEST_SCENARIO_4K_TO_4M  (4)
+
+#if (32 == WORDSIZE)
+/*scenario choice*/
+#define CDFS_TEST_SCENARIO_CHOICE    (CDFS_TEST_SCENARIO_4K_TO_1M)
+
+/*common definition*/
+#define CDFS_NP_CACHED_MAX_NUM       ((UINT32)   8)
+#define CDFS_NP_MIN_NUM              ((UINT32)   1)/*xxx*/
+#define CDFS_REPLICA_MAX_NUM         ((UINT32)   1)/*xxx*/
+#define CDFS_MAX_TASK_NUM_PER_LOOP   ((UINT32)1024)/*num of files handled per loop*/
+
+#if (CDFS_TEST_SCENARIO_1K_TO_16K == CDFS_TEST_SCENARIO_CHOICE)
+static UINT32 g_cdfs_buff_used_num = 16;
+
+#define CDFS_TEST_WRITE_MAX_FILES  4
+#define CDFS_TEST_READ_MAX_FILES   4
+#define CDFS_TEST_LOOP_MAX_TIMES   8
+#endif/*(CDFS_TEST_SCENARIO_1K_TO_16K == CDFS_TEST_SCENARIO_CHOICE)*/
+
+#if (CDFS_TEST_SCENARIO_4K_TO_1M == CDFS_TEST_SCENARIO_CHOICE)
+static UINT32 g_cdfs_buff_used_num = 9;
+
+#define CDFS_TEST_WRITE_MAX_FILES   64/*xxx*/
+#define CDFS_TEST_READ_MAX_FILES    64/*xxx*/
+#define CDFS_TEST_LOOP_MAX_TIMES   128/*xxx*/
+#endif/*(CDFS_TEST_SCENARIO_4K_TO_1M == CDFS_TEST_SCENARIO_CHOICE)*/
+
+#if (CDFS_TEST_SCENARIO_4K_TO_4M == CDFS_TEST_SCENARIO_CHOICE)
+static UINT32 g_cdfs_buff_used_num = 11;
+
+#define CDFS_TEST_WRITE_MAX_FILES 128
+#define CDFS_TEST_READ_MAX_FILES  128
+#define CDFS_TEST_LOOP_MAX_TIMES  256
+#endif/*(CDFS_TEST_SCENARIO_4K_TO_4M == CDFS_TEST_SCENARIO_CHOICE)*/
+#endif/*(32 == WORDSIZE)*/
+
+
+#if (64 == WORDSIZE)
+/*scenario choice*/
+#define CDFS_TEST_SCENARIO_CHOICE    (CDFS_TEST_SCENARIO_4K_TO_1M)
+
+/*common definition*/
+#define CDFS_NP_CACHED_MAX_NUM       ((UINT32)  16)/*num of hot np cached in memory*/
+#define CDFS_NP_MIN_NUM              ((UINT32)   1)/*xxx*/
+#define CDFS_REPLICA_MAX_NUM         ((UINT32)   1)/*xxx*/
+#define CDFS_MAX_TASK_NUM_PER_LOOP   ((UINT32)1024)/*num of files handled per loop*/
+
+#if (CDFS_TEST_SCENARIO_1K_TO_16K == CDFS_TEST_SCENARIO_CHOICE)
+static UINT32 g_cdfs_buff_used_num = 16;
+
+#define CDFS_TEST_WRITE_MAX_FILES 128
+#define CDFS_TEST_READ_MAX_FILES  128
+#define CDFS_TEST_LOOP_MAX_TIMES    1
+#endif/*(CDFS_TEST_SCENARIO_1K_TO_16K == CDFS_TEST_SCENARIO_CHOICE)*/
+
+#if (CDFS_TEST_SCENARIO_4K_TO_1M == CDFS_TEST_SCENARIO_CHOICE)
+static UINT32 g_cdfs_buff_used_num = 9;
+
+#define CDFS_TEST_WRITE_MAX_FILES   64/*xxx*/
+#define CDFS_TEST_READ_MAX_FILES    64/*xxx*/
+#define CDFS_TEST_LOOP_MAX_TIMES   128/*xxx*/
+#endif/*(CDFS_TEST_SCENARIO_4K_TO_1M == CDFS_TEST_SCENARIO_CHOICE)*/
+
+#if (CDFS_TEST_SCENARIO_4K_TO_4M == CDFS_TEST_SCENARIO_CHOICE)
+static UINT32 g_cdfs_buff_used_num = 11;
+
+#define CDFS_TEST_WRITE_MAX_FILES 128
+#define CDFS_TEST_READ_MAX_FILES  128
+#define CDFS_TEST_LOOP_MAX_TIMES  256
+#endif/*(CDFS_TEST_SCENARIO_4K_TO_4M == CDFS_TEST_SCENARIO_CHOICE)*/
+#endif/*(64 == WORDSIZE)*/
+
+static EC_BOOL init_g_cdfs_buff(const UINT32 cdfs_md_id, const UINT32 max_num)
+{
+    UINT32 pos;
+    UINT32 max_cfg_num;
+
+    struct
+    {
+        char  *file_name;
+        UINT32 file_size;
+    }file_cfg_tbl[] = {
+#if (CDFS_TEST_SCENARIO_1K_TO_16K == CDFS_TEST_SCENARIO_CHOICE)
+        {"../../data_files/1K.dat",     1 * 1024},
+        {"../../data_files/2K.dat",     2 * 1024},
+        {"../../data_files/3K.dat",     3 * 1024},
+        {"../../data_files/4K.dat",     4 * 1024},
+        {"../../data_files/5K.dat",     5 * 1024},
+        {"../../data_files/6K.dat",     6 * 1024},
+        {"../../data_files/7K.dat",     7 * 1024},
+        {"../../data_files/8K.dat",     8 * 1024},
+        {"../../data_files/9K.dat",     9 * 1024},
+        {"../../data_files/10K.dat",   10 * 1024},
+        {"../../data_files/11K.dat",   11 * 1024},    
+        {"../../data_files/12K.dat",   12 * 1024},
+        {"../../data_files/13K.dat",   13 * 1024},    
+        {"../../data_files/14K.dat",   14 * 1024},
+        {"../../data_files/15K.dat",   15 * 1024},    
+        {"../../data_files/16K.dat",   16 * 1024},    
+#endif/*(CDFS_TEST_SCENARIO_1K_TO_16K == CDFS_TEST_SCENARIO_CHOICE)*/    
+
+#if (CDFS_TEST_SCENARIO_4K_TO_1M == CDFS_TEST_SCENARIO_CHOICE)
+        {"../../data_files/4K.dat",     4 * 1024},
+        {"../../data_files/8K.dat",     8 * 1024},
+        {"../../data_files/16K.dat",   16 * 1024},
+        {"../../data_files/32K.dat",   32 * 1024},
+        {"../../data_files/64K.dat",   64 * 1024},
+        {"../../data_files/128K.dat", 128 * 1024},
+        {"../../data_files/256K.dat", 256 * 1024},
+        {"../../data_files/512K.dat", 512 * 1024},
+        {"../../data_files/1M.dat",     1 * 1024 * 1024},
+#endif/*(CDFS_TEST_SCENARIO_4K_TO_1M == CDFS_TEST_SCENARIO_CHOICE)*/
+
+#if (CDFS_TEST_SCENARIO_4K_TO_4M == CDFS_TEST_SCENARIO_CHOICE)
+        {"../../data_files/4K.dat",     4 * 1024},
+        {"../../data_files/8K.dat",     8 * 1024},
+        {"../../data_files/16K.dat",   16 * 1024},
+        {"../../data_files/32K.dat",   32 * 1024},
+        {"../../data_files/64K.dat",   64 * 1024},
+        {"../../data_files/128K.dat", 128 * 1024},
+        {"../../data_files/256K.dat", 256 * 1024},
+        {"../../data_files/512K.dat", 512 * 1024},
+        {"../../data_files/1M.dat",     1 * 1024 * 1024},
+        {"../../data_files/2M.dat",     2 * 1024 * 1024},
+        {"../../data_files/4M.dat",     4 * 1024 * 1024},
+#endif/*(CDFS_TEST_SCENARIO_4K_TO_4M == CDFS_TEST_SCENARIO_CHOICE)*/
+    };
+
+    max_cfg_num = sizeof(file_cfg_tbl)/sizeof(file_cfg_tbl[0]);
+    if(max_num > max_cfg_num)
+    {
+        sys_log(LOGSTDOUT, "error:init_g_cdfs_buff: max_num %ld but max_cfg_num %ld\n", max_num, max_cfg_num);
+        return (EC_FALSE);
+    }
+
+    if(max_num > g_cdfs_buff_max_len)
+    {
+        sys_log(LOGSTDOUT, "error:init_g_cdfs_buff: max_num %ld but g_cdfs_buff_max_len %ld\n", max_num, g_cdfs_buff_max_len);
+        return (EC_FALSE);
+    }    
+
+    for(pos = 0; pos < g_cdfs_buff_max_len; pos ++)
+    {
+        g_cdfs_buff[ pos ] = NULL_PTR;
+    }
+
+    for(pos = 0; pos < max_num; pos ++)
+    {
+        char   *file_name;
+        UINT32  file_size;
+        void   *cdfs_buff;
+        int fd;        
+
+        file_name = file_cfg_tbl[ pos ].file_name;
+        file_size = file_cfg_tbl[ pos ].file_size;
+        //cdfs_buff = ;
+        
+        if(0 != access(file_name, F_OK))
+        {
+            sys_log(LOGSTDOUT, "error:init_g_cdfs_buff: file %s not exist or inaccessable\n", file_name);
+            return (EC_FALSE);
+        }
+
+        fd = open(file_name, O_RDONLY, 0666);
+        if(-1 == fd)
+        {
+            sys_log(LOGSTDOUT, "error:init_g_cdfs_buff: open file %s to read failed\n", file_name);
+            return (EC_FALSE);
+        }
+
+        cdfs_buff = cdfs_buff_new(cdfs_md_id, file_size);
+        if(file_size != read(fd, cdfs_buff_val(cdfs_md_id, cdfs_buff), file_size))
+        {
+            sys_log(LOGSTDOUT, "error:init_g_cdfs_buff: read file %s with size %ld failed\n", file_name, file_size);
+            cdfs_buff_free(cdfs_md_id, cdfs_buff);
+            return (EC_FALSE);
+        }      
+
+        g_cdfs_buff[ pos ] = cdfs_buff;
+
+        close(fd);
+    }
+
+    return (EC_TRUE);
+}
+
+static EC_BOOL clean_g_cdfs_buff(const UINT32 cdfs_md_id, const UINT32 max_num)
+{
+    UINT32 pos;
+    if(max_num > g_cdfs_buff_max_len)
+    {
+        sys_log(LOGSTDOUT, "error:clean_g_cdfs_buff: max_num %ld but g_cdfs_buff_max_len %ld\n", max_num, g_cdfs_buff_max_len);
+        return (EC_FALSE);
+    }
+
+    for(pos = 0; pos < max_num; pos ++)
+    {
+        void   *cdfs_buff;
+
+        cdfs_buff = g_cdfs_buff[ pos ];
+        if(NULL_PTR != cdfs_buff)
+        {
+            cdfs_buff_free(cdfs_md_id, cdfs_buff);
+            g_cdfs_buff[ pos ] = NULL_PTR;
+        }
+    }
+    return (EC_TRUE);
+}
+
+static void *fetch_g_cdfs_buff(const UINT32 cdfs_md_id, const UINT32 max_num, const UINT32 pos)
+{
+    if(max_num > g_cdfs_buff_max_len)
+    {
+        sys_log(LOGSTDOUT, "error:fetch_g_cdfs_buff: max_num %ld but g_cdfs_buff_max_len %ld\n", max_num, g_cdfs_buff_max_len);
+        return (NULL_PTR);
+    }
+
+    return g_cdfs_buff[ pos ];
+}
+
+void test_case_80(void *mod_mgr_def)
+{
+    UINT32 cdfs_md_id;
+    
+    CSTRING *cdfsnp_db_root_dir;
+
+    cdfsnp_db_root_dir = cstring_new((UINT8 *)"/tmp", 0);
+
+    cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+    if(EC_FALSE == cdfs_create_npp(cdfs_md_id, CDFSNP_4K_MODE, 2, CHASH_AP_ALGO_ID, CHASH_SDBM_ALGO_ID, cdfsnp_db_root_dir))
+    {
+        sys_log(LOGSTDOUT, "error:test_case_80: create name node %s failed\n", (char *)cstring_get_str(cdfsnp_db_root_dir));
+    }
+    else
+    {
+        sys_log(LOGSTDOUT, "test_case_80: create name node %s successfully\n", (char *)cstring_get_str(cdfsnp_db_root_dir));
+    }
+    
+    cdfs_open_npp(cdfs_md_id, cdfsnp_db_root_dir, (UINT32)4);
+    cdfs_close_npp(cdfs_md_id);
+    
+    cdfs_end(cdfs_md_id);
+
+    print_static_mem_status(LOGSTDOUT);
+    return;
+}
+
+void test_case_81(const char *home, const UINT32 cdfsnp_tcid, const UINT32 cdfs_md_id, UINT32 *counter)
+{ 
+    void *cdfsnpp_mod_mgr;
+    void *task_mgr;
+    
+    UINT32 index;  
+
+    CSTRING    *path[CDFS_TEST_WRITE_MAX_FILES];
+    void       *cdfs_buff[CDFS_TEST_WRITE_MAX_FILES];
+    EC_BOOL     ret[CDFS_TEST_WRITE_MAX_FILES];
+
+    for(index = 0; index < CDFS_TEST_WRITE_MAX_FILES; index ++)
+    {
+        path[ index ]      = NULL_PTR;
+        cdfs_buff[ index ] = NULL_PTR;
+        ret[ index ]       = EC_FALSE;        
+    }  
+
+    cdfsnpp_mod_mgr = cdfs_get_npp_mod_mgr(cdfs_md_id);
+
+    task_new(cdfsnpp_mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+
+    for(index = 0; index < CDFS_TEST_WRITE_MAX_FILES; index ++, (*counter) ++)
+    {
+        char str_buff[64];
+
+        path[ index ] = cstring_new(NULL_PTR, 0);
+        cstring_format(path[ index ], "%s/%ld.dat", home, (*counter));
+        snprintf(str_buff, sizeof(str_buff), "hello, %ld!", (*counter));
+
+        cdfs_buff[ index ] = cdfs_buff_new(cdfs_md_id, 64);
+        cdfs_buff_set(cdfs_md_id, cdfs_buff[ index ], strlen(str_buff), (UINT8 *)str_buff);
+
+        ret[ index ] = EC_FALSE;
+
+        task_tcid_inc(task_mgr, cdfsnp_tcid, &(ret[ index ]), FI_cdfs_write, ERR_MODULE_ID, path[ index ], cdfs_buff[ index ], CDFS_REPLICA_MAX_NUM);
+    }
+
+    task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    for(index = 0; index < CDFS_TEST_WRITE_MAX_FILES; index ++)
+    {
+        if(NULL_PTR != path[ index ])
+        {
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+        }
+
+        if(NULL_PTR != cdfs_buff[ index ])
+        {
+            cdfs_buff_free(cdfs_md_id, cdfs_buff[ index ]);
+            cdfs_buff[ index ] = NULL_PTR;
+        }
+    }    
+    
+    return;
+}
+
+EC_BOOL test_case_82_cdfs_read(const char *home, const UINT32 read_from_tcid, const UINT32 cdfs_md_id, const UINT32 max_test_data_files, UINT32 *counter)
+{ 
+    void *mod_mgr;
+    void *task_mgr;
+    
+    UINT32 index;
+
+    CSTRING    *path[CDFS_TEST_READ_MAX_FILES];
+    void       *cdfs_buff[CDFS_TEST_READ_MAX_FILES];/*read from dn*/
+    void       *cdfs_buff_des[CDFS_TEST_READ_MAX_FILES];/*benchmark*/
+    EC_BOOL     ret[CDFS_TEST_READ_MAX_FILES];
+
+    EC_BOOL     continue_flag;
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++)
+    {
+        path[ index ]          = NULL_PTR;
+        cdfs_buff[ index ]     = NULL_PTR;
+        cdfs_buff_des[ index ] = NULL_PTR;
+        ret[ index ]           = EC_FALSE;        
+    }  
+
+    mod_mgr = mod_mgr_new(cdfs_md_id, LOAD_BALANCING_LOOP);
+    mod_mgr_incl(read_from_tcid, CMPI_ANY_COMM, CMPI_CDFS_RANK, cdfs_md_id, mod_mgr);    
+
+    sys_log(LOGSTDOUT, "test_case_82_cdfs_read: npp mod mgr is\n");
+    mod_mgr_print(LOGSTDOUT, cdfs_get_npp_mod_mgr(cdfs_md_id));
+
+    sys_log(LOGSTDOUT, "test_case_82_cdfs_read: dn mod mgr is\n");
+    mod_mgr_print(LOGSTDOUT, cdfs_get_dn_mod_mgr(cdfs_md_id));    
+
+    task_new(mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++, (*counter) ++)
+    {
+        path[ index ] = cstring_new(NULL_PTR, 0);
+        cstring_format(path[ index ], "%s%ld.dat", home, (*counter));
+
+        cdfs_buff[ index ]     = cdfs_buff_new(cdfs_md_id, 0);
+        cdfs_buff_des[ index ] = fetch_g_cdfs_buff(cdfs_md_id, max_test_data_files, ((*counter) % max_test_data_files));
+
+        ret[ index ] = EC_FALSE;
+
+        //task_tcid_inc(task_mgr, read_from_tcid, &(ret[ index ]), FI_cdfs_read, ERR_MODULE_ID, path[ index ], cdfs_buff[ index ]);
+        task_inc(task_mgr, &(ret[ index ]), FI_cdfs_read, ERR_MODULE_ID, path[ index ], cdfs_buff[ index ]);
+    }
+
+    task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    continue_flag = EC_TRUE;
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++)
+    {
+        if(NULL_PTR != cdfs_buff[ index ])
+        {
+            if(EC_TRUE == cdfs_buff_ncmp(cdfs_md_id, cdfs_buff[ index ], cdfs_buff_des[ index ], 16))
+            {
+                sys_log(LOGSTDOUT, "[SUCC] path: %s, len = %ld ", 
+                                  (char *)cstring_get_str(path[ index ]), 
+                                  cdfs_buff_len(cdfs_md_id, cdfs_buff[ index ]));
+                sys_print(LOGSTDOUT, "text = %.*s\n", 
+                                  cdfs_buff_len(cdfs_md_id, cdfs_buff[ index ]) > 16 ? 16 : cdfs_buff_len(cdfs_md_id, cdfs_buff[ index ]), /*output up to 16 chars*/
+                                  (char *)cdfs_buff_val(cdfs_md_id, cdfs_buff[ index ]));
+            }
+            else
+            {
+                continue_flag = EC_FALSE;
+                
+                sys_log(LOGCONSOLE, "[FAIL] path: %s, read len = %ld ", 
+                                  (char *)cstring_get_str(path[ index ]), 
+                                  cdfs_buff_len(cdfs_md_id, cdfs_buff[ index ]));
+                sys_print(LOGCONSOLE, "text = %.*s <--> ", 
+                                  cdfs_buff_len(cdfs_md_id, cdfs_buff[ index ]) > 16 ? 16 : cdfs_buff_len(cdfs_md_id, cdfs_buff[ index ]), /*output up to 16 chars*/
+                                  (char *)cdfs_buff_val(cdfs_md_id, cdfs_buff[ index ]));
+
+                sys_print(LOGCONSOLE, "expect len = %ld ", 
+                                    cdfs_buff_len(cdfs_md_id, cdfs_buff_des[ index ]));
+                sys_print(LOGCONSOLE, "text = %.*s\n", 
+                                    cdfs_buff_len(cdfs_md_id, cdfs_buff_des[ index ]) > 16 ? 16 : cdfs_buff_len(cdfs_md_id, cdfs_buff_des[ index ]),
+                                    (char *)cdfs_buff_val(cdfs_md_id, cdfs_buff_des[ index ]));
+            }
+        }        
+        
+        if(NULL_PTR != path[ index ])
+        {
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+        }
+
+        if(NULL_PTR != cdfs_buff[ index ])
+        {
+            cdfs_buff_free(cdfs_md_id, cdfs_buff[ index ]);
+            cdfs_buff[ index ] = NULL_PTR;
+        }
+
+        if(NULL_PTR != cdfs_buff_des[ index ])
+        {
+            cdfs_buff_des[ index ] = NULL_PTR;
+        }
+    }    
+
+    mod_mgr_free(mod_mgr);
+    return (continue_flag);
+}
+
+
+EC_BOOL test_case_83_cdf_write(const char *home, const UINT32 write_from_tcid, const UINT32 cdfs_md_id, const UINT32 max_test_data_files, UINT32 *counter)
+{ 
+    void *mod_mgr;
+    void *task_mgr;
+    
+    UINT32 index;  
+
+    EC_BOOL continue_flag;
+
+    CSTRING    *path[CDFS_TEST_WRITE_MAX_FILES];
+    EC_BOOL     ret[CDFS_TEST_WRITE_MAX_FILES];
+
+    for(index = 0; index < CDFS_TEST_WRITE_MAX_FILES; index ++)
+    {
+        path[ index ]      = NULL_PTR;
+        ret[ index ]       = EC_FALSE;        
+    }  
+
+    mod_mgr = mod_mgr_new(cdfs_md_id, LOAD_BALANCING_LOOP);
+    mod_mgr_incl(write_from_tcid, CMPI_ANY_COMM, CMPI_CDFS_RANK, cdfs_md_id, mod_mgr);    
+
+    sys_log(LOGSTDOUT, "test_case_83_cdf_write: npp mod mgr is\n");
+    mod_mgr_print(LOGSTDOUT, cdfs_get_npp_mod_mgr(cdfs_md_id));
+
+    sys_log(LOGSTDOUT, "test_case_83_cdf_write: dn mod mgr is\n");
+    mod_mgr_print(LOGSTDOUT, cdfs_get_dn_mod_mgr(cdfs_md_id));
+    
+    task_new(mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+
+    for(index = 0; index < CDFS_TEST_WRITE_MAX_FILES; index ++, (*counter) ++)
+    {
+        void *cdfs_buff;
+
+        path[ index ] = cstring_new(NULL_PTR, 0);
+        cstring_format(path[ index ], "%s/%ld.dat", home, (*counter));
+
+        ret[ index ] = EC_FALSE;
+        cdfs_buff = fetch_g_cdfs_buff(cdfs_md_id, max_test_data_files, ((*counter) % max_test_data_files));
+        if(NULL_PTR == cdfs_buff)
+        {
+            sys_log(LOGSTDOUT, "error:test_case_83_cdf_write: cdfs buff is null where index = %ld, max_test_data_files = %ld\n", index, max_test_data_files);
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+            break;
+        }
+
+        task_tcid_inc(task_mgr, write_from_tcid, &(ret[ index ]), FI_cdfs_write, ERR_MODULE_ID, path[ index ], cdfs_buff, CDFS_REPLICA_MAX_NUM);
+    }
+
+    task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    continue_flag = EC_TRUE;
+
+    for(index = 0; index < CDFS_TEST_WRITE_MAX_FILES; index ++)
+    {
+        if(EC_FALSE == ret[ index ] && NULL_PTR != path[ index ])
+        {
+            continue_flag = EC_FALSE;
+            sys_log(LOGCONSOLE, "test_case_83_cdf_write: [FAIL] %s\n", (char *)cstring_get_str(path[ index ]));
+        }
+        if(NULL_PTR != path[ index ])
+        {
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+        }        
+    }    
+
+    mod_mgr_free(mod_mgr);
+    
+    return (continue_flag);
+}
+
+/*check replica basic info*/
+EC_BOOL test_case_84_check_replica(const char *home, const UINT32 cdfs_md_id, const UINT32 replica_num, const void *tcid_vec, UINT32 *counter)
+{ 
+    void *cdfsnpp_mod_mgr;
+    void *task_mgr;
+    
+    UINT32 index;
+
+    CSTRING    *path[CDFS_TEST_READ_MAX_FILES];
+    EC_BOOL     ret[CDFS_TEST_READ_MAX_FILES];
+
+    EC_BOOL     continue_flag;
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++)
+    {
+        path[ index ]      = NULL_PTR;
+        ret[ index ]       = EC_FALSE;        
+    }  
+
+    cdfsnpp_mod_mgr = cdfs_get_npp_mod_mgr(cdfs_md_id);
+    sys_log(LOGSTDOUT, "test_case_84_check_replica: cdfsnpp mod mgr is\n");
+    mod_mgr_print(LOGSTDOUT, cdfsnpp_mod_mgr);
+    
+    task_new(cdfsnpp_mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++, (*counter) ++)
+    {
+        path[ index ] = cstring_new(NULL_PTR, 0);
+        cstring_format(path[ index ], "%s%ld.dat", home, (*counter));
+
+        ret[ index ] = EC_FALSE;
+
+        task_inc(task_mgr, &(ret[ index ]), FI_cdfs_check_replicas, ERR_MODULE_ID, path[ index ], replica_num, tcid_vec);
+    }
+
+    task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    continue_flag = EC_TRUE;
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++)
+    {
+        if(EC_TRUE == ret[ index ])
+        {
+            sys_log(LOGSTDOUT, "[SUCC] path: %s\n", (char *)cstring_get_str(path[ index ]));
+        }
+        else
+        {
+            continue_flag = EC_FALSE;
+            sys_log(LOGCONSOLE, "[FAIL] path: %s\n", (char *)cstring_get_str(path[ index ]));
+        }
+        
+        if(NULL_PTR != path[ index ])
+        {
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+        }
+    }    
+    
+    return (continue_flag);
+}
+
+/*check replica files*/
+EC_BOOL test_case_85_cdfs_check_file_content(const char *home, const UINT32 cdfs_md_id, const UINT32 max_test_data_files, UINT32 *counter)
+{ 
+    void *cdfsnpp_mod_mgr;
+    void *task_mgr;
+    
+    UINT32 index;
+
+    CSTRING    *path[CDFS_TEST_READ_MAX_FILES];
+    CSTRING    *file_content_cstr[CDFS_TEST_READ_MAX_FILES];
+    EC_BOOL     ret[CDFS_TEST_READ_MAX_FILES];
+
+    EC_BOOL     continue_flag;
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++)
+    {
+        path[ index ]      = NULL_PTR;
+        file_content_cstr[ index ] = NULL_PTR;
+        ret[ index ]       = EC_FALSE;        
+    }  
+
+    cdfsnpp_mod_mgr = cdfs_get_npp_mod_mgr(cdfs_md_id);
+    sys_log(LOGSTDOUT, "test_case_85_cdfs_check_file_content: cdfsnpp mod mgr is\n");
+    mod_mgr_print(LOGSTDOUT, cdfsnpp_mod_mgr);
+    
+    task_new(cdfsnpp_mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++, (*counter) ++)
+    {
+        void *cdfs_buff_des;
+        cdfs_buff_des = fetch_g_cdfs_buff(cdfs_md_id, max_test_data_files, ((*counter) % max_test_data_files));
+        
+        path[ index ] = cstring_new(NULL_PTR, 0);
+        cstring_format(path[ index ], "%s%ld.dat", home, (*counter));
+
+        file_content_cstr[ index ] = cstring_new(NULL_PTR, 0);
+        cstring_append_chars(file_content_cstr[ index ], 16, cdfs_buff_val(cdfs_md_id, cdfs_buff_des));
+
+        ret[ index ] = EC_FALSE;
+
+        task_inc(task_mgr, &(ret[ index ]), 
+                        FI_cdfs_check_replica_files_content, ERR_MODULE_ID, path[ index ], cdfs_buff_len(cdfs_md_id, cdfs_buff_des), file_content_cstr[ index ]);
+    }
+
+    task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    continue_flag = EC_TRUE;
+
+    for(index = 0; index < CDFS_TEST_READ_MAX_FILES; index ++)
+    {
+        if(EC_TRUE == ret[ index ])
+        {
+            sys_log(LOGSTDOUT, "[SUCC] path: %s\n", (char *)cstring_get_str(path[ index ]));
+        }
+        else
+        {
+            continue_flag = EC_FALSE;
+            sys_log(LOGCONSOLE, "[FAIL] path: %s\n", (char *)cstring_get_str(path[ index ]));
+        }
+        
+        if(NULL_PTR != path[ index ])
+        {
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+        }
+        
+        if(NULL_PTR != path[ index ])
+        {
+            cstring_free(path[ index ]);
+            path[ index ] = NULL_PTR;
+        }
+
+        if(NULL_PTR != file_content_cstr[ index ])
+        {
+            cstring_free(file_content_cstr[ index ]);
+            file_content_cstr[ index ] = NULL_PTR;
+        }
+    }    
+    
+    return (continue_flag);
+}
+
+EC_BOOL test_case_86_cdfs_writer(const UINT32 cdfs_md_id, const UINT32 write_from_tcid, const UINT32 max_test_data_files, const char *root_dir_in_db, const void *cdfsdn_tcid_vec)
+{
+    UINT32 outer_loop;
+    UINT32 inner_loop;
+    EC_BOOL continue_flag;
+    
+    if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+    {
+        sys_log(LOGSTDOUT, "error:test_case_86_cdfs_writer:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+        return (EC_FALSE);
+    }
+
+    continue_flag = EC_TRUE;
+
+    for(outer_loop = 0; outer_loop < CDFS_TEST_LOOP_MAX_TIMES && EC_TRUE == continue_flag; outer_loop ++)
+    {
+        struct tm *cur_time;
+        time_t timestamp;
+        char home[64];
+        UINT32 counter;
+
+        sys_log(LOGCONSOLE, "[DEBUG] test_case_86_cdfs_writer: outer_loop = %ld\n", outer_loop);
+
+        time(&timestamp);
+        cur_time = localtime(&timestamp);
+
+        snprintf(home, sizeof(home), "%s/%4d%02d%02d_%02d%02d%02d_%08ld", 
+                root_dir_in_db,
+                cur_time->tm_year + 1900,
+                cur_time->tm_mon + 1,
+                cur_time->tm_mday,
+                cur_time->tm_hour,
+                cur_time->tm_min,
+                cur_time->tm_sec,
+                outer_loop);
+
+        counter = 0;    
+        for(inner_loop = 0; inner_loop < ((CDFS_MAX_TASK_NUM_PER_LOOP + CDFS_TEST_WRITE_MAX_FILES - 1) / CDFS_TEST_WRITE_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
+        {
+            continue_flag = test_case_83_cdf_write(home, write_from_tcid, cdfs_md_id, max_test_data_files, &counter);
+        }
+    }
+
+    clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+    sys_log(LOGCONSOLE, "[DEBUG] test_case_86_cdfs_writer: end\n");
+
+    return (continue_flag);
+}
+
+EC_BOOL test_case_87_cdfs_reader(const UINT32 cdfs_md_id, const UINT32 read_from_tcid, const UINT32 max_test_data_files, const char *root_dir_in_db, const void *cdfsdn_tcid_vec)
+{
+    UINT32 outer_loop;
+    UINT32 inner_loop;
+    
+
+    CSTRING *file_path;
+    void    *path_cstr_vec;
+
+    EC_BOOL continue_flag;
+
+    if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+    {
+        sys_log(LOGSTDOUT, "error:test_case_87_cdfs_reader:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+        return (EC_FALSE);
+    }
+    
+    file_path = cstring_new((UINT8 *)root_dir_in_db, 0);
+    
+    path_cstr_vec = cvector_new(0, MM_CSTRING, 0);
+
+    if(1)
+    {
+        void *task_mgr;
+        EC_BOOL ret;
+        
+        task_new(cdfs_get_npp_mod_mgr(cdfs_md_id), TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+        task_inc(task_mgr, &ret, FI_cdfs_qlist_path,  ERR_MODULE_ID, file_path, path_cstr_vec);
+        task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+        if(EC_FALSE == ret)
+        {
+            sys_log(LOGSTDOUT, "error:test_case_87_cdfs_reader: qlist path failed\n");
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+            cstring_free(file_path);
+            cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+            cvector_free(path_cstr_vec, 0);
+            
+            return (EC_FALSE);
+        }
+    }
+    
+    sys_log(LOGSTDOUT, "[DEBUG] test_case_87_cdfs_reader: path cstr vec:\n");
+    cvector_print(LOGSTDOUT, path_cstr_vec, (CVECTOR_DATA_PRINT)cstring_print);
+
+    continue_flag = EC_TRUE;
+    for(outer_loop = 0; outer_loop < cvector_size(path_cstr_vec) && EC_TRUE == continue_flag; outer_loop ++)
+    {
+        CSTRING *path_cstr;
+        char *home;
+        UINT32 counter;            
+
+        sys_log(LOGCONSOLE, "[DEBUG] test_case_87_cdfs_reader: outer_loop = %ld\n", outer_loop);
+
+        path_cstr = (CSTRING *)cvector_get(path_cstr_vec, outer_loop);
+        if(NULL_PTR == path_cstr)
+        {
+            sys_log(LOGSTDOUT, "error:test_case_87_cdfs_reader: path cstring at %ld is null\n", outer_loop);
+            break;
+        }
+
+        home = (char *)cstring_get_str(path_cstr);
+
+        counter = 0;
+        for(inner_loop = 0; inner_loop < ((CDFS_MAX_TASK_NUM_PER_LOOP + CDFS_TEST_READ_MAX_FILES - 1) / CDFS_TEST_READ_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
+        {
+            continue_flag = test_case_82_cdfs_read(home, read_from_tcid, cdfs_md_id, max_test_data_files, &counter);
+        }
+    }
+
+    clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+    cstring_free(file_path);
+    cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+    cvector_free(path_cstr_vec, 0);
+
+    sys_log(LOGCONSOLE, "[DEBUG] test_case_87_cdfs_reader: end\n");
+
+    return (continue_flag);
+}
+
+EC_BOOL test_case_88_cdfs_replica_checker(const UINT32 cdfs_md_id, const UINT32 max_test_data_files, const char *root_dir_in_db, const void *cdfsdn_tcid_vec)
+{
+    UINT32 outer_loop;
+    UINT32 inner_loop;
+
+    CSTRING *file_path;
+    void    *path_cstr_vec;
+
+    EC_BOOL continue_flag;
+
+    if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+    {
+        sys_log(LOGSTDOUT, "error:test_case_88_cdfs_replica_checker:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+        return (EC_FALSE);
+    }    
+    
+    file_path = cstring_new((UINT8 *)root_dir_in_db, 0);
+    
+    path_cstr_vec = cvector_new(0, MM_CSTRING, 0);
+
+    if(1)
+    {
+        void *task_mgr;
+        EC_BOOL ret;
+        
+        task_new(cdfs_get_npp_mod_mgr(cdfs_md_id), TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+        task_inc(task_mgr, &ret, FI_cdfs_qlist_path,  ERR_MODULE_ID, file_path, path_cstr_vec);
+        task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+        if(EC_FALSE == ret)
+        {
+            sys_log(LOGSTDOUT, "error:test_case_88_cdfs_replica_checker: qlist path failed\n");
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+            cstring_free(file_path);
+            cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+            cvector_free(path_cstr_vec, 0);
+            return (EC_FALSE);
+        }
+    }
+
+    sys_log(LOGSTDOUT, "[DEBUG] test_case_88_cdfs_replica_checker: path cstr vec:\n");
+    cvector_print(LOGSTDOUT, path_cstr_vec, (CVECTOR_DATA_PRINT)cstring_print);
+  
+    continue_flag = EC_TRUE;
+    for(outer_loop = 0; outer_loop < cvector_size(path_cstr_vec) && EC_TRUE == continue_flag; outer_loop ++)
+    {
+        CSTRING *path_cstr;
+        char *home;
+        UINT32 counter;            
+
+        sys_log(LOGCONSOLE, "[DEBUG] test_case_88_cdfs_replica_checker: outer_loop = %ld\n", outer_loop);
+
+        path_cstr = (CSTRING *)cvector_get(path_cstr_vec, outer_loop);
+        if(NULL_PTR == path_cstr)
+        {
+            sys_log(LOGSTDOUT, "error:test_case_88_cdfs_replica_checker: path cstring at %ld is null\n", outer_loop);
+            break;
+        }
+
+        home = (char *)cstring_get_str(path_cstr);
+
+        counter = 0;
+        for(inner_loop = 0; inner_loop < ((CDFS_MAX_TASK_NUM_PER_LOOP + CDFS_TEST_READ_MAX_FILES - 1) / CDFS_TEST_READ_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
+        {
+            continue_flag = test_case_84_check_replica(home, cdfs_md_id, CDFS_REPLICA_MAX_NUM, cdfsdn_tcid_vec, &counter);
+        }
+    }
+
+    clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+    cstring_free(file_path);
+    cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+    cvector_free(path_cstr_vec, 0);
+
+    sys_log(LOGCONSOLE, "[DEBUG] test_case_88_cdfs_replica_checker: end\n");
+
+    return (EC_TRUE);
+}
+
+EC_BOOL test_case_88_cdfs_file_content_checker(const UINT32 cdfs_md_id, const UINT32 max_test_data_files, const char *root_dir_in_db)
+{
+    UINT32 outer_loop;
+    UINT32 inner_loop;
+
+    CSTRING *file_path;
+    void    *path_cstr_vec;
+
+    EC_BOOL continue_flag;
+
+    if(EC_FALSE == init_g_cdfs_buff(cdfs_md_id, max_test_data_files))
+    {
+        sys_log(LOGSTDOUT, "error:test_case_88_cdfs_file_content_checker:init_g_cdfs_buff failed where max_test_data_files = %ld\n", max_test_data_files);
+
+        clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+        return (EC_FALSE);
+    }
+    
+    file_path = cstring_new((UINT8 *)root_dir_in_db, 0);    
+
+    path_cstr_vec = cvector_new(0, MM_CSTRING, 0);
+
+    if(1)
+    {
+        void *task_mgr;
+        EC_BOOL ret;
+        
+        task_new(cdfs_get_npp_mod_mgr(cdfs_md_id), TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, &task_mgr);
+        task_inc(task_mgr, &ret, FI_cdfs_qlist_path,  ERR_MODULE_ID, file_path, path_cstr_vec);
+        task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+        if(EC_FALSE == ret)
+        {
+            sys_log(LOGSTDOUT, "error:test_case_88_cdfs_file_content_checker: qlist path failed\n");
+
+            clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+            cstring_free(file_path);
+            cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+            cvector_free(path_cstr_vec, 0);
+            return (EC_FALSE);
+        }
+    }
+
+    sys_log(LOGSTDOUT, "[DEBUG] test_case_88_cdfs_file_content_checker: path cstr vec:\n");
+    cvector_print(LOGSTDOUT, path_cstr_vec, (CVECTOR_DATA_PRINT)cstring_print);
+    
+    continue_flag = EC_TRUE;
+    for(outer_loop = 0; outer_loop < cvector_size(path_cstr_vec) && EC_TRUE == continue_flag; outer_loop ++)
+    {
+        CSTRING *path_cstr;
+        char *home;
+        UINT32 counter;            
+
+        sys_log(LOGCONSOLE, "[DEBUG] test_case_88_cdfs_file_content_checker: outer_loop = %ld\n", outer_loop);
+
+        path_cstr = (CSTRING *)cvector_get(path_cstr_vec, outer_loop);
+        if(NULL_PTR == path_cstr)
+        {
+            sys_log(LOGSTDOUT, "error:test_case_88_cdfs_file_content_checker: path cstring at %ld is null\n", outer_loop);
+            break;
+        }
+
+        home = (char *)cstring_get_str(path_cstr);
+
+        counter = 0;
+        for(inner_loop = 0; inner_loop < ((CDFS_MAX_TASK_NUM_PER_LOOP + CDFS_TEST_READ_MAX_FILES - 1) / CDFS_TEST_READ_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
+        {
+            continue_flag = test_case_85_cdfs_check_file_content(home, cdfs_md_id, max_test_data_files, &counter);
+        }
+    }
+
+    clean_g_cdfs_buff(cdfs_md_id, max_test_data_files);
+
+    cstring_free(file_path);
+    cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, 0);
+    cvector_free(path_cstr_vec, 0);
+
+    sys_log(LOGCONSOLE, "[DEBUG] test_case_88_cdfs_file_content_checker: end\n");
+
+    return (EC_TRUE);
+}
+
+int main_1xnp_1xdn(int argc, char **argv)
+{
+    UINT32 this_tcid;
+    UINT32 this_comm;
+    UINT32 this_rank;
+
+    task_brd_default_init(argc, argv);
+    if(EC_FALSE == task_brd_default_check_validity())
+    {
+        sys_log(LOGSTDOUT, "error:main_1xnp_1xdn: validity checking failed\n");
+        task_brd_default_abort();
+        return (-1);
+    }
+    
+    this_tcid = task_brd_default_get_tcid();
+    this_comm = task_brd_default_get_comm();
+    this_rank = task_brd_default_get_rank();
+
+    if (EC_TRUE == task_brd_check_is_dbg_tcid(this_tcid) && CMPI_DBG_RANK == this_rank)
+    {
+        do_cmd_default();
+    }
+    else if (EC_TRUE == task_brd_check_is_monitor_tcid(this_tcid) && CMPI_MON_RANK == this_rank)
+    {
+        void * mod_mgr_def;
+      
+        mod_mgr_def = mod_mgr_new(CMPI_ERROR_MODI, LOAD_BALANCING_LOOP);
+        mod_mgr_default_init(mod_mgr_def, CMPI_ANY_TCID, CMPI_ANY_RANK);
+
+        //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
+        
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr_def);
+
+        //test_case_61(mod_mgr_def);
+        //test_case_62(mod_mgr_def);
+        //test_case_63(mod_mgr_def);
+        //test_case_64(mod_mgr_def);
+        //test_case_66(mod_mgr_def);
+        //test_case_67(mod_mgr_def);
+      
+        mod_mgr_free(mod_mgr_def);
+
+        do_slave_wait_default();
+    }
+#if 0
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+    /*user define the master process*/
+    else if ((ipv4_to_uint32("10.10.10.1") == this_tcid || ipv4_to_uint32("10.10.20.1") == this_tcid) && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+
+        CSTRING *cdfsnp_db_root_dir;
+
+        cdfsnp_db_root_dir = cstring_new(NULL_PTR, 0);
+        cstring_format(cdfsnp_db_root_dir, "%s/%s", g_np_root, uint32_to_ipv4(this_tcid));
+  
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_open_npp(cdfs_md_id, cdfsnp_db_root_dir, CDFS_NP_CACHED_MAX_NUM);
+        cstring_free(cdfsnp_db_root_dir);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+
+        do_slave_wait_default();
+    }
+    else if ((ipv4_to_uint32("10.10.10.2") == this_tcid || ipv4_to_uint32("10.10.10.3") == this_tcid || ipv4_to_uint32("10.10.10.4") == this_tcid)
+    && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+
+        
+        CSTRING *root_dir;
+
+        root_dir = cstring_new(NULL_PTR, 0);        
+        cstring_format(root_dir, "%s/%s", g_dn_root, uint32_to_ipv4(this_tcid));        
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_open_dn(cdfs_md_id, root_dir);
+        cstring_free(root_dir);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+        do_slave_wait_default();
+    }    
+#if 0
+    else if(ipv4_to_uint32("10.10.10.5") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+                
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));             
+
+        test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    } 
+#endif    
+#if 1
+    else if(ipv4_to_uint32("10.10.10.5") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+               
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));        
+
+        task_brd_default_start_cdfs_srv(cdfs_md_id, port_to_uint32("58111"));
+
+        //cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    } 
+#endif
+    else if(ipv4_to_uint32("10.10.10.6") == this_tcid && CMPI_CDFS_RANK == this_rank)/*read*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));        
+        
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));   
+
+        test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+        
+        cdfs_end(cdfs_md_id);
+ 
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.7") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));   
+
+        test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.8") == this_tcid && CMPI_CDFS_RANK == this_rank)/*read*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));        
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));  
+
+        test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+ 
+        cdfs_end(cdfs_md_id);
+ 
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.90") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));        
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));        
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/tianye", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.91") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));        
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }   
+    else if(ipv4_to_uint32("10.10.10.92") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));        
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.100") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/tianye"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.101") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul01"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.102") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+       //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul02"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+#if 1
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+
+    /*work process*/
+    else
+    {
+        do_slave_wait_default();
+    }
+
+    return (0);
+}
+
+int main_1xnp_2xdn(int argc, char **argv)
+{
+    UINT32 this_tcid;
+    UINT32 this_comm;
+    UINT32 this_rank;
+
+    task_brd_default_init(argc, argv);
+    if(EC_FALSE == task_brd_default_check_validity())
+    {
+        sys_log(LOGSTDOUT, "error:main_1xnp_2xdn: validity checking failed\n");
+        task_brd_default_abort();
+        return (-1);
+    }
+    
+    this_tcid = task_brd_default_get_tcid();
+    this_comm = task_brd_default_get_comm();
+    this_rank = task_brd_default_get_rank();
+
+    if (EC_TRUE == task_brd_check_is_dbg_tcid(this_tcid) && CMPI_DBG_RANK == this_rank)
+    {
+        do_cmd_default();
+    }
+    else if (EC_TRUE == task_brd_check_is_monitor_tcid(this_tcid) && CMPI_MON_RANK == this_rank)
+    {
+        void * mod_mgr_def;
+      
+        mod_mgr_def = mod_mgr_new(CMPI_ERROR_MODI, LOAD_BALANCING_LOOP);
+        mod_mgr_default_init(mod_mgr_def, CMPI_ANY_TCID, CMPI_ANY_RANK);
+
+        //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
+        
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr_def);
+
+        //test_case_61(mod_mgr_def);
+        //test_case_62(mod_mgr_def);
+        //test_case_63(mod_mgr_def);
+        //test_case_64(mod_mgr_def);
+        //test_case_66(mod_mgr_def);
+        //test_case_67(mod_mgr_def);
+      
+        mod_mgr_free(mod_mgr_def);
+
+        do_slave_wait_default();
+    }
+#if 0
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+    /*user define the master process*/
+    else if ((ipv4_to_uint32("10.10.10.1") == this_tcid || ipv4_to_uint32("10.10.20.1") == this_tcid) && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+
+        CSTRING *cdfsnp_db_root_dir;
+
+        cdfsnp_db_root_dir = cstring_new(NULL_PTR, 0);
+        cstring_format(cdfsnp_db_root_dir, "%s/%s", g_np_root, uint32_to_ipv4(this_tcid));
+  
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_open_npp(cdfs_md_id, cdfsnp_db_root_dir, CDFS_NP_CACHED_MAX_NUM);
+        cstring_free(cdfsnp_db_root_dir);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+
+        do_slave_wait_default();
+    }
+    else if ((ipv4_to_uint32("10.10.10.2") == this_tcid || ipv4_to_uint32("10.10.10.3") == this_tcid || ipv4_to_uint32("10.10.10.4") == this_tcid)
+    && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+
+        
+        CSTRING *root_dir;
+
+        root_dir = cstring_new(NULL_PTR, 0);        
+        cstring_format(root_dir, "%s/%s", g_dn_root, uint32_to_ipv4(this_tcid));        
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_open_dn(cdfs_md_id, root_dir);
+        cstring_free(root_dir);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+        do_slave_wait_default();
+    }    
+#if 0
+    else if(ipv4_to_uint32("10.10.10.5") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+                
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));             
+
+        test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    } 
+#endif    
+#if 1
+    else if(ipv4_to_uint32("10.10.10.5") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+               
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));        
+
+        task_brd_default_start_cdfs_srv(cdfs_md_id, port_to_uint32("58111"));
+
+        //cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    } 
+#endif
+    else if(ipv4_to_uint32("10.10.10.6") == this_tcid && CMPI_CDFS_RANK == this_rank)/*read*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));        
+        
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));   
+
+        test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+        
+        cdfs_end(cdfs_md_id);
+ 
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.7") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));   
+
+        test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.8") == this_tcid && CMPI_CDFS_RANK == this_rank)/*read*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        //cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));        
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));  
+
+        test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+ 
+        cdfs_end(cdfs_md_id);
+ 
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.90") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));        
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));        
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/tianye", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.91") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));        
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }   
+    else if(ipv4_to_uint32("10.10.10.92") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));        
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.100") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/tianye"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.101") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul01"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.102") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+       //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        //cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul02"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+#if 1
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+
+    /*work process*/
+    else
+    {
+        do_slave_wait_default();
+    }
+
+    return (0);
+}
+
+int main_1xnp_3xdn(int argc, char **argv)
+{
+    UINT32 this_tcid;
+    UINT32 this_comm;
+    UINT32 this_rank;
+
+    task_brd_default_init(argc, argv);
+    if(EC_FALSE == task_brd_default_check_validity())
+    {
+        sys_log(LOGSTDOUT, "error:main_1xnp_3xdn: validity checking failed\n");
+        task_brd_default_abort();
+        return (-1);
+    }
+    
+    this_tcid = task_brd_default_get_tcid();
+    this_comm = task_brd_default_get_comm();
+    this_rank = task_brd_default_get_rank();
+
+    if (EC_TRUE == task_brd_check_is_dbg_tcid(this_tcid) && CMPI_DBG_RANK == this_rank)
+    {
+        do_cmd_default();
+    }
+    else if (EC_TRUE == task_brd_check_is_monitor_tcid(this_tcid) && CMPI_MON_RANK == this_rank)
+    {
+        void * mod_mgr_def;
+      
+        mod_mgr_def = mod_mgr_new(CMPI_ERROR_MODI, LOAD_BALANCING_LOOP);
+        mod_mgr_default_init(mod_mgr_def, CMPI_ANY_TCID, CMPI_ANY_RANK);
+
+        //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
+        
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr_def);
+
+        //test_case_61(mod_mgr_def);
+        //test_case_62(mod_mgr_def);
+        //test_case_63(mod_mgr_def);
+        //test_case_64(mod_mgr_def);
+        //test_case_66(mod_mgr_def);
+        //test_case_67(mod_mgr_def);
+      
+        mod_mgr_free(mod_mgr_def);
+
+        do_slave_wait_default();
+    }
+#if 0
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+    /*user define the master process*/
+    else if ((ipv4_to_uint32("10.10.10.1") == this_tcid || ipv4_to_uint32("10.10.20.1") == this_tcid) && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+
+        CSTRING *cdfsnp_db_root_dir;
+
+        cdfsnp_db_root_dir = cstring_new(NULL_PTR, 0);
+        cstring_format(cdfsnp_db_root_dir, "%s/%s", g_np_root, uint32_to_ipv4(this_tcid));
+  
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_open_npp(cdfs_md_id, cdfsnp_db_root_dir, CDFS_NP_CACHED_MAX_NUM);
+        cstring_free(cdfsnp_db_root_dir);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+
+        do_slave_wait_default();
+    }
+    else if ((ipv4_to_uint32("10.10.10.2") == this_tcid || ipv4_to_uint32("10.10.10.3") == this_tcid || ipv4_to_uint32("10.10.10.4") == this_tcid)
+    && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+
+        
+        CSTRING *root_dir;
+
+        root_dir = cstring_new(NULL_PTR, 0);        
+        cstring_format(root_dir, "%s/%s", g_dn_root, uint32_to_ipv4(this_tcid));        
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_open_dn(cdfs_md_id, root_dir);
+        cstring_free(root_dir);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+        do_slave_wait_default();
+    }    
+#if 0
+    else if(ipv4_to_uint32("10.10.10.5") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+                
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));             
+
+        test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    } 
+#endif    
+#if 1
+    else if(ipv4_to_uint32("10.10.10.5") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+               
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));        
+
+        task_brd_default_start_cdfs_srv(cdfs_md_id, port_to_uint32("58111"));
+
+        //cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    } 
+#endif
+    else if(ipv4_to_uint32("10.10.10.6") == this_tcid && CMPI_CDFS_RANK == this_rank)/*read*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));        
+        
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));   
+
+        test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+        
+        cdfs_end(cdfs_md_id);
+ 
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.7") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));   
+
+        test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.8") == this_tcid && CMPI_CDFS_RANK == this_rank)/*read*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));        
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));  
+
+        test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+ 
+        cdfs_end(cdfs_md_id);
+ 
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.90") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));        
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));        
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/tianye", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.91") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));        
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }   
+    else if(ipv4_to_uint32("10.10.10.92") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));        
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.100") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/tianye"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.101") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul01"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.102") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+       //cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul02"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+#if 1
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+
+    /*work process*/
+    else
+    {
+        do_slave_wait_default();
+    }
+
+    return (0);
+}
+
+int main_2xnp_3xdn(int argc, char **argv)
+{
+    UINT32 this_tcid;
+    UINT32 this_comm;
+    UINT32 this_rank;
+
+    task_brd_default_init(argc, argv);
+    if(EC_FALSE == task_brd_default_check_validity())
+    {
+        sys_log(LOGSTDOUT, "error:main_2xnp_3xdn: validity checking failed\n");
+        task_brd_default_abort();
+        return (-1);
+    }
+    
+    this_tcid = task_brd_default_get_tcid();
+    this_comm = task_brd_default_get_comm();
+    this_rank = task_brd_default_get_rank();
+
+    if (EC_TRUE == task_brd_check_is_dbg_tcid(this_tcid) && CMPI_DBG_RANK == this_rank)
+    {
+        do_cmd_default();
+    }
+    else if (EC_TRUE == task_brd_check_is_monitor_tcid(this_tcid) && CMPI_MON_RANK == this_rank)
+    {
+        void * mod_mgr_def;
+      
+        mod_mgr_def = mod_mgr_new(CMPI_ERROR_MODI, LOAD_BALANCING_LOOP);
+        mod_mgr_default_init(mod_mgr_def, CMPI_ANY_TCID, CMPI_ANY_RANK);
+
+        //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
+        
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr_def);
+
+        //test_case_61(mod_mgr_def);
+        //test_case_62(mod_mgr_def);
+        //test_case_63(mod_mgr_def);
+        //test_case_64(mod_mgr_def);
+        //test_case_66(mod_mgr_def);
+        //test_case_67(mod_mgr_def);
+      
+        mod_mgr_free(mod_mgr_def);
+
+        do_slave_wait_default();
+    }
+#if 0
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+    /*user define the master process*/
+    else if ((ipv4_to_uint32("10.10.10.1") == this_tcid || ipv4_to_uint32("10.10.20.1") == this_tcid) && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+
+        CSTRING *cdfsnp_db_root_dir;
+
+        cdfsnp_db_root_dir = cstring_new(NULL_PTR, 0);
+        cstring_format(cdfsnp_db_root_dir, "%s/%s", g_np_root, uint32_to_ipv4(this_tcid));
+  
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_open_npp(cdfs_md_id, cdfsnp_db_root_dir, CDFS_NP_CACHED_MAX_NUM);
+        cstring_free(cdfsnp_db_root_dir);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+
+        do_slave_wait_default();
+    }
+    else if ((ipv4_to_uint32("10.10.10.2") == this_tcid || ipv4_to_uint32("10.10.10.3") == this_tcid || ipv4_to_uint32("10.10.10.4") == this_tcid)
+    && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+
+        
+        CSTRING *root_dir;
+
+        root_dir = cstring_new(NULL_PTR, 0);        
+        cstring_format(root_dir, "%s/%s", g_dn_root, uint32_to_ipv4(this_tcid));        
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_open_dn(cdfs_md_id, root_dir);
+        cstring_free(root_dir);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+        do_slave_wait_default();
+    }    
+#if 0
+    else if(ipv4_to_uint32("10.10.10.5") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+                
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));             
+
+        test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    } 
+#endif    
+#if 1
+    else if(ipv4_to_uint32("10.10.10.5") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+               
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));        
+
+        task_brd_default_start_cdfs_srv(cdfs_md_id, port_to_uint32("58111"));
+
+        //cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    } 
+#endif
+    else if(ipv4_to_uint32("10.10.10.6") == this_tcid && CMPI_CDFS_RANK == this_rank)/*read*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));        
+        
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));   
+
+        test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+        
+        cdfs_end(cdfs_md_id);
+ 
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.7") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));
+        
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));   
+
+        test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.8") == this_tcid && CMPI_CDFS_RANK == this_rank)/*read*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+        
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.2"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.3"));
+        cdfs_add_dn(cdfs_md_id, ipv4_to_uint32("10.10.10.4"));        
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));  
+
+        test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+ 
+        cdfs_end(cdfs_md_id);
+ 
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.90") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));        
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));        
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/tianye", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.91") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));        
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }   
+    else if(ipv4_to_uint32("10.10.10.92") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));        
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.100") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/tianye"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.101") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul01"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.102") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.10.1"));
+        cdfs_add_npp(cdfs_md_id, ipv4_to_uint32("10.10.20.1"));
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.2"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.3"));
+        cvector_push(cdfsdn_tcid_vec, (void *)ipv4_to_uint32("10.10.10.4"));
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul02"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+#if 1
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+
+    /*work process*/
+    else
+    {
+        do_slave_wait_default();
+    }
+
+    return (0);
+}
+
+#define TEST_MAKE_NP_POOL(cdfs_md_id) do{\
+        cdfs_add_npp((cdfs_md_id), ipv4_to_uint32("10.10.10.1"));\
+        cdfs_add_npp((cdfs_md_id), ipv4_to_uint32("10.10.20.1"));\
+}while(0)
+
+#define TEST_MAKE_DN_POOL(cdfs_md_id) do{\
+        cdfs_add_dn((cdfs_md_id), ipv4_to_uint32("10.10.10.2"));\
+        cdfs_add_dn((cdfs_md_id), ipv4_to_uint32("10.10.10.3"));\
+        cdfs_add_dn((cdfs_md_id), ipv4_to_uint32("10.10.10.4"));\
+}while(0)
+
+#define TEST_MAKE_DN_VEC(cdfsdn_tcid_vec) do{\
+        cvector_push((cdfsdn_tcid_vec), (void *)ipv4_to_uint32("10.10.10.2"));\
+        cvector_push((cdfsdn_tcid_vec), (void *)ipv4_to_uint32("10.10.10.3"));\
+        cvector_push((cdfsdn_tcid_vec), (void *)ipv4_to_uint32("10.10.10.4"));\
+}while(0)
+
+int main_mxnp_nxdn(int argc, char **argv)
+{
+    UINT32 this_tcid;
+    UINT32 this_comm;
+    UINT32 this_rank;
+
+    task_brd_default_init(argc, argv);
+    if(EC_FALSE == task_brd_default_check_validity())
+    {
+        sys_log(LOGSTDOUT, "error:main_mxnp_nxdn: validity checking failed\n");
+        task_brd_default_abort();
+        return (-1);
+    }
+    
+    this_tcid = task_brd_default_get_tcid();
+    this_comm = task_brd_default_get_comm();
+    this_rank = task_brd_default_get_rank();
+
+    if (EC_TRUE == task_brd_check_is_dbg_tcid(this_tcid) && CMPI_DBG_RANK == this_rank)
+    {
+        do_cmd_default();
+    }
+    else if (EC_TRUE == task_brd_check_is_monitor_tcid(this_tcid) && CMPI_MON_RANK == this_rank)
+    {
+        void * mod_mgr_def;
+      
+        mod_mgr_def = mod_mgr_new(CMPI_ERROR_MODI, LOAD_BALANCING_LOOP);
+        mod_mgr_default_init(mod_mgr_def, CMPI_ANY_TCID, CMPI_ANY_RANK);
+
+        //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
+        
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        sys_log(LOGSTDOUT, "======================================================================\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr_def);
+
+        //test_case_61(mod_mgr_def);
+        //test_case_62(mod_mgr_def);
+        //test_case_63(mod_mgr_def);
+        //test_case_64(mod_mgr_def);
+        //test_case_66(mod_mgr_def);
+        //test_case_67(mod_mgr_def);
+      
+        mod_mgr_free(mod_mgr_def);
+
+        do_slave_wait_default();
+    }
+#if 0
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+    /*user define the master process*/
+    else if ((ipv4_to_uint32("10.10.10.1") == this_tcid || ipv4_to_uint32("10.10.20.1") == this_tcid) && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+
+        CSTRING *cdfsnp_db_root_dir;
+
+        cdfsnp_db_root_dir = cstring_new(NULL_PTR, 0);
+        cstring_format(cdfsnp_db_root_dir, "%s/%s", g_np_root, uint32_to_ipv4(this_tcid));
+  
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_open_npp(cdfs_md_id, cdfsnp_db_root_dir, CDFS_NP_CACHED_MAX_NUM);
+        cstring_free(cdfsnp_db_root_dir);
+
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+        TEST_MAKE_DN_POOL(cdfs_md_id);
+
+        do_slave_wait_default();
+    }
+    else if ((ipv4_to_uint32("10.10.10.2") == this_tcid || ipv4_to_uint32("10.10.10.3") == this_tcid || ipv4_to_uint32("10.10.10.4") == this_tcid)
+    && CMPI_CDFS_RANK == this_rank)
+    {
+        UINT32 cdfs_md_id;
+
+        
+        CSTRING *root_dir;
+
+        root_dir = cstring_new(NULL_PTR, 0);        
+        cstring_format(root_dir, "%s/%s", g_dn_root, uint32_to_ipv4(this_tcid));        
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        cdfs_open_dn(cdfs_md_id, root_dir);
+        cstring_free(root_dir);
+
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+        TEST_MAKE_DN_POOL(cdfs_md_id);
+        
+        do_slave_wait_default();
+    }    
+#if 0
+    else if(ipv4_to_uint32("10.10.10.5") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+                
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+        TEST_MAKE_DN_POOL(cdfs_md_id);        
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        TEST_MAKE_DN_VEC(cdfsdn_tcid_vec);
+
+        test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    } 
+#endif    
+#if 1
+    else if(ipv4_to_uint32("10.10.10.5") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+               
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+        TEST_MAKE_DN_POOL(cdfs_md_id);
+
+        task_brd_default_start_cdfs_srv(cdfs_md_id, port_to_uint32("58111"));
+
+        //cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    } 
+#endif
+    else if(ipv4_to_uint32("10.10.10.6") == this_tcid && CMPI_CDFS_RANK == this_rank)/*read*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+        TEST_MAKE_DN_POOL(cdfs_md_id);     
+        
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        TEST_MAKE_DN_VEC(cdfsdn_tcid_vec);
+
+        test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+        
+        cdfs_end(cdfs_md_id);
+ 
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.7") == this_tcid && CMPI_CDFS_RANK == this_rank)/*write*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+        TEST_MAKE_DN_POOL(cdfs_md_id);  
+        
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        TEST_MAKE_DN_VEC(cdfsdn_tcid_vec);
+
+        test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.8") == this_tcid && CMPI_CDFS_RANK == this_rank)/*read*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+        TEST_MAKE_DN_POOL(cdfs_md_id);        
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        TEST_MAKE_DN_VEC(cdfsdn_tcid_vec);
+
+        test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+ 
+        cdfs_end(cdfs_md_id);
+ 
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.90") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        TEST_MAKE_DN_VEC(cdfsdn_tcid_vec);
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/tianye", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.91") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        TEST_MAKE_DN_VEC(cdfsdn_tcid_vec);
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }   
+    else if(ipv4_to_uint32("10.10.10.92") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica*/
+    {
+        UINT32 cdfs_md_id;
+        
+        void * cdfsdn_tcid_vec;
+
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        TEST_MAKE_DN_VEC(cdfsdn_tcid_vec);
+
+        test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+     
+        cvector_free(cdfsdn_tcid_vec, 0);
+     
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+    else if(ipv4_to_uint32("10.10.10.100") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        TEST_MAKE_DN_VEC(cdfsdn_tcid_vec);
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/tianye"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.101") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        TEST_MAKE_DN_VEC(cdfsdn_tcid_vec);
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul01"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }
+    else if(ipv4_to_uint32("10.10.10.102") == this_tcid && CMPI_CDFS_RANK == this_rank)/*check replica file content*/
+    {
+        UINT32 cdfs_md_id;
+
+        void * cdfsdn_tcid_vec;
+       
+        cdfs_md_id = cdfs_start(CDFS_NP_MIN_NUM);
+        TEST_MAKE_NP_POOL(cdfs_md_id);
+        
+        cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, 0);
+        TEST_MAKE_DN_VEC(cdfsdn_tcid_vec);
+
+        test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_buff_used_num, (char *)"/hansoul02"); 
+
+        cvector_free(cdfsdn_tcid_vec, 0);
+
+        cdfs_end(cdfs_md_id);
+
+        do_slave_wait_default();
+    }    
+#if 1
+    /*fwd rank entrance*/
+    else if (CMPI_FWD_RANK == this_rank)
+    {
+        sys_log(LOGSTDOUT,"======================================================================\n");
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
+        sys_log(LOGSTDOUT,"======================================================================\n");
+
+        do_slave_wait_default();
+    }
+#endif
+
+    /*work process*/
+    else
+    {
+        do_slave_wait_default();
+    }
+
+    return (0);
+}
+
+#undef TEST_MAKE_NP_POOL
+#undef TEST_MAKE_DN_POOL
+#undef TEST_MAKE_DN_VEC
+
+int main(int argc, char **argv)
+{
+    main_1xnp_1xdn(argc, argv);
+    //main_1xnp_2xdn(argc, argv);
+    //main_1xnp_3xdn(argc, argv); 
+    //main_2xnp_3xdn(argc, argv);
+    //main_mxnp_nxdn(argc, argv);/*change definition of macro TEST_MAKE_NP_POOL, TEST_MAKE_DN_POOL, TEST_MAKE_DN_VEC before calling*/
+    return (0);
+}
+
+#ifdef __cplusplus
+}
+#endif/*__cplusplus*/
+
