@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -21,7 +21,7 @@ extern "C"{
 
 #include "cbc.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 #include "clist.h"
 #include "croutine.h"
 #include "cbytes.h"
@@ -2209,9 +2209,9 @@ static EC_BOOL __cscore_csdoc_list_export_plain(const UINT32 cscore_md_id, const
         doc_type_val_cbytes = (CBYTES *)cvector_get_no_lock((CVECTOR *)cvector_get_no_lock(&cached_vec, CSCORE_COLQ_DOC_TYPE_IDX), pos);
         doc_code_val_cbytes = (CBYTES *)cvector_get_no_lock((CVECTOR *)cvector_get_no_lock(&cached_vec, CSCORE_COLQ_DOC_CODE_IDX), pos);
 
-        CSDOC_ID(csdoc)   = chars_to_uint32((char *)cbytes_buf(doc_id_val_cbytes)  , cbytes_len(doc_id_val_cbytes)  );
-        CSDOC_TYPE(csdoc) = chars_to_uint32((char *)cbytes_buf(doc_type_val_cbytes), cbytes_len(doc_type_val_cbytes));
-        CSDOC_CODE(csdoc) = chars_to_uint32((char *)cbytes_buf(doc_code_val_cbytes), cbytes_len(doc_code_val_cbytes));
+        CSDOC_ID(csdoc)   = c_chars_to_word((char *)cbytes_buf(doc_id_val_cbytes)  , cbytes_len(doc_id_val_cbytes)  );
+        CSDOC_TYPE(csdoc) = c_chars_to_word((char *)cbytes_buf(doc_type_val_cbytes), cbytes_len(doc_type_val_cbytes));
+        CSDOC_CODE(csdoc) = c_chars_to_word((char *)cbytes_buf(doc_code_val_cbytes), cbytes_len(doc_code_val_cbytes));
         
         clist_push_back(CSWORD_DOCS_LIST(csword_docs), (void *)csdoc);
     }    

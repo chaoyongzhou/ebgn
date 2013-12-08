@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -22,7 +22,7 @@ extern "C"{
 #include "mm.h"
 #include "log.h"
 #include "csig.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "debug.h"
 #include "ccoredumper.h"
@@ -316,7 +316,7 @@ void csig_core_dump(int signo)
         for(;;)
         {
             sys_log(LOGSTDOUT, "[DEBUG] csig_core_dump: wait for gdb ...\n");
-            sleep(300);
+            c_sleep(300);
         }
     }
     

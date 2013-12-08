@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -33,7 +33,7 @@ extern "C"{
 #include "cbc.h"
 
 #include "cxml.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "task.h"
 #include "kbuff.h"
@@ -54,8 +54,8 @@ extern "C"{
 #define CFILE_MD_LOCAL_TCID(cfile_md)  (MOD_MGR_LOCAL_MOD_TCID(CFILE_MD_MOD_MGR(cfile_md)))
 #define CFILE_LOCAL_TCID(cfile_md_id)  (MOD_MGR_LOCAL_MOD_TCID(CFILE_MD_MOD_MGR(CFILE_MD_GET(cfile_md_id))))
 
-#define CFILE_MD_LOCAL_TCID_STR(cfile_md)  (uint32_to_ipv4(CFILE_MD_LOCAL_TCID(cfile_md)))
-#define CFILE_LOCAL_TCID_STR(cfile_md_id)  (uint32_to_ipv4(CFILE_LOCAL_TCID(cfile_md_id)))
+#define CFILE_MD_LOCAL_TCID_STR(cfile_md)  (c_word_to_ipv4(CFILE_MD_LOCAL_TCID(cfile_md)))
+#define CFILE_LOCAL_TCID_STR(cfile_md_id)  (c_word_to_ipv4(CFILE_LOCAL_TCID(cfile_md_id)))
 
 static UINT32 cfile_seg_vec_read(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_vec, const UINT32 cfile_seg_pos_beg, const UINT32 cfile_seg_pos_end, CVECTOR *kbuff_vec, FILE *in_fp);
 static UINT32 cfile_seg_vec_write(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_vec, const UINT32 cfile_seg_pos_beg, const UINT32 cfile_seg_pos_end, const CVECTOR *kbuff_vec, FILE *out_fp);
@@ -1422,7 +1422,7 @@ UINT32 cfile_node_xml_parse_tcid(const UINT32 cfile_md_id, XMLCHAR *attr_val, CV
     safe_ptr = (char *)attr_val;/*attr_val will be polished*/
     while((char *)0 != (tcid_ptr = strtok_r(NULL_PTR, ",", &safe_ptr)))
     {
-        cvector_push(tcid_vec, (void *)ipv4_to_uint32(tcid_ptr));/*trick*/
+        cvector_push(tcid_vec, (void *)c_ipv4_to_word(tcid_ptr));/*trick*/
     }
 
     return (0);
@@ -1464,7 +1464,7 @@ UINT32 cfile_node_xml_parse_seg(const UINT32 cfile_md_id, XMLNODEPTR node, CFILE
     {
         attr_val = xmlGetProp(node, (const XMLCHAR*)"id");
         //sys_log(LOGSTDOUT,"info:cfile_node_xml_parse_seg: id=>%s\n", attr_val);
-        CFILE_SEG_ID(cfile_seg) = xmlchar_to_uint32(attr_val);
+        CFILE_SEG_ID(cfile_seg) = c_xmlchar_to_word(attr_val);
         xmlFree(attr_val);
     }
 
@@ -1472,7 +1472,7 @@ UINT32 cfile_node_xml_parse_seg(const UINT32 cfile_md_id, XMLNODEPTR node, CFILE
     {
         attr_val = xmlGetProp(node, (const XMLCHAR*)"size");
         //sys_log(LOGSTDOUT,"info:cfile_node_xml_parse_seg: size=>%s\n", attr_val);
-        CFILE_SEG_SIZE(cfile_seg) = xmlchar_to_uint32(attr_val);
+        CFILE_SEG_SIZE(cfile_seg) = c_xmlchar_to_word(attr_val);
         xmlFree(attr_val);
     }
 
@@ -1641,11 +1641,11 @@ UINT32 cfile_node_xml_parse_node(const UINT32 cfile_md_id, XMLNODEPTR node, CFIL
 #if 0
         if(CMPI_ANY_TCID == CFILE_NODE_TCID(cfile_node, 0))
         {
-            cvector_set(CFILE_NODE_TCID_VEC(cfile_node), 0, (void *)xmlchar_to_uint32(attr_val));
+            cvector_set(CFILE_NODE_TCID_VEC(cfile_node), 0, (void *)c_xmlchar_to_word(attr_val));
             xmlFree(attr_val);
         }
 
-        else if(CFILE_NODE_TCID(cfile_node, 0) != xmlchar_to_uint32(attr_val))
+        else if(CFILE_NODE_TCID(cfile_node, 0) != c_xmlchar_to_word(attr_val))
         {
             sys_log(LOGSTDOUT, "error:cfile_node_xml_parse_node: mismatched tcid %s of node and xml tcid tag value %s\n",
                                 CFILE_NODE_TCID_STR(cfile_node, 0), (char *)attr_val);
@@ -1664,7 +1664,7 @@ UINT32 cfile_node_xml_parse_node(const UINT32 cfile_md_id, XMLNODEPTR node, CFIL
     {
         attr_val = xmlGetProp(node, (const XMLCHAR*)"size");
         //sys_log(LOGSTDOUT,"info:cfile_node_xml_parse_node: size=>%s\n", attr_val);
-        CFILE_NODE_SIZE(cfile_node) = xmlchar_to_uint32(attr_val);
+        CFILE_NODE_SIZE(cfile_node) = c_xmlchar_to_word(attr_val);
         xmlFree(attr_val);
     }
 
@@ -1729,13 +1729,13 @@ UINT32 cfile_node_xml_print_tcid(LOG *log, const CVECTOR *tcid_vec, const UINT32
 
     if(0 < num)
     {
-        sys_print(log, "%s", uint32_to_ipv4((UINT32)cvector_get(tcid_vec, pos)));
+        sys_print(log, "%s", c_word_to_ipv4((UINT32)cvector_get(tcid_vec, pos)));
         pos ++;
     }
 
     for(; pos < num; pos ++)
     {
-        sys_print(log, ",%s", uint32_to_ipv4((UINT32)cvector_get(tcid_vec, pos)));
+        sys_print(log, ",%s", c_word_to_ipv4((UINT32)cvector_get(tcid_vec, pos)));
     }
 
     return (0);
@@ -2698,7 +2698,7 @@ EC_BOOL cfile_node_fcheck(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node
     }
 
     sys_log(LOGSTDOUT, "info:cfile_node_fcheck: file %s check mask %lx successfully on tcid %s\n",
-                        (char *)CFILE_NODE_NAME_STR(cfile_node), mask, uint32_to_ipv4(MOD_MGR_LOCAL_MOD_TCID(mod_mgr)));
+                        (char *)CFILE_NODE_NAME_STR(cfile_node), mask, c_word_to_ipv4(MOD_MGR_LOCAL_MOD_TCID(mod_mgr)));
     return (EC_TRUE);
 }
 
@@ -4036,7 +4036,7 @@ UINT32 cfile_seg_fcreate_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
         sys_log(LOGSTDOUT, "error:cfile_seg_fcreate_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
-                         (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
+                         (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return ((UINT32)-1);
     }
 
@@ -4056,7 +4056,7 @@ UINT32 cfile_seg_fcreate_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
             break;
         }
         sys_log(LOGSTDOUT, "warn:cfile_seg_fcreate_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
-                            (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), seg_tcid_num);
+                            (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
     return (ret);
 }
@@ -4117,7 +4117,7 @@ EC_BOOL cfile_seg_fexist_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
         sys_log(LOGSTDOUT, "error:cfile_seg_fexist_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
-                         (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
+                         (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return (EC_FALSE);
     }
 
@@ -4127,7 +4127,7 @@ EC_BOOL cfile_seg_fexist_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
     }
 
     sys_log(LOGSTDOUT, "warn:cfile_seg_fexist_ppl: tcid %s has not found seg file %s\n",
-                        uint32_to_ipv4(seg_tcid), (char *)CFILE_SEG_NAME_STR(cfile_seg));
+                        c_word_to_ipv4(seg_tcid), (char *)CFILE_SEG_NAME_STR(cfile_seg));
 
     /*skip unavailable tcid. the right way should check tcid connectivity and skip unavailable ones*/
     //TODO: check tcid connectivity
@@ -4144,7 +4144,7 @@ EC_BOOL cfile_seg_fexist_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
             return (ret);
         }
         sys_log(LOGSTDOUT, "warn:cfile_seg_fexist_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
-                            (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), seg_tcid_num);
+                            (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
     return (EC_FALSE);
@@ -4202,7 +4202,7 @@ EC_BOOL cfile_seg_frable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
         sys_log(LOGSTDOUT, "error:cfile_seg_frable_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
-                         (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
+                         (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return (EC_FALSE);
     }
 
@@ -4211,7 +4211,7 @@ EC_BOOL cfile_seg_frable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "warn:cfile_seg_frable_ppl: tcid %s has not found seg file %s\n", uint32_to_ipv4(seg_tcid), (char *)CFILE_SEG_NAME_STR(cfile_seg));
+    sys_log(LOGSTDOUT, "warn:cfile_seg_frable_ppl: tcid %s has not found seg file %s\n", c_word_to_ipv4(seg_tcid), (char *)CFILE_SEG_NAME_STR(cfile_seg));
 
     /*skip unavailable tcid. the right way should check tcid connectivity and skip unavailable ones*/
     //TODO: check tcid connectivity
@@ -4228,7 +4228,7 @@ EC_BOOL cfile_seg_frable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
             return (ret);
         }
         sys_log(LOGSTDOUT, "warn:cfile_seg_frable_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
-                            (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), seg_tcid_num);
+                            (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
     return (EC_FALSE);
@@ -4286,7 +4286,7 @@ EC_BOOL cfile_seg_fwable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
         sys_log(LOGSTDOUT, "error:cfile_seg_fwable_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
-                         (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
+                         (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return (EC_FALSE);
     }
 
@@ -4309,7 +4309,7 @@ EC_BOOL cfile_seg_fwable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
             return (ret);
         }
         sys_log(LOGSTDOUT, "warn:cfile_seg_fwable_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
-                            (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), seg_tcid_num);
+                            (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
     return (EC_FALSE);
@@ -4367,7 +4367,7 @@ EC_BOOL cfile_seg_fxable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
         sys_log(LOGSTDOUT, "error:cfile_seg_fxable_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
-                         (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
+                         (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return (EC_FALSE);
     }
 
@@ -4390,7 +4390,7 @@ EC_BOOL cfile_seg_fxable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
             return (ret);
         }
         sys_log(LOGSTDOUT, "warn:cfile_seg_fxable_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
-                            (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), seg_tcid_num);
+                            (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
     return (EC_FALSE);
@@ -4450,7 +4450,7 @@ UINT32 cfile_seg_fread_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg,
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
         sys_log(LOGSTDOUT, "error:cfile_seg_fread_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
-                         (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
+                         (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return ((UINT32)-1);
     }
 
@@ -4477,7 +4477,7 @@ UINT32 cfile_seg_fread_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg,
             return (ret);
         }
         sys_log(LOGSTDOUT, "warn:cfile_seg_fread_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
-                            (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), seg_tcid_num);
+                            (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
     return ((UINT32)-1);
@@ -4534,7 +4534,7 @@ UINT32 cfile_seg_fwrite_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
         sys_log(LOGSTDOUT, "error:cfile_seg_fwrite_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
-                         (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
+                         (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return ((UINT32)-1);
     }
 
@@ -4551,7 +4551,7 @@ UINT32 cfile_seg_fwrite_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg
         {
             break;
         }
-        sys_log(LOGSTDOUT, "warn:cfile_seg_fwrite_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n", (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), seg_tcid_num);
+        sys_log(LOGSTDOUT, "warn:cfile_seg_fwrite_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n", (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
     return (ret);
 }
@@ -4607,7 +4607,7 @@ UINT32 cfile_seg_rmv_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg, U
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
         sys_log(LOGSTDOUT, "error:cfile_seg_rmv_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
-                         (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
+                         (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return ((UINT32)-1);
     }
 
@@ -4625,7 +4625,7 @@ UINT32 cfile_seg_rmv_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg, U
             break;
         }
         sys_log(LOGSTDOUT, "warn:cfile_seg_rmv_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
-                        (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), seg_tcid_num);
+                        (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
     return (ret);
@@ -4683,7 +4683,7 @@ UINT32 cfile_seg_copy_ppl(const UINT32 cfile_md_id, const CFILE_SEG *src_cfile_s
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
         sys_log(LOGSTDOUT, "error:cfile_seg_copy_ppl: seg_tcid_pos %ld of des_cfile_seg has tcid %s but not match to local mod_node tcid %s\n",
-                         (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
+                         (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return ((UINT32)-1);
     }
 
@@ -4701,7 +4701,7 @@ UINT32 cfile_seg_copy_ppl(const UINT32 cfile_md_id, const CFILE_SEG *src_cfile_s
             break;
         }
         sys_log(LOGSTDOUT, "warn:cfile_seg_copy_ppl: seg_tcid_pos = %ld of des_cfile_seg, seg_tcid = %s, seg_tcid_num = %ld\n",
-                            (*seg_tcid_pos), uint32_to_ipv4(seg_tcid), seg_tcid_num);
+                            (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
     return (ret);
@@ -5702,7 +5702,7 @@ UINT32 cfile_seg_vec_dir_rmv(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
 
         if(0 != task_tcid_inc(task_mgr, seg_tcid, ret_addr, FI_cfile_seg_dir_rmv, ERR_MODULE_ID, seg_dir_name))
         {
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_dir_rmv: has no tcid %s or mod_node\n", uint32_to_ipv4(seg_tcid));
+            sys_log(LOGSTDOUT, "error:cfile_seg_vec_dir_rmv: has no tcid %s or mod_node\n", c_word_to_ipv4(seg_tcid));
             task_mgr_free(task_mgr);
             cstring_free(seg_dir_name);
             cvector_free(seg_tcid_vec, LOC_CFILE_0062);
@@ -5723,7 +5723,7 @@ UINT32 cfile_seg_vec_dir_rmv(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
             UINT32   seg_tcid;
             seg_tcid = (UINT32)cvector_get(seg_tcid_vec, seg_tcid_pos);
             sys_log(LOGSTDOUT, "error:cfile_seg_vec_dir_rmv: failed to remove seg dir %s on tcid %s\n",
-                                (char *)cstring_get_str(seg_dir_name), uint32_to_ipv4(seg_tcid));
+                                (char *)cstring_get_str(seg_dir_name), c_word_to_ipv4(seg_tcid));
             ret = ((UINT32)-1);
         }
     }
@@ -6147,7 +6147,7 @@ UINT32 cfile_fcreate_on_node_tcid(const UINT32 cfile_md_id, CFILE_NODE *cfile_no
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cfile_fcreate_on_node_tcid, ERR_MODULE_ID, cfile_node, node_tcid))
         {
             sys_log(LOGSTDOUT, "error:cfile_fcreate_on_node_tcid: something wrong when make task to create node file %s on tcid %s\n",
-                                (char *)CFILE_NODE_NAME_STR(cfile_node), uint32_to_ipv4(node_tcid));
+                                (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
         return (ret);
@@ -6245,7 +6245,7 @@ UINT32 cfile_fopen_on_node_tcid(const UINT32 cfile_md_id, CFILE_NODE *cfile_node
         if(0 != cfile_node_fopen(cfile_md_id, cfile_node))
         {
             sys_log(LOGSTDOUT, "error:cfile_fopen_on_node_tcid: failed to fopen node of file %s on tcid %s\n",
-                                (char *)CFILE_NODE_NAME_STR(cfile_node), uint32_to_ipv4(node_tcid));
+                                (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
     }
@@ -6255,7 +6255,7 @@ UINT32 cfile_fopen_on_node_tcid(const UINT32 cfile_md_id, CFILE_NODE *cfile_node
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cfile_node_fopen, ERR_MODULE_ID, cfile_node))
         {
             sys_log(LOGSTDOUT, "error:cfile_fopen_on_node_tcid: something wrong when make task to open node file %s on tcid %s\n",
-                                (char *)CFILE_NODE_NAME_STR(cfile_node), uint32_to_ipv4(node_tcid));
+                                (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
     }
@@ -6454,7 +6454,7 @@ EC_BOOL cfile_fsearch_on_node_tcid(const UINT32 cfile_md_id, const CFILE_NODE *c
         (*node_tcid) = (UINT32)cvector_get(tcid_list, tcid_pos);
 
         sys_log(LOGSTDOUT, "info:cfile_fsearch_on_node_tcid: file %s found on tcid %s\n",
-                        (char *)CFILE_NODE_NAME_STR(cfile_node), uint32_to_ipv4(*node_tcid));
+                        (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(*node_tcid));
 
         carray_free(ret_list, LOC_CFILE_0078);
         cvector_free(tcid_list, LOC_CFILE_0079);
@@ -6505,7 +6505,7 @@ UINT32 cfile_fread_on_node_tcid(const UINT32 cfile_md_id, CFILE_NODE *cfile_node
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cfile_fread_on_node_tcid, ERR_MODULE_ID, cfile_node, node_tcid))
         {
             sys_log(LOGSTDOUT, "error:cfile_fread_on_node_tcid: something wrong when make task with tcid %s and file %s for cfile fread\n",
-                                uint32_to_ipv4(node_tcid), (char *)CFILE_NODE_NAME_STR(cfile_node));
+                                c_word_to_ipv4(node_tcid), (char *)CFILE_NODE_NAME_STR(cfile_node));
             return ((UINT32)-1);
         }
         return (ret);
@@ -6514,7 +6514,7 @@ UINT32 cfile_fread_on_node_tcid(const UINT32 cfile_md_id, CFILE_NODE *cfile_node
     if(0 != cfile_node_read(cfile_md_id, cfile_node))
     {
         sys_log(LOGSTDOUT, "error:cfile_fread_on_node_tcid: failed to read node info of file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(cfile_node), uint32_to_ipv4(node_tcid));
+                            (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
         return ((UINT32)-1);
     }
 
@@ -6558,7 +6558,7 @@ UINT32 cfile_fwrite_on_node_tcid(const UINT32 cfile_md_id, const CFILE_NODE *cfi
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cfile_node_write, ERR_MODULE_ID, cfile_node, node_tcid))
         {
             sys_log(LOGSTDOUT, "error:cfile_fwrite_on_node_tcid: something wrong when make task with tcid %s and file %s for node write\n",
-                                uint32_to_ipv4(node_tcid), (char *)CFILE_NODE_NAME_STR(cfile_node));
+                                c_word_to_ipv4(node_tcid), (char *)CFILE_NODE_NAME_STR(cfile_node));
             return ((UINT32)-1);
         }
     }
@@ -6570,7 +6570,7 @@ UINT32 cfile_fwrite_on_node_tcid(const UINT32 cfile_md_id, const CFILE_NODE *cfi
     if(0 != ret)
     {
         sys_log(LOGSTDOUT, "error:cfile_fwrite_on_node_tcid: failed to write node info with file %s and tcid %s to tcid %s\n",
-                           (char *)CFILE_NODE_NAME_STR(cfile_node), CFILE_NODE_TCID_STR(cfile_node, CFILE_NODE_TCID_POS), uint32_to_ipv4(node_tcid));
+                           (char *)CFILE_NODE_NAME_STR(cfile_node), CFILE_NODE_TCID_STR(cfile_node, CFILE_NODE_TCID_POS), c_word_to_ipv4(node_tcid));
         return ((UINT32)-1);
     }
 
@@ -6700,7 +6700,7 @@ UINT32 cfile_fcopy_on_node_tcid(const UINT32 cfile_md_id, const CFILE_NODE *src_
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cfile_node_write_with_node_tcid, ERR_MODULE_ID, des_cfile_node, node_tcid))
         {
             sys_log(LOGSTDOUT, "error:cfile_fcopy_on_node_tcid: something wrong when make task with tcid %s and file %s for node write\n",
-                                uint32_to_ipv4(node_tcid), (char *)CFILE_NODE_NAME_STR(des_cfile_node));
+                                c_word_to_ipv4(node_tcid), (char *)CFILE_NODE_NAME_STR(des_cfile_node));
             return ((UINT32)-1);
         }
     }
@@ -6713,7 +6713,7 @@ UINT32 cfile_fcopy_on_node_tcid(const UINT32 cfile_md_id, const CFILE_NODE *src_
     {
         sys_log(LOGSTDOUT, "error:cfile_fcopy_on_node_tcid: failed to write node info with file %s and tcid %s to tcid %s\n",
                            (char *)CFILE_NODE_NAME_STR(des_cfile_node), CFILE_NODE_TCID_STR(des_cfile_node, CFILE_NODE_TCID_POS),
-                           uint32_to_ipv4(node_tcid));
+                           c_word_to_ipv4(node_tcid));
         return ((UINT32)-1);
     }
 
@@ -6793,7 +6793,7 @@ UINT32 cfile_upload(const UINT32 cfile_md_id, const CSTRING *in_file_name, const
     if(0 != cfile_fcreate_on_node_tcid(cfile_md_id, cfile_node, node_tcid))
     {
         sys_log(LOGSTDOUT, "error:cfile_upload: failed to create file %s on tcid %s\n",
-                            (char *)cstring_get_str(ui_cfile_node_name), uint32_to_ipv4(node_tcid));
+                            (char *)cstring_get_str(ui_cfile_node_name), c_word_to_ipv4(node_tcid));
         cstring_free(ui_cfile_node_name);
         cfile_node_free(cfile_md_id, cfile_node);
         return ((UINT32)-1);
@@ -6877,7 +6877,7 @@ UINT32 cfile_download(const UINT32 cfile_md_id, const CSTRING *in_file_name, con
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, in_cfile_node, CFILE_RB_OPEN_MODE, node_tcid))
     {
         sys_log(LOGSTDOUT, "error:cfile_download: failed to fopen node of file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(in_cfile_node), uint32_to_ipv4(node_tcid));
+                            (char *)CFILE_NODE_NAME_STR(in_cfile_node), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, in_cfile_node);
         return ((UINT32)-1);
     }
@@ -6954,7 +6954,7 @@ UINT32 cfile_rmv_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *file_name
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, cfile_node, CFILE_ERR_OPEN_MODE, node_tcid))
     {
         sys_log(LOGSTDOUT, "error:cfile_rmv_on_node_tcid: failed to open file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(cfile_node), uint32_to_ipv4(node_tcid));
+                            (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, cfile_node);
         return ((UINT32)-1);
     }
@@ -6962,7 +6962,7 @@ UINT32 cfile_rmv_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *file_name
     if(0 != cfile_frmv_on_node_tcid(cfile_md_id, cfile_node, node_tcid))
     {
         sys_log(LOGSTDOUT, "error:cfile_rmv_on_node_tcid: failed to frmv file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(cfile_node), uint32_to_ipv4(node_tcid));
+                            (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, cfile_node);
         return ((UINT32)-1);
     }
@@ -7021,7 +7021,7 @@ UINT32 cfile_clone_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *src_fil
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, src_cfile_node, CFILE_RB_OPEN_MODE, src_node_tcid))
     {
         sys_log(LOGSTDOUT, "error:cfile_clone_on_node_tcid: failed to open node of file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(src_cfile_node), uint32_to_ipv4(node_tcid));
+                            (char *)CFILE_NODE_NAME_STR(src_cfile_node), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, src_cfile_node);
         return ((UINT32)-1);
     }
@@ -7100,7 +7100,7 @@ UINT32 cfile_copy_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *src_file
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, src_cfile_node, CFILE_RB_OPEN_MODE, src_node_tcid))
     {
         sys_log(LOGSTDOUT, "error:cfile_copy_on_node_tcid: failed to open node of file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(src_cfile_node), uint32_to_ipv4(src_node_tcid));
+                            (char *)CFILE_NODE_NAME_STR(src_cfile_node), c_word_to_ipv4(src_node_tcid));
         cfile_node_free(cfile_md_id, src_cfile_node);
         return ((UINT32)-1);
     }
@@ -7231,7 +7231,7 @@ EC_BOOL cfile_cmp_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *file_nam
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, cfile_node_1st, CFILE_RB_OPEN_MODE, node_tcid))
     {
         sys_log(LOGSTDOUT, "error:cfile_cmp_on_node_tcid: failed to open 1st node of file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(cfile_node_1st), uint32_to_ipv4(node_tcid));
+                            (char *)CFILE_NODE_NAME_STR(cfile_node_1st), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, cfile_node_1st);
         return (EC_FALSE);
     }
@@ -7250,7 +7250,7 @@ EC_BOOL cfile_cmp_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *file_nam
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, cfile_node_2nd, CFILE_RB_OPEN_MODE, node_tcid))
     {
         sys_log(LOGSTDOUT, "error:cfile_cmp_on_node_tcid: failed to open 2nd node of file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(cfile_node_2nd), uint32_to_ipv4(node_tcid));
+                            (char *)CFILE_NODE_NAME_STR(cfile_node_2nd), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, cfile_node_1st);
         cfile_node_free(cfile_md_id, cfile_node_2nd);
         return (EC_FALSE);
@@ -7316,7 +7316,7 @@ static UINT32 cfile_read_fwrite_group_on_node_tcid(const UINT32 cfile_md_id, CFI
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cfile_node_write, ERR_MODULE_ID, cfile_node, node_tcid))
         {
             sys_log(LOGSTDOUT, "error:cfile_read_fwrite_group_on_node_tcid: something wrong when make task with tcid %s and file %s for node write\n",
-                               uint32_to_ipv4(node_tcid), (char *)CFILE_NODE_NAME_STR(cfile_node));
+                               c_word_to_ipv4(node_tcid), (char *)CFILE_NODE_NAME_STR(cfile_node));
             return ((UINT32)-1);
         }
     }
@@ -7328,7 +7328,7 @@ static UINT32 cfile_read_fwrite_group_on_node_tcid(const UINT32 cfile_md_id, CFI
     if(0 != ret)
     {
         sys_log(LOGSTDOUT, "error:cfile_read_fwrite_group_on_node_tcid: failed to write node info with file %s and tcid %s to tcid %s\n",
-                           (char *)CFILE_NODE_NAME_STR(cfile_node), CFILE_NODE_TCID_STR(cfile_node, CFILE_NODE_TCID_POS), uint32_to_ipv4(node_tcid));
+                           (char *)CFILE_NODE_NAME_STR(cfile_node), CFILE_NODE_TCID_STR(cfile_node, CFILE_NODE_TCID_POS), c_word_to_ipv4(node_tcid));
         return ((UINT32)-1);
     }
 
@@ -7661,7 +7661,7 @@ EC_BOOL cfile_fsearch_trans(const UINT32 cfile_md_id, const CFILE_NODE *cfile_no
     {
         (*node_tcid) = (UINT32)cvector_get(tcid_list, tcid_pos);
 
-        sys_log(LOGSTDOUT, "info:cfile_fsearch_trans: file %s found on tcid %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node), uint32_to_ipv4(*node_tcid));
+        sys_log(LOGSTDOUT, "info:cfile_fsearch_trans: file %s found on tcid %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(*node_tcid));
 
         carray_free(ret_list, LOC_CFILE_0085);
         return (EC_TRUE);
@@ -7867,7 +7867,7 @@ UINT32 cfile_rmv_trans(const UINT32 cfile_md_id, const CSTRING *file_name)
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, cfile_node, CFILE_ERR_OPEN_MODE, node_tcid))
     {
         sys_log(LOGSTDOUT, "error:cfile_rmv_trans: failed to open file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(cfile_node), uint32_to_ipv4(node_tcid));
+                            (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, cfile_node);
         return ((UINT32)-1);
     }
@@ -7875,7 +7875,7 @@ UINT32 cfile_rmv_trans(const UINT32 cfile_md_id, const CSTRING *file_name)
     if(0 != cfile_frmv_on_node_tcid(cfile_md_id, cfile_node, node_tcid))
     {
         sys_log(LOGSTDOUT, "error:cfile_rmv_trans: failed to frmv file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(cfile_node), uint32_to_ipv4(node_tcid));
+                            (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, cfile_node);
         return ((UINT32)-1);
     }
@@ -7934,7 +7934,7 @@ UINT32 cfile_copy_trans(const UINT32 cfile_md_id, const CSTRING *src_file_name, 
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, src_cfile_node, CFILE_RB_OPEN_MODE, src_node_tcid))
     {
         sys_log(LOGSTDOUT, "error:cfile_copy_trans: failed to open node of file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(src_cfile_node), uint32_to_ipv4(src_node_tcid));
+                            (char *)CFILE_NODE_NAME_STR(src_cfile_node), c_word_to_ipv4(src_node_tcid));
         cfile_node_free(cfile_md_id, src_cfile_node);
         return ((UINT32)-1);
     }
@@ -8066,7 +8066,7 @@ EC_BOOL cfile_cmp_trans(const UINT32 cfile_md_id, const CSTRING *file_name_1st, 
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, cfile_node_1st, CFILE_RB_OPEN_MODE, node_tcid_1st))
     {
         sys_log(LOGSTDOUT, "error:cfile_cmp_trans: failed to open 1st node of file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(cfile_node_1st), uint32_to_ipv4(node_tcid_1st));
+                            (char *)CFILE_NODE_NAME_STR(cfile_node_1st), c_word_to_ipv4(node_tcid_1st));
         cfile_node_free(cfile_md_id, cfile_node_1st);
         return (EC_FALSE);
     }
@@ -8093,7 +8093,7 @@ EC_BOOL cfile_cmp_trans(const UINT32 cfile_md_id, const CSTRING *file_name_1st, 
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, cfile_node_2nd, CFILE_RB_OPEN_MODE, node_tcid_2nd))
     {
         sys_log(LOGSTDOUT, "error:cfile_cmp_trans: failed to open 2nd node of file %s on tcid %s\n",
-                            (char *)CFILE_NODE_NAME_STR(cfile_node_2nd), uint32_to_ipv4(node_tcid_2nd));
+                            (char *)CFILE_NODE_NAME_STR(cfile_node_2nd), c_word_to_ipv4(node_tcid_2nd));
         cfile_node_free(cfile_md_id, cfile_node_1st);
         cfile_node_free(cfile_md_id, cfile_node_2nd);
         return (EC_FALSE);

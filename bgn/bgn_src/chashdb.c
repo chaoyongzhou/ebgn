@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -25,7 +25,7 @@ extern "C"{
 #include "cmpic.inc"
 #include "cmutex.h"
 #include "cstring.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "cbloom.h"
 #include "chashdb.h"
@@ -128,7 +128,7 @@ EC_BOOL chashdb_inode_clone(const CHASHDB_INODE *chashdb_inode_src, CHASHDB_INOD
 void chashdb_inode_print(LOG *log, const CHASHDB_INODE *chashdb_inode)
 {
     sys_print(log, "(tcid %s, path %lx, offset %ld) ",
-                 uint32_to_ipv4(CHASHDB_INODE_TCID(chashdb_inode)),
+                 c_word_to_ipv4(CHASHDB_INODE_TCID(chashdb_inode)),
                  CHASHDB_INODE_PATH(chashdb_inode),
                  CHASHDB_INODE_FOFF(chashdb_inode)
              );
@@ -312,7 +312,7 @@ EC_BOOL chashdb_item_load(CHASHDB *chashdb, const UINT32 offset, CHASHDB_ITEM *c
 {
     RWSIZE rsize;
 
-    if(CHASHDB_ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:chashdb_item_load: seek offset %u failed\n", offset);
         return (EC_FALSE);
@@ -332,7 +332,7 @@ EC_BOOL chashdb_item_flush(CHASHDB *chashdb, const UINT32 offset, const CHASHDB_
 {
     RWSIZE wsize;
 
-    if(CHASHDB_ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:chashdb_item_flush: seek offset %u failed\n", offset);
         return (EC_FALSE);
@@ -455,7 +455,7 @@ EC_BOOL chashdb_bucket_load(CHASHDB *chashdb, const UINT32 offset, CHASHDB_BUCKE
 {
     RWSIZE rsize;
 
-    if(CHASHDB_ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:chashdb_bucket_load: seek offset %u failed\n", offset);
         return (EC_FALSE);
@@ -475,7 +475,7 @@ EC_BOOL chashdb_bucket_flush(const CHASHDB *chashdb, const UINT32 offset, const 
 {
     RWSIZE wsize;
 
-    if(CHASHDB_ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:chashdb_bucket_flush: seek offset %u failed\n", offset);
         return (EC_FALSE);
@@ -755,7 +755,7 @@ EC_BOOL chashdb_header_load(CHASHDB *chashdb, const UINT32 offset, CHASHDB_HEADE
 {
     RWSIZE rsize;
 
-    if(CHASHDB_ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:chashdb_header_load: seek offset %u failed\n", offset);
         return (EC_FALSE);
@@ -775,7 +775,7 @@ EC_BOOL chashdb_header_flush(CHASHDB *chashdb, const UINT32 offset, const CHASHD
 {
     RWSIZE wsize;
 
-    if(CHASHDB_ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:chashdb_header_flush: seek offset %u failed\n", offset);
         return (EC_FALSE);
@@ -793,7 +793,7 @@ EC_BOOL chashdb_header_flush(CHASHDB *chashdb, const UINT32 offset, const CHASHD
 
 EC_BOOL chashdb_cbloom_load(CHASHDB *chashdb, const UINT32 offset, const RWSIZE rsize, CBLOOM *chashdb_cbloom)
 {
-    if(CHASHDB_ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:chashdb_cbloom_load: seek offset %u failed\n", offset);
         return (EC_FALSE);
@@ -810,7 +810,7 @@ EC_BOOL chashdb_cbloom_load(CHASHDB *chashdb, const UINT32 offset, const RWSIZE 
 
 EC_BOOL chashdb_cbloom_flush(CHASHDB *chashdb, const UINT32 offset, const RWSIZE wsize, const CBLOOM *chashdb_cbloom)
 {
-    if(CHASHDB_ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:chashdb_cbloom_flush: seek offset %u failed\n", offset);
         return (EC_FALSE);
@@ -829,7 +829,7 @@ EC_BOOL chashdb_cbloom_word_flush(CHASHDB *chashdb, const UINT32 offset, const U
 {
     RWSIZE wsize;
 
-    if(CHASHDB_ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:chashdb_cbloom_word_flush: seek offset %u failed\n", offset);
         return (EC_FALSE);
@@ -989,7 +989,7 @@ EC_BOOL chashdb_init(CHASHDB *chashdb, const char *dbname)
 {
     CHASHDB_DBNAME(chashdb) = cstring_new((UINT8 *)dbname, LOC_CHASHDB_0010);
 
-    CHASHDB_FD(chashdb) = CHASHDB_ERR_FD;
+    CHASHDB_FD(chashdb) = ERR_FD;
 
     CHASHDB_HDR(chashdb)    = NULL_PTR;
     CHASHDB_CBLOOM(chashdb) = NULL_PTR;
@@ -1013,10 +1013,10 @@ EC_BOOL chashdb_clean(CHASHDB *chashdb)
     cstring_free(CHASHDB_DBNAME(chashdb));
     CHASHDB_DBNAME(chashdb) = NULL_PTR;
 
-    if(CHASHDB_ERR_FD != CHASHDB_FD(chashdb))
+    if(ERR_FD != CHASHDB_FD(chashdb))
     {
-        close(CHASHDB_FD(chashdb));
-        CHASHDB_FD(chashdb) = CHASHDB_ERR_FD;
+        c_file_close(CHASHDB_FD(chashdb));
+        CHASHDB_FD(chashdb) = ERR_FD;
     }
 
     CHASHDB_HDR(chashdb)    = NULL_PTR;
@@ -1095,7 +1095,7 @@ void chashdb_print(LOG *log, const CHASHDB *chashdb)
 
 EC_BOOL chashdb_buff_flush(const CHASHDB *chashdb, const UINT32 offset, const RWSIZE wsize, const UINT8 *buff)
 {
-    if(CHASHDB_ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:chashdb_buff_flush: seek offset %u failed\n", offset);
         return (EC_FALSE);
@@ -1112,7 +1112,7 @@ EC_BOOL chashdb_buff_flush(const CHASHDB *chashdb, const UINT32 offset, const RW
 
 EC_BOOL chashdb_buff_load(const CHASHDB *chashdb, const UINT32 offset, const RWSIZE rsize, UINT8 *buff)
 {
-    if(CHASHDB_ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:chashdb_buff_load: seek offset %u failed\n", offset);
         return (EC_FALSE);
@@ -1522,7 +1522,7 @@ CHASHDB *chashdb_open(const char *dbname)
     }
 
     CHASHDB_FD(chashdb) = open(dbname, O_RDWR, 0666);
-    if(CHASHDB_ERR_FD == CHASHDB_FD(chashdb))
+    if(ERR_FD == CHASHDB_FD(chashdb))
     {
         sys_log(LOGSTDOUT, "error:chashdb_open: open chashdb file %s failed\n", dbname);
         chashdb_free(chashdb);
@@ -1623,7 +1623,7 @@ EC_BOOL chashdb_create(const char *dbname, const UINT32 chashdb_mode, const UINT
 #endif
 
     CHASHDB_FD(chashdb) = open(dbname, O_RDWR | O_CREAT, 0666);
-    if(CHASHDB_ERR_FD == CHASHDB_FD(chashdb))
+    if(ERR_FD == CHASHDB_FD(chashdb))
     {
         sys_log(LOGSTDOUT, "error:chashdb_create: cannot open file %s\n", dbname);
         chashdb_free(chashdb);
@@ -1666,15 +1666,15 @@ EC_BOOL chashdb_show(LOG *log, const char *dbname)
         return (EC_FALSE);
     }
 
-    db_fd = c_open(dbname, O_RDWR | O_CREAT, 0666);
-    if(CHASHDB_ERR_FD == db_fd)
+    db_fd = c_file_open(dbname, O_RDWR | O_CREAT, 0666);
+    if(ERR_FD == db_fd)
     {
         sys_log(log, "error:chashdb_show: cannot open db %s\n", dbname);
         return (EC_FALSE);
     }
 
     /*load header*/
-    if(CHASHDB_ERR_SEEK == lseek(db_fd, 0, SEEK_SET))
+    if(ERR_SEEK == lseek(db_fd, 0, SEEK_SET))
     {
         sys_log(log, "error:chashdb_show: seek BEG failed\n");
         return (EC_FALSE);
@@ -1692,7 +1692,7 @@ EC_BOOL chashdb_show(LOG *log, const char *dbname)
     sys_print(log, "\n");
 
     /*load bloom filter*/
-    if(CHASHDB_ERR_SEEK == lseek(db_fd, CHASHDB_HEADER_BMOFF(chashdb_header), SEEK_SET))
+    if(ERR_SEEK == lseek(db_fd, CHASHDB_HEADER_BMOFF(chashdb_header), SEEK_SET))
     {
         sys_log(log, "error:chashdb_show: seek boff failed\n");
         return (EC_FALSE);
@@ -1730,7 +1730,7 @@ EC_BOOL chashdb_show(LOG *log, const char *dbname)
 
         chashdb_bucket = &chashdb_bucket_t;
 
-        if(CHASHDB_ERR_SEEK == lseek(db_fd, offset, SEEK_SET))
+        if(ERR_SEEK == lseek(db_fd, offset, SEEK_SET))
         {
             sys_log(log, "error:chashdb_show: seek bucket %ld# failed where offset = %u\n", chashdb_bucket_pos, offset);
             return (EC_FALSE);
@@ -1756,7 +1756,7 @@ EC_BOOL chashdb_show(LOG *log, const char *dbname)
 
         chashdb_item = &chashdb_item_t;
 
-        if(CHASHDB_ERR_SEEK == lseek(db_fd, offset, SEEK_SET))
+        if(ERR_SEEK == lseek(db_fd, offset, SEEK_SET))
         {
             sys_log(log, "error:chashdb_show: seek item %ld# failed where offset = %u\n", chashdb_item_pos, offset);
             return (EC_FALSE);

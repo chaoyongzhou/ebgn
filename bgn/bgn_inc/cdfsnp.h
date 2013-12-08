@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -51,9 +51,6 @@ extern "C"{
 #endif/*(64 == WORDSIZE)*/
 
 #define CDFSNP_ITEM_REF_MAX_NUM         ((UINT32) 0xF)/*4 bits*/
-
-#define CDFSNP_ERR_FD                   (-1)
-#define CDFSNP_ERR_SEEK                 (-1)
 
 #define CDFSNP_WRITE_ONCE_MAX_BYTES     ((UINT32)0x7FFFF000)/*2GB - 4KB*/
 #define CDFSNP_READ_ONCE_MAX_BYTES      ((UINT32)0x7FFFF000)/*2GB - 4KB*/

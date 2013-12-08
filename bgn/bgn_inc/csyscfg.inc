@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -56,7 +56,7 @@ typedef struct
 #define CLUSTER_NODE_CFG_ROLE_STR(cluster_node_cfg)               (cstring_get_str(CLUSTER_NODE_CFG_ROLE(cluster_node_cfg)))
 #define CLUSTER_NODE_CFG_EXTRAS(cluster_node_cfg)                 (&((cluster_node_cfg)->extras))
 #define CLUSTER_NODE_CFG_TCID(cluster_node_cfg)                   ((cluster_node_cfg)->tcid)
-#define CLUSTER_NODE_CFG_TCID_STR(cluster_node_cfg)               (uint32_to_ipv4(CLUSTER_NODE_CFG_TCID(cluster_node_cfg)))
+#define CLUSTER_NODE_CFG_TCID_STR(cluster_node_cfg)               (c_word_to_ipv4(CLUSTER_NODE_CFG_TCID(cluster_node_cfg)))
 #define CLUSTER_NODE_CFG_RANK_VEC(cluster_node_cfg)               (&((cluster_node_cfg)->rank_vec))
 
 #define CLUSTER_NODE_CFG_GROUP(this_cluster_node_cfg)             (cluster_node_cfg_get_extra_val_by_key_str(this_cluster_node_cfg, (const char *)"group"))
@@ -111,9 +111,9 @@ typedef struct
 }MCAST_CFG;
 #define MCAST_CFG_TYPE(mcast_cfg)         ((mcast_cfg)->type)
 #define MCAST_CFG_TCID(mcast_cfg)         ((mcast_cfg)->tcid)
-#define MCAST_CFG_TCID_STR(mcast_cfg)     (uint32_to_ipv4(MCAST_CFG_TCID(mcast_cfg)))
+#define MCAST_CFG_TCID_STR(mcast_cfg)     (c_word_to_ipv4(MCAST_CFG_TCID(mcast_cfg)))
 #define MCAST_CFG_IPADDR(mcast_cfg)       ((mcast_cfg)->ipaddr)
-#define MCAST_CFG_IPADDR_STR(mcast_cfg)   (uint32_to_ipv4(MCAST_CFG_IPADDR(mcast_cfg)))
+#define MCAST_CFG_IPADDR_STR(mcast_cfg)   (c_word_to_ipv4(MCAST_CFG_IPADDR(mcast_cfg)))
 #define MCAST_CFG_PORT(mcast_cfg)         ((mcast_cfg)->port)
 #define MCAST_CFG_EXPIRE(mcast_cfg)       ((mcast_cfg)->expire)
 #define MCAST_CFG_TIMEOUT(mcast_cfg)      ((mcast_cfg)->timeout)
@@ -139,13 +139,13 @@ typedef struct
 }BCAST_DHCP_CFG;
 #define BCAST_DHCP_CFG_TYPE(bcast_dhcp_cfg)         ((bcast_dhcp_cfg)->type)
 #define BCAST_DHCP_CFG_TCID(bcast_dhcp_cfg)         ((bcast_dhcp_cfg)->tcid)
-#define BCAST_DHCP_CFG_TCID_STR(bcast_dhcp_cfg)     (uint32_to_ipv4(BCAST_DHCP_CFG_TCID(bcast_dhcp_cfg)))
+#define BCAST_DHCP_CFG_TCID_STR(bcast_dhcp_cfg)     (c_word_to_ipv4(BCAST_DHCP_CFG_TCID(bcast_dhcp_cfg)))
 #define BCAST_DHCP_NETCARD(bcast_dhcp_cfg)          (&((bcast_dhcp_cfg)->netcard))
 #define BCAST_DHCP_NETCARD_STR(bcast_dhcp_cfg)      (cstring_get_str(BCAST_DHCP_NETCARD(bcast_dhcp_cfg)))
 #define BCAST_DHCP_CFG_SUBNET(bcast_dhcp_cfg)       ((bcast_dhcp_cfg)->subnet)
-#define BCAST_DHCP_CFG_SUBNET_STR(bcast_dhcp_cfg)   (uint32_to_ipv4(BCAST_DHCP_CFG_SUBNET(bcast_dhcp_cfg)))
+#define BCAST_DHCP_CFG_SUBNET_STR(bcast_dhcp_cfg)   (c_word_to_ipv4(BCAST_DHCP_CFG_SUBNET(bcast_dhcp_cfg)))
 #define BCAST_DHCP_CFG_MASK(bcast_dhcp_cfg)         ((bcast_dhcp_cfg)->mask)
-#define BCAST_DHCP_CFG_MASK_STR(bcast_dhcp_cfg)     (uint32_to_ipv4(BCAST_DHCP_CFG_MASK(bcast_dhcp_cfg)))
+#define BCAST_DHCP_CFG_MASK_STR(bcast_dhcp_cfg)     (c_word_to_ipv4(BCAST_DHCP_CFG_MASK(bcast_dhcp_cfg)))
 #define BCAST_DHCP_CFG_AUTO_FLAG(bcast_dhcp_cfg)    ((bcast_dhcp_cfg)->auto_flag)
 
 /*bind or map MAC addr and IPv4 addr*/
@@ -159,7 +159,7 @@ typedef struct
 #define MACIP_CFG_MAC_ADDR(macip_cfg)       ((macip_cfg)->mac_addr)
 #define MACIP_CFG_MAC_ADDR_STR(macip_cfg)   (mac_addr_to_str(MACIP_CFG_MAC_ADDR(macip_cfg)))
 #define MACIP_CFG_IPV4_ADDR(macip_cfg)      ((macip_cfg)->ipv4_addr)
-#define MACIP_CFG_IPV4_ADDR_STR(macip_cfg)  (uint32_to_ipv4(MACIP_CFG_IPV4_ADDR(macip_cfg)))
+#define MACIP_CFG_IPV4_ADDR_STR(macip_cfg)  (c_word_to_ipv4(MACIP_CFG_IPV4_ADDR(macip_cfg)))
 
 #define  GANGLIA_WILL_AUTO_BOOTUP       ((UINT32) 0)
 #define  GANGLIA_NOT_AUTO_BOOTUP        ((UINT32) 1)
@@ -172,9 +172,9 @@ typedef struct
     UINT32      auto_flag;/*whether ganglia client bootup automatically*/
 }GANGLIA_CFG;
 #define GANGLIA_CFG_TCID(ganglia_cfg)         ((ganglia_cfg)->tcid)
-#define GANGLIA_CFG_TCID_STR(ganglia_cfg)     (uint32_to_ipv4(GANGLIA_CFG_TCID(ganglia_cfg)))
+#define GANGLIA_CFG_TCID_STR(ganglia_cfg)     (c_word_to_ipv4(GANGLIA_CFG_TCID(ganglia_cfg)))
 #define GANGLIA_CFG_IPADDR(ganglia_cfg)       ((ganglia_cfg)->ipaddr)
-#define GANGLIA_CFG_IPADDR_STR(ganglia_cfg)   (uint32_to_ipv4(GANGLIA_CFG_IPADDR(ganglia_cfg)))
+#define GANGLIA_CFG_IPADDR_STR(ganglia_cfg)   (c_word_to_ipv4(GANGLIA_CFG_IPADDR(ganglia_cfg)))
 #define GANGLIA_CFG_PORT(ganglia_cfg)         ((ganglia_cfg)->port)
 #define GANGLIA_CFG_AUTO_FLAG(ganglia_cfg)    ((ganglia_cfg)->auto_flag)
 

@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -76,6 +76,16 @@ typedef double REAL;
 #define _RWSIZE_
 typedef ssize_t RWSIZE;
 #endif/* _RWSIZE_ */
+
+#ifndef _UINT64_T_
+#define _UINT64_T_
+#if (32 == WORDSIZE)
+typedef unsigned long long  uint64_t;
+#endif/*(32 == WORDSIZE)*/
+#if (64 == WORDSIZE)
+typedef unsigned long   uint64_t;
+#endif/*(64 == WORDSIZE)*/
+#endif/*_UINT32_T_*/
 
 #ifndef _UINT32_T_
 #define _UINT32_T_
@@ -165,6 +175,9 @@ netinet/in.h
 #endif
 
 #if (__BYTE_ORDER == __BIG_ENDIAN)
+#define ntoh_uint64(x)       (x)
+#define hton_uint64(x)       (x)
+
 #define ntoh_uint32(x)       (x)
 #define hton_uint32(x)       (x)
 
@@ -174,6 +187,10 @@ netinet/in.h
 #endif/*(__BYTE_ORDER == __BIG_ENDIAN)*/
 
 #if (__BYTE_ORDER == __LITTLE_ENDIAN)
+
+#define ntoh_uint64(x)       __bswap_64(x)
+#define hton_uint64(x)       __bswap_64(x)
+
 #if 1
 #if (32 == WORDSIZE)
 #define ntoh_uint32(x)       __bswap_32(x)
@@ -239,6 +256,11 @@ typedef UINT8  STRCHAR;
 
 #define UINT32_ZERO ((UINT32) 1)
 #define UINT32_ONE  ((UINT32) 1)
+
+#define ERR_FD      ((int)-1)
+#define ERR_SEEK    (-1)
+
+#define FILE_PAD_CHAR (0x00)
 
 typedef UINT32 EC_BOOL;
 
@@ -491,6 +513,7 @@ typedef struct _LOG
 }LOG;
 
 typedef time_t CTIMET;  /*32 bits for 32bit OS, 64 bits for 64bit OS*/
+//typedef time_t ctime_t; /*32 bits for 32bit OS, 64 bits for 64bit OS*/
 typedef struct tm CTM;
 
 extern long int lrint(double x);
@@ -519,6 +542,9 @@ extern long int lrint(double x);
 
 /*feed src to des and take back des by src at last*/
 #define XCHG(type, des, src)  do{type __t__; (__t__) = (des); (des)=(src); (src)=(__t__);}while(0)
+
+//#define DEBUG(x) x
+#define DEBUG(x) do{}while(0)
 
 #include "loc_macro.inc"
 

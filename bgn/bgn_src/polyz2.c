@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -244,7 +244,7 @@ void poly_z2_end(const UINT32 polyz2_md_id)
 
 #else
 
-UINT32 poly_z2_alloc_bgn(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,const MM_TYPE_UINT32 type, BIGINT **bgn)
+UINT32 poly_z2_alloc_bgn(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,const UINT32 type, BIGINT **bgn)
 {
     if ( MD_POLYZ2 != polyz_md_type )
     {
@@ -260,7 +260,7 @@ UINT32 poly_z2_alloc_bgn(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,c
     alloc_static_mem(polyz_md_type, polyz2_md_id, type, bgn, LOC_POLYZ2_0001);
     return (0);
 }
-UINT32 poly_z2_alloc_item(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,const MM_TYPE_UINT32 type,POLY_ITEM **item)
+UINT32 poly_z2_alloc_item(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,const UINT32 type,POLY_ITEM **item)
 {
     //BIGINT *deg_of_item;
 
@@ -282,7 +282,7 @@ UINT32 poly_z2_alloc_item(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,
 
     return (0);
 }
-UINT32 poly_z2_alloc_poly(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,const MM_TYPE_UINT32 type,POLY **poly)
+UINT32 poly_z2_alloc_poly(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,const UINT32 type,POLY **poly)
 {
     if ( MD_POLYZ2 != polyz_md_type )
     {
@@ -298,7 +298,7 @@ UINT32 poly_z2_alloc_poly(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,
     alloc_static_mem(polyz_md_type, polyz2_md_id, type, poly, LOC_POLYZ2_0004);
     return (0);
 }
-UINT32 poly_z2_free_bgn(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,const MM_TYPE_UINT32 type,BIGINT *bgn)
+UINT32 poly_z2_free_bgn(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,const UINT32 type,BIGINT *bgn)
 {
     if ( MD_POLYZ2 != polyz_md_type )
     {
@@ -314,7 +314,7 @@ UINT32 poly_z2_free_bgn(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,co
     free_static_mem(polyz_md_type, polyz2_md_id, type, bgn, LOC_POLYZ2_0005);
     return (0);
 }
-UINT32 poly_z2_free_item(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,const MM_TYPE_UINT32 type,POLY_ITEM *item)
+UINT32 poly_z2_free_item(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,const UINT32 type,POLY_ITEM *item)
 {
     if ( MD_POLYZ2 != polyz_md_type )
     {
@@ -330,7 +330,7 @@ UINT32 poly_z2_free_item(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,c
     free_static_mem(polyz_md_type, polyz2_md_id, type, item, LOC_POLYZ2_0006);
     return (0);
 }
-UINT32 poly_z2_free_poly(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,const MM_TYPE_UINT32 type,POLY *poly)
+UINT32 poly_z2_free_poly(const UINT32 polyz_md_type, const UINT32 polyz2_md_id,const UINT32 type,POLY *poly)
 {
     if ( MD_POLYZ2 != polyz_md_type )
     {

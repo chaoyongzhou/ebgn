@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -16,7 +16,7 @@ extern "C"{
 #include "mm.h"
 #include "log.h"
 #include "croutine.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "csocket.h"
 #include "task.inc"
@@ -31,7 +31,7 @@ typedef struct
 
 #define CEXTCLNT_SOCKFD(cextclnt)       ((cextclnt)->client_fd)
 #define CEXTCLNT_IPADDR(cextclnt)       ((cextclnt)->client_ipaddr)
-#define CEXTCLNT_IPADDR_STR(cextclnt)   (uint32_to_ipv4(CEXTCLNT_IPADDR(cextclnt)))
+#define CEXTCLNT_IPADDR_STR(cextclnt)   (c_word_to_ipv4(CEXTCLNT_IPADDR(cextclnt)))
 
 
 typedef struct

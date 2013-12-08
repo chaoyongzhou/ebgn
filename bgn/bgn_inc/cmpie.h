@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -30,6 +30,12 @@ extern "C"{
 #include "cdfs.h"
 #include "cdfsnp.h"
 #include "cdfsdn.h"
+#include "crfs.h"
+#include "crfsnp.h"
+#include "crfsdn.h"
+#include "chfs.h"
+#include "chfsnp.h"
+
 #include "csocket.h"
 
 #include "csys.h"
@@ -57,6 +63,12 @@ UINT32 cmpi_encode_uint32_ptr(const UINT32 comm, const UINT32 *num, UINT8 *out_b
 UINT32 cmpi_decode_uint32(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, UINT32 *num);
 UINT32 cmpi_encode_uint32_size(const UINT32 comm, const UINT32 num, UINT32 *size);
 UINT32 cmpi_encode_uint32_ptr_size(const UINT32 comm, const UINT32 *num, UINT32 *size);
+
+UINT32 cmpi_encode_uint64(const UINT32 comm, const uint64_t num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_uint64_ptr(const UINT32 comm, const uint64_t *num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_uint64_size(const UINT32 comm, const UINT32 num, UINT32 *size);
+UINT32 cmpi_encode_uint64_ptr_size(const UINT32 comm, const uint64_t *num, UINT32 *size);
+UINT32 cmpi_decode_uint64(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, uint64_t *num);
 
 UINT32 cmpi_encode_real(const UINT32 comm, const REAL *real, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
 UINT32 cmpi_decode_real(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, REAL *real);
@@ -333,6 +345,31 @@ UINT32 cmpi_decode_csword_docs(const UINT32 comm, const UINT8 *in_buff, const UI
 UINT32 cmpi_encode_clist(const UINT32 comm, const CLIST *clist, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
 UINT32 cmpi_encode_clist_size(const UINT32 comm, const CLIST *clist, UINT32 *size);
 UINT32 cmpi_decode_clist(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CLIST *clist);
+
+UINT32 cmpi_encode_crfsnp_inode(const UINT32 comm, const CRFSNP_INODE *crfsnp_inode, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_crfsnp_inode_size(const UINT32 comm, const CRFSNP_INODE *crfsnp_inode, UINT32 *size);
+UINT32 cmpi_decode_crfsnp_inode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSNP_INODE *crfsnp_inode);
+
+UINT32 cmpi_encode_crfsnp_fnode(const UINT32 comm, const CRFSNP_FNODE *crfsnp_fnode, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_crfsnp_fnode_size(const UINT32 comm, const CRFSNP_FNODE *crfsnp_fnode, UINT32 *size);
+UINT32 cmpi_decode_crfsnp_fnode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSNP_FNODE *crfsnp_fnode);
+
+UINT32 cmpi_encode_crfsnp_item(const UINT32 comm, const CRFSNP_ITEM *crfsnp_item, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_crfsnp_item_size(const UINT32 comm, const CRFSNP_ITEM *crfsnp_item, UINT32 *size);
+UINT32 cmpi_decode_crfsnp_item(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSNP_ITEM *crfsnp_item);
+
+UINT32 cmpi_encode_chfsnp_inode(const UINT32 comm, const CHFSNP_INODE *chfsnp_inode, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_chfsnp_inode_size(const UINT32 comm, const CHFSNP_INODE *chfsnp_inode, UINT32 *size);
+UINT32 cmpi_decode_chfsnp_inode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CHFSNP_INODE *chfsnp_inode);
+
+UINT32 cmpi_encode_chfsnp_fnode(const UINT32 comm, const CHFSNP_FNODE *chfsnp_fnode, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_chfsnp_fnode_size(const UINT32 comm, const CHFSNP_FNODE *chfsnp_fnode, UINT32 *size);
+UINT32 cmpi_decode_chfsnp_fnode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CHFSNP_FNODE *chfsnp_fnode);
+
+UINT32 cmpi_encode_chfsnp_item(const UINT32 comm, const CHFSNP_ITEM *chfsnp_item, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_chfsnp_item_size(const UINT32 comm, const CHFSNP_ITEM *chfsnp_item, UINT32 *size);
+UINT32 cmpi_decode_chfsnp_item(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CHFSNP_ITEM *chfsnp_item);
+
 
 
 #endif/*_CMPIE_H*/

@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -21,8 +21,6 @@ extern "C"{
 #include "tcnode.h"
 #include "cload.h"
 #include "cmutex.h"
-
-#define SUPER_ERR_FD        (-1)
 
 /*bitmap of open flags*/
 #define SUPER_O_RDONLY               ((UINT32)1)

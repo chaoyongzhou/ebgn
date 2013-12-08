@@ -2,13 +2,14 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
 extern "C"{
 #endif/*__cplusplus*/
 
+extern int main_crfs(int argc, char **argv);
 extern int main_cdfs(int argc, char **argv);
 extern int main_cbgt(int argc, char **argv);
 extern int main_exec(int argc, char **argv);
@@ -22,7 +23,8 @@ extern int main_ict(int argc, char **argv);
 
 int main(int argc, char **argv)
 {
-    main_cdfs(argc, argv);
+    main_crfs(argc, argv);
+    //main_cdfs(argc, argv);
     //main_cbgt(argc, argv);
     //main_exec(argc, argv);
     //main_cextsrv(argc, argv);

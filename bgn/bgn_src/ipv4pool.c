@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -16,7 +16,7 @@ extern "C"{
 #include "mm.h"
 #include "log.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 #include "cmutex.h"
 #include "cbytes.h"
 
@@ -38,7 +38,7 @@ IPV4_POOL *ipv4_pool_new(const uint32_t ipv4_subnet, const uint32_t ipv4_mask)
         if(EC_FALSE == ipv4_pool_init(ipv4_pool, ipv4_subnet, ipv4_mask))
         {
             sys_log(LOGSTDOUT, "error:ipv4_pool_new: init ipv4 pool with subnet %s, mask %s failed\n",
-                                uint32_to_ipv4(ipv4_subnet), uint32_to_ipv4(ipv4_mask));
+                                c_word_to_ipv4(ipv4_subnet), c_word_to_ipv4(ipv4_mask));
             SAFE_FREE(ipv4_pool, LOC_IPV4POOL_0002);
             return (NULL_PTR);
         }
@@ -57,8 +57,8 @@ EC_BOOL  ipv4_pool_init(IPV4_POOL *ipv4_pool, const uint32_t ipv4_subnet, const 
 
     ipv4_addr_max_num = (~ipv4_mask) + 1;
     sys_log(LOGSTDOUT, "[DEBUG] ipv4_pool_init: subnet %s, mask %s, ipv4 addr max num %ld\n",
-                        uint32_to_ipv4(IPV4_POOL_SUBNET(ipv4_pool)),
-                        uint32_to_ipv4(IPV4_POOL_MASK(ipv4_pool)),
+                        c_word_to_ipv4(IPV4_POOL_SUBNET(ipv4_pool)),
+                        c_word_to_ipv4(IPV4_POOL_MASK(ipv4_pool)),
                         ipv4_addr_max_num);
     if(EC_FALSE == cbitmap_init(IPV4_POOL_CBITMAP(ipv4_pool), ipv4_addr_max_num))
     {
@@ -75,12 +75,12 @@ EC_BOOL  ipv4_pool_init(IPV4_POOL *ipv4_pool, const uint32_t ipv4_subnet, const 
     bit_pos   = (ipv4_addr & (~ IPV4_POOL_MASK(ipv4_pool)));
     if(EC_FALSE == cbitmap_set(IPV4_POOL_CBITMAP(ipv4_pool), bit_pos))
     {
-        sys_log(LOGSTDOUT, "error:ipv4_pool_init: cbitmap set ipv4 %s failed\n", uint32_to_ipv4(ipv4_addr));
+        sys_log(LOGSTDOUT, "error:ipv4_pool_init: cbitmap set ipv4 %s failed\n", c_word_to_ipv4(ipv4_addr));
         IPV4_POOL_CLEAN_CRWLOCK(ipv4_pool, LOC_IPV4POOL_0005);
         cbitmap_clean(IPV4_POOL_CBITMAP(ipv4_pool));
         return (EC_FALSE);
     }
-    sys_log(LOGSTDOUT, "[DEBUG] ipv4_pool_init: ignore ipv4 %s\n", uint32_to_ipv4(ipv4_addr));
+    sys_log(LOGSTDOUT, "[DEBUG] ipv4_pool_init: ignore ipv4 %s\n", c_word_to_ipv4(ipv4_addr));
 #endif
 
 #if  1
@@ -88,35 +88,35 @@ EC_BOOL  ipv4_pool_init(IPV4_POOL *ipv4_pool, const uint32_t ipv4_subnet, const 
     bit_pos   = (ipv4_addr & (~ IPV4_POOL_MASK(ipv4_pool)));
     if(EC_FALSE == cbitmap_set(IPV4_POOL_CBITMAP(ipv4_pool), bit_pos))
     {
-        sys_log(LOGSTDOUT, "error:ipv4_pool_init: cbitmap set ipv4 %s failed\n", uint32_to_ipv4(ipv4_addr));
+        sys_log(LOGSTDOUT, "error:ipv4_pool_init: cbitmap set ipv4 %s failed\n", c_word_to_ipv4(ipv4_addr));
         IPV4_POOL_CLEAN_CRWLOCK(ipv4_pool, LOC_IPV4POOL_0006);
         cbitmap_clean(IPV4_POOL_CBITMAP(ipv4_pool));
         return (EC_FALSE);
     }
-    sys_log(LOGSTDOUT, "[DEBUG] ipv4_pool_init: ignore ipv4 %s\n", uint32_to_ipv4(ipv4_addr));
+    sys_log(LOGSTDOUT, "[DEBUG] ipv4_pool_init: ignore ipv4 %s\n", c_word_to_ipv4(ipv4_addr));
 #endif
 
     ipv4_addr = (IPV4_POOL_SUBNET(ipv4_pool) | ((~ipv4_mask) & 0xffffffff));
     bit_pos   =  (ipv4_addr & (~ IPV4_POOL_MASK(ipv4_pool)));
     if(bit_pos < CBITMAP_MAX_BITS(IPV4_POOL_CBITMAP(ipv4_pool)) && EC_FALSE == cbitmap_set(IPV4_POOL_CBITMAP(ipv4_pool), bit_pos))
     {
-        sys_log(LOGSTDOUT, "error:ipv4_pool_init: cbitmap set ipv4 %s failed\n", uint32_to_ipv4(ipv4_addr));
+        sys_log(LOGSTDOUT, "error:ipv4_pool_init: cbitmap set ipv4 %s failed\n", c_word_to_ipv4(ipv4_addr));
         IPV4_POOL_CLEAN_CRWLOCK(ipv4_pool, LOC_IPV4POOL_0007);
         cbitmap_clean(IPV4_POOL_CBITMAP(ipv4_pool));
         return (EC_FALSE);
     }
-    sys_log(LOGSTDOUT, "[DEBUG] ipv4_pool_init: ignore ipv4 %s\n", uint32_to_ipv4(ipv4_addr));
+    sys_log(LOGSTDOUT, "[DEBUG] ipv4_pool_init: ignore ipv4 %s\n", c_word_to_ipv4(ipv4_addr));
 
     ipv4_addr = (IPV4_POOL_SUBNET(ipv4_pool) | ((~ipv4_mask) & 0xfffffffe));
     bit_pos   =  (ipv4_addr & (~ IPV4_POOL_MASK(ipv4_pool)));
     if(bit_pos < CBITMAP_MAX_BITS(IPV4_POOL_CBITMAP(ipv4_pool)) && EC_FALSE == cbitmap_set(IPV4_POOL_CBITMAP(ipv4_pool), bit_pos))
     {
-        sys_log(LOGSTDOUT, "error:ipv4_pool_init: cbitmap set ipv4 %s failed\n", uint32_to_ipv4(ipv4_addr));
+        sys_log(LOGSTDOUT, "error:ipv4_pool_init: cbitmap set ipv4 %s failed\n", c_word_to_ipv4(ipv4_addr));
         IPV4_POOL_CLEAN_CRWLOCK(ipv4_pool, LOC_IPV4POOL_0008);
         cbitmap_clean(IPV4_POOL_CBITMAP(ipv4_pool));
         return (EC_FALSE);
     }
-    sys_log(LOGSTDOUT, "[DEBUG] ipv4_pool_init: ignore ipv4 %s\n", uint32_to_ipv4(ipv4_addr));
+    sys_log(LOGSTDOUT, "[DEBUG] ipv4_pool_init: ignore ipv4 %s\n", c_word_to_ipv4(ipv4_addr));
 #endif
     return (EC_TRUE);
 }
@@ -149,8 +149,8 @@ void     ipv4_pool_print(LOG *log, const IPV4_POOL *ipv4_pool)
 {
     sys_log(log, "ipv4 pool %lx: subnet %s, mask %s\n",
                 ipv4_pool,
-                uint32_to_ipv4(IPV4_POOL_SUBNET(ipv4_pool)),
-                uint32_to_ipv4(IPV4_POOL_MASK(ipv4_pool))
+                c_word_to_ipv4(IPV4_POOL_SUBNET(ipv4_pool)),
+                c_word_to_ipv4(IPV4_POOL_MASK(ipv4_pool))
                 );
     cbitmap_print(log, IPV4_POOL_CBITMAP(ipv4_pool));
     return;
@@ -195,10 +195,10 @@ EC_BOOL  ipv4_pool_reserve(IPV4_POOL *ipv4_pool, uint32_t *ipv4_addr)
 
     (*ipv4_addr) = reserved_ipv4_addr;
     sys_log(LOGSTDOUT, "[DEBUG] ipv4_pool_reserve: subnet %s, mask %s, bit_pos %ld => %s\n",
-                        uint32_to_ipv4(IPV4_POOL_SUBNET(ipv4_pool)),
-                        uint32_to_ipv4(IPV4_POOL_MASK(ipv4_pool)),
+                        c_word_to_ipv4(IPV4_POOL_SUBNET(ipv4_pool)),
+                        c_word_to_ipv4(IPV4_POOL_MASK(ipv4_pool)),
                         bit_pos,
-                        uint32_to_ipv4(*ipv4_addr)
+                        c_word_to_ipv4(*ipv4_addr)
                         );
     IPV4_POOL_CRWLOCK_UNLOCK(ipv4_pool, LOC_IPV4POOL_0014);
     return (EC_TRUE);
@@ -212,9 +212,9 @@ EC_BOOL  ipv4_pool_release(IPV4_POOL *ipv4_pool, const uint32_t ipv4_addr)
     if((IPV4_POOL_SUBNET(ipv4_pool) & IPV4_POOL_MASK(ipv4_pool)) !=  (ipv4_addr & IPV4_POOL_MASK(ipv4_pool)))
     {
         sys_log(LOGSTDOUT, "error:ipv4_pool_release: ipv4 addr %s not belong to subnet %s, mask %s\n",
-                            uint32_to_ipv4(ipv4_addr),
-                            uint32_to_ipv4(IPV4_POOL_SUBNET(ipv4_pool)),
-                            uint32_to_ipv4(IPV4_POOL_MASK(ipv4_pool))
+                            c_word_to_ipv4(ipv4_addr),
+                            c_word_to_ipv4(IPV4_POOL_SUBNET(ipv4_pool)),
+                            c_word_to_ipv4(IPV4_POOL_MASK(ipv4_pool))
                             );
         return (EC_FALSE);
     }
@@ -222,14 +222,14 @@ EC_BOOL  ipv4_pool_release(IPV4_POOL *ipv4_pool, const uint32_t ipv4_addr)
     bit_pos = ((ipv4_addr & (~ IPV4_POOL_MASK(ipv4_pool))) & 0xffffffff);
     if(0 == bit_pos || bit_pos == ((~ IPV4_POOL_MASK(ipv4_pool)) & 0xffffffff))
     {
-        sys_log(LOGSTDOUT, "error:ipv4_pool_release: refuse to release ipv4 addr %s\n", uint32_to_ipv4(ipv4_addr));
+        sys_log(LOGSTDOUT, "error:ipv4_pool_release: refuse to release ipv4 addr %s\n", c_word_to_ipv4(ipv4_addr));
         return (EC_FALSE);
     }
 
     IPV4_POOL_CRWLOCK_WRLOCK(ipv4_pool, LOC_IPV4POOL_0015);
     if(EC_FALSE == cbitmap_release(IPV4_POOL_CBITMAP(ipv4_pool), bit_pos))
     {
-        sys_log(LOGSTDOUT, "error:ipv4_pool_release: release ipv4 addr %s failed\n", uint32_to_ipv4(ipv4_addr));
+        sys_log(LOGSTDOUT, "error:ipv4_pool_release: release ipv4 addr %s failed\n", c_word_to_ipv4(ipv4_addr));
         IPV4_POOL_CRWLOCK_UNLOCK(ipv4_pool, LOC_IPV4POOL_0016);
         return (EC_FALSE);
     }
@@ -244,9 +244,9 @@ EC_BOOL  ipv4_pool_set(IPV4_POOL *ipv4_pool, const uint32_t ipv4_addr)
     if((IPV4_POOL_SUBNET(ipv4_pool) & IPV4_POOL_MASK(ipv4_pool)) !=  (ipv4_addr & IPV4_POOL_MASK(ipv4_pool)))
     {
         sys_log(LOGSTDOUT, "error:ipv4_pool_set: ipv4 addr %s not belong to subnet %s, mask %s\n",
-                            uint32_to_ipv4(ipv4_addr),
-                            uint32_to_ipv4(IPV4_POOL_SUBNET(ipv4_pool)),
-                            uint32_to_ipv4(IPV4_POOL_MASK(ipv4_pool))
+                            c_word_to_ipv4(ipv4_addr),
+                            c_word_to_ipv4(IPV4_POOL_SUBNET(ipv4_pool)),
+                            c_word_to_ipv4(IPV4_POOL_MASK(ipv4_pool))
                             );
         return (EC_FALSE);
     }
@@ -255,7 +255,7 @@ EC_BOOL  ipv4_pool_set(IPV4_POOL *ipv4_pool, const uint32_t ipv4_addr)
     bit_pos = ((ipv4_addr & (~ IPV4_POOL_MASK(ipv4_pool))) & 0xffffffff);
     if(EC_FALSE == cbitmap_set(IPV4_POOL_CBITMAP(ipv4_pool), bit_pos))
     {
-        sys_log(LOGSTDOUT, "error:ipv4_pool_set: set ipv4 addr %s failed\n", uint32_to_ipv4(ipv4_addr));
+        sys_log(LOGSTDOUT, "error:ipv4_pool_set: set ipv4 addr %s failed\n", c_word_to_ipv4(ipv4_addr));
         IPV4_POOL_CRWLOCK_UNLOCK(ipv4_pool, LOC_IPV4POOL_0019);
         return (EC_FALSE);
     }
@@ -270,9 +270,9 @@ EC_BOOL  ipv4_pool_unset(IPV4_POOL *ipv4_pool, const uint32_t ipv4_addr)
     if((IPV4_POOL_SUBNET(ipv4_pool) & IPV4_POOL_MASK(ipv4_pool)) !=  (ipv4_addr & IPV4_POOL_MASK(ipv4_pool)))
     {
         sys_log(LOGSTDOUT, "error:ipv4_pool_unset: ipv4 addr %s not belong to subnet %s, mask %s\n",
-                            uint32_to_ipv4(ipv4_addr),
-                            uint32_to_ipv4(IPV4_POOL_SUBNET(ipv4_pool)),
-                            uint32_to_ipv4(IPV4_POOL_MASK(ipv4_pool))
+                            c_word_to_ipv4(ipv4_addr),
+                            c_word_to_ipv4(IPV4_POOL_SUBNET(ipv4_pool)),
+                            c_word_to_ipv4(IPV4_POOL_MASK(ipv4_pool))
                             );
         return (EC_FALSE);
     }
@@ -281,7 +281,7 @@ EC_BOOL  ipv4_pool_unset(IPV4_POOL *ipv4_pool, const uint32_t ipv4_addr)
     bit_pos = ((ipv4_addr & (~ IPV4_POOL_MASK(ipv4_pool))) & 0xffffffff);
     if(EC_FALSE == cbitmap_unset(IPV4_POOL_CBITMAP(ipv4_pool), bit_pos))
     {
-        sys_log(LOGSTDOUT, "error:ipv4_pool_unset: unset ipv4 addr %s failed\n", uint32_to_ipv4(ipv4_addr));
+        sys_log(LOGSTDOUT, "error:ipv4_pool_unset: unset ipv4 addr %s failed\n", c_word_to_ipv4(ipv4_addr));
         IPV4_POOL_CRWLOCK_UNLOCK(ipv4_pool, LOC_IPV4POOL_0022);
         return (EC_FALSE);
     }

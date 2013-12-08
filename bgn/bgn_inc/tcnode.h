@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -32,7 +32,7 @@ typedef struct
 }TASKC_MGR;
 
 #define TASKC_NODE_TCID(taskc_node)         ((taskc_node)->taskc_id)
-#define TASKC_NODE_TCID_STR(taskc_node)     (uint32_to_ipv4(TASKC_NODE_TCID(taskc_node)))
+#define TASKC_NODE_TCID_STR(taskc_node)     (c_word_to_ipv4(TASKC_NODE_TCID(taskc_node)))
 #define TASKC_NODE_COMM(taskc_node)         ((taskc_node)->taskc_comm)
 #define TASKC_NODE_SIZE(taskc_node)         ((taskc_node)->taskc_size)
 

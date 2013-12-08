@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -16,7 +16,7 @@ extern "C"{
 
 #include "type.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 #include "task.inc"
 #include "task.h"
 #include "tcnode.h"
@@ -418,7 +418,7 @@ char* ui_show_mem(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_mem end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0032);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0348);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -449,7 +449,7 @@ char* ui_show_mem(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0033);
+    cvector_free(report_vec, LOC_API_0349);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -478,7 +478,7 @@ char* ui_show_mem_all(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_mem_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0034);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0350);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -509,7 +509,7 @@ char* ui_show_mem_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0035);
+    cvector_free(report_vec, LOC_API_0351);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -544,7 +544,7 @@ char*  ui_diag_mem(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_diag_mem end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0036);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0352);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -575,7 +575,7 @@ char*  ui_diag_mem(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0037);
+    cvector_free(report_vec, LOC_API_0353);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -604,7 +604,7 @@ char* ui_diag_mem_all(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_diag_mem_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0038);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0354);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -635,7 +635,7 @@ char* ui_diag_mem_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0039);
+    cvector_free(report_vec, LOC_API_0355);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -725,7 +725,7 @@ char *ui_switch_log(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &rank);
     api_ui_param_int(param, 3, &on_off);
 
-    sys_log(LOGSTDOUT, "switch tcid %s, rank %d log to %d\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)), rank, on_off);
+    sys_log(LOGSTDOUT, "switch tcid %s, rank %d log to %d\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), rank, on_off);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
@@ -811,7 +811,7 @@ char *ui_enable_to_rank_node(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &rank);
     api_ui_param_int(param, 3, &des_rank);
 
-    sys_log(LOGSTDOUT, "enable tcid %s rank %d to rank %d\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)), rank, des_rank);
+    sys_log(LOGSTDOUT, "enable tcid %s rank %d to rank %d\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), rank, des_rank);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
@@ -883,7 +883,7 @@ char *ui_disable_to_rank_node(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &rank);
     api_ui_param_int(param, 3, &des_rank);
 
-    sys_log(LOGSTDOUT, "disable tcid %s rank %d to rank %d\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)), rank, des_rank);
+    sys_log(LOGSTDOUT, "disable tcid %s rank %d to rank %d\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), rank, des_rank);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
@@ -960,7 +960,7 @@ char *ui_show_queue(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &rank);
     api_ui_param_str(param, 3, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "show queue tcid %s, rank %d, where = %s\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)), rank, where);
+    sys_log(LOGSTDOUT, "show queue tcid %s, rank %d, where = %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), rank, where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
@@ -969,7 +969,7 @@ char *ui_show_queue(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_queue end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0040);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0356);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1000,7 +1000,7 @@ char *ui_show_queue(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0041);
+    cvector_free(report_vec, LOC_API_0357);
     mod_mgr_free(mod_mgr);
 
     return (NULL_PTR);
@@ -1030,7 +1030,7 @@ char *ui_show_queue_all(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_queue_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0042);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0358);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1061,7 +1061,7 @@ char *ui_show_queue_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0043);
+    cvector_free(report_vec, LOC_API_0359);
     mod_mgr_free(mod_mgr);
 
     return (NULL_PTR);
@@ -1085,7 +1085,7 @@ char *ui_show_client(API_UI_PARAM * param)
     api_ui_param_int(param, 1, &tcid);
     api_ui_param_str(param, 2, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "show work client tcid %s where %s\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)), where);
+    sys_log(LOGSTDOUT, "show work client tcid %s where %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
@@ -1094,7 +1094,7 @@ char *ui_show_client(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_client end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0044);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0360);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1125,7 +1125,7 @@ char *ui_show_client(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0045);
+    cvector_free(report_vec, LOC_API_0361);
     mod_mgr_free(mod_mgr);
 
     return (NULL_PTR);
@@ -1155,7 +1155,7 @@ char *ui_show_client_all(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_client_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0046);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0362);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1186,7 +1186,7 @@ char *ui_show_client_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0047);
+    cvector_free(report_vec, LOC_API_0363);
     mod_mgr_free(mod_mgr);
 
     return (NULL_PTR);
@@ -1220,7 +1220,7 @@ char* ui_show_thread(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_thread end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0048);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0364);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1251,7 +1251,7 @@ char* ui_show_thread(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0049);
+    cvector_free(report_vec, LOC_API_0365);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -1280,7 +1280,7 @@ char* ui_show_thread_all(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_thread_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0050);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0366);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1311,7 +1311,7 @@ char* ui_show_thread_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0051);
+    cvector_free(report_vec, LOC_API_0367);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -1344,7 +1344,7 @@ char* ui_show_route(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_route end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0052);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0368);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1375,7 +1375,7 @@ char* ui_show_route(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0053);
+    cvector_free(report_vec, LOC_API_0369);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -1404,7 +1404,7 @@ char* ui_show_route_all(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_route_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0054);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0370);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1435,7 +1435,7 @@ char* ui_show_route_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0055);
+    cvector_free(report_vec, LOC_API_0371);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -1470,7 +1470,7 @@ char* ui_show_rank_node(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_rank_node end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0056);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0372);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1501,7 +1501,7 @@ char* ui_show_rank_node(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0057);
+    cvector_free(report_vec, LOC_API_0373);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -1530,7 +1530,7 @@ char* ui_show_rank_node_all(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_rank_node_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0058);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0374);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1561,7 +1561,7 @@ char* ui_show_rank_node_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0059);
+    cvector_free(report_vec, LOC_API_0375);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -1580,7 +1580,7 @@ char *ui_shutdown_work(API_UI_PARAM * param)
 
     api_ui_param_int(param, 1, &tcid);
 
-    sys_log(LOGSTDOUT, "shutdown work tcid %s\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)));
+    sys_log(LOGSTDOUT, "shutdown work tcid %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)));
 
     if(EC_TRUE == task_brd_check_is_dbg_tcid(INT32_TO_UINT32(tcid)))
     {
@@ -1657,7 +1657,7 @@ char *ui_shutdown_dbg(API_UI_PARAM * param)
 
     api_ui_param_int(param, 1, &tcid);
 
-    sys_log(LOGSTDOUT, "shutdown dbg tcid %s\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)));
+    sys_log(LOGSTDOUT, "shutdown dbg tcid %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)));
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
@@ -1725,7 +1725,7 @@ char *ui_shutdown_mon(API_UI_PARAM * param)
 
     api_ui_param_int(param, 1, &tcid);
 
-    sys_log(LOGSTDOUT, "shutdown mon tcid %s\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)));
+    sys_log(LOGSTDOUT, "shutdown mon tcid %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)));
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
@@ -1799,7 +1799,7 @@ char *ui_show_taskcomm(API_UI_PARAM * param)
     api_ui_param_int(param, 1, &tcid);
     api_ui_param_str(param, 2, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "show taskcomm tcid %s where = %s\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)), where);
+    sys_log(LOGSTDOUT, "show taskcomm tcid %s where = %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
@@ -1808,7 +1808,7 @@ char *ui_show_taskcomm(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_taskcomm end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0060);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0376);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1840,7 +1840,7 @@ char *ui_show_taskcomm(API_UI_PARAM * param)
         taskc_mgr_free(taskc_mgr);
     }
 
-    cvector_free(report_vec, LOC_API_0061);
+    cvector_free(report_vec, LOC_API_0377);
     mod_mgr_free(mod_mgr);
 
     return (NULL_PTR);
@@ -1871,7 +1871,7 @@ char *ui_show_taskcomm_all(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_show_taskcomm_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0062);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0378);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1903,7 +1903,7 @@ char *ui_show_taskcomm_all(API_UI_PARAM * param)
         taskc_mgr_free(taskc_mgr);
     }
 
-    cvector_free(report_vec, LOC_API_0063);
+    cvector_free(report_vec, LOC_API_0379);
     mod_mgr_free(mod_mgr);
 
     return (NULL_PTR);
@@ -1925,13 +1925,13 @@ char *ui_run_shell(API_UI_PARAM * param)
     CVECTOR *report_vec;
     LOG   *des_log;
 
-    cmd_line = cstring_new(NULL_PTR, LOC_API_0064);
+    cmd_line = cstring_new(NULL_PTR, LOC_API_0380);
 
     api_ui_param_cstring(param, 1, cmd_line);
     api_ui_param_int(param, 2, &tcid);
     api_ui_param_str(param, 3, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "run shell %s on tcid %s where %s\n", (char *)cstring_get_str(cmd_line), uint32_to_ipv4(INT32_TO_UINT32(tcid)), where);
+    sys_log(LOGSTDOUT, "run shell %s on tcid %s where %s\n", (char *)cstring_get_str(cmd_line), c_word_to_ipv4(INT32_TO_UINT32(tcid)), where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
@@ -1940,7 +1940,7 @@ char *ui_run_shell(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_run_shell end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0065);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0381);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1972,7 +1972,7 @@ char *ui_run_shell(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0066);
+    cvector_free(report_vec, LOC_API_0382);
     mod_mgr_free(mod_mgr);
 
     cstring_free(cmd_line);
@@ -1994,7 +1994,7 @@ char *ui_run_shell_all(API_UI_PARAM * param)
     CVECTOR *report_vec;
     LOG   *des_log;
 
-    cmd_line = cstring_new(NULL_PTR, LOC_API_0067);
+    cmd_line = cstring_new(NULL_PTR, LOC_API_0383);
     api_ui_param_cstring(param, 1, cmd_line);
     api_ui_param_str(param, 2, where, UI_DEBUG_BUFFER_SIZE - 1);
 
@@ -2007,7 +2007,7 @@ char *ui_run_shell_all(API_UI_PARAM * param)
     sys_log(LOGSTDOUT, "------------------------------------ ui_run_shell_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0068);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0384);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -2039,7 +2039,7 @@ char *ui_run_shell_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0069);
+    cvector_free(report_vec, LOC_API_0385);
     mod_mgr_free(mod_mgr);
 
     cstring_free(cmd_line);
@@ -2065,11 +2065,11 @@ char *ui_ping_taskcomm(API_UI_PARAM * param)
 
     des_log = ui_get_log(where);
 
-    sys_log(LOGSTDOUT, "show taskcomm tcid %s where = %s\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)), where);
+    sys_log(LOGSTDOUT, "show taskcomm tcid %s where = %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), where);
 
     ret = EC_FALSE; /*initialization*/
 
-    sys_log(des_log, "ping tcid %s ....\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)));
+    sys_log(des_log, "ping tcid %s ....\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)));
 
     task_mgr = task_new(NULL_PTR, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
 
@@ -2092,11 +2092,11 @@ char *ui_ping_taskcomm(API_UI_PARAM * param)
 
     if(EC_TRUE == ret)
     {
-        sys_log(des_log, "tcid %s is reachable\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)));
+        sys_log(des_log, "tcid %s is reachable\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)));
     }
     else
     {
-        sys_log(des_log, "tcid %s is unreachable\n", uint32_to_ipv4(INT32_TO_UINT32(tcid)));
+        sys_log(des_log, "tcid %s is unreachable\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)));
     }
 
     return (NULL_PTR);

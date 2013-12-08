@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -20,7 +20,7 @@ extern "C"{
 #include "clist.h"
 #include "cset.h"
 #include "cstring.h"
-#include "char2int.h"
+#include "cmisc.h"
 #include "cxml.h"
 
 #include "csocket.h"
@@ -47,7 +47,7 @@ EC_BOOL taskcfgchk_net_print(LOG *log, const TASK_CFG *task_cfg, const UINT32 tc
     if(NULL_PTR == local_tasks_cfg)
     {
         sys_log(log, "error:taskcfgchk_net_print: no tasks cfg for tcid %s maski %s, maske %s\n",
-                        uint32_to_ipv4(tcid), uint32_to_ipv4(maski), uint32_to_ipv4(maske));
+                        c_word_to_ipv4(tcid), c_word_to_ipv4(maski), c_word_to_ipv4(maske));
         return (EC_FALSE);
     }
 
@@ -123,7 +123,7 @@ EC_BOOL taskcfgchk_route_print(LOG *log, const TASK_CFG *task_cfg, const UINT32 
     if(NULL_PTR == tasks_cfg)
     {
         sys_log(log, "error:taskcfgchk_route_print: no tasks cfg for tcid %s maski %s, maske %s\n",
-                        uint32_to_ipv4(tcid), uint32_to_ipv4(maski), uint32_to_ipv4(maske));
+                        c_word_to_ipv4(tcid), c_word_to_ipv4(maski), c_word_to_ipv4(maske));
         return (EC_FALSE);
     }
 
@@ -157,7 +157,7 @@ EC_BOOL taskcfgchk_conn_print(LOG *log, const TASK_CFG *task_cfg, const UINT32 t
     if(NULL_PTR == local_tasks_cfg)
     {
         sys_log(log, "error:taskcfgchk_conn_print: no tasks cfg for tcid %s maski %s, maske %s\n",
-                        uint32_to_ipv4(tcid), uint32_to_ipv4(maski), uint32_to_ipv4(maske));
+                        c_word_to_ipv4(tcid), c_word_to_ipv4(maski), c_word_to_ipv4(maske));
         return (EC_FALSE);
     }
 
@@ -244,7 +244,7 @@ static EC_BOOL taskcfgchk_route_test(LOG *log, const TASK_CFG *task_cfg, TASKS_C
 
     if(EC_TRUE == taskcfgchk_conn_test(task_cfg, src_tasks_cfg, des_tcid))
     {
-        sys_log(log, "[TASKCFGCHK] %s ==> %s [SUCC]\n", TASKS_CFG_TCID_STR(src_tasks_cfg), uint32_to_ipv4(des_tcid));
+        sys_log(log, "[TASKCFGCHK] %s ==> %s [SUCC]\n", TASKS_CFG_TCID_STR(src_tasks_cfg), c_word_to_ipv4(des_tcid));
         return (EC_TRUE);
     }
 
@@ -274,8 +274,8 @@ static EC_BOOL taskcfgchk_route_test(LOG *log, const TASK_CFG *task_cfg, TASKS_C
             TASKS_CFG *rt_tasks_cfg;
 
             sys_log(LOGSTDNULL, "[TASKCFGCHK] %s & %s == %s & %s\n",
-                            uint32_to_ipv4(des_tcid), uint32_to_ipv4(taskr_cfg_mask),
-                            TASKR_CFG_DES_TCID_STR(taskr_cfg), uint32_to_ipv4(taskr_cfg_mask)
+                            c_word_to_ipv4(des_tcid), c_word_to_ipv4(taskr_cfg_mask),
+                            TASKR_CFG_DES_TCID_STR(taskr_cfg), c_word_to_ipv4(taskr_cfg_mask)
                             );
 
             rt_tasks_cfg = task_cfg_searchs(task_cfg, TASKR_CFG_NEXT_TCID(taskr_cfg), CMPI_ANY_MASK, CMPI_ANY_MASK);
@@ -296,8 +296,8 @@ static EC_BOOL taskcfgchk_route_test(LOG *log, const TASK_CFG *task_cfg, TASKS_C
         else
         {
             sys_log(LOGSTDNULL, "[TASKCFGCHK] %s & %s != %s & %s\n",
-                            uint32_to_ipv4(des_tcid), uint32_to_ipv4(taskr_cfg_mask),
-                            TASKR_CFG_DES_TCID_STR(taskr_cfg), uint32_to_ipv4(taskr_cfg_mask)
+                            c_word_to_ipv4(des_tcid), c_word_to_ipv4(taskr_cfg_mask),
+                            TASKR_CFG_DES_TCID_STR(taskr_cfg), c_word_to_ipv4(taskr_cfg_mask)
                             );
         }
     }
@@ -313,13 +313,13 @@ EC_BOOL taskcfgchk_route_trace(LOG *log, const TASK_CFG *task_cfg, const UINT32 
     if(NULL_PTR == src_tasks_cfg)
     {
         sys_log(log, "error:taskcfgchk_route_trace: no tasks cfg for src tcid %s maski %s, maske %s\n",
-                        uint32_to_ipv4(src_tcid), uint32_to_ipv4(src_maski), uint32_to_ipv4(src_maske));
+                        c_word_to_ipv4(src_tcid), c_word_to_ipv4(src_maski), c_word_to_ipv4(src_maske));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == taskcfgchk_route_test(log, task_cfg, src_tasks_cfg, des_tcid, max_hops))
     {
-        sys_log(log, "[TASKCFGCHK] ==> %s [FAIL]\n", uint32_to_ipv4(des_tcid));
+        sys_log(log, "[TASKCFGCHK] ==> %s [FAIL]\n", c_word_to_ipv4(des_tcid));
         return (EC_FALSE);
     }
     return (EC_TRUE);

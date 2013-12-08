@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -12,7 +12,7 @@ extern "C"{
 #include "type.h"
 #include "mm.h"
 #include "log.h"
-#include "char2int.h"
+#include "cmisc.h"
 #include "cmpic.inc"
 
 #include "cbytes.h"
@@ -118,13 +118,13 @@ EC_BOOL cbytes_set_word(CBYTES *cbytes, const UINT32 num)
 {
     char *str;
 
-    str = uint32_to_str(num);
+    str = c_word_to_str(num);
     return cbytes_set(cbytes, strlen((char *)str), (UINT8 *)str);
 }
 
 EC_BOOL cbytes_get_word(CBYTES *cbytes, UINT32 *num)
 {
-    (*num) = str_to_uint32((char *)cbytes_buf(cbytes));
+    (*num) = c_str_to_word((char *)cbytes_buf(cbytes));
     return (EC_TRUE);
 }
 
@@ -140,7 +140,7 @@ CBYTES *cbytes_make_by_word(const UINT32 num)
         return (NULL_PTR);
     }
 
-    str = uint32_to_str(num);
+    str = c_word_to_str(num);
     if(EC_FALSE == cbytes_set(cbytes, strlen((char *)str), (UINT8 *)str))
     {
         sys_log(LOGSTDOUT, "error:cbytes_make_by_word: set %s to cbytes failed\n", str);
@@ -200,7 +200,7 @@ CBYTES *cbytes_make_by_ctimet(const CTIMET *ctimet)
     char   *ts_hex_str;
 
     ts_num = (UINT32)((*ctimet) & (~(UINT32_ZERO)));
-    ts_hex_str = uint32_to_hex_str(ts_num);
+    ts_hex_str = c_word_to_hex_str(ts_num);
 
     return cbytes_make_by_str((UINT8 *)ts_hex_str);
 }

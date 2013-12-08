@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -25,7 +25,7 @@ typedef struct
 }CROUTER_NODE;
 
 #define CROUTER_NODE_DES_TCID(crouter_node)           ((crouter_node)->des_tcid)
-#define CROUTER_NODE_DES_TCID_STR(crouter_node)       (uint32_to_ipv4(CROUTER_NODE_DES_TCID(crouter_node)))
+#define CROUTER_NODE_DES_TCID_STR(crouter_node)       (c_word_to_ipv4(CROUTER_NODE_DES_TCID(crouter_node)))
 #define CROUTER_NODE_NEXT_HOPS(crouter_node)          (&((crouter_node)->next_hop_list))
 
 typedef struct
@@ -45,11 +45,11 @@ typedef struct
 }CROUTER_CFG;
 
 #define CROUTER_CFG_SRC_TCID(crouter_cfg)           ((crouter_cfg)->src_tcid)
-#define CROUTER_CFG_SRC_TCID_STR(crouter_cfg)       (uint32_to_ipv4(CROUTER_CFG_SRC_TCID(crouter_cfg)))
+#define CROUTER_CFG_SRC_TCID_STR(crouter_cfg)       (c_word_to_ipv4(CROUTER_CFG_SRC_TCID(crouter_cfg)))
 #define CROUTER_CFG_DES_TCID(crouter_cfg)           ((crouter_cfg)->des_tcid)
-#define CROUTER_CFG_DES_TCID_STR(crouter_cfg)       (uint32_to_ipv4(CROUTER_CFG_DES_TCID(crouter_cfg)))
+#define CROUTER_CFG_DES_TCID_STR(crouter_cfg)       (c_word_to_ipv4(CROUTER_CFG_DES_TCID(crouter_cfg)))
 #define CROUTER_CFG_NEXT_HOP(crouter_cfg)           ((crouter_cfg)->next_hop)
-#define CROUTER_CFG_NEXT_HOP_STR(crouter_cfg)       (uint32_to_ipv4(CROUTER_CFG_NEXT_HOP(crouter_cfg)))
+#define CROUTER_CFG_NEXT_HOP_STR(crouter_cfg)       (c_word_to_ipv4(CROUTER_CFG_NEXT_HOP(crouter_cfg)))
 #define CROUTER_CFG_MAX_HOPS(crouter_cfg)           ((crouter_cfg)->max_hops)
 
 

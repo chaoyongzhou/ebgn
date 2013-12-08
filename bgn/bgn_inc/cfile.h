@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -92,7 +92,7 @@ typedef struct
 #define CFILE_SEG_TCID_VEC(cfile_seg)           (&((cfile_seg)->seg_tcid_vec))
 #define CFILE_SEG_TCID_NUM(cfile_seg)           (cvector_size(CFILE_SEG_TCID_VEC(cfile_seg)))
 #define CFILE_SEG_TCID(cfile_seg, pos)          ((UINT32)cvector_get(CFILE_SEG_TCID_VEC(cfile_seg), pos))
-#define CFILE_SEG_TCID_STR(cfile_seg, pos)      (uint32_to_ipv4(CFILE_SEG_TCID(cfile_seg, pos)))
+#define CFILE_SEG_TCID_STR(cfile_seg, pos)      (c_word_to_ipv4(CFILE_SEG_TCID(cfile_seg, pos)))
 #define CFILE_SEG_OPEN_MODE(cfile_seg)          ((cfile_seg)->open_mode)
 
 #define CFILE_NODE_NAME(cfile_node)             (&((cfile_node)->node_name))
@@ -100,7 +100,7 @@ typedef struct
 #define CFILE_NODE_TCID_VEC(cfile_node)         (&((cfile_node)->node_tcid_vec))
 #define CFILE_NODE_TCID_NUM(cfile_node)         (cvector_size(CFILE_NODE_TCID_VEC(cfile_node)))
 #define CFILE_NODE_TCID(cfile_node, pos)        ((UINT32)cvector_get(CFILE_NODE_TCID_VEC(cfile_node), pos))
-#define CFILE_NODE_TCID_STR(cfile_node, pos)    (uint32_to_ipv4(CFILE_NODE_TCID(cfile_node, pos)))
+#define CFILE_NODE_TCID_STR(cfile_node, pos)    (c_word_to_ipv4(CFILE_NODE_TCID(cfile_node, pos)))
 #define CFILE_NODE_SIZE(cfile_node)             ((cfile_node)->node_size)
 
 #define CFILE_SEG_VEC(cfile_node)               (&((cfile_node)->seg_vec))

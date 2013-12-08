@@ -1052,10 +1052,10 @@ sub create_tag_table
     push(@$tags, "TASK_BRD_SEQNO_CMUTEX_LOCK");
     push(@$tags, "TASK_BRD_SEQNO_CMUTEX_UNLOCK");
 
-    push(@$tags, "CHAR2INT_CMUTEX_INIT");
-    push(@$tags, "CHAR2INT_CMUTEX_LOCK");
-    push(@$tags, "CHAR2INT_CMUTEX_UNLOCK");
-    push(@$tags, "char2int_init");
+    push(@$tags, "CMISC_CMUTEX_INIT");
+    push(@$tags, "CMISC_CMUTEX_LOCK");
+    push(@$tags, "CMISC_CMUTEX_UNLOCK");
+    push(@$tags, "cmisc_init");
 
     push(@$tags, "CDFSDN_BLOCK_LOCK");
     push(@$tags, "CDFSDN_BLOCK_UNLOCK");

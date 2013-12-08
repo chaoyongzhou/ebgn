@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -21,24 +21,24 @@ extern "C"{
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "lib_typeconst.h"
-#include "lib_type.h"
-#include "lib_mm.h"
-#include "lib_char2int.h"
-#include "lib_task.h"
-#include "lib_mod.h"
-#include "lib_log.h"
-#include "lib_debug.h"
-#include "lib_rank.h"
+#include "typeconst.h"
+#include "type.h"
+#include "mm.h"
+#include "cmisc.h"
+#include "task.h"
+#include "mod.h"
+#include "log.h"
+#include "debug.h"
+#include "rank.h"
 
-#include "lib_cmpic.inc"
+#include "cmpic.inc"
 
-#include "lib_cstring.h"
-#include "lib_cvector.h"
+#include "cstring.h"
+#include "cvector.h"
 
-#include "lib_findex.inc"
+#include "findex.inc"
 
-#include "lib_super.h"
+#include "super.h"
 
 #define __ICT_OBJ_ZONE_SIZE     ((UINT32) 100)
 #define __ICT_OBJ_ZONE_NUM      ((UINT32)   2)
@@ -159,27 +159,27 @@ int main_ict(int argc, char **argv)
     }
     
     /*define specific runner for each (tcid, rank)*/
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.1") , CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.2") , CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.3") , CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.4") , CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.5") , CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.6") , CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.7") , CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.8") , CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.9") , CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.10"), CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.11"), CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.12"), CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.13"), CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.14"), CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.15"), CMPI_FWD_RANK, __test_ict_data_supplier);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.16"), CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.1") , CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.2") , CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.3") , CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.4") , CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.5") , CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.6") , CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.7") , CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.8") , CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.9") , CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.10"), CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.11"), CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.12"), CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.13"), CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.14"), CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.15"), CMPI_FWD_RANK, __test_ict_data_supplier);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.16"), CMPI_FWD_RANK, __test_ict_data_supplier);
 
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.20"), CMPI_FWD_RANK, __test_ict_data_consumer_1);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.21"), CMPI_FWD_RANK, __test_ict_data_consumer_2);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.22"), CMPI_FWD_RANK, __test_ict_data_consumer_2);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.23"), CMPI_FWD_RANK, __test_ict_data_consumer_2);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.20"), CMPI_FWD_RANK, __test_ict_data_consumer_1);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.21"), CMPI_FWD_RANK, __test_ict_data_consumer_2);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.22"), CMPI_FWD_RANK, __test_ict_data_consumer_2);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.23"), CMPI_FWD_RANK, __test_ict_data_consumer_2);
 
     /*start the defined runner on current (tcid, rank)*/
     task_brd_default_start_runner();

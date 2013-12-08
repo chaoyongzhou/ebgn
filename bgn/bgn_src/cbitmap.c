@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -18,7 +18,7 @@ extern "C"{
 #include "type.h"
 #include "mm.h"
 #include "log.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "cmpic.inc"
 
@@ -284,14 +284,14 @@ CBITMAP *cbitmap_fcreate(const UINT32 max_bits, const UINT8 *fname)
         return (NULL_PTR);
     }
 
-    fd = c_open((char *)fname, O_RDWR | O_CREAT, 0666);
+    fd = c_file_open((char *)fname, O_RDWR | O_CREAT, 0666);
     if(-1 == fd)
     {
         sys_log(LOGSTDOUT,"error:cbitmap_file_create: create %s failed\n", fname);
         cbitmap_free(cbitmap);
         return (NULL_PTR);
     }
-    close(fd);
+    c_file_close(fd);
 /*
     if(EC_FALSE == cbitmap_flush(cbitmap, fname))
     {
@@ -311,7 +311,7 @@ EC_BOOL  cbitmap_flush(const CBITMAP *cbitmap, const UINT8 *fname)
 
     int fd;
 
-    fd = c_open((char *)fname, O_RDWR, 0666);
+    fd = c_file_open((char *)fname, O_RDWR, 0666);
     if(-1 == fd)
     {
         sys_log(LOGSTDOUT,"error:cbitmap_flush: open %s failed\n", fname);
@@ -332,7 +332,7 @@ EC_BOOL  cbitmap_flush(const CBITMAP *cbitmap, const UINT8 *fname)
         write(fd, &data, sizeof(UINT32));
     }
 
-    close(fd);
+    c_file_close(fd);
     return (EC_TRUE);
 }
 
@@ -347,7 +347,7 @@ CBITMAP *cbitmap_fload(const UINT8 *fname)
 
     int fd;
 
-    fd = c_open((char *)fname, O_RDWR, 0666);
+    fd = c_file_open((char *)fname, O_RDWR, 0666);
     if(-1 == fd)
     {
         sys_log(LOGSTDOUT,"error:cbitmap_fload: open %s failed\n", fname);
@@ -364,7 +364,7 @@ CBITMAP *cbitmap_fload(const UINT8 *fname)
     if(NULL_PTR == cbitmap)
     {
         sys_log(LOGSTDOUT, "error:cbitmap_fload: new cbitmap with max bits %ld failed\n", max_bits);
-        close(fd);
+        c_file_close(fd);
         return (NULL_PTR);
     }
 
@@ -378,7 +378,7 @@ CBITMAP *cbitmap_fload(const UINT8 *fname)
         CBITMAP_WORD(cbitmap, word_offset) = ntoh_uint32(data);
     }
 
-    close(fd);
+    c_file_close(fd);
     return (cbitmap);
 }
 

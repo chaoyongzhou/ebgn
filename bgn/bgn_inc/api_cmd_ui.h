@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -294,6 +294,33 @@ EC_BOOL api_cmd_ui_show_vendor_all(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_start_mcast_udp_server(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_stop_mcast_udp_server(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_status_mcast_udp_server(CMD_PARA_VEC * param);
+
+#if 1
+EC_BOOL api_cmd_ui_crfs_create_npp(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_create_dn(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_open(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_close(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_bind(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_read(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_write(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_create_b(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_read_b(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_write_b(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_mkdir(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_search(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_count_file_num(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_count_file_size(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_delete(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_show_npp(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_show_dn(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_show_cached_np(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_show_specific_np(CMD_PARA_VEC * param);
+
+
+EC_BOOL api_cmd_ui_download_file(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_upload_file(CMD_PARA_VEC * param);
+#endif
+
 
 #endif/*_API_CMD_UI_H*/
 

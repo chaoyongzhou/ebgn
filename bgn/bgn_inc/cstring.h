@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -24,6 +24,7 @@ extern "C"{
 CSTRING *cstring_new(const UINT8 *str, const UINT32 location);
 
 void cstring_free(CSTRING *cstring);
+void cstring_free_1(CSTRING *cstring, const UINT32 location);
 void cstring_free_0(const UINT32 cstring_md_id, CSTRING *cstring);
 
 UINT32 cstring_init_0(const UINT32 cstring_md_id, CSTRING *cstring);
@@ -104,6 +105,10 @@ void cstring_print(LOG *log, const CSTRING *cstring);
 void cstring_format(CSTRING *cstring, const char *format, ...);
 
 void cstring_vformat(CSTRING *cstring, const char *format, va_list ap);
+
+CSTRING * cstring_load(int fd, UINT32 *offset);
+
+EC_BOOL cstring_flush(int fd, UINT32 *offset, const CSTRING *cstring);
 
 //EC_BOOL cstring_regex(const CSTRING *cstring, const CSTRING *pattern, CVECTOR *cvector_cstring);
 

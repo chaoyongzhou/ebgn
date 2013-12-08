@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -20,39 +20,41 @@ extern "C"{
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "lib_typeconst.h"
-#include "lib_type.h"
-#include "lib_char2int.h"
-#include "lib_task.h"
-#include "lib_mod.h"
-#include "lib_log.h"
-#include "lib_debug.h"
-#include "lib_rank.h"
+#include "typeconst.h"
+#include "type.h"
+#include "cmisc.h"
+#include "task.h"
+#include "mod.h"
+#include "log.h"
+#include "debug.h"
+#include "rank.h"
 
-#include "lib_cstring.h"
-#include "lib_cvector.h"
+#include "cstring.h"
+#include "cvector.h"
 
-#include "lib_super.h"
-#include "lib_tbd.h"
-#include "lib_crun.h"
+#include "super.h"
+#include "tbd.h"
+#include "crun.h"
 
-#include "lib_cthread.h"
+#include "cthread.h"
 
-#include "lib_cmpic.inc"
-#include "lib_findex.inc"
+#include "cmpic.inc"
+#include "findex.inc"
 
-#include "lib_chashalgo.h"
-#include "lib_cbytes.h"
+#include "chashalgo.h"
+#include "cbytes.h"
 
-#include "lib_cdfs.h"
-#include "lib_cdfsnp.h"
-#include "lib_csolr.h"
-#include "demo.h"
+#include "cdfs.h"
+#include "cdfsnp.h"
+#include "csolr.h"
+#include "demo_hsdfs.h"
 
+static CBYTES *g_cbytes[32];
+static UINT32 g_cbytes_max_len = sizeof(g_cbytes)/sizeof(g_cbytes[0]);
 
 static void print_tcid(LOG *log, const UINT32 tcid)
 {
-    sys_log(log, "%s\n", uint32_to_ipv4(tcid));
+    sys_log(log, "%s\n", c_word_to_ipv4(tcid));
     return;
 }
 
@@ -61,16 +63,16 @@ static EC_BOOL init_g_cbytes(const UINT32 cdfs_md_id, const UINT32 max_num)
     UINT32 pos;
     UINT32 max_cfg_num;
 
-    max_cfg_num = sizeof(g_file_cfg_tbl)/sizeof(g_file_cfg_tbl[0]);
+    max_cfg_num = sizeof(g_cdfs_file_cfg_tbl)/sizeof(g_cdfs_file_cfg_tbl[0]);
     if(max_num > max_cfg_num)
     {
-        sys_log(LOGSTDOUT, "error:init_g_cbytes: max_num %ld but max_cfg_num %ld\n", max_num, max_cfg_num);
+        sys_log(LOGSTDOUT, "error:__init_g_cbytes: max_num %ld but max_cfg_num %ld\n", max_num, max_cfg_num);
         return (EC_FALSE);
     }
 
     if(max_num > g_cbytes_max_len)
     {
-        sys_log(LOGSTDOUT, "error:init_g_cbytes: max_num %ld but g_cbytes_max_len %ld\n", max_num, g_cbytes_max_len);
+        sys_log(LOGSTDOUT, "error:__init_g_cbytes: max_num %ld but g_cbytes_max_len %ld\n", max_num, g_cbytes_max_len);
         return (EC_FALSE);
     }
 
@@ -86,35 +88,34 @@ static EC_BOOL init_g_cbytes(const UINT32 cdfs_md_id, const UINT32 max_num)
         CBYTES *cbytes;
         int fd;
 
-        file_name = g_file_cfg_tbl[ pos ].file_name;
-        file_size = g_file_cfg_tbl[ pos ].file_size;
-        //cbytes = ;
+        file_name = g_cdfs_file_cfg_tbl[ pos ].file_name;
+        file_size = g_cdfs_file_cfg_tbl[ pos ].file_size;
 
-        if(0 != access(file_name, F_OK))
+        if(EC_FALSE == c_file_access(file_name, F_OK))
         {
-            sys_log(LOGSTDOUT, "error:init_g_cbytes: file %s not exist or inaccessable\n", file_name);
+            sys_log(LOGSTDOUT, "error:__init_g_cbytes: file %s not exist or inaccessable\n", file_name);
             return (EC_FALSE);
         }
 
-        fd = c_open(file_name, O_RDONLY, 0666);
+        fd = c_file_open(file_name, O_RDONLY, 0666);
         if(-1 == fd)
         {
-            sys_log(LOGSTDOUT, "error:init_g_cbytes: open file %s to read failed\n", file_name);
+            sys_log(LOGSTDOUT, "error:__init_g_cbytes: open file %s to read failed\n", file_name);
             return (EC_FALSE);
         }
 
         cbytes = cbytes_new(file_size);
         if((ssize_t)file_size != read(fd, cbytes_buf(cbytes), file_size))
         {
-            sys_log(LOGSTDOUT, "error:init_g_cbytes: read file %s with size %ld failed\n", file_name, file_size);
+            sys_log(LOGSTDOUT, "error:__init_g_cbytes: read file %s with size %ld failed\n", file_name, file_size);
             cbytes_free(cbytes, 0);
-            close(fd);
+            c_file_close(fd);
             return (EC_FALSE);
         }
 
         g_cbytes[ pos ] = cbytes;
 
-        close(fd);
+        c_file_close(fd);
     }
 
     return (EC_TRUE);
@@ -722,7 +723,7 @@ EC_BOOL __test_cdfs_write_supplier_1()
     ASSERT(NULL_PTR != cdfsdn_tcid_vec);
     cdfs_collect_dn_tcid_vec(cdfs_md_id, cdfsdn_tcid_vec);
 
-    test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cbytes_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+    test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_cbytes_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
 
     cvector_free(cdfsdn_tcid_vec, 0);
 
@@ -747,7 +748,7 @@ EC_BOOL __test_cdfs_write_supplier_2()
     ASSERT(NULL_PTR != cdfsdn_tcid_vec);    
     cdfs_collect_dn_tcid_vec(cdfs_md_id, cdfsdn_tcid_vec);
 
-    test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cbytes_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+    test_case_86_cdfs_writer(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_cbytes_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
 
     cvector_free(cdfsdn_tcid_vec, 0);
 
@@ -772,7 +773,7 @@ EC_BOOL __test_cdfs_read_consumer_1()
     ASSERT(NULL_PTR != cdfsdn_tcid_vec);    
     cdfs_collect_dn_tcid_vec(cdfs_md_id, cdfsdn_tcid_vec);
 
-    test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cbytes_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+    test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_cbytes_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
 
     cvector_free(cdfsdn_tcid_vec, 0);
 
@@ -796,7 +797,7 @@ EC_BOOL __test_cdfs_read_consumer_2()
     ASSERT(NULL_PTR != cdfsdn_tcid_vec);
     cdfs_collect_dn_tcid_vec(cdfs_md_id, cdfsdn_tcid_vec);
 
-    test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cbytes_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+    test_case_87_cdfs_reader(cdfs_md_id, CMPI_LOCAL_TCID, g_cdfs_cbytes_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
 
     cvector_free(cdfsdn_tcid_vec, 0);
 
@@ -820,7 +821,7 @@ EC_BOOL __test_cdfs_check_replica_consumer_1()
     ASSERT(NULL_PTR != cdfsdn_tcid_vec);
     cdfs_collect_dn_tcid_vec(cdfs_md_id, cdfsdn_tcid_vec);
 
-    test_case_88_cdfs_replica_checker(cdfs_md_id, g_cbytes_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
+    test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_cbytes_used_num, (char *)"/hansoul01", cdfsdn_tcid_vec);
 
     cvector_free(cdfsdn_tcid_vec, 0);
 
@@ -844,7 +845,7 @@ EC_BOOL __test_cdfs_check_replica_consumer_2()
     ASSERT(NULL_PTR != cdfsdn_tcid_vec);
     cdfs_collect_dn_tcid_vec(cdfs_md_id, cdfsdn_tcid_vec);
 
-    test_case_88_cdfs_replica_checker(cdfs_md_id, g_cbytes_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
+    test_case_88_cdfs_replica_checker(cdfs_md_id, g_cdfs_cbytes_used_num, (char *)"/hansoul02", cdfsdn_tcid_vec);
 
     cvector_free(cdfsdn_tcid_vec, 0);
 
@@ -868,7 +869,7 @@ EC_BOOL __test_cdfs_check_content_consumer_1()
     ASSERT(NULL_PTR != cdfsdn_tcid_vec);
     cdfs_collect_dn_tcid_vec(cdfs_md_id, cdfsdn_tcid_vec);
 
-    test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cbytes_used_num, (char *)"/hansoul01");
+    test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_cbytes_used_num, (char *)"/hansoul01");
 
     cvector_free(cdfsdn_tcid_vec, 0);
 
@@ -892,7 +893,7 @@ EC_BOOL __test_cdfs_check_content_consumer_2()
     ASSERT(NULL_PTR != cdfsdn_tcid_vec);
     cdfs_collect_dn_tcid_vec(cdfs_md_id, cdfsdn_tcid_vec);
 
-    test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cbytes_used_num, (char *)"/hansoul02");
+    test_case_88_cdfs_file_content_checker(cdfs_md_id, g_cdfs_cbytes_used_num, (char *)"/hansoul02");
 
     cvector_free(cdfsdn_tcid_vec, 0);
 
@@ -931,23 +932,23 @@ int main_mxnp_nxdn(int argc, char **argv)
     }
 
     /*define specific runner for each (tcid, rank)*/
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.1"), CMPI_CDFS_RANK, __test_cdfs_np_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.20.1"), CMPI_CDFS_RANK, __test_cdfs_np_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.2"), CMPI_CDFS_RANK, __test_cdfs_dn_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.3"), CMPI_CDFS_RANK, __test_cdfs_dn_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.4"), CMPI_CDFS_RANK, __test_cdfs_dn_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.5"), CMPI_CDFS_RANK, __test_cdfs_write_supplier_1);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.6"), CMPI_CDFS_RANK, __test_cdfs_read_consumer_1);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.7"), CMPI_CDFS_RANK, __test_cdfs_write_supplier_2);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.8"), CMPI_CDFS_RANK, __test_cdfs_read_consumer_2);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.91"), CMPI_CDFS_RANK, __test_cdfs_check_replica_consumer_1);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.92"), CMPI_CDFS_RANK, __test_cdfs_check_replica_consumer_2);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.1"), CMPI_CDFS_RANK, __test_cdfs_np_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.20.1"), CMPI_CDFS_RANK, __test_cdfs_np_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.2"), CMPI_CDFS_RANK, __test_cdfs_dn_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.3"), CMPI_CDFS_RANK, __test_cdfs_dn_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.4"), CMPI_CDFS_RANK, __test_cdfs_dn_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.5"), CMPI_CDFS_RANK, __test_cdfs_write_supplier_1);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.6"), CMPI_CDFS_RANK, __test_cdfs_read_consumer_1);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.7"), CMPI_CDFS_RANK, __test_cdfs_write_supplier_2);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.8"), CMPI_CDFS_RANK, __test_cdfs_read_consumer_2);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.91"), CMPI_CDFS_RANK, __test_cdfs_check_replica_consumer_1);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.92"), CMPI_CDFS_RANK, __test_cdfs_check_replica_consumer_2);
 
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.101"), CMPI_CDFS_RANK, __test_cdfs_check_content_consumer_1);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.102"), CMPI_CDFS_RANK, __test_cdfs_check_content_consumer_2);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.101"), CMPI_CDFS_RANK, __test_cdfs_check_content_consumer_1);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.102"), CMPI_CDFS_RANK, __test_cdfs_check_content_consumer_2);
 
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.201"), CMPI_CDFS_RANK, __test_cdfs_cfuse_consumer);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.202"), CMPI_CDFS_RANK, __test_cdfs_cfuse_consumer);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.201"), CMPI_CDFS_RANK, __test_cdfs_cfuse_consumer);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.202"), CMPI_CDFS_RANK, __test_cdfs_cfuse_consumer);
 
     /*start the defined runner on current (tcid, rank)*/
     task_brd_default_start_runner();    
@@ -1013,7 +1014,7 @@ int main_csolr(int argc, char **argv)
     else if (CMPI_FWD_RANK == this_rank)
     {
         sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
         sys_log(LOGSTDOUT,"======================================================================\n");
 
@@ -1021,27 +1022,27 @@ int main_csolr(int argc, char **argv)
     }
 #endif
     /*user define the master process*/
-    else if (ipv4_to_uint32("10.10.10.1") == this_tcid && 1 == this_rank)
+    else if (c_ipv4_to_word("10.10.10.1") == this_tcid && 1 == this_rank)
     {
         UINT32 csolr_md_id;
 
         csolr_md_id = csolr_start();
         task_brd_default_start_csolr_srv(csolr_md_id, 58111);
 
-        csolr_add_mod(csolr_md_id, ipv4_to_uint32("10.10.10.1"));
-        csolr_add_mod(csolr_md_id, ipv4_to_uint32("10.10.10.2"));
+        csolr_add_mod(csolr_md_id, c_ipv4_to_word("10.10.10.1"));
+        csolr_add_mod(csolr_md_id, c_ipv4_to_word("10.10.10.2"));
 
         do_slave_wait_default();
     }
-    else if (ipv4_to_uint32("10.10.10.2") == this_tcid && 1 == this_rank)
+    else if (c_ipv4_to_word("10.10.10.2") == this_tcid && 1 == this_rank)
     {
         UINT32 csolr_md_id;
 
         csolr_md_id = csolr_start();
         task_brd_default_start_csolr_srv(csolr_md_id, 58112);
 
-        csolr_add_mod(csolr_md_id, ipv4_to_uint32("10.10.10.1"));
-        csolr_add_mod(csolr_md_id, ipv4_to_uint32("10.10.10.2"));
+        csolr_add_mod(csolr_md_id, c_ipv4_to_word("10.10.10.1"));
+        csolr_add_mod(csolr_md_id, c_ipv4_to_word("10.10.10.2"));
 
         do_slave_wait_default();
     }
@@ -1050,7 +1051,7 @@ int main_csolr(int argc, char **argv)
     else if (CMPI_FWD_RANK == this_rank)
     {
         sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
         sys_log(LOGSTDOUT,"======================================================================\n");
 

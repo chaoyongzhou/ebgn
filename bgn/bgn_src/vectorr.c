@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -255,7 +255,7 @@ UINT32 vector_r_init_block(const UINT32 vectorr_md_id, VECTOR_BLOCK *vector_bloc
     return (0);
 }
 
-UINT32 vector_r_alloc_block( const UINT32 vectorr_md_type, const UINT32 vectorr_md_id, const MM_TYPE_UINT32 type, VECTOR_BLOCK **vector_block)
+UINT32 vector_r_alloc_block( const UINT32 vectorr_md_type, const UINT32 vectorr_md_id, const UINT32 type, VECTOR_BLOCK **vector_block)
 {
     if ( MD_VECTORR != vectorr_md_type )
     {
@@ -326,7 +326,7 @@ UINT32 vector_r_clean_block( const UINT32 vectorr_md_id, VECTOR_BLOCK *vector_bl
     return (0);
 }
 
-UINT32 vector_r_free_block( const UINT32 vectorr_md_type, const UINT32 vectorr_md_id, const MM_TYPE_UINT32 type, VECTOR_BLOCK *vector_block)
+UINT32 vector_r_free_block( const UINT32 vectorr_md_type, const UINT32 vectorr_md_id, const UINT32 type, VECTOR_BLOCK *vector_block)
 {
     if ( MM_VECTOR_BLOCK != type )
     {
@@ -351,7 +351,7 @@ UINT32 vector_r_init_vector(const UINT32 vectorr_md_id, VECTOR *vector)
     return (0);
 }
 
-static UINT32 vector_r_alloc_vector( const UINT32 vectorr_md_type, const UINT32 vectorr_md_id, const MM_TYPE_UINT32 type, VECTOR **vector)
+static UINT32 vector_r_alloc_vector( const UINT32 vectorr_md_type, const UINT32 vectorr_md_id, const UINT32 type, VECTOR **vector)
 {
     if ( MD_VECTORR != vectorr_md_type )
     {
@@ -371,7 +371,7 @@ static UINT32 vector_r_alloc_vector( const UINT32 vectorr_md_type, const UINT32 
     return (0);
 }
 
-static UINT32 vector_r_free_vector( const UINT32 vectorr_md_type, const UINT32 vectorr_md_id, const MM_TYPE_UINT32 type, VECTOR *vector)
+static UINT32 vector_r_free_vector( const UINT32 vectorr_md_type, const UINT32 vectorr_md_id, const UINT32 type, VECTOR *vector)
 {
     if ( MD_VECTORR != vectorr_md_type )
     {

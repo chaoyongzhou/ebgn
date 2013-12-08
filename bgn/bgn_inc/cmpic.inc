@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -18,6 +18,7 @@ extern "C"{
 #define CMPI_COMM_WORLD     ((UINT32)(91))
 #define CMPI_MIN_SIZE       ((UINT32)( 1))
 
+#define CMPI_ULONGLONG      ((UINT32)(8))
 #define CMPI_ULONG          ((UINT32)(9))
 #define CMPI_USHORT         ((UINT32)(5))
 #define CMPI_UCHAR          ((UINT32)(2))

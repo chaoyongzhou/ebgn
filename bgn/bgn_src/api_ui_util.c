@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -62,7 +62,7 @@ void api_ui_parse_cmdline(char* cmdline, int* argc_ptr, char*** argv_ptr) {
     i = strlen(cmdline);
     i++;
 
-    cpy_cmdline = (char*)api_ui_malloc(sizeof(char) * i, LOC_API_0029);
+    cpy_cmdline = (char*)api_ui_malloc(sizeof(char) * i, LOC_API_0001);
     if(cpy_cmdline != NULL)
     {
         strcpy(cpy_cmdline, cmdline);
@@ -74,9 +74,9 @@ void api_ui_parse_cmdline(char* cmdline, int* argc_ptr, char*** argv_ptr) {
     strtok_init(cpy_cmdline,(char *)" ",&token_instance);
     while (next_token(&token_instance) != NULL)
         (*argc_ptr)++;
-    api_ui_free(cpy_cmdline, LOC_API_0030);
+    api_ui_free(cpy_cmdline, LOC_API_0002);
 
-    (*argv_ptr) = (char**)api_ui_malloc(sizeof(char*) * (*argc_ptr), LOC_API_0031);
+    (*argv_ptr) = (char**)api_ui_malloc(sizeof(char*) * (*argc_ptr), LOC_API_0003);
 
     if ( (*argv_ptr) != NULL)
     {

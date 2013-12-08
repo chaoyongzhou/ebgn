@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -93,7 +93,7 @@ typedef struct _CSOCKET_CNODE
 #define CSOCKET_CNODE_IPADDR(csocket_cnode)              ((csocket_cnode)->ipaddr)
 #define CSOCKET_CNODE_SRVPORT(csocket_cnode)             ((csocket_cnode)->srvport)
 #define CSOCKET_CNODE_TCID(csocket_cnode)                ((csocket_cnode)->tcid)
-#define CSOCKET_CNODE_TCID_STR(csocket_cnode)            (uint32_to_ipv4(CSOCKET_CNODE_TCID(csocket_cnode)))
+#define CSOCKET_CNODE_TCID_STR(csocket_cnode)            (c_word_to_ipv4(CSOCKET_CNODE_TCID(csocket_cnode)))
 #define CSOCKET_CNODE_COMM(csocket_cnode)                ((csocket_cnode)->comm)
 #define CSOCKET_CNODE_SIZE(csocket_cnode)                ((csocket_cnode)->size)
 #define CSOCKET_CNODE_SOCKFD(csocket_cnode)              ((csocket_cnode)->sockfd)
@@ -101,7 +101,7 @@ typedef struct _CSOCKET_CNODE
 
 #define CSOCKET_CNODE_LOAD(csocket_cnode)                ((csocket_cnode)->load)
 
-#define CSOCKET_CNODE_IPADDR_STR(csocket_cnode)          (uint32_to_ipv4(CSOCKET_CNODE_IPADDR(csocket_cnode)))
+#define CSOCKET_CNODE_IPADDR_STR(csocket_cnode)          (c_word_to_ipv4(CSOCKET_CNODE_IPADDR(csocket_cnode)))
 #define CSOCKET_CNODE_PKT_HDR(csocket_cnode)             ((csocket_cnode)->pkt_hdr)
 #define CSOCKET_CNODE_PKT_HDR_BYTE(csocket_cnode, pos)   ((csocket_cnode)->pkt_hdr[pos])
 #define CSOCKET_CNODE_PKT_POS(csocket_cnode)             ((csocket_cnode)->pkt_pos)

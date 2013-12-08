@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -20,7 +20,7 @@ extern "C"{
 
 #include "cbc.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 #include "clist.h"
 #include "cmutex.h"
 #include "cbytes.h"
@@ -228,7 +228,7 @@ void csession_print(LOG *log, const UINT32 csession_md_id, const UINT32 level)
 
     task_brd = task_brd_default_get();
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "<sessions tcid=\"%s\" rank=\"%ld\" modi=\"%ld\">\n",
                    TASK_BRD_TCID_STR(task_brd),
                    TASK_BRD_RANK(task_brd),
@@ -244,7 +244,7 @@ void csession_print(LOG *log, const UINT32 csession_md_id, const UINT32 level)
     }
     CLIST_UNLOCK(CSESSION_MD_SESSION_LIST(csession_md), LOC_CSESSION_0007);
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "</sessions>\n");
 
     return;
@@ -432,7 +432,7 @@ void csession_node_print(LOG *log, const CSESSION_NODE *csession_node, const UIN
     create_time = c_localtime_r(&CSESSION_NODE_CREATE_TIME(csession_node));
     access_time = c_localtime_r(&CSESSION_NODE_ACCESS_TIME(csession_node));
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "<session name=\"%s\" id=\"%ld\" expire=\"%ld\" create_time=\"%4d-%02d-%02d %02d:%02d:%02d\" access_time=\"%4d-%02d-%02d %02d:%02d:%02d\">\n",
                    (char *)CSESSION_NODE_NAME_STR(csession_node),
                    CSESSION_NODE_ID(csession_node),
@@ -443,7 +443,7 @@ void csession_node_print(LOG *log, const CSESSION_NODE *csession_node, const UIN
 
     clist_print_level(log, CSESSION_NODE_CACHE_TREE(csession_node), level + 1, (CLIST_DATA_LEVEL_PRINT)csession_item_print);
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "</session>\n");
     return;
 }
@@ -575,7 +575,7 @@ void csession_item_print(LOG *log, const CSESSION_ITEM *csession_item, const UIN
 {
     CLIST_DATA *clist_data;
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     if(EC_TRUE == clist_is_empty(CSESSION_ITEM_CHILDREN(csession_item)))
     {
         sys_print(log, "<item key=\"%s\" val=\"%.*s\"/>\n",
@@ -599,7 +599,7 @@ void csession_item_print(LOG *log, const CSESSION_ITEM *csession_item, const UIN
     }
     CLIST_UNLOCK(CSESSION_ITEM_CHILDREN(csession_item), LOC_CSESSION_0022);
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "</item>\n");
     return;
 }
@@ -1006,8 +1006,8 @@ EC_BOOL csession_set(const UINT32 csession_md_id, CSESSION_NODE *csession_node, 
         return (EC_FALSE);
     }
 
-    /*str_split will change path_cloned*/
-    seg_num = str_split((char *)cstring_get_str(path_cloned), CSESSION_PATH_SEPARATORS, segs, CSESSION_PATH_MAX_DEPTH);
+    /*c_str_split will change path_cloned*/
+    seg_num = c_str_split((char *)cstring_get_str(path_cloned), CSESSION_PATH_SEPARATORS, segs, CSESSION_PATH_MAX_DEPTH);
 
     sub_cache_tree = CSESSION_NODE_CACHE_TREE(csession_node);
     csession_item = NULL_PTR;
@@ -1338,8 +1338,8 @@ EC_BOOL csession_get(const UINT32 csession_md_id, const CSESSION_NODE *csession_
         return (EC_FALSE);
     }
 
-    /*str_split will change path_cloned*/
-    seg_num = str_split((char *)cstring_get_str(path_cloned), CSESSION_PATH_SEPARATORS, segs, CSESSION_PATH_MAX_DEPTH);
+    /*c_str_split will change path_cloned*/
+    seg_num = c_str_split((char *)cstring_get_str(path_cloned), CSESSION_PATH_SEPARATORS, segs, CSESSION_PATH_MAX_DEPTH);
 
     sub_cache_tree = CSESSION_NODE_CACHE_TREE(csession_node);
     if(EC_FALSE == __csession_get_depth(csession_md_id, sub_cache_tree, (const char **)segs, 0, seg_num, csession_item_list))
@@ -1379,8 +1379,8 @@ EC_BOOL csession_get_key_regex(const UINT32 csession_md_id, const CSESSION_NODE 
         return (EC_FALSE);
     }
 
-    /*str_split will change path_cloned*/
-    seg_num = str_split((char *)cstring_get_str(path_cloned), CSESSION_PATH_SEPARATORS, segs, CSESSION_PATH_MAX_DEPTH);
+    /*c_str_split will change path_cloned*/
+    seg_num = c_str_split((char *)cstring_get_str(path_cloned), CSESSION_PATH_SEPARATORS, segs, CSESSION_PATH_MAX_DEPTH);
 
     sub_cache_tree = CSESSION_NODE_CACHE_TREE(csession_node);
     if(EC_FALSE == __csession_get_key_regex_depth(csession_md_id, sub_cache_tree, (const char **)segs, 0, seg_num, csession_item_list))
@@ -1597,8 +1597,8 @@ EC_BOOL csession_get_children(const UINT32 csession_md_id, const CSESSION_NODE *
         return (EC_FALSE);
     }
 
-    /*str_split will change path_cloned*/
-    seg_num = str_split((char *)cstring_get_str(path_cloned), CSESSION_PATH_SEPARATORS, segs, CSESSION_PATH_MAX_DEPTH);
+    /*c_str_split will change path_cloned*/
+    seg_num = c_str_split((char *)cstring_get_str(path_cloned), CSESSION_PATH_SEPARATORS, segs, CSESSION_PATH_MAX_DEPTH);
 
     sub_cache_tree = CSESSION_NODE_CACHE_TREE(csession_node);
     if(EC_FALSE == __csession_get_children_depth(csession_md_id, sub_cache_tree, (const char **)segs, 0, seg_num, csession_item_list))

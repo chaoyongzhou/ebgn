@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -30,7 +30,7 @@ extern "C"{
 
 #include "type.h"
 #include "log.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "api_ui.inc"
 #include "api_ui.h"
@@ -67,7 +67,7 @@ void api_ui_cp_add_history(API_UI_INSTANCE* instance, API_UI_ELEM* element)
 
     traverse = &(instance->history);
 
-    new_node = (API_UI_HISTORY*) api_ui_malloc(sizeof(API_UI_HISTORY), LOC_API_0070);
+    new_node = (API_UI_HISTORY*) api_ui_malloc(sizeof(API_UI_HISTORY), LOC_API_0386);
 
     if (new_node != NULL)
     {
@@ -111,7 +111,7 @@ void api_ui_cp_add_param(API_UI_INSTANCE* instance, API_UI_ELEM* element, char* 
 
     traverse = &(instance->params);
 
-    new_node = (API_UI_PARAM*) api_ui_malloc(sizeof(API_UI_PARAM), LOC_API_0071);
+    new_node = (API_UI_PARAM*) api_ui_malloc(sizeof(API_UI_PARAM), LOC_API_0387);
 
     if (new_node != NULL)
     {
@@ -129,7 +129,7 @@ void api_ui_cp_add_param(API_UI_INSTANCE* instance, API_UI_ELEM* element, char* 
                 new_node->type = API_UI_PARAM_TYPE_STR;
 
                 string_length = strlen(word) + 1; /* Don't forget about '\0' */
-                new_node->x.str = (char*)api_ui_malloc(sizeof(char)*string_length, LOC_API_0072);
+                new_node->x.str = (char*)api_ui_malloc(sizeof(char)*string_length, LOC_API_0388);
                 if (new_node->x.str != NULL)
                 {
                     strcpy(new_node->x.str,word);
@@ -149,7 +149,7 @@ void api_ui_cp_add_param(API_UI_INSTANCE* instance, API_UI_ELEM* element, char* 
                 break;
             case API_UI_ELEM_TYPE_TCID:
                 new_node->type = API_UI_PARAM_TYPE_INTEGER;
-                new_node->x.value = (UINT32_TO_INT32(ipv4_to_uint32(word)));
+                new_node->x.value = (UINT32_TO_INT32(c_ipv4_to_word(word)));
                 //sys_log(LOGCONSOLE, "[DEBUG]word [%s] -> %ld\n", word, new_node->x.value);
                 break;
 
@@ -191,13 +191,13 @@ void api_ui_cp_cleanup(API_UI_INSTANCE* instance)
     {
         if (instance->params->type == API_UI_PARAM_TYPE_STR)
         {
-            api_ui_free(instance->params->x.str, LOC_API_0073);
+            api_ui_free(instance->params->x.str, LOC_API_0389);
         }
 
         tmp_params = instance->params;
         instance->params = tmp_params->next;
 
-        api_ui_free(tmp_params, LOC_API_0074);
+        api_ui_free(tmp_params, LOC_API_0390);
     }
 #if 0
     /* Free up the history linked list */
@@ -206,11 +206,11 @@ void api_ui_cp_cleanup(API_UI_INSTANCE* instance)
         tmp_history = instance->history;
         instance->history = tmp_history->next;
 
-        api_ui_free(tmp_history, LOC_API_0075);
+        api_ui_free(tmp_history, LOC_API_0391);
     }
 #endif
     /* Free up the actual instance */
-    api_ui_free(instance, LOC_API_0076);
+    api_ui_free(instance, LOC_API_0392);
 
     return;
 }
@@ -465,7 +465,7 @@ API_UI_INSTANCE* api_ui_cp_init(EC_BOOL interactive)
 {
     API_UI_INSTANCE* retValue;
 
-    retValue = (API_UI_INSTANCE*) api_ui_malloc(sizeof(API_UI_INSTANCE), LOC_API_0077);
+    retValue = (API_UI_INSTANCE*) api_ui_malloc(sizeof(API_UI_INSTANCE), LOC_API_0393);
 
     if (retValue != NULL)
     {

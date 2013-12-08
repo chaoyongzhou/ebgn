@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -65,7 +65,9 @@ extern "C"{
 #define     MD_GANGLIA   ((UINT32) 36)
 #define     MD_CSESSION  ((UINT32) 37)
 #define     MD_CSCORE    ((UINT32) 38)
-#define     MD_END       ((UINT32) 39)
+#define     MD_CRFS      ((UINT32) 39)
+#define     MD_CHFS      ((UINT32) 40)
+#define     MD_END       ((UINT32) 41)
 
 /* Memory Management */
 #define                        MM_UINT32    ((UINT32)  0)
@@ -273,27 +275,41 @@ extern "C"{
 #define                MM_COROUTINE_TASK    ((UINT32)184)
 #define                MM_COROUTINE_NODE    ((UINT32)185)
 #define                MM_COROUTINE_POOL    ((UINT32)186)
+#define                   MM_CRFSDN_NODE    ((UINT32)187)
+#define                        MM_CRFSDN    ((UINT32)188)
+#define                          MM_CPGB    ((UINT32)189)
+#define                          MM_CPGD    ((UINT32)190)
+#define                          MM_CPGV    ((UINT32)191)
+#define                      MM_CRB_NODE    ((UINT32)192)
+#define                      MM_CRB_TREE    ((UINT32)193)
+#define                  MM_CRFSNP_FNODE    ((UINT32)194)
+#define                  MM_CRFSNP_DNODE    ((UINT32)195)
+#define                   MM_CRFSNP_ITEM    ((UINT32)196)
+#define                        MM_CRFSNP    ((UINT32)197)
+#define                    MM_CRFSNP_MGR    ((UINT32)198)
+#define                  MM_CRFSNP_BNODE    ((UINT32)199)
+
+#define                  MM_CHFSNP_FNODE    ((UINT32)200)
+#define                   MM_CHFSNP_ITEM    ((UINT32)201)
+#define                        MM_CHFSNP    ((UINT32)202)
+#define                    MM_CHFSNP_MGR    ((UINT32)203)
+
+#define                        MM_UINT64    ((UINT32)204)
 
 #define                           MM_END    ((UINT32)256)
 #define                        MM_IGNORE    ((UINT32)0xFFFF)
 
-typedef UINT32 MM_TYPE_UINT32;
-
 #define NODE_LIST_TAIL ((UINT32)~0)
 
 /*MM_USED_FLAG*/
-typedef UINT32 MM_USED_FLAG_UINT32;
 #define MM_NODE_NOT_USED ((UINT32) 0)
 #define MM_NODE_USED     ((UINT32) 1)
 #define MM_NODE_OBSOLETE ((UINT32) 2)
 
-#define MM_IS_LOCAL_VMM   ((UINT32) 1)
-#define MM_IS_REMOTE_VMM  ((UINT32) 2)
-
 typedef struct
 {
     UINT32  next;
-    MM_USED_FLAG_UINT32 usedflag;
+    UINT32  usedflag;
 
 #if ( SWITCH_ON == STATIC_MEM_DIAG_LOC_SWITCH )
     UINT32 location;
@@ -343,7 +359,7 @@ typedef struct
 
 typedef struct
 {
-    MM_TYPE_UINT32  type;
+    UINT32  type;
     UINT8  *        name;
     UINT32          nodenumsum;        /*number of nodes*/
     UINT32          nodeblocknum;      /*number of node blocks*/
@@ -370,7 +386,7 @@ typedef struct
 
 typedef struct
 {
-    MM_TYPE_UINT32  type;
+    UINT32  type;
     UINT32          nodenumsum;        /*number of nodes*/
     UINT32          maxusedsum;        /*stat data: max number of used nodes*/
     UINT32          curusedsum;        /*stat data: current number of used nodes*/    
@@ -383,7 +399,7 @@ typedef struct
 
 typedef struct
 {
-    MM_TYPE_UINT32  type;
+    UINT32  type;
     REAL            maxusedload;       /*stat data: load percent of max used nodes: (100.0 * maxusedsum) / nodenumsum*/
     REAL            curusedload;       /*stat data: load percent of current used nodes: (100.0 * curusedsum) / nodenumsum*/
 }MM_MAN_LOAD_NODE;
@@ -489,10 +505,10 @@ const char *get_file_name_of_location(const UINT32 location);
 **/
 UINT32 get_line_no_of_location(const UINT32 location);
 
-EC_BOOL check_static_mem_type(const MM_TYPE_UINT32 type, const UINT32 typesize);
-UINT32 fetch_static_mem_typesize(MM_TYPE_UINT32 type);
-UINT32 alloc_static_mem_0(const UINT32 location,const UINT32 module_type, const UINT32 module_id,const MM_TYPE_UINT32 type,void **ppvoid);
-UINT32 free_static_mem_0(const UINT32 location,const UINT32 module_type, const UINT32 module_id,const MM_TYPE_UINT32 type,void *pvoid);
+EC_BOOL check_static_mem_type(const UINT32 type, const UINT32 typesize);
+UINT32 fetch_static_mem_typesize(UINT32 type);
+UINT32 alloc_static_mem_0(const UINT32 location,const UINT32 module_type, const UINT32 module_id,const UINT32 type,void **ppvoid);
+UINT32 free_static_mem_0(const UINT32 location,const UINT32 module_type, const UINT32 module_id,const UINT32 type,void *pvoid);
 
 UINT32 init_mm_man(const UINT32 mm_type);
 UINT32 reg_mm_man(const UINT32 mm_type, const char *mm_name, const UINT32 block_num, const UINT32 type_size, const UINT32 location);
@@ -572,13 +588,13 @@ void *safe_realloc(void *old_pvoid, const UINT32 old_size, const UINT32 new_size
 void safe_copy(UINT8 *old_ptr, UINT8 *new_ptr, UINT32 len);
 
 void print_static_mem_status(LOG *log);
-void print_static_mem_status_of_type(LOG *log, const MM_TYPE_UINT32  type);
+void print_static_mem_status_of_type(LOG *log, const UINT32  type);
 #if ( SWITCH_ON == STATIC_MEM_DIAG_LOC_SWITCH )
 UINT32 print_static_mem_diag_info( LOG *log );
-UINT32 print_static_mem_diag_info_of_type(LOG *log, const MM_TYPE_UINT32 type);
+UINT32 print_static_mem_diag_info_of_type(LOG *log, const UINT32 type);
 
 UINT32 print_static_mem_stat_info(LOG *log);
-UINT32 print_static_mem_stat_info_of_type(LOG *log, const MM_TYPE_UINT32 type);
+UINT32 print_static_mem_stat_info_of_type(LOG *log, const UINT32 type);
 #endif/*SWITCH_ON == STATIC_MEM_DIAG_LOC_SWITCH*/
 
 #if 1
@@ -600,8 +616,8 @@ UINT32 mm_man_occupy_node_free_0(const UINT32 md_id, MM_MAN_OCCUPY_NODE *mm_man_
 UINT32 mm_man_occupy_node_init(MM_MAN_OCCUPY_NODE *mm_man_occupy_node);
 UINT32 mm_man_occupy_node_free(MM_MAN_OCCUPY_NODE *mm_man_occupy_node);
 UINT32 mm_man_occupy_node_clone(MM_MAN_OCCUPY_NODE *mm_man_occupy_node_src, MM_MAN_OCCUPY_NODE *mm_man_occupy_node_des);
-EC_BOOL mm_man_occupy_node_was_used(const MM_TYPE_UINT32 type);
-UINT32 mm_man_occupy_node_fetch(const MM_TYPE_UINT32 type, MM_MAN_OCCUPY_NODE *mm_man_occupy_node);
+EC_BOOL mm_man_occupy_node_was_used(const UINT32 type);
+UINT32 mm_man_occupy_node_fetch(const UINT32 type, MM_MAN_OCCUPY_NODE *mm_man_occupy_node);
 
 UINT32 mm_man_load_node_init_0(const UINT32 md_id, MM_MAN_LOAD_NODE *mm_man_load_node);
 UINT32 mm_man_load_node_clean_0(const UINT32 md_id, MM_MAN_LOAD_NODE *mm_man_load_node);
@@ -609,8 +625,8 @@ UINT32 mm_man_load_node_free_0(const UINT32 md_id, MM_MAN_LOAD_NODE *mm_man_load
 UINT32 mm_man_load_node_init(MM_MAN_LOAD_NODE *mm_man_load_node);
 UINT32 mm_man_load_node_free(MM_MAN_LOAD_NODE *mm_man_load_node);
 UINT32 mm_man_load_node_clone(MM_MAN_LOAD_NODE *mm_man_load_node_src, MM_MAN_LOAD_NODE *mm_man_load_node_des);
-EC_BOOL mm_man_load_node_was_used(const MM_TYPE_UINT32 type);
-UINT32 mm_man_load_node_fetch(const MM_TYPE_UINT32 type, MM_MAN_LOAD_NODE *mm_man_load_node);
+EC_BOOL mm_man_load_node_was_used(const UINT32 type);
+UINT32 mm_man_load_node_fetch(const UINT32 type, MM_MAN_LOAD_NODE *mm_man_load_node);
 
 #endif/*_MM_H*/
 

@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -85,6 +85,7 @@ EC_BOOL cbc_md_reg(const UINT32 md_type, const UINT32 md_capaciy)
     carray_set_no_lock(g_cbc, md_type, md_cindex);
     CARRAY_UNLOCK(g_cbc, LOC_CBC_0009);
 
+    sys_log(LOGSTDOUT, "[DEBUG] cbc_md_reg: reg type %ld, capacity %ld\n", md_type, md_capaciy);
     return (EC_TRUE);
 }
 
@@ -100,6 +101,7 @@ EC_BOOL cbc_md_unreg(const UINT32 md_type)
         cindex_free(md_cindex, LOC_CBC_0012);
     }
     CARRAY_UNLOCK(g_cbc, LOC_CBC_0013);
+    sys_log(LOGSTDOUT, "[DEBUG] cbc_md_unreg: unreg type %ld\n", md_type);
     return (EC_TRUE);
 }
 
@@ -218,7 +220,7 @@ UINT32 cbc_md_new(const UINT32 md_type, const UINT32 sizeof_md)
     if(ERR_MODULE_ID == pos)
     {
         SAFE_FREE(md, LOC_CBC_0015);
-        return ( ERR_MODULE_ID );
+        return (ERR_MODULE_ID);
     }
     return pos;
 }

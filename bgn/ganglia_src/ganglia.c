@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -22,7 +22,7 @@ extern "C"{
 
 #include "cbc.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 #include "cmutex.h"
 #include "cbytes.h"
 
@@ -131,7 +131,7 @@ UINT32 ganglia_start(const UINT32 mcast_ipaddr, const UINT32 srv_port)
     if(EC_FALSE == csocket_start_udp_mcast_sender(mcast_ipaddr, srv_port, &udp_sender_sockfd))
     {
         sys_log(LOGSTDOUT, "error:ganglia_start: start udp sender on %s:%ld failed\n",
-                            uint32_to_ipv4(mcast_ipaddr), srv_port);
+                            c_word_to_ipv4(mcast_ipaddr), srv_port);
         cbc_md_free(MD_GANGLIA, ganglia_md_id);
         return (ERR_MODULE_ID);
     }
@@ -733,7 +733,7 @@ EC_BOOL ganglia_metadata_msg_send(const UINT32 ganglia_md_id, const Ganglia_meta
         SAFE_FREE(buf, LOC_GANGLIA_0007);
         sys_log(LOGSTDOUT, "error:ganglia_metadata_msg_send: send %d bytes to mcast %s:%ld on sockfd %d failed\n",
                             len,
-                            uint32_to_ipv4(GANGLIA_MD_MCAST_IPADDR(ganglia_md)), GANGLIA_MD_SRV_PORT(ganglia_md),
+                            c_word_to_ipv4(GANGLIA_MD_MCAST_IPADDR(ganglia_md)), GANGLIA_MD_SRV_PORT(ganglia_md),
                             GANGLIA_MD_UDP_SENDER(ganglia_md)
                             );
         return (EC_FALSE);
@@ -742,7 +742,7 @@ EC_BOOL ganglia_metadata_msg_send(const UINT32 ganglia_md_id, const Ganglia_meta
     SAFE_FREE(buf, LOC_GANGLIA_0008);
     sys_log(LOGSTDOUT, "[DEBUG] ganglia_metadata_msg_send: send %d bytes to mcast %s:%ld on sockfd %d successfully\n",
                         len,
-                        uint32_to_ipv4(GANGLIA_MD_MCAST_IPADDR(ganglia_md)), GANGLIA_MD_SRV_PORT(ganglia_md),
+                        c_word_to_ipv4(GANGLIA_MD_MCAST_IPADDR(ganglia_md)), GANGLIA_MD_SRV_PORT(ganglia_md),
                         GANGLIA_MD_UDP_SENDER(ganglia_md)
                         );
     return (EC_TRUE);
@@ -966,7 +966,7 @@ EC_BOOL ganglia_value_msg_send(const UINT32 ganglia_md_id, const Ganglia_value_m
         SAFE_FREE(buf, LOC_GANGLIA_0011);
         sys_log(LOGSTDOUT, "error:ganglia_value_msg_send: send %d bytes to mcast %s:%ld on sockfd %d failed\n",
                             len,
-                            uint32_to_ipv4(GANGLIA_MD_MCAST_IPADDR(ganglia_md)), GANGLIA_MD_SRV_PORT(ganglia_md),
+                            c_word_to_ipv4(GANGLIA_MD_MCAST_IPADDR(ganglia_md)), GANGLIA_MD_SRV_PORT(ganglia_md),
                             GANGLIA_MD_UDP_SENDER(ganglia_md)
                             );
         return (EC_FALSE);
@@ -975,7 +975,7 @@ EC_BOOL ganglia_value_msg_send(const UINT32 ganglia_md_id, const Ganglia_value_m
     SAFE_FREE(buf, LOC_GANGLIA_0012);
     sys_log(LOGSTDOUT, "[DEBUG] ganglia_value_msg_send: send %d bytes to mcast %s:%ld on sockfd %d successfully\n",
                         len,
-                        uint32_to_ipv4(GANGLIA_MD_MCAST_IPADDR(ganglia_md)), GANGLIA_MD_SRV_PORT(ganglia_md),
+                        c_word_to_ipv4(GANGLIA_MD_MCAST_IPADDR(ganglia_md)), GANGLIA_MD_SRV_PORT(ganglia_md),
                         GANGLIA_MD_UDP_SENDER(ganglia_md)
                         );
     return (EC_TRUE);

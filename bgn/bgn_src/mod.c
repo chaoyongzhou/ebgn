@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -17,7 +17,7 @@ extern "C"{
 #include "cmpic.inc"
 
 #include "type.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "mm.h"
 #include "log.h"
@@ -1481,7 +1481,7 @@ EC_BOOL mod_mgr_gen_by_taskc_mgr(const TASKC_MGR *taskc_mgr, const UINT32 tcid, 
         taskc_node = (TASKC_NODE *)CLIST_DATA_DATA(clist_data);
         sys_log(LOGSTDNULL, "[DEBUG] mod_mgr_gen_by_taskc_mgr: taskc_node: tcid %s, comm %ld, size %ld .v.s. tcid %s, rank %ld\n",
                             TASKC_NODE_TCID_STR(taskc_node), TASKC_NODE_COMM(taskc_node), TASKC_NODE_SIZE(taskc_node),
-                            uint32_to_ipv4(tcid), rank);
+                            c_word_to_ipv4(tcid), rank);
 
         if(
            (CMPI_ANY_TCID == tcid)
@@ -1554,7 +1554,7 @@ EC_BOOL mod_mgr_gen_from_cload_mgr(const CLOAD_MGR *cload_mgr, const UINT32 tcid
         cload_node = (CLOAD_NODE *)CLIST_DATA_DATA(clist_data);
 
         sys_log(LOGSTDNULL, "[DEBUG] mod_mgr_gen_from_cload_mgr: expect (tcid %s, rank %ld) <---> cload node (tcid %s, rank vec)\n",
-                            uint32_to_ipv4(tcid), rank,
+                            c_word_to_ipv4(tcid), rank,
                             CLOAD_NODE_TCID_STR(cload_node)
                             );
 
@@ -2915,6 +2915,12 @@ MOD_NODE * mod_mgr_ldb_net_get(MOD_MGR *mod_mgr)
 EC_BOOL mod_mgr_print(LOG *log, const MOD_MGR * mod_mgr)
 {
     const MOD_NODE *local_mod_node;
+
+    if(NULL_PTR == mod_mgr)
+    {
+        sys_log(LOGSTDOUT, "warn:mod_mgr_print: mod_mgr is null\n");
+        return (EC_TRUE);
+    }
 
     sys_log(log, "mod_mgr %lx is:\n", mod_mgr);
     sys_log(log, "ldb choice    : %ld\n", MOD_MGR_LDB_CHOICE(mod_mgr));

@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -26,7 +26,7 @@ extern "C"{
 #include "log.h"
 #include "cmpic.inc"
 #include "cmutex.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "clist.h"
 
@@ -48,11 +48,6 @@ static EC_BOOL cdfsdn_unlink_file(const char *file_name)
     }
 
     return (EC_TRUE);
-}
-
-static EC_BOOL cdfsdn_create_dir(const char *dir_name)
-{
-    return create_dir(dir_name);
 }
 
 static void cdfsdn_init_buff(UINT8 *buff, const UINT32 len)
@@ -383,17 +378,17 @@ EC_BOOL cdfsdn_record_mgr_load(CDFSDN *cdfsdn)
 
     UINT8 *buff;
 
-    if(CDFSDN_ERR_FD == CDFSDN_RECORD_FD(cdfsdn))
+    if(ERR_FD == CDFSDN_RECORD_FD(cdfsdn))
     {
-        CDFSDN_RECORD_FD(cdfsdn) = c_open((char *)CDFSDN_RECORD_NAME(cdfsdn), O_RDWR, 0666);
-        if(CDFSDN_ERR_FD == CDFSDN_RECORD_FD(cdfsdn))
+        CDFSDN_RECORD_FD(cdfsdn) = c_file_open((char *)CDFSDN_RECORD_NAME(cdfsdn), O_RDWR, 0666);
+        if(ERR_FD == CDFSDN_RECORD_FD(cdfsdn))
         {
             sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_load: cannot open record file %s\n", (char *)CDFSDN_RECORD_NAME(cdfsdn));
             return (EC_FALSE);
         }
     }
 
-    if(CDFSDN_ERR_SEEK == lseek(CDFSDN_RECORD_FD(cdfsdn), 0, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSDN_RECORD_FD(cdfsdn), 0, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_load: seek record file beg failed\n");
         return (EC_FALSE);
@@ -474,7 +469,7 @@ EC_BOOL cdfsdn_record_mgr_flush(CDFSDN *cdfsdn)
 
     sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_record_mgr_flush was called\n");
 
-    if(CDFSDN_ERR_SEEK == lseek(CDFSDN_RECORD_FD(cdfsdn), 0, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSDN_RECORD_FD(cdfsdn), 0, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_flush: seek record file beg failed\n");
         return (EC_FALSE);
@@ -619,7 +614,7 @@ CDFSDN_BLOCK *cdfsdn_block_new(const char *block_root_dir)
 EC_BOOL cdfsdn_block_init(CDFSDN_BLOCK *cdfsdn_block, const char *block_root_dir)
 {
     CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block)    = (UINT32)0;
-    CDFSDN_BLOCK_FD(cdfsdn_block)             = CDFSDN_ERR_FD;
+    CDFSDN_BLOCK_FD(cdfsdn_block)             = ERR_FD;
     CDFSDN_BLOCK_CACHE(cdfsdn_block)          = NULL_PTR;
 
     snprintf((char *)CDFSDN_BLOCK_ROOT_DIR(cdfsdn_block), CDFSDN_ROOT_DIR_MAX_SIZE, "%s", block_root_dir);
@@ -637,10 +632,10 @@ EC_BOOL cdfsdn_block_clean(CDFSDN_BLOCK *cdfsdn_block)
         CDFSDN_BLOCK_CACHE(cdfsdn_block) = NULL_PTR;
     }
 
-    if(CDFSDN_ERR_FD != CDFSDN_BLOCK_FD(cdfsdn_block))
+    if(ERR_FD != CDFSDN_BLOCK_FD(cdfsdn_block))
     {
-        close(CDFSDN_BLOCK_FD(cdfsdn_block));
-        CDFSDN_BLOCK_FD(cdfsdn_block) = CDFSDN_ERR_FD;
+        c_file_close(CDFSDN_BLOCK_FD(cdfsdn_block));
+        CDFSDN_BLOCK_FD(cdfsdn_block) = ERR_FD;
     }
 
     cdfsdn_clean_buff(CDFSDN_BLOCK_ROOT_DIR(cdfsdn_block), CDFSDN_ROOT_DIR_MAX_SIZE);
@@ -675,7 +670,7 @@ EC_BOOL cdfsdn_block_free_0(const UINT32 md_id, CDFSDN_BLOCK *cdfsdn_block)
 EC_BOOL cdfsdn_block_cache_flush(const CDFSDN_BLOCK *cdfsdn_block)
 {
     RWSIZE wsize;
-    if(CDFSDN_ERR_SEEK == lseek(CDFSDN_BLOCK_FD(cdfsdn_block), 0, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSDN_BLOCK_FD(cdfsdn_block), 0, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_flush: seek beg failed\n");
         return (EC_FALSE);
@@ -694,7 +689,7 @@ EC_BOOL cdfsdn_block_cache_flush(const CDFSDN_BLOCK *cdfsdn_block)
 EC_BOOL cdfsdn_block_cache_load(CDFSDN_BLOCK *cdfsdn_block)
 {
     RWSIZE rsize;
-    if(CDFSDN_ERR_SEEK == lseek(CDFSDN_BLOCK_FD(cdfsdn_block), 0, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSDN_BLOCK_FD(cdfsdn_block), 0, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_load: seek beg failed\n");
         return (EC_FALSE);
@@ -713,7 +708,7 @@ EC_BOOL cdfsdn_block_cache_load(CDFSDN_BLOCK *cdfsdn_block)
 EC_BOOL cdfsdn_block_cache_flush_to(int fd, const CDFSDN_BLOCK *cdfsdn_block)
 {
     RWSIZE wsize;
-    if(CDFSDN_ERR_SEEK == lseek(fd, 0, SEEK_SET))
+    if(ERR_SEEK == lseek(fd, 0, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_flush: seek beg failed\n");
         return (EC_FALSE);
@@ -732,7 +727,7 @@ EC_BOOL cdfsdn_block_cache_flush_to(int fd, const CDFSDN_BLOCK *cdfsdn_block)
 EC_BOOL cdfsdn_block_cache_load_from(int fd, CDFSDN_BLOCK *cdfsdn_block)
 {
     RWSIZE rsize;
-    if(CDFSDN_ERR_SEEK == lseek(fd, 0, SEEK_SET))
+    if(ERR_SEEK == lseek(fd, 0, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_load_from: seek beg failed\n");
         return (EC_FALSE);
@@ -754,7 +749,7 @@ EC_BOOL cdfsdn_block_partition_flush(CDFSDN_BLOCK *cdfsdn_block)
     RWSIZE wsize;
 
     offset = CDFSDN_BLOCK_DATA_MAX_SIZE;
-    if(CDFSDN_ERR_SEEK == lseek(CDFSDN_BLOCK_FD(cdfsdn_block), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSDN_BLOCK_FD(cdfsdn_block), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_flush: seek beg failed\n");
         return (EC_FALSE);
@@ -839,7 +834,7 @@ EC_BOOL cdfsdn_block_create(CDFSDN_BLOCK *cdfsdn_block, const UINT32 disk_num, c
     char path[ CDFSDN_BLOCK_NAME_MAX_SIZE ];
 
     cdfsdn_block_dname_gen((char *)CDFSDN_BLOCK_ROOT_DIR(cdfsdn_block), disk_num, block_path_layout, path, CDFSDN_BLOCK_NAME_MAX_SIZE);
-    if(EC_FALSE == cdfsdn_create_dir(path))
+    if(EC_FALSE == c_dir_create(path))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_block_create: create dir %s failed\n", path);
         return (EC_FALSE);
@@ -853,7 +848,7 @@ EC_BOOL cdfsdn_block_create(CDFSDN_BLOCK *cdfsdn_block, const UINT32 disk_num, c
     }
 
     CDFSDN_BLOCK_FD(cdfsdn_block) = open(path, O_RDWR | O_CREAT, 0666);
-    if(CDFSDN_ERR_FD == CDFSDN_BLOCK_FD(cdfsdn_block))
+    if(ERR_FD == CDFSDN_BLOCK_FD(cdfsdn_block))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_block_create: open block file %s failed\n", path);
         return (EC_FALSE);
@@ -862,8 +857,8 @@ EC_BOOL cdfsdn_block_create(CDFSDN_BLOCK *cdfsdn_block, const UINT32 disk_num, c
     if(0 != ftruncate(CDFSDN_BLOCK_FD(cdfsdn_block), CDFSDN_BLOCK_MAX_SIZE))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_block_create: truncate file %s failed\n", path);
-        close(CDFSDN_BLOCK_FD(cdfsdn_block));
-        CDFSDN_BLOCK_FD(cdfsdn_block) = CDFSDN_ERR_FD;
+        c_file_close(CDFSDN_BLOCK_FD(cdfsdn_block));
+        CDFSDN_BLOCK_FD(cdfsdn_block) = ERR_FD;
         return (EC_FALSE);
     }
 #endif
@@ -872,8 +867,8 @@ EC_BOOL cdfsdn_block_create(CDFSDN_BLOCK *cdfsdn_block, const UINT32 disk_num, c
     if(NULL_PTR == CDFSDN_BLOCK_CACHE(cdfsdn_block))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_block_create: new block cache failed for block file %s\n", path);
-        close(CDFSDN_BLOCK_FD(cdfsdn_block));
-        CDFSDN_BLOCK_FD(cdfsdn_block) = CDFSDN_ERR_FD;
+        c_file_close(CDFSDN_BLOCK_FD(cdfsdn_block));
+        CDFSDN_BLOCK_FD(cdfsdn_block) = ERR_FD;
         return (EC_FALSE);
     }
 
@@ -908,7 +903,7 @@ EC_BOOL cdfsdn_block_open(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block, const UINT
 
     /*when block file exit, then open and load it*/
     CDFSDN_BLOCK_FD(cdfsdn_block) = open(path, O_RDWR, 0666);
-    if(CDFSDN_ERR_FD == CDFSDN_BLOCK_FD(cdfsdn_block))
+    if(ERR_FD == CDFSDN_BLOCK_FD(cdfsdn_block))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_block_open: open block file %s failed\n", path);
         return (EC_FALSE);
@@ -917,8 +912,8 @@ EC_BOOL cdfsdn_block_open(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block, const UINT
     if(EC_FALSE == cdfsdn_block_load(cdfsdn, cdfsdn_block))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_block_open: load block file %s failed\n", path);
-        close(CDFSDN_BLOCK_FD(cdfsdn_block));
-        CDFSDN_BLOCK_FD(cdfsdn_block) = CDFSDN_ERR_FD;
+        c_file_close(CDFSDN_BLOCK_FD(cdfsdn_block));
+        CDFSDN_BLOCK_FD(cdfsdn_block) = ERR_FD;
         return (EC_FALSE);
     }
 
@@ -953,7 +948,7 @@ EC_BOOL cdfsdn_block_flush(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block)
 
 EC_BOOL cdfsdn_block_load(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block)
 {
-    if(CDFSDN_ERR_FD == CDFSDN_BLOCK_FD(cdfsdn_block))
+    if(ERR_FD == CDFSDN_BLOCK_FD(cdfsdn_block))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_block_load: block was not open\n");
         return (EC_FALSE);
@@ -1336,7 +1331,7 @@ EC_BOOL cdfsdn_init(CDFSDN *cdfsdn, const char *root_dir)
     snprintf((char *)CDFSDN_ROOT_DIR(cdfsdn), CDFSDN_ROOT_DIR_MAX_SIZE, "%s", root_dir);
     snprintf((char *)CDFSDN_RECORD_NAME(cdfsdn), CDFSDN_BLOOM_NAME_MAX_SIZE, "%s/records.dat", root_dir);
 
-    CDFSDN_RECORD_FD(cdfsdn)  = CDFSDN_ERR_FD;
+    CDFSDN_RECORD_FD(cdfsdn)  = ERR_FD;
     CDFSDN_RECORD_MGR(cdfsdn) = NULL_PTR;
 
     for(pos = 0; pos < CDFSDN_CMUTEX_MAX_NUM; pos ++)
@@ -1356,10 +1351,10 @@ EC_BOOL cdfsdn_clean(CDFSDN *cdfsdn)
     cdfsdn_clean_buff(CDFSDN_ROOT_DIR(cdfsdn), CDFSDN_ROOT_DIR_MAX_SIZE);
     cdfsdn_clean_buff(CDFSDN_RECORD_NAME(cdfsdn), CDFSDN_BLOOM_NAME_MAX_SIZE);
 
-    if(CDFSDN_ERR_FD != CDFSDN_RECORD_FD(cdfsdn))
+    if(ERR_FD != CDFSDN_RECORD_FD(cdfsdn))
     {
-        close(CDFSDN_RECORD_FD(cdfsdn));
-        CDFSDN_RECORD_FD(cdfsdn) = CDFSDN_ERR_FD;
+        c_file_close(CDFSDN_RECORD_FD(cdfsdn));
+        CDFSDN_RECORD_FD(cdfsdn) = ERR_FD;
     }
 
     if(NULL_PTR != CDFSDN_RECORD_MGR(cdfsdn))
@@ -1568,7 +1563,7 @@ EC_BOOL cdfsdn_create(const char *root_dir, const UINT32 disk_num, const UINT32 
     CDFSDN *cdfsdn;
     UINT32  record_beg;
 
-    if(EC_FALSE == cdfsdn_create_dir(root_dir))
+    if(EC_FALSE == c_dir_create(root_dir))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_create: root dir %s not exist and create failed\n", root_dir);
         return (EC_FALSE);
@@ -1588,8 +1583,8 @@ EC_BOOL cdfsdn_create(const char *root_dir, const UINT32 disk_num, const UINT32 
         return (EC_FALSE);
     }
 
-    CDFSDN_RECORD_FD(cdfsdn) = c_open((char *)CDFSDN_RECORD_NAME(cdfsdn), O_RDWR | O_CREAT, 0666);
-    if(CDFSDN_ERR_FD == CDFSDN_RECORD_FD(cdfsdn))
+    CDFSDN_RECORD_FD(cdfsdn) = c_file_open((char *)CDFSDN_RECORD_NAME(cdfsdn), O_RDWR | O_CREAT, 0666);
+    if(ERR_FD == CDFSDN_RECORD_FD(cdfsdn))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_create: cannot open record file %s\n", (char *)CDFSDN_RECORD_NAME(cdfsdn));
         cdfsdn_free(cdfsdn);
@@ -2504,8 +2499,8 @@ CDFSDN_BLOCK * cdfsdn_get(CDFSDN *cdfsdn, const UINT32 block_path_layout)
     }
 
     /*when block file exit, then open and load it*/
-    block_fd = c_open(path, O_RDWR, 0666);
-    if(CDFSDN_ERR_FD == block_fd)
+    block_fd = c_file_open(path, O_RDWR, 0666);
+    if(ERR_FD == block_fd)
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_get: open block file %s failed\n", path);
         return (NULL_PTR);
@@ -2515,7 +2510,7 @@ CDFSDN_BLOCK * cdfsdn_get(CDFSDN *cdfsdn, const UINT32 block_path_layout)
     if(NULL_PTR == cdfsdn_block)
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_get: new block failed\n");
-        close(block_fd);
+        c_file_close(block_fd);
         return (NULL_PTR);
     }
 
@@ -2524,16 +2519,16 @@ CDFSDN_BLOCK * cdfsdn_get(CDFSDN *cdfsdn, const UINT32 block_path_layout)
     if(EC_FALSE == cdfsdn_block_load(cdfsdn, cdfsdn_block))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_get: load block file %s failed\n", path);
-        close(CDFSDN_BLOCK_FD(cdfsdn_block));
-        CDFSDN_BLOCK_FD(cdfsdn_block) = CDFSDN_ERR_FD;
+        c_file_close(CDFSDN_BLOCK_FD(cdfsdn_block));
+        CDFSDN_BLOCK_FD(cdfsdn_block) = ERR_FD;
         cdfsdn_block_free(cdfsdn_block);
         return (NULL_PTR);
     }
 
     CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block) = block_path_layout;
 
-    close(CDFSDN_BLOCK_FD(cdfsdn_block));
-    CDFSDN_BLOCK_FD(cdfsdn_block) = CDFSDN_ERR_FD;
+    c_file_close(CDFSDN_BLOCK_FD(cdfsdn_block));
+    CDFSDN_BLOCK_FD(cdfsdn_block) = ERR_FD;
     return (cdfsdn_block);
 }
 
@@ -2551,8 +2546,8 @@ EC_BOOL cdfsdn_set(CDFSDN *cdfsdn, const UINT32 block_path_layout, const CDFSDN_
     }
 
     /*when block file exit, then open and load it*/
-    block_fd = c_open(path, O_RDWR | O_CREAT, 0666);
-    if(CDFSDN_ERR_FD == block_fd)
+    block_fd = c_file_open(path, O_RDWR | O_CREAT, 0666);
+    if(ERR_FD == block_fd)
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_set: open block file %s failed\n", path);
         return (EC_FALSE);
@@ -2561,11 +2556,11 @@ EC_BOOL cdfsdn_set(CDFSDN *cdfsdn, const UINT32 block_path_layout, const CDFSDN_
     if(EC_FALSE == cdfsdn_block_cache_flush_to(block_fd, cdfsdn_block))
     {
         sys_log(LOGSTDOUT, "error:cdfsdn_set: load block file %s failed\n", path);
-        close(block_fd);
+        c_file_close(block_fd);
         return (EC_FALSE);
     }
 
-    close(block_fd);
+    c_file_close(block_fd);
     return (EC_TRUE);
 }
 

@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -44,7 +44,7 @@ extern "C"{
 
 #include "cmpic.inc"
 #include "cmpie.h"
-#include "char2int.h"
+#include "cmisc.h"
 #include "crbuff.h"
 #include "cbitmap.h"
 #include "cdfs.h"
@@ -401,7 +401,7 @@ EC_BOOL csocket_fd_clone(FD_CSET *src_sockfd_set, FD_CSET *des_sockfd_set)
 static EC_BOOL csocket_srv_addr_init( const UINT32 srv_port, struct sockaddr_in *srv_addr)
 {
     srv_addr->sin_family      = AF_INET;
-    srv_addr->sin_port        = htons( atoi(uint32_to_port(srv_port)) );
+    srv_addr->sin_port        = htons( atoi(c_word_to_port(srv_port)) );
     srv_addr->sin_addr.s_addr = INADDR_ANY;
     bzero(srv_addr->sin_zero, sizeof(srv_addr->sin_zero)/sizeof(srv_addr->sin_zero[0]));
 
@@ -413,10 +413,10 @@ EC_BOOL csocket_client_addr_init( const UINT32 srv_ipaddr, const UINT32 srv_port
     struct hostent *hp;
 
     /* get host addr info*/
-    hp = gethostbyname( uint32_to_ipv4(srv_ipaddr) );
+    hp = gethostbyname( c_word_to_ipv4(srv_ipaddr) );
     if ( NULL_PTR == hp )
     {
-        sys_log(LOGSTDERR, "error:csocket_client_addr_init: unknow server: %s\n", uint32_to_ipv4(srv_ipaddr));
+        sys_log(LOGSTDERR, "error:csocket_client_addr_init: unknow server: %s\n", c_word_to_ipv4(srv_ipaddr));
         return ( EC_FALSE );
     }
 
@@ -428,7 +428,7 @@ EC_BOOL csocket_client_addr_init( const UINT32 srv_ipaddr, const UINT32 srv_port
 
     /* fill ip addr and port */
     srv_addr->sin_family = AF_INET;
-    srv_addr->sin_port   = htons( atoi(uint32_to_port(srv_port)) );
+    srv_addr->sin_port   = htons( atoi(c_word_to_port(srv_port)) );
     srv_addr->sin_addr   = *((struct in_addr *)hp->h_addr);
     bzero(srv_addr->sin_zero, sizeof(srv_addr->sin_zero)/sizeof(srv_addr->sin_zero[0]));
 
@@ -488,6 +488,18 @@ EC_BOOL csocket_optimize(int sockfd)
             ret = EC_FALSE;
         }
     }
+
+    /*optimization: quick ack*/
+    if(1)
+    {
+        int flag;
+        flag = 1;
+        if(0 != setsockopt(sockfd, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag, sizeof(flag)))
+        {
+            sys_log(LOGSTDERR,"warn: csocket_optimize: socket %d failed to enable QUICKACK\n", sockfd);
+            ret = EC_FALSE;
+        }
+    }        
 
     /* optimization 2.1: when flag > 0, set SEND_BUFF size per packet - Flow Control*/
     /* optimization 2.2: when flag = 0, the data buff to send will NOT copy to system buff but send out directly*/
@@ -618,6 +630,7 @@ EC_BOOL csocket_optimize(int sockfd)
             ret = EC_FALSE;
         }
     }
+
     return (ret);
 }
 
@@ -680,7 +693,7 @@ EC_BOOL csocket_accept(const int srv_sockfd, int *conn_sockfd, UINT32 *client_ip
     }
     //csocket_is_nonblock(new_sockfd);
 
-    (*client_ipaddr) = ipv4_to_uint32((char *)inet_ntos(sockaddr_in.sin_addr));
+    (*client_ipaddr) = c_ipv4_to_word((char *)c_inet_ntos(sockaddr_in.sin_addr));
     (*conn_sockfd) = new_sockfd;
 
     return (EC_TRUE);
@@ -748,17 +761,17 @@ EC_BOOL csocket_start_udp_bcast_sender( const UINT32 bcast_fr_ipaddr, const UINT
         bcast_addr.sin_family      = AF_INET;
         //bcast_addr.sin_addr.s_addr = htonl(/*INADDR_ANY*/INADDR_BROADCAST);/*send ok*/
         bcast_addr.sin_addr.s_addr = htonl(UINT32_TO_INT32(bcast_fr_ipaddr));
-        bcast_addr.sin_port        = htons( atoi(uint32_to_port(bcast_port)) );
+        bcast_addr.sin_port        = htons( atoi(c_word_to_port(bcast_port)) );
 
         if ( 0 !=  bind( sockfd, (struct sockaddr *)&bcast_addr, sizeof( bcast_addr ) ) )
         {
             sys_log(LOGSTDERR, "error:csocket_start_udp_bcast_sender: bind to %s:%ld failed, errno = %d, errstr = %s\n",
-                                uint32_to_ipv4(bcast_fr_ipaddr), bcast_port, errno, strerror(errno));
+                                c_word_to_ipv4(bcast_fr_ipaddr), bcast_port, errno, strerror(errno));
             close(sockfd);
             return ( EC_FALSE );
         }
         sys_log(LOGSTDERR, "[DEBUG] csocket_start_udp_bcast_sender: bind to %s:%ld successfully\n",
-                            uint32_to_ipv4(bcast_fr_ipaddr), bcast_port);
+                            c_word_to_ipv4(bcast_fr_ipaddr), bcast_port);
     }
 #endif
     *srv_sockfd = sockfd;
@@ -838,17 +851,17 @@ EC_BOOL csocket_start_udp_bcast_recver( const UINT32 bcast_to_ipaddr, const UINT
         //bcast_addr.sin_addr.s_addr = htonl(/*INADDR_ANY*/INADDR_BROADCAST);
         //bcast_addr.sin_addr.s_addr = INADDR_ANY;/*ok,note: if not bind it, socket will recv nothing. faint!*/
         bcast_addr.sin_addr.s_addr = htonl(UINT32_TO_INT32(bcast_to_ipaddr));
-        bcast_addr.sin_port        = htons( atoi(uint32_to_port(bcast_port)) );
+        bcast_addr.sin_port        = htons( atoi(c_word_to_port(bcast_port)) );
 
         if ( 0 !=  bind( sockfd, (struct sockaddr *)&bcast_addr, sizeof( bcast_addr ) ) )
         {
             sys_log(LOGSTDERR, "error:csocket_start_udp_bcast_recver: bind to %s:%ld failed, errno = %d, errstr = %s\n",
-                                uint32_to_ipv4(bcast_to_ipaddr), bcast_port, errno, strerror(errno));
+                                c_word_to_ipv4(bcast_to_ipaddr), bcast_port, errno, strerror(errno));
             close(sockfd);
             return ( EC_FALSE );
         }
         sys_log(LOGSTDOUT, "[DEBUG] csocket_start_udp_bcast_recver: bind to %s:%ld successfully\n",
-                            uint32_to_ipv4(bcast_to_ipaddr), bcast_port);
+                            c_word_to_ipv4(bcast_to_ipaddr), bcast_port);
 
     }
 #endif
@@ -945,17 +958,17 @@ EC_BOOL csocket_start_udp_bcast_recver1( const UINT32 bcast_to_ipaddr, const UIN
         //bcast_addr.sin_addr.s_addr = htonl(/*INADDR_ANY*/INADDR_BROADCAST);
         //bcast_addr.sin_addr.s_addr = INADDR_ANY;/*note: if not bind it, socket will recv nothing. faint!*/
         bcast_addr.sin_addr.s_addr = htonl(UINT32_TO_INT32(bcast_to_ipaddr));
-        bcast_addr.sin_port        = htons( atoi(uint32_to_port(bcast_port)) );
+        bcast_addr.sin_port        = htons( atoi(c_word_to_port(bcast_port)) );
 
         if ( 0 !=  bind( sockfd, (struct sockaddr *)&bcast_addr, sizeof( bcast_addr ) ) )
         {
             sys_log(LOGSTDERR, "error:csocket_start_udp_bcast_recver: bind to %s:%ld failed, errno = %d, errstr = %s\n",
-                               uint32_to_ipv4(bcast_to_ipaddr), bcast_port, errno, strerror(errno));
+                               c_word_to_ipv4(bcast_to_ipaddr), bcast_port, errno, strerror(errno));
             close(sockfd);
             return ( EC_FALSE );
         }
         sys_log(LOGSTDOUT, "[DEBUG] csocket_start_udp_bcast_recver: bind to %s:%ld failed \n",
-                           uint32_to_ipv4(bcast_to_ipaddr), bcast_port);
+                           c_word_to_ipv4(bcast_to_ipaddr), bcast_port);
     }
 #endif
 
@@ -1064,17 +1077,17 @@ EC_BOOL csocket_udp_bcast_send(const UINT32 bcast_fr_ipaddr, const UINT32 bcast_
         bcast_addr.sin_family      = AF_INET;
         //bcast_addr.sin_addr.s_addr = htonl(/*INADDR_ANY*/INADDR_BROADCAST);/*send ok*/
         bcast_addr.sin_addr.s_addr = htonl(UINT32_TO_INT32(bcast_fr_ipaddr));
-        bcast_addr.sin_port        = htons( atoi(uint32_to_port(bcast_port)) );
+        bcast_addr.sin_port        = htons( atoi(c_word_to_port(bcast_port)) );
 
         if ( 0 !=  bind( sockfd, (struct sockaddr *)&bcast_addr, sizeof( bcast_addr ) ) )
         {
             sys_log(LOGSTDERR, "error:csocket_start_udp_bcast_send: bind to %s:%ld failed, errno = %d, errstr = %s\n",
-                                uint32_to_ipv4(bcast_fr_ipaddr), bcast_port, errno, strerror(errno));
+                                c_word_to_ipv4(bcast_fr_ipaddr), bcast_port, errno, strerror(errno));
             close(sockfd);
             return ( EC_FALSE );
         }
         sys_log(LOGSTDERR, "[DEBUG] csocket_start_udp_bcast_send: bind to %s:%ld successfully\n",
-                            uint32_to_ipv4(bcast_fr_ipaddr), bcast_port);
+                            c_word_to_ipv4(bcast_fr_ipaddr), bcast_port);
     }
 #endif
 
@@ -1098,17 +1111,17 @@ EC_BOOL csocket_udp_bcast_sendto(const int sockfd, const UINT32 bcast_to_ipaddr,
     bcast_to_addr.sin_family = AF_INET;
     //bcast_to_addr.sin_addr.s_addr = htonl(/*INADDR_ANY*/INADDR_BROADCAST);
     bcast_to_addr.sin_addr.s_addr = htonl(UINT32_TO_INT32(bcast_to_ipaddr))/*inet_addr(bcast_to_ipaddr_str)*/;
-    bcast_to_addr.sin_port = htons( atoi(uint32_to_port(bcast_port)) );
+    bcast_to_addr.sin_port = htons( atoi(c_word_to_port(bcast_port)) );
 
     if(0 > sendto(sockfd, data, dlen, 0, (struct sockaddr*)&bcast_to_addr,sizeof(bcast_to_addr)))
     {
         sys_log(LOGSTDERR, "error:csocket_udp_bcast_sendto: send %ld bytes to bcast %s:%ld failed, errno = %d, errstr = %s\n",
-                            dlen, uint32_to_ipv4(bcast_to_ipaddr), bcast_port, errno, strerror(errno));
+                            dlen, c_word_to_ipv4(bcast_to_ipaddr), bcast_port, errno, strerror(errno));
         return (EC_FALSE);
     }
 
     sys_log(LOGSTDOUT, "[DEBUG] csocket_udp_bcast_sendto: send %ld bytes to bcast %s:%ld\n",
-                        dlen, uint32_to_ipv4(bcast_to_ipaddr), bcast_port);
+                        dlen, c_word_to_ipv4(bcast_to_ipaddr), bcast_port);
 
     return (EC_TRUE);
 }
@@ -1123,7 +1136,7 @@ EC_BOOL csocket_udp_bcast_recvfrom(const int sockfd, const UINT32 bcast_fr_ipadd
     bcast_fr_addr.sin_family = AF_INET;
     //bcast_fr_addr.sin_addr.s_addr = htonl(/*INADDR_ANY*/INADDR_BROADCAST);
     bcast_fr_addr.sin_addr.s_addr = htonl(UINT32_TO_INT32(bcast_fr_ipaddr))/*inet_addr(bcast_fr_ipaddr_str)*/;
-    bcast_fr_addr.sin_port = htons( atoi(uint32_to_port(bcast_port)) );
+    bcast_fr_addr.sin_port = htons( atoi(c_word_to_port(bcast_port)) );
 
     bcast_fr_addr_len = sizeof(bcast_fr_addr);
 
@@ -1131,14 +1144,14 @@ EC_BOOL csocket_udp_bcast_recvfrom(const int sockfd, const UINT32 bcast_fr_ipadd
     if(0 > csize)
     {
         sys_log(LOGSTDERR, "error:csocket_udp_bcast_recvfrom: recv from bcast %s:%ld failed, errno = %d, errstr = %s\n",
-                            uint32_to_ipv4(bcast_fr_ipaddr), bcast_port, errno, strerror(errno));
+                            c_word_to_ipv4(bcast_fr_ipaddr), bcast_port, errno, strerror(errno));
         return (EC_FALSE);
     }
 
     (*dlen) = csize;
 
     sys_log(LOGSTDOUT, "[DEBUG] csocket_udp_bcast_recvfrom: recv %d bytes from bcast %s:%ld\n",
-                        csize, uint32_to_ipv4(bcast_fr_ipaddr), bcast_port);
+                        csize, c_word_to_ipv4(bcast_fr_ipaddr), bcast_port);
     return (EC_TRUE);
 }
 
@@ -1153,7 +1166,7 @@ EC_BOOL csocket_udp_bcast_recvfrom1(const int sockfd, const UINT32 bcast_fr_ipad
     bcast_fr_addr.sin_family = AF_INET;
     bcast_fr_addr.sin_addr.s_addr = htonl(/*INADDR_ANY*/INADDR_BROADCAST);
     //bcast_fr_addr.sin_addr.s_addr = htonl(UINT32_TO_INT32(bcast_ipaddr))/*inet_addr(bcast_ipaddr_str)*/;
-    bcast_fr_addr.sin_port = htons( atoi(uint32_to_port(bcast_port)) );
+    bcast_fr_addr.sin_port = htons( atoi(c_word_to_port(bcast_port)) );
 #endif
     bcast_fr_addr_len = sizeof(bcast_fr_addr);
 
@@ -1161,14 +1174,14 @@ EC_BOOL csocket_udp_bcast_recvfrom1(const int sockfd, const UINT32 bcast_fr_ipad
     if(0 > csize)
     {
         sys_log(LOGSTDERR, "error:csocket_udp_bcast_recvfrom: recv from bcast %s:%ld failed, errno = %d, errstr = %s\n",
-                            uint32_to_ipv4(bcast_fr_ipaddr), bcast_port, errno, strerror(errno));
+                            c_word_to_ipv4(bcast_fr_ipaddr), bcast_port, errno, strerror(errno));
         return (EC_FALSE);
     }
 
     (*dlen) = csize;
 
     sys_log(LOGSTDOUT, "[DEBUG] csocket_udp_bcast_recvfrom: recv %d bytes from bcast %s:%ld\n",
-                        csize, uint32_to_ipv4(bcast_fr_ipaddr), bcast_port);
+                        csize, c_word_to_ipv4(bcast_fr_ipaddr), bcast_port);
     return (EC_TRUE);
 }
 
@@ -1266,7 +1279,7 @@ EC_BOOL csocket_start_udp_mcast_recver( const UINT32 mcast_ipaddr, const UINT32 
     /*join multicast*/
     if(EC_FALSE == csocket_join_mcast(sockfd, mcast_ipaddr))
     {
-        sys_log(LOGSTDERR, "error:csocket_start_udp_mcast_recver: join mcast %s failed\n", uint32_to_ipv4(mcast_ipaddr));
+        sys_log(LOGSTDERR, "error:csocket_start_udp_mcast_recver: join mcast %s failed\n", c_word_to_ipv4(mcast_ipaddr));
         close(sockfd);
         return (EC_FALSE);
     }
@@ -1292,7 +1305,7 @@ EC_BOOL csocket_stop_udp_mcast_recver( const int sockfd, const UINT32 mcast_ipad
 {
     if(EC_FALSE == csocket_drop_mcast(sockfd, mcast_ipaddr))
     {
-        sys_log(LOGSTDERR, "error:csocket_stop_udp_mcast_recver: drop mcast %s failed\n", uint32_to_ipv4(mcast_ipaddr));
+        sys_log(LOGSTDERR, "error:csocket_stop_udp_mcast_recver: drop mcast %s failed\n", c_word_to_ipv4(mcast_ipaddr));
         close(sockfd);
         return (EC_FALSE);
     }
@@ -1311,7 +1324,7 @@ EC_BOOL csocket_join_mcast(const int sockfd, const UINT32 mcast_ipaddr)
     if(0 > setsockopt(sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)))
     {
         sys_log(LOGSTDERR, "error:csocket_join_mcast: add to mcast %s failed, errno = %d, errstr = %s\n", 
-                            uint32_to_ipv4(mcast_ipaddr), errno, strerror(errno));
+                            c_word_to_ipv4(mcast_ipaddr), errno, strerror(errno));
         return (EC_FALSE);
     }
 
@@ -1327,7 +1340,7 @@ EC_BOOL csocket_drop_mcast(const int sockfd, const UINT32 mcast_ipaddr)
     if(0 > setsockopt(sockfd, IPPROTO_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)))
     {
         sys_log(LOGSTDERR, "error:csocket_drop_mcast: drop from mcast %s failed, errno = %d, errstr = %s\n", 
-                            uint32_to_ipv4(mcast_ipaddr), errno, strerror(errno));
+                            c_word_to_ipv4(mcast_ipaddr), errno, strerror(errno));
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -1341,16 +1354,16 @@ EC_BOOL csocket_udp_sendto(const int sockfd, const UINT32 mcast_ipaddr, const UI
     BSET(&mcast_addr, 0, sizeof(mcast_addr));
     mcast_addr.sin_family = AF_INET;
     mcast_addr.sin_addr.s_addr = htonl(UINT32_TO_INT32(mcast_ipaddr));
-    mcast_addr.sin_port = htons( atoi(uint32_to_port(mcast_port)) );
+    mcast_addr.sin_port = htons( atoi(c_word_to_port(mcast_port)) );
 
     if(0 > (o_len = sendto(sockfd, data, dlen, 0, (struct sockaddr*)&mcast_addr,sizeof(mcast_addr))))
     {
         sys_log(LOGSTDERR, "error:csocket_udp_sendto: send %ld bytes to mcast %s:%ld failed, errno = %d, errstr = %s\n",
-                            dlen, uint32_to_ipv4(mcast_ipaddr), mcast_port, errno, strerror(errno));
+                            dlen, c_word_to_ipv4(mcast_ipaddr), mcast_port, errno, strerror(errno));
         return (EC_FALSE);
     }
     sys_log(LOGSTDOUT, "[DEBUG] csocket_udp_sendto: send %ld of %ld bytes  to mcast %s:%ld failed\n",
-                        o_len, dlen, uint32_to_ipv4(mcast_ipaddr), mcast_port);
+                        o_len, dlen, c_word_to_ipv4(mcast_ipaddr), mcast_port);
     return (EC_TRUE);
 }
 
@@ -1375,10 +1388,10 @@ EC_BOOL csocket_udp_mcast_sendto(const int sockfd, const UINT32 mcast_ipaddr, co
     BSET(&mcast_addr, 0, sizeof(mcast_addr));
     mcast_addr.sin_family = AF_INET;
     mcast_addr.sin_addr.s_addr = htonl(UINT32_TO_INT32(mcast_ipaddr));
-    mcast_addr.sin_port = htons( atoi(uint32_to_port(mcast_port)) );
+    mcast_addr.sin_port = htons( atoi(c_word_to_port(mcast_port)) );
 
     sys_log(LOGSTDOUT, "[DEBUG] csocket_udp_mcast_sendto: send %ld bytes to mcast %s:%ld\n",
-                        dlen, uint32_to_ipv4(mcast_ipaddr), mcast_port);
+                        dlen, c_word_to_ipv4(mcast_ipaddr), mcast_port);
 
     /*one udp packet format: total len (4B)| packet len (2B) | seqno (2B) | data (packet len bytes)*/
     for(csize = 0, seqno = 0, osize = CSOCKET_UDP_PACKET_DATA_SIZE; csize < tlen; csize += osize, seqno ++)
@@ -1402,7 +1415,7 @@ EC_BOOL csocket_udp_mcast_sendto(const int sockfd, const UINT32 mcast_ipaddr, co
         if(0 > sendto(sockfd, udp_packet, counter, 0, (struct sockaddr*)&mcast_addr,sizeof(mcast_addr)))
         {
             sys_log(LOGSTDERR, "error:csocket_udp_mcast_sendto: send %ld bytes to mcast %s:%ld failed, errno = %d, errstr = %s\n",
-                                counter, uint32_to_ipv4(mcast_ipaddr), mcast_port, errno, strerror(errno));
+                                counter, c_word_to_ipv4(mcast_ipaddr), mcast_port, errno, strerror(errno));
             return (EC_FALSE);
         }
     }
@@ -1422,7 +1435,7 @@ EC_BOOL csocket_udp_mcast_recvfrom(const int sockfd, const UINT32 mcast_ipaddr, 
     mcast_addr.sin_family = AF_INET;
     mcast_addr.sin_addr.s_addr = htonl(UINT32_TO_INT32(mcast_ipaddr));
     //mcast_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    mcast_addr.sin_port = htons( atoi(uint32_to_port(mcast_port)) );
+    mcast_addr.sin_port = htons( atoi(c_word_to_port(mcast_port)) );
 
     mcast_addr_len = sizeof(mcast_addr);
 
@@ -1443,7 +1456,7 @@ EC_BOOL csocket_udp_mcast_recvfrom(const int sockfd, const UINT32 mcast_ipaddr, 
         if(0 > recvfrom(sockfd, (void *)udp_packet, sizeof(udp_packet)/sizeof(udp_packet[0]), 0, (struct sockaddr *)&mcast_addr, &mcast_addr_len))
         {
             sys_log(LOGSTDERR, "error:csocket_udp_mcast_recvfrom: recv %ld bytes from mcast %s:%ld failed, errno = %d, errstr = %s\n",
-                                osize, uint32_to_ipv4(mcast_ipaddr), mcast_port, errno, strerror(errno));
+                                osize, c_word_to_ipv4(mcast_ipaddr), mcast_port, errno, strerror(errno));
             cbitmap_free(cbitmap);/*also works when cbitmap is NULL_PTR*/
             return (EC_FALSE);
         }
@@ -1493,7 +1506,7 @@ EC_BOOL csocket_udp_mcast_recvfrom(const int sockfd, const UINT32 mcast_ipaddr, 
     }while(EC_FALSE == cbitmap_is_full(cbitmap));
 
     sys_log(LOGSTDOUT, "[DEBUG] csocket_udp_mcast_recvfrom: recv %d bytes from mcast %s:%ld\n",
-                        csize, uint32_to_ipv4(mcast_ipaddr), mcast_port);
+                        csize, c_word_to_ipv4(mcast_ipaddr), mcast_port);
 
     cbitmap_free(cbitmap);
     (*dlen) = csize;
@@ -1541,7 +1554,7 @@ EC_BOOL csocket_name(const int sockfd, CSTRING *ipaddr)
         return (EC_FALSE);
     }
 
-    cstring_init(ipaddr, (UINT8 *)inet_ntos(sockaddr_in.sin_addr));
+    cstring_init(ipaddr, (UINT8 *)c_inet_ntos(sockaddr_in.sin_addr));
     return (EC_TRUE);
 }
 
@@ -2156,6 +2169,41 @@ EC_BOOL csocket_isend(const int sockfd, const UINT8 *out_buff, const UINT32 out_
     //sys_log(LOGSTDOUT, "csocket_isend: start to send data on sockfd %d: beg: max len = %ld, position = %ld\n", sockfd, out_buff_max_len, *position);
     //csocket_tcpi_stat_print(LOGSTDOUT, sockfd);
 
+    once_sent_len = out_buff_max_len - (*position);
+    if(0 == once_sent_len)
+    {
+        return (EC_TRUE);
+    }
+
+    once_sent_len = DMIN(CSOCKET_SEND_ONCE_MAX_SIZE, once_sent_len);    
+
+    ret = write(sockfd, (void *)(out_buff + (*position)), once_sent_len);
+    if(0 <= ret )/*when ret = 0, no data was sent*/
+    {
+        (*position) += (ret);
+        //sys_log(LOGSTDOUT, "csocket_isend: end to send data on sockfd %d: end: max len = %ld, position = %ld\n", sockfd, out_buff_max_len, *position);
+        return (EC_TRUE);
+    }
+    /*when ret = -1, error happen*/
+    sys_log(LOGSTDNULL, "warn:csocket_isend: sockfd %d, errno = %d, errstr = %s, max len %ld, pos %ld\n",
+                        sockfd, errno, strerror(errno), out_buff_max_len, (*position));
+    return csocket_no_ierror();
+}
+
+EC_BOOL csocket_isend_0(const int sockfd, const UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+    ssize_t ret;
+    UINT32  once_sent_len;
+
+    if(out_buff_max_len < (*position))/*debug*/
+    {
+        sys_log(LOGSTDOUT, "[DEBUG] error:csocket_isend: out_buff_max_len %ld < pos %ld\n", out_buff_max_len, (*position));
+        return (EC_FALSE);
+    }
+
+    //sys_log(LOGSTDOUT, "csocket_isend: start to send data on sockfd %d: beg: max len = %ld, position = %ld\n", sockfd, out_buff_max_len, *position);
+    //csocket_tcpi_stat_print(LOGSTDOUT, sockfd);
+
     if(EC_FALSE == csocket_wait_for_io(sockfd, CSOCKET_WRITING_FLAG))
     {
         return (EC_TRUE);
@@ -2186,6 +2234,39 @@ EC_BOOL csocket_isend(const int sockfd, const UINT8 *out_buff, const UINT32 out_
 }
 
 EC_BOOL csocket_irecv(const int sockfd, UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position)
+{
+    ssize_t ret;
+    UINT32  once_recv_len;
+
+    if(in_buff_max_len < (*position))/*debug*/
+    {
+        sys_log(LOGSTDOUT, "[DEBUG] error:csocket_irecv: out_buff_max_len %ld < pos %ld\n", in_buff_max_len, (*position));
+        return (EC_FALSE);
+    }
+
+    //sys_log(LOGSTDOUT, "csocket_irecv: start to send data on sockfd %d: beg: max len = %ld, position = %ld\n", sockfd, in_buff_max_len, *position);
+    //csocket_tcpi_stat_print(LOGSTDOUT, sockfd);
+
+    once_recv_len = in_buff_max_len - (*position);
+    if(0 == once_recv_len)/*no free space to recv*/
+    {
+        return (EC_TRUE);
+    }
+
+    once_recv_len = DMIN(CSOCKET_RECV_ONCE_MAX_SIZE, once_recv_len);  
+    ret = read(sockfd, (void *)(in_buff + (*position)), once_recv_len);
+    if(0 <= ret )
+    {
+        (*position) += (ret);
+        //sys_log(LOGSTDOUT, "csocket_irecv: end to recv data on sockfd %d: end: max len = %ld, position = %ld\n", sockfd, in_buff_max_len, *position);
+        return (EC_TRUE);
+    }
+    sys_log(LOGSTDNULL, "warn:csocket_irecv: sockfd %d, errno = %d, errstr = %s, max len %ld, pos %ld\n",
+                        sockfd, errno, strerror(errno), in_buff_max_len, (*position));
+    return csocket_no_ierror();
+}
+
+EC_BOOL csocket_irecv_0(const int sockfd, UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position)
 {
     ssize_t ret;
     UINT32  once_recv_len;
@@ -2286,6 +2367,36 @@ EC_BOOL csocket_write(const int sockfd, const UINT8 *out_buff, const UINT32 out_
         UINT32   once_sent_len;
         ssize_t  sent_num;
 
+        once_sent_len = out_buff_max_len - (*pos);
+        if(0 == once_sent_len)
+        {
+            break;
+        }
+
+        once_sent_len = DMIN(CSOCKET_SEND_ONCE_MAX_SIZE, once_sent_len);
+
+        sent_num = write(sockfd, (void *)(out_buff + (*pos)), once_sent_len);
+        if(0 > sent_num)
+        {
+            return csocket_no_ierror();
+        }
+        
+        if(0 == sent_num )/*when ret = 0, no data was sent*/
+        {
+            return (EC_TRUE);
+        }
+        //sys_log(LOGSTDOUT, "[DEBUG] csocket_write: sent out %ld bytes\n", sent_num);
+        (*pos) += (UINT32)sent_num;
+    }
+    return (EC_TRUE);
+}
+EC_BOOL csocket_write_0(const int sockfd, const UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *pos)
+{
+    for(;;)
+    {
+        UINT32   once_sent_len;
+        ssize_t  sent_num;
+
         if(EC_FALSE == csocket_wait_for_io(sockfd, CSOCKET_WRITING_FLAG))
         {
             return (EC_TRUE);
@@ -2318,6 +2429,40 @@ EC_BOOL csocket_write(const int sockfd, const UINT8 *out_buff, const UINT32 out_
 
 /*read until all data ready or no further data to recv at present*/
 EC_BOOL csocket_read(const int sockfd, UINT8 *in_buff, const UINT32 in_buff_expect_len, UINT32 *pos)
+{
+    for(;;)
+    {
+        UINT32 once_recv_len;
+        ssize_t  recved_num;
+        
+        once_recv_len = in_buff_expect_len - (*pos);
+        if(0 == once_recv_len)/*no free space to recv*/
+        {
+            break;
+        }
+
+        once_recv_len = DMIN(CSOCKET_RECV_ONCE_MAX_SIZE, once_recv_len);
+
+        recved_num = read(sockfd, (void *)(in_buff + (*pos)), once_recv_len);
+        if(0 > recved_num)
+        {
+            /*no data to recv or found error*/
+            return csocket_no_ierror();
+        }
+
+        if(0 == recved_num)
+        {
+            return (EC_TRUE);
+        }
+
+        //sys_log(LOGSTDOUT, "[DEBUG] csocket_read: read in %ld bytes\n", recved_num);
+        (*pos) += (UINT32)recved_num;
+    }
+
+    return (EC_TRUE);
+}
+
+EC_BOOL csocket_read_0(const int sockfd, UINT8 *in_buff, const UINT32 in_buff_expect_len, UINT32 *pos)
 {
     for(;;)
     {
@@ -2770,12 +2915,12 @@ EC_BOOL csocket_client_start( const UINT32 srv_ipaddr, const UINT32 srv_port, co
     if(EC_FALSE == csocket_connect( srv_ipaddr, srv_port , csocket_block_mode, client_sockfd ))
     {
         sys_log(LOGSTDNULL, "error:csocket_client_start: client failed to connect server %s:%ld\n",
-                            uint32_to_ipv4(srv_ipaddr), srv_port);
+                            c_word_to_ipv4(srv_ipaddr), srv_port);
         return (EC_FALSE);
     }
 
     sys_log(LOGSTDNULL, "csocket_client_start: start client %d connecting to server %s:%ld\n",
-                        (*client_sockfd), uint32_to_ipv4(srv_ipaddr), srv_port);
+                        (*client_sockfd), c_word_to_ipv4(srv_ipaddr), srv_port);
     return (EC_TRUE);
 }
 

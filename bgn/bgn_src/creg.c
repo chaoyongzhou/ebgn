@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -64,6 +64,8 @@ extern "C"{
 #include "ganglia.h"
 #include "csession.h"
 #include "cscore.h"
+#include "crfs.h"
+#include "chfs.h"
 
 #include "findex.inc"
 
@@ -104,6 +106,8 @@ extern "C"{
 #include "ganglia.inc"
 #include "csession.inc"
 #include "cscore.inc"
+#include "crfs.inc"
+#include "chfs.inc"
 
 #include "task.inc"
 
@@ -1057,6 +1061,66 @@ EC_BOOL creg_type_conv_vec_add_default(CVECTOR *type_conv_vec)
         /* cmpi_decode_type_func  */(UINT32)cmpi_decode_clist,
         /* cmpi_encode_type_size  */(UINT32)cmpi_encode_clist_size
     );
+    creg_type_conv_vec_add(type_conv_vec,
+        /* type                   */e_dbg_CRFSNP_ITEM_ptr,
+        /* type_sizeof            */sizeof(CRFSNP_ITEM),
+        /* pointer_flag           */EC_TRUE,
+        /* var_mm_type            */MM_CRFSNP_ITEM,
+        /* init_type_func         */(UINT32)crfsnp_item_init_0,
+        /* clean_type_func        */(UINT32)crfsnp_item_clean_0,
+        /* free_type_func         */(UINT32)crfsnp_item_free_0,
+        /* cmpi_encode_type_func  */(UINT32)cmpi_encode_crfsnp_item,
+        /* cmpi_decode_type_func  */(UINT32)cmpi_decode_crfsnp_item,
+        /* cmpi_encode_type_size  */(UINT32)cmpi_encode_crfsnp_item_size
+    );
+    creg_type_conv_vec_add(type_conv_vec,
+        /* type                   */e_dbg_CRFSNP_FNODE_ptr,
+        /* type_sizeof            */sizeof(CRFSNP_FNODE),
+        /* pointer_flag           */EC_TRUE,
+        /* var_mm_type            */MM_CRFSNP_FNODE,
+        /* init_type_func         */(UINT32)crfsnp_fnode_init_0,
+        /* clean_type_func        */(UINT32)crfsnp_fnode_clean_0,
+        /* free_type_func         */(UINT32)crfsnp_fnode_free_0,
+        /* cmpi_encode_type_func  */(UINT32)cmpi_encode_crfsnp_fnode,
+        /* cmpi_decode_type_func  */(UINT32)cmpi_decode_crfsnp_fnode,
+        /* cmpi_encode_type_size  */(UINT32)cmpi_encode_crfsnp_fnode_size
+    );    
+    creg_type_conv_vec_add(type_conv_vec,
+        /* type                   */e_dbg_CHFSNP_ITEM_ptr,
+        /* type_sizeof            */sizeof(CHFSNP_ITEM),
+        /* pointer_flag           */EC_TRUE,
+        /* var_mm_type            */MM_CHFSNP_ITEM,
+        /* init_type_func         */(UINT32)chfsnp_item_init_0,
+        /* clean_type_func        */(UINT32)chfsnp_item_clean_0,
+        /* free_type_func         */(UINT32)chfsnp_item_free_0,
+        /* cmpi_encode_type_func  */(UINT32)cmpi_encode_chfsnp_item,
+        /* cmpi_decode_type_func  */(UINT32)cmpi_decode_chfsnp_item,
+        /* cmpi_encode_type_size  */(UINT32)cmpi_encode_chfsnp_item_size
+    );
+    creg_type_conv_vec_add(type_conv_vec,
+        /* type                   */e_dbg_CHFSNP_FNODE_ptr,
+        /* type_sizeof            */sizeof(CHFSNP_FNODE),
+        /* pointer_flag           */EC_TRUE,
+        /* var_mm_type            */MM_CHFSNP_FNODE,
+        /* init_type_func         */(UINT32)chfsnp_fnode_init_0,
+        /* clean_type_func        */(UINT32)chfsnp_fnode_clean_0,
+        /* free_type_func         */(UINT32)chfsnp_fnode_free_0,
+        /* cmpi_encode_type_func  */(UINT32)cmpi_encode_chfsnp_fnode,
+        /* cmpi_decode_type_func  */(UINT32)cmpi_decode_chfsnp_fnode,
+        /* cmpi_encode_type_size  */(UINT32)cmpi_encode_chfsnp_fnode_size
+    );      
+    creg_type_conv_vec_add(type_conv_vec,
+        /* type                   */e_dbg_uint64_t_ptr,
+        /* type_sizeof            */sizeof(uint64_t),
+        /* pointer_flag           */EC_TRUE,
+        /* var_mm_type            */MM_UINT64,
+        /* init_type_func         */(UINT32)dbg_init_uint64_ptr,
+        /* clean_type_func        */(UINT32)dbg_clean_uint64_ptr,
+        /* free_type_func         */(UINT32)dbg_free_uint64_ptr,
+        /* cmpi_encode_type_func  */(UINT32)cmpi_encode_uint64_ptr,
+        /* cmpi_decode_type_func  */(UINT32)cmpi_decode_uint64,
+        /* cmpi_encode_type_size  */(UINT32)cmpi_encode_uint64_ptr_size
+    );     
     return (EC_TRUE);
 }
 
@@ -1213,6 +1277,8 @@ EC_BOOL creg_func_addr_vec_add_default(CVECTOR *func_addr_vec)
     creg_func_addr_vec_add(func_addr_vec, MD_GANGLIA ,  &g_ganglia_func_addr_list_len,   (FUNC_ADDR_NODE *)g_ganglia_func_addr_list, FI_ganglia_start , FI_ganglia_end  , ERR_FUNC_ID             , NULL_PTR                                   );
     creg_func_addr_vec_add(func_addr_vec, MD_CSESSION,  &g_csession_func_addr_list_len,  (FUNC_ADDR_NODE *)g_csession_func_addr_list, FI_csession_start , FI_csession_end, ERR_FUNC_ID            , NULL_PTR                                   );
     creg_func_addr_vec_add(func_addr_vec, MD_CSCORE  ,  &g_cscore_func_addr_list_len ,   (FUNC_ADDR_NODE *)g_cscore_func_addr_list , FI_cscore_start  , FI_cscore_end   , ERR_FUNC_ID             , NULL_PTR                                   );
+    creg_func_addr_vec_add(func_addr_vec, MD_CRFS    ,  &g_crfs_func_addr_list_len   ,   (FUNC_ADDR_NODE *)g_crfs_func_addr_list   , FI_crfs_start    , FI_crfs_end     , ERR_FUNC_ID             , NULL_PTR                                   );
+    creg_func_addr_vec_add(func_addr_vec, MD_CHFS    ,  &g_chfs_func_addr_list_len   ,   (FUNC_ADDR_NODE *)g_chfs_func_addr_list   , FI_chfs_start    , FI_chfs_end     , ERR_FUNC_ID             , NULL_PTR                                   );
 
     return (EC_TRUE);
 }

@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -1052,7 +1052,7 @@ static int cfuse_create(const char *path, mode_t mode, struct fuse_file_info *fi
 #if 0
     int fd;
 
-    fd = c_open(path, fi->flags, mode);
+    fd = c_file_open(path, fi->flags, mode);
     if (fd == -1)
         return -errno;
 
@@ -1100,7 +1100,7 @@ static int cfuse_open(const char *path, struct fuse_file_info *fi)
 #if 0
     int fd;
 
-    fd = c_open(path, fi->flags);
+    fd = c_file_open(path, fi->flags);
     if (fd == -1)
         return -errno;
 
@@ -1316,7 +1316,7 @@ static int cfuse_flush(const char *path, struct fuse_file_info *fi)
        called multiple times for an open file, this must not really
        close the file.  This is important if used on a network
        filesystem like NFS which flush the data/metadata on close() */
-    res = close(dup(fi->fh));
+    res = c_file_close(dup(fi->fh));
     if (res == -1)
         return -errno;
 

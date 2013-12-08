@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -28,6 +28,7 @@ extern "C"{
 #define CMPI_MON_RANK      ((UINT32)  0)  /*define monitor rank*/
 #define CMPI_FWD_RANK      ((UINT32)  0)  /*define forward rank*/
 #define CMPI_CDFS_RANK     ((UINT32)  0)  /*define cdfs rank*/
+#define CMPI_CRFS_RANK     ((UINT32)  0)  /*define crfs rank*/
 
 #define CMPI_DBG_TCID_BEG         ((UINT32) 64) /*dbg tcid beg = 0.0.0.64 */
 #define CMPI_DBG_TCID_END         ((UINT32) 95) /*dbg tcid beg = 0.0.0.95 */
@@ -302,6 +303,17 @@ EC_BOOL task_brd_sync_cload_mgr(const TASK_BRD *task_brd, const CVECTOR *tcid_ve
 EC_BOOL task_brd_wait_proc_ready(const TASK_BRD *task_brd, const UINT32 recv_tcid, const UINT32 recv_comm, const UINT32 recv_rank);
 
 EC_BOOL task_brd_clean(TASK_BRD *task_brd);
+
+EC_BOOL task_brd_free(TASK_BRD *task_brd);
+
+TASK_BRD * task_brd_default_new();
+
+EC_BOOL task_brd_default_free();
+
+EC_BOOL task_brd_init(TASK_BRD *task_brd,
+                        CSTRING * sys_cfg_xml_fname_cstr,
+                        CSTRING *basic_cfg_xml_fname_cstr,
+                        CSTRING *log_path_cstr);
 
 UINT32  task_brd_get_tcid_by_ipaddr(const TASK_BRD *task_brd, const UINT32 ipaddr);
 

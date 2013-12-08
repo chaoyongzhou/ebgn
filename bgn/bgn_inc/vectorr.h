@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -84,7 +84,7 @@ MOD_MGR * vector_r_get_mod_mgr(const UINT32 vectorr_md_id);
 * alloc and intialize a vector block to a MATRIX_VECTOR_WIDTH dimension vector
 *
 **/
-UINT32 vector_r_alloc_block( const UINT32 vectorr_md_type, const UINT32 vectorr_md_id, const MM_TYPE_UINT32 type, VECTOR_BLOCK **vector_block);
+UINT32 vector_r_alloc_block( const UINT32 vectorr_md_type, const UINT32 vectorr_md_id, const UINT32 type, VECTOR_BLOCK **vector_block);
 
 /**
 *
@@ -112,7 +112,7 @@ UINT32 vector_r_clean_block(const UINT32 vectorr_md_id, VECTOR_BLOCK *vector_blo
 * clear data_area, meanwhile free block itself
 *
 **/
-UINT32 vector_r_free_block( const UINT32 vectorr_md_type, const UINT32 vectorr_md_id, const MM_TYPE_UINT32 type, VECTOR_BLOCK *vector_block);
+UINT32 vector_r_free_block( const UINT32 vectorr_md_type, const UINT32 vectorr_md_id, const UINT32 type, VECTOR_BLOCK *vector_block);
 
 
 /**

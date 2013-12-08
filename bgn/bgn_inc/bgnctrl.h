@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -46,6 +46,12 @@ extern "C"{
 
 /*CDFS Package Debug Switch*/
 #define CDFS_DEBUG_SWITCH SWITCH_ON
+
+/*CRFS Package Debug Switch*/
+#define CRFS_DEBUG_SWITCH SWITCH_ON
+
+/*CHFS Package Debug Switch*/
+#define CHFS_DEBUG_SWITCH SWITCH_ON
 
 /*CBGT Package Debug Switch*/
 #define CBGT_DEBUG_SWITCH SWITCH_ON

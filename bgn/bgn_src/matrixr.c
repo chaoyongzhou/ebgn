@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -374,7 +374,7 @@ UINT32 matrix_r_init_block(const UINT32 matrixr_md_id, MATRIX_BLOCK *matrix_bloc
 }
 #endif/*(MATRIXR_PATCH_02_SWITCH == SWITCH_ON)*/
 
-UINT32 matrix_r_alloc_block( const UINT32 matrixr_md_type, const UINT32 matrixr_md_id, const MM_TYPE_UINT32 type, MATRIX_BLOCK **matrix_block)
+UINT32 matrix_r_alloc_block( const UINT32 matrixr_md_type, const UINT32 matrixr_md_id, const UINT32 type, MATRIX_BLOCK **matrix_block)
 {
     if ( MD_MATRIXR != matrixr_md_type )
     {
@@ -507,7 +507,7 @@ UINT32 matrix_r_clean_block(const UINT32 matrixr_md_id, MATRIX_BLOCK *matrix_blo
     return (0);
 }
 
-UINT32 matrix_r_free_block( const UINT32 matrixr_md_type, const UINT32 matrixr_md_id, const MM_TYPE_UINT32 type, MATRIX_BLOCK *matrix_block)
+UINT32 matrix_r_free_block( const UINT32 matrixr_md_type, const UINT32 matrixr_md_id, const UINT32 type, MATRIX_BLOCK *matrix_block)
 {
     if ( MM_MATRIX_BLOCK != type )
     {
@@ -539,7 +539,7 @@ UINT32 matrix_r_init_matrix(const UINT32 matrixr_md_id, MATRIX *matrix)
     return (0);
 }
 
-static UINT32 matrix_r_alloc_matrix( const UINT32 matrixr_md_type, const UINT32 matrixr_md_id, const MM_TYPE_UINT32 type, MATRIX **matrix)
+static UINT32 matrix_r_alloc_matrix( const UINT32 matrixr_md_type, const UINT32 matrixr_md_id, const UINT32 type, MATRIX **matrix)
 {
     if ( MD_MATRIXR != matrixr_md_type )
     {
@@ -559,7 +559,7 @@ static UINT32 matrix_r_alloc_matrix( const UINT32 matrixr_md_type, const UINT32 
     return (0);
 }
 
-static UINT32 matrix_r_free_matrix( const UINT32 matrixr_md_type, const UINT32 matrixr_md_id, const MM_TYPE_UINT32 type, MATRIX *matrix)
+static UINT32 matrix_r_free_matrix( const UINT32 matrixr_md_type, const UINT32 matrixr_md_id, const UINT32 type, MATRIX *matrix)
 {
     if ( MD_MATRIXR != matrixr_md_type )
     {

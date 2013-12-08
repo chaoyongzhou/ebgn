@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -21,7 +21,7 @@ extern "C"{
 #include "clist.h"
 #include "cstring.h"
 #include "cset.h"
-#include "char2int.h"
+#include "cmisc.h"
 #include "taskcfg.h"
 #include "csocket.h"
 
@@ -130,7 +130,7 @@ EC_BOOL tasks_srv_accept(TASKS_CFG *tasks_cfg)
 
         sys_log(LOGSTDOUT, "tasks_srv_accept: server %s:%ld:%d accept new client %s:%d\n",
                         TASKS_CFG_SRVIPADDR_STR(tasks_cfg), TASKS_CFG_SRVPORT(tasks_cfg), TASKS_CFG_SRVSOCKFD(tasks_cfg),
-                        uint32_to_ipv4(client_ipaddr), client_conn_sockfd
+                        c_word_to_ipv4(client_ipaddr), client_conn_sockfd
                 );
     }
     return (EC_TRUE);
@@ -145,18 +145,23 @@ EC_BOOL tasks_srv_accept(TASKS_CFG *tasks_cfg)
 **/
 EC_BOOL tasks_srv_select(TASKS_CFG *tasks_cfg, int *ret)
 {
-    FD_CSET fd_cset;
-    int max_sockfd;
+    if(ERR_FD != TASKS_CFG_SRVSOCKFD(tasks_cfg))
+    {
+        FD_CSET fd_cset;
+        int max_sockfd;
 
-    struct timeval tv;
+        struct timeval tv;
 
-    tv.tv_sec  = 0;
-    tv.tv_usec = /*1*/0;
+        tv.tv_sec  = 0;
+        tv.tv_usec = /*1*/0;
 
-    max_sockfd = 0;
-    csocket_fd_clean(&fd_cset);
-    csocket_fd_set(TASKS_CFG_SRVSOCKFD(tasks_cfg), &fd_cset, &max_sockfd);
-    return csocket_select(max_sockfd + 1, &fd_cset, NULL_PTR, NULL_PTR, &tv, ret);
+        max_sockfd = 0;
+        csocket_fd_clean(&fd_cset);
+        csocket_fd_set(TASKS_CFG_SRVSOCKFD(tasks_cfg), &fd_cset, &max_sockfd);
+        return csocket_select(max_sockfd + 1, &fd_cset, NULL_PTR, NULL_PTR, &tv, ret);
+    }
+    sys_log(LOGSTDOUT, "error:tasks_srv_select: tasks_cfg %p srvsockfd is %d\n", tasks_cfg, TASKS_CFG_SRVSOCKFD(tasks_cfg));
+    return (EC_FALSE);
 }
 
 
@@ -1067,25 +1072,25 @@ CSOCKET_CNODE *tasks_work_search_taskr_csocket_cnode_with_min_load_by_tcid(const
             if(NULL_PTR != csocket_cnode)
             {
                 sys_log(LOGSTDNULL, "[DEBUG] %s & %s == %s & %s  ==> %s [reachable]\n",
-                                    uint32_to_ipv4(des_tcid), uint32_to_ipv4(taskr_cfg_mask),
-                                    uint32_to_ipv4(TASKR_CFG_DES_TCID(taskr_cfg)), uint32_to_ipv4(taskr_cfg_mask),
-                                    uint32_to_ipv4(TASKR_CFG_NEXT_TCID(taskr_cfg))
+                                    c_word_to_ipv4(des_tcid), c_word_to_ipv4(taskr_cfg_mask),
+                                    c_word_to_ipv4(TASKR_CFG_DES_TCID(taskr_cfg)), c_word_to_ipv4(taskr_cfg_mask),
+                                    c_word_to_ipv4(TASKR_CFG_NEXT_TCID(taskr_cfg))
                                     );
                 /*TODO: later we can find out all matched routes and csocket cnodes, and then filter the min load one*/
                 CVECTOR_UNLOCK(TASKS_CFG_TASKR_CFG_VEC(tasks_cfg), LOC_TASKS_0043);
                 return (csocket_cnode);
             }
             sys_log(LOGSTDNULL, "[DEBUG] %s & %s == %s & %s  ==> %s [unreachable]\n",
-                                uint32_to_ipv4(des_tcid), uint32_to_ipv4(taskr_cfg_mask),
-                                uint32_to_ipv4(TASKR_CFG_DES_TCID(taskr_cfg)), uint32_to_ipv4(taskr_cfg_mask),
-                                uint32_to_ipv4(TASKR_CFG_NEXT_TCID(taskr_cfg))
+                                c_word_to_ipv4(des_tcid), c_word_to_ipv4(taskr_cfg_mask),
+                                c_word_to_ipv4(TASKR_CFG_DES_TCID(taskr_cfg)), c_word_to_ipv4(taskr_cfg_mask),
+                                c_word_to_ipv4(TASKR_CFG_NEXT_TCID(taskr_cfg))
                                 );
         }
         else
         {
             sys_log(LOGSTDNULL, "[DEBUG] %s & %s != %s & %s\n",
-                                uint32_to_ipv4(des_tcid), uint32_to_ipv4(taskr_cfg_mask),
-                                uint32_to_ipv4(TASKR_CFG_DES_TCID(taskr_cfg)), uint32_to_ipv4(taskr_cfg_mask)
+                                c_word_to_ipv4(des_tcid), c_word_to_ipv4(taskr_cfg_mask),
+                                c_word_to_ipv4(TASKR_CFG_DES_TCID(taskr_cfg)), c_word_to_ipv4(taskr_cfg_mask)
                                 );
         }
     }
@@ -1150,7 +1155,7 @@ UINT32 tasks_work_search_tcid_by_ipaddr(const CVECTOR *tasks_work, const UINT32 
     tasks_node = tasks_work_search_tasks_node_by_ipaddr(tasks_work, ipaddr);
     if(NULL_PTR == tasks_node)
     {
-        sys_log(LOGSTDOUT, "error:tasks_work_search_tcid_by_ipaddr: failed to find tasks_node of ipaddr %s\n", uint32_to_ipv4(ipaddr));
+        sys_log(LOGSTDOUT, "error:tasks_work_search_tcid_by_ipaddr: failed to find tasks_node of ipaddr %s\n", c_word_to_ipv4(ipaddr));
         return (CMPI_ERROR_TCID);
     }
 
@@ -1163,23 +1168,23 @@ EC_BOOL tasks_work_check_connected_by_tcid(const CVECTOR *tasks_work, const UINT
 
     if(tcid == task_brd_default_get_tcid())
     {
-        sys_log(LOGSTDOUT, "info:tasks_work_check_connected_by_tcid: check myself tcid %s\n", uint32_to_ipv4(tcid));
+        sys_log(LOGSTDOUT, "info:tasks_work_check_connected_by_tcid: check myself tcid %s\n", c_word_to_ipv4(tcid));
         return (EC_TRUE);
     }
 
     tasks_node = tasks_work_search_tasks_node_by_tcid(tasks_work, tcid);
     if(NULL_PTR == tasks_node)
     {
-        sys_log(LOGSTDOUT, "error:tasks_work_check_connected_by_tcid: failed to find tasks_node of tcid %s\n", uint32_to_ipv4(tcid));
+        sys_log(LOGSTDOUT, "error:tasks_work_check_connected_by_tcid: failed to find tasks_node of tcid %s\n", c_word_to_ipv4(tcid));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == tasks_node_is_connected(tasks_node))
     {
-        sys_log(LOGSTDOUT, "warn:tasks_work_check_connected_by_tcid: tcid %s is NOT connected\n", uint32_to_ipv4(tcid));
+        sys_log(LOGSTDOUT, "warn:tasks_work_check_connected_by_tcid: tcid %s is NOT connected\n", c_word_to_ipv4(tcid));
         return (EC_FALSE);
     }
-    sys_log(LOGSTDOUT, "tasks_work_check_connected_by_tcid: tcid %s is connected\n", uint32_to_ipv4(tcid));
+    sys_log(LOGSTDOUT, "tasks_work_check_connected_by_tcid: tcid %s is connected\n", c_word_to_ipv4(tcid));
     return (EC_TRUE);
 }
 
@@ -1189,23 +1194,23 @@ EC_BOOL tasks_work_check_connected_by_ipaddr(const CVECTOR *tasks_work, const UI
 
     if(ipaddr == task_brd_default_get_ipaddr())
     {
-        sys_log(LOGSTDOUT, "info:tasks_work_check_connected_by_ipaddr: check myself ipaddr %s\n", uint32_to_ipv4(ipaddr));
+        sys_log(LOGSTDOUT, "info:tasks_work_check_connected_by_ipaddr: check myself ipaddr %s\n", c_word_to_ipv4(ipaddr));
         return (EC_TRUE);
     }
 
     tasks_node = tasks_work_search_tasks_node_by_ipaddr(tasks_work, ipaddr);
     if(NULL_PTR == tasks_node)
     {
-        sys_log(LOGSTDOUT, "error:tasks_work_check_connected_by_ipaddr: failed to find tasks_node of ipaddr %s\n", uint32_to_ipv4(ipaddr));
+        sys_log(LOGSTDOUT, "error:tasks_work_check_connected_by_ipaddr: failed to find tasks_node of ipaddr %s\n", c_word_to_ipv4(ipaddr));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == tasks_node_is_connected(tasks_node))
     {
-        sys_log(LOGSTDOUT, "warn:tasks_work_check_connected_by_ipaddr: ipaddr %s is NOT connected\n", uint32_to_ipv4(ipaddr));
+        sys_log(LOGSTDOUT, "warn:tasks_work_check_connected_by_ipaddr: ipaddr %s is NOT connected\n", c_word_to_ipv4(ipaddr));
         return (EC_FALSE);
     }
-    sys_log(LOGSTDOUT, "tasks_work_check_connected_by_ipaddr: ipaddr %s is connected\n", uint32_to_ipv4(ipaddr));
+    sys_log(LOGSTDOUT, "tasks_work_check_connected_by_ipaddr: ipaddr %s is connected\n", c_word_to_ipv4(ipaddr));
     return (EC_TRUE);
 }
 
@@ -1374,7 +1379,7 @@ EC_BOOL tasks_work_isend_node(CVECTOR *tasks_node_work, const UINT32 des_tcid, c
     if(NULL_PTR == csocket_cnode)
     {
         sys_log(LOGSTDOUT, "error:tasks_work_isend_node: des_tcid %s does not exist when (tcid %s,comm %ld,rank %ld, modi %ld) -> (tcid %s,comm %ld,rank %ld, modi %ld)\n",
-                        uint32_to_ipv4(des_tcid),
+                        c_word_to_ipv4(des_tcid),
                         TASK_NODE_SEND_TCID_STR(task_node), TASK_NODE_SEND_COMM(task_node), TASK_NODE_SEND_RANK(task_node), TASK_NODE_SEND_MODI(task_node),
                         TASK_NODE_RECV_TCID_STR(task_node), TASK_NODE_RECV_COMM(task_node), TASK_NODE_RECV_RANK(task_node), TASK_NODE_RECV_MODI(task_node)
                         );
@@ -1967,7 +1972,7 @@ EC_BOOL tasks_monitor_open(CVECTOR *tasks_node_monitor, const UINT32 tcid, const
     if(EC_FALSE == csocket_client_start(srv_ipaddr, srv_port, CSOCKET_IS_NONBLOCK_MODE, &client_sockfd))
     {
         sys_log(LOGSTDNULL, "error:tasks_monitor_open: failed to connect server %s:%ld\n",
-                        uint32_to_ipv4(srv_ipaddr), srv_port);
+                        c_word_to_ipv4(srv_ipaddr), srv_port);
         return (EC_FALSE);
     }
 
@@ -1984,7 +1989,7 @@ EC_BOOL tasks_monitor_open(CVECTOR *tasks_node_monitor, const UINT32 tcid, const
     cvector_push(tasks_node_monitor, (void *)csocket_cnode);
 
     sys_log(LOGSTDNULL, "tasks_monitor_open: client sockfd %d connect successfully to server %s:%ld\n",
-                        client_sockfd, uint32_to_ipv4(srv_ipaddr), srv_port);
+                        client_sockfd, c_word_to_ipv4(srv_ipaddr), srv_port);
 
     return (EC_TRUE);
 }

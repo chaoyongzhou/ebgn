@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -343,7 +343,7 @@ typedef struct
 }TASK_RUNNER;
 
 #define TASK_RUNNER_TCID(task_runner)     ((task_runner)->tcid)
-#define TASK_RUNNER_TCID_STR(task_runner) (uint32_to_ipv4(TASK_RUNNER_TCID(task_runner)))
+#define TASK_RUNNER_TCID_STR(task_runner) (c_word_to_ipv4(TASK_RUNNER_TCID(task_runner)))
 #define TASK_RUNNER_RANK(task_runner)     ((task_runner)->rank)
 #define TASK_RUNNER_EXEC(task_runner)     ((task_runner)->executor)
 #endif
@@ -502,7 +502,7 @@ typedef MOD_MGR * (* MD_FGET_MOD_MGR)(const UINT32);
 
 /*---------------------------------------- interface of task mod ----------------------------------------------*/
 #define MOD_NODE_TCID(mod_node)             ((mod_node)->tcid)
-#define MOD_NODE_TCID_STR(mod_node)         (uint32_to_ipv4(MOD_NODE_TCID(mod_node)))
+#define MOD_NODE_TCID_STR(mod_node)         (c_word_to_ipv4(MOD_NODE_TCID(mod_node)))
 #define MOD_NODE_COMM(mod_node)             ((mod_node)->comm)
 #define MOD_NODE_RANK(mod_node)             ((mod_node)->rank)
 #define MOD_NODE_MODI(mod_node)             ((mod_node)->modi)
@@ -661,17 +661,17 @@ typedef MOD_MGR * (* MD_FGET_MOD_MGR)(const UINT32);
 #define TASK_FWD_RECV_RANK(task_fwd)      (TASK_HEADER_RECV_RANK(TASK_FWD_HEADER(task_fwd)))
 #define TASK_FWD_RECV_MODI(task_fwd)      (TASK_HEADER_RECV_MODI(TASK_FWD_HEADER(task_fwd)))
 
-#define TASK_ANY_SEND_TCID_STR(task_any)  (uint32_to_ipv4(TASK_ANY_SEND_TCID(task_any)))
-#define TASK_ANY_RECV_TCID_STR(task_any)  (uint32_to_ipv4(TASK_ANY_RECV_TCID(task_any)))
+#define TASK_ANY_SEND_TCID_STR(task_any)  (c_word_to_ipv4(TASK_ANY_SEND_TCID(task_any)))
+#define TASK_ANY_RECV_TCID_STR(task_any)  (c_word_to_ipv4(TASK_ANY_RECV_TCID(task_any)))
 
-#define TASK_REQ_SEND_TCID_STR(task_req)  (uint32_to_ipv4(TASK_REQ_SEND_TCID(task_req)))
-#define TASK_REQ_RECV_TCID_STR(task_req)  (uint32_to_ipv4(TASK_REQ_RECV_TCID(task_req)))
+#define TASK_REQ_SEND_TCID_STR(task_req)  (c_word_to_ipv4(TASK_REQ_SEND_TCID(task_req)))
+#define TASK_REQ_RECV_TCID_STR(task_req)  (c_word_to_ipv4(TASK_REQ_RECV_TCID(task_req)))
 
-#define TASK_RSP_SEND_TCID_STR(task_rsp)  (uint32_to_ipv4(TASK_RSP_SEND_TCID(task_rsp)))
-#define TASK_RSP_RECV_TCID_STR(task_rsp)  (uint32_to_ipv4(TASK_RSP_RECV_TCID(task_rsp)))
+#define TASK_RSP_SEND_TCID_STR(task_rsp)  (c_word_to_ipv4(TASK_RSP_SEND_TCID(task_rsp)))
+#define TASK_RSP_RECV_TCID_STR(task_rsp)  (c_word_to_ipv4(TASK_RSP_RECV_TCID(task_rsp)))
 
-#define TASK_FWD_SEND_TCID_STR(task_fwd)  (uint32_to_ipv4(TASK_FWD_SEND_TCID(task_fwd)))
-#define TASK_FWD_RECV_TCID_STR(task_fwd)  (uint32_to_ipv4(TASK_FWD_RECV_TCID(task_fwd)))
+#define TASK_FWD_SEND_TCID_STR(task_fwd)  (c_word_to_ipv4(TASK_FWD_SEND_TCID(task_fwd)))
+#define TASK_FWD_RECV_TCID_STR(task_fwd)  (c_word_to_ipv4(TASK_FWD_RECV_TCID(task_fwd)))
 
 
 #define TASK_ANY_PRIO(task_any)                    ((task_any)->this_prio)
@@ -756,8 +756,8 @@ typedef MOD_MGR * (* MD_FGET_MOD_MGR)(const UINT32);
 #define TASK_NODE_SUB_SEQNO(task_node)                       (TASK_ANY_SUB_SEQNO(TASK_NODE_ANY(task_node)))
 #define TASK_NODE_LDB_CHOICE(task_node)                      (TASK_ANY_LDB_CHOICE(TASK_NODE_ANY(task_node)))
 
-#define TASK_NODE_SEND_TCID_STR(task_node)                   (uint32_to_ipv4(TASK_NODE_SEND_TCID(task_node)))
-#define TASK_NODE_RECV_TCID_STR(task_node)                   (uint32_to_ipv4(TASK_NODE_RECV_TCID(task_node)))
+#define TASK_NODE_SEND_TCID_STR(task_node)                   (c_word_to_ipv4(TASK_NODE_SEND_TCID(task_node)))
+#define TASK_NODE_RECV_TCID_STR(task_node)                   (c_word_to_ipv4(TASK_NODE_RECV_TCID(task_node)))
 
 /*---------------------------------------- interface of task manager ----------------------------------------------*/
 #define TASK_MGR_MOD(task_mgr)                             ((task_mgr)->mod_mgr)
@@ -926,7 +926,7 @@ typedef MOD_MGR * (* MD_FGET_MOD_MGR)(const UINT32);
 #define TASK_BRD_CEXTSRV(task_brd)                           ((task_brd)->cextsrv)
 
 #define TASK_BRD_TCID(task_brd)                              ((task_brd)->this_tcid)
-#define TASK_BRD_TCID_STR(task_brd)                          (uint32_to_ipv4(TASK_BRD_TCID(task_brd)))
+#define TASK_BRD_TCID_STR(task_brd)                          (c_word_to_ipv4(TASK_BRD_TCID(task_brd)))
 #define TASK_BRD_COMM(task_brd)                              ((task_brd)->this_comm)
 #define TASK_BRD_SIZE(task_brd)                              ((task_brd)->this_size)
 #define TASK_BRD_RANK(task_brd)                              ((task_brd)->this_rank)

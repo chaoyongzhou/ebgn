@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -33,7 +33,7 @@ extern "C"{
 #include "matrixr.h"
 
 #include "print.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "log.h"
 

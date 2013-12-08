@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -21,7 +21,7 @@ extern "C"{
 #include "mm.h"
 #include "log.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "db_internal.h"
 
@@ -51,8 +51,6 @@ EC_BOOL cbtree_verbose = EC_FALSE;
 
 #define __CBTREE_DEBUG_BEG  if(EC_TRUE == cbtree_verbose) {
 #define __CBTREE_DEBUG_END  }
-
-#define CBTREE_PAD_CHAR  ((const char)0)
 
 #if 0
 #define PRINT_BUFF(info, buff, beg, end) do{\
@@ -3979,7 +3977,7 @@ EC_BOOL cbtree_key_encode(CBTREE *cbtree, CBTREE_KEY *cbtree_key, uint8_t *buff,
             return (EC_FALSE);
         }
     
-        gdbPutPad(buff, pos, (uint8_t)CBTREE_PAD_CHAR, pad_len);
+        gdbPutPad(buff, pos, (uint8_t)FILE_PAD_CHAR, pad_len);
     }    
 
     //PRINT_BUFF("[DEBUG] cbtree_key_encode: ", buff, beg_pos, (*pos));
@@ -4176,7 +4174,7 @@ EC_BOOL cbtree_node_encode(CBTREE *cbtree, CBTREE_NODE *root_node, uint8_t *buff
 
         gdbPut8(buff, pos, CBTREE_NODE_COUNT(root_node));
         gdbPut8(buff, pos, CBTREE_NODE_FLAG(root_node));
-        gdbPutPad(buff, pos, (uint8_t)CBTREE_PAD_CHAR, sizeof(uint16_t)/* + sizeof(uint32_t)*/);
+        gdbPutPad(buff, pos, (uint8_t)FILE_PAD_CHAR, sizeof(uint16_t)/* + sizeof(uint32_t)*/);
 
         if(NULL_PTR == next_node)
         {
@@ -4238,7 +4236,7 @@ EC_BOOL cbtree_node_encode(CBTREE *cbtree, CBTREE_NODE *root_node, uint8_t *buff
         
         gdbPut8(buff, pos, CBTREE_NODE_COUNT(root_node));
         gdbPut8(buff, pos, CBTREE_NODE_FLAG(root_node));  
-        gdbPutPad(buff, pos, (uint8_t)CBTREE_PAD_CHAR, sizeof(uint16_t) + sizeof(uint32_t));
+        gdbPutPad(buff, pos, (uint8_t)FILE_PAD_CHAR, sizeof(uint16_t) + sizeof(uint32_t));
        
         /*encode children offset*/
         for(idx = CBTREE_NODE_COUNT(root_node) + 1; idx -- > 0;)
@@ -4270,7 +4268,7 @@ EC_BOOL cbtree_node_encode(CBTREE *cbtree, CBTREE_NODE *root_node, uint8_t *buff
             return (EC_FALSE);
         }
     
-        gdbPutPad(buff, pos, (uint8_t)CBTREE_PAD_CHAR, pad_len);
+        gdbPutPad(buff, pos, (uint8_t)FILE_PAD_CHAR, pad_len);
     }  
 
     //PRINT_BUFF("[DEBUG] cbtree_node_encode: ", buff, beg_pos, (*pos));
@@ -4507,7 +4505,7 @@ EC_BOOL cbtree_encode(CBTREE *cbtree, uint8_t *buff, const uint32_t size, uint32
             sys_log(LOGSTDOUT, "error:cbtree_encode: overhead cbtree header info!\n");
             return (EC_FALSE);            
         }
-        gdbPutPad(buff, pos, (uint8_t)CBTREE_PAD_CHAR, CBTREE_HDR_OFFSET - (*pos));
+        gdbPutPad(buff, pos, (uint8_t)FILE_PAD_CHAR, CBTREE_HDR_OFFSET - (*pos));
     }
 
     else if(NULL_PTR == CBTREE_ROOT_NODE(cbtree))
@@ -4528,7 +4526,7 @@ EC_BOOL cbtree_encode(CBTREE *cbtree, uint8_t *buff, const uint32_t size, uint32
             sys_log(LOGSTDOUT, "error:cbtree_encode: overhead cbtree header info!\n");
             return (EC_FALSE);            
         }
-        gdbPutPad(buff, pos, (uint8_t)CBTREE_PAD_CHAR, CBTREE_HDR_OFFSET - (*pos));
+        gdbPutPad(buff, pos, (uint8_t)FILE_PAD_CHAR, CBTREE_HDR_OFFSET - (*pos));
     }
     else
     {
@@ -4578,7 +4576,7 @@ EC_BOOL cbtree_encode(CBTREE *cbtree, uint8_t *buff, const uint32_t size, uint32
                 return (EC_FALSE);
             }
         
-            gdbPutPad(buff, pos, (uint8_t)CBTREE_PAD_CHAR, pad_len);
+            gdbPutPad(buff, pos, (uint8_t)FILE_PAD_CHAR, pad_len);
         } 
         //PRINT_BUFF("[DEBUG] cbtree_encode: header: ", buff, beg_pos_t, (*pos));
     }
@@ -4937,6 +4935,7 @@ EC_BOOL cbtree_flush_posix(CBTREE *cbtree, int fd)
     uint32_t size;
     uint32_t pos;
     uint32_t counter;
+    UINT32   offset;
 
     if(-1 == fd)
     {
@@ -4970,7 +4969,8 @@ EC_BOOL cbtree_flush_posix(CBTREE *cbtree, int fd)
     counter = 0;
     gdbPut32(buff, &counter, pos);/*save the encoded buff len at the first 32bits*/
 
-    if(EC_FALSE == file_buff_flush(fd, (UINT32)0, (UINT32)(pos + sizeof(uint32_t)), buff))
+    offset = 0;
+    if(EC_FALSE == c_file_flush(fd, &offset, (UINT32)(pos + sizeof(uint32_t)), buff))
     {
         sys_log(LOGSTDOUT, "error:cbtree_flush_posix: flush %d bytes to fd %d failed\n", pos + sizeof(uint32_t), fd);
         safe_free(buff, LOC_CBTREE_0026);
@@ -5071,7 +5071,7 @@ EC_BOOL cbtree_flush(CBTREE *cbtree, const char *fname)
     int      flags;
 
     flags = (O_RDWR | O_CREAT);
-    fd = c_open(fname, flags, 0666);
+    fd = c_file_open(fname, flags, 0666);
     if(-1 == fd)
     {
         sys_log(LOGSTDOUT, "error:cbtree_flush: open file %s with flags %d failed\n", fname, flags);
@@ -5081,11 +5081,11 @@ EC_BOOL cbtree_flush(CBTREE *cbtree, const char *fname)
     if(EC_FALSE == cbtree_flush_posix(cbtree, fd))
     {
         sys_log(LOGSTDOUT, "error:cbtree_flush: flush cbtree %lx to file %s failed\n", cbtree, fname);
-        c_close(fd);
+        c_file_close(fd);
         return (EC_FALSE);
     }
     
-    c_close(fd);
+    c_file_close(fd);
     return (EC_TRUE);
 }
 
@@ -5098,6 +5098,7 @@ CBTREE * cbtree_load_posix(int fd)
     uint32_t f_size;
 
     CBTREE  *cbtree;
+    UINT32   offset;
 
     if(-1 == fd)
     {
@@ -5113,7 +5114,9 @@ CBTREE * cbtree_load_posix(int fd)
         return (NULL_PTR);
     }
 
-    if(EC_FALSE == file_buff_load(fd, (UINT32)0, sizeof(uint32_t), (uint8_t *)&size))
+    offset = 0;
+
+    if(EC_FALSE == c_file_load(fd, &offset, sizeof(uint32_t), (uint8_t *)&size))
     {
         sys_log(LOGSTDOUT, "error:cbtree_load_posix: read encoded buff size info from fd %d failed\n", fd);
         return (NULL_PTR);
@@ -5139,7 +5142,7 @@ CBTREE * cbtree_load_posix(int fd)
         return (NULL_PTR);
     }
 
-    if(EC_FALSE == file_buff_load(fd, (UINT32)sizeof(uint32_t), size, buff))
+    if(EC_FALSE == c_file_load(fd, &offset, size, buff))
     {
         sys_log(LOGSTDOUT, "error:cbtree_load_posix: load %d bytes of encoded buff plus 4B from fd %d failed\n", size, fd);
         safe_free(buff, LOC_CBTREE_0038);
@@ -5244,7 +5247,7 @@ CBTREE * cbtree_load(const char *fname)
     CBTREE  *cbtree;
 
     flags = (O_RDWR);
-    fd = c_open(fname, flags, 0666);
+    fd = c_file_open(fname, flags, 0666);
     if(-1 == fd)
     {
         sys_log(LOGSTDOUT, "error:cbtree_load: open file %s with flags %d failed\n", fname, flags);
@@ -5255,11 +5258,11 @@ CBTREE * cbtree_load(const char *fname)
     if(NULL_PTR == cbtree)
     {
         sys_log(LOGSTDOUT, "error:cbtree_load: load cbtree from file %s failed\n", fname);
-        c_close(fd);
+        c_file_close(fd);
         return (NULL_PTR);
     }
 
-    c_close(fd);
+    c_file_close(fd);
     return (cbtree);
 }
 

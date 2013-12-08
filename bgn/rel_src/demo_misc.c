@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -21,36 +21,38 @@ extern "C"{
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "lib_typeconst.h"
-#include "lib_type.h"
-#include "lib_char2int.h"
-#include "lib_task.h"
-#include "lib_mod.h"
-#include "lib_log.h"
-#include "lib_debug.h"
-#include "lib_rank.h"
+#include "typeconst.h"
+#include "type.h"
+#include "cmisc.h"
+#include "task.h"
+#include "mod.h"
+#include "log.h"
+#include "debug.h"
+#include "rank.h"
 
-#include "lib_cstring.h"
-#include "lib_cvector.h"
+#include "cstring.h"
+#include "cvector.h"
 
-#include "lib_super.h"
-#include "lib_tbd.h"
-#include "lib_crun.h"
+#include "super.h"
+#include "tbd.h"
+#include "crun.h"
 
-#include "lib_cthread.h"
+#include "cthread.h"
 
-#include "lib_cmpic.inc"
-#include "lib_findex.inc"
+#include "cmpic.inc"
+#include "findex.inc"
 
-#include "lib_chashalgo.h"
+#include "chashalgo.h"
 
-#include "lib_cbgt.h"
-#include "lib_cdfs.h"
-#include "lib_cdfsnp.h"
-#include "lib_csolr.h"
-#include "lib_cbytes.h"
+#include "cbgt.h"
+#include "cdfs.h"
+#include "cdfsnp.h"
+#include "csolr.h"
+#include "cbytes.h"
 
-#include "demo.h"
+#include "demo_hsdfs.h"
+#include "demo_hsbgt.h"
+#include "demo_hsrfs.h"
 
 
 EC_BOOL csocket_accept(const int srv_sockfd, int *conn_sockfd, UINT32 *client_ipaddr);
@@ -117,7 +119,7 @@ int main_exec(int argc, char **argv)
     else if (CMPI_FWD_RANK == this_rank)
     {
         sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
         sys_log(LOGSTDOUT,"======================================================================\n");
 
@@ -175,7 +177,7 @@ int main_cextsrv(int argc, char **argv)
     }
 
     /*fwd rank entrance*/
-    else if (ipv4_to_uint32("10.10.10.1") == this_tcid && CMPI_FWD_RANK == this_rank)
+    else if (c_ipv4_to_word("10.10.10.1") == this_tcid && CMPI_FWD_RANK == this_rank)
     {
         UINT32 cextsrv_port;
         UINT32 thread_num;
@@ -191,7 +193,7 @@ int main_cextsrv(int argc, char **argv)
     else if (CMPI_FWD_RANK == this_rank)
     {
         sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
         sys_log(LOGSTDOUT,"======================================================================\n");
 
@@ -259,7 +261,7 @@ int main_csrv(int argc, char **argv)
     else if (CMPI_FWD_RANK == this_rank)
     {
         sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
         sys_log(LOGSTDOUT,"======================================================================\n");
 
@@ -317,7 +319,7 @@ int main_trans(int argc, char **argv)
     }
 
     /*fwd rank entrance*/
-    else if (ipv4_to_uint32("10.10.10.2") == this_tcid && CMPI_FWD_RANK == this_rank)
+    else if (c_ipv4_to_word("10.10.10.2") == this_tcid && CMPI_FWD_RANK == this_rank)
     {
         CSTRING *src_fname;
         CSTRING *des_fname;
@@ -326,7 +328,7 @@ int main_trans(int argc, char **argv)
         src_fname = cstring_new((UINT8 *)"/home/ezhocha/bgn/bin/CentOS_4.4_DVD.iso", 0);
         des_fname = cstring_new((UINT8 *)"/home/ezhocha/bgn/bin/CentOS_4.4_DVD_des.iso", 0);
 
-        des_tcid = ipv4_to_uint32("10.10.10.1");
+        des_tcid = c_ipv4_to_word("10.10.10.1");
 
         super_transfer(0, src_fname, des_tcid, des_fname);
         do_slave_wait_default();
@@ -335,7 +337,7 @@ int main_trans(int argc, char **argv)
     else if (CMPI_FWD_RANK == this_rank)
     {
         sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
         sys_log(LOGSTDOUT,"======================================================================\n");
 
@@ -393,14 +395,14 @@ int main_udp(int argc, char **argv)
     }
 
     /*fwd rank entrance*/
-    else if (ipv4_to_uint32("10.10.10.1") == this_tcid && CMPI_FWD_RANK == this_rank)
+    else if (c_ipv4_to_word("10.10.10.1") == this_tcid && CMPI_FWD_RANK == this_rank)
     {
         int sockfd;
         const char *mcast_ipaddr_str = "239.2.11.71";/*239.0.0.0бл239.255.255.255*/
         UINT32 mcast_ipaddr;
         UINT32 mcast_port = 8888;
 
-        mcast_ipaddr = ipv4_to_uint32(mcast_ipaddr_str);
+        mcast_ipaddr = c_ipv4_to_word(mcast_ipaddr_str);
 
         if(EC_FALSE == csocket_start_udp_mcast_recver(mcast_ipaddr, mcast_port, &sockfd))
         {
@@ -421,7 +423,7 @@ int main_udp(int argc, char **argv)
         do_slave_wait_default();
     }
 
-    else if (ipv4_to_uint32("10.10.10.7") == this_tcid && CMPI_FWD_RANK == this_rank)
+    else if (c_ipv4_to_word("10.10.10.7") == this_tcid && CMPI_FWD_RANK == this_rank)
     {
         int sockfd;
         const char *mcast_ipaddr_str = "239.2.11.71";
@@ -430,7 +432,7 @@ int main_udp(int argc, char **argv)
 
         UINT32 loop;
 
-        mcast_ipaddr = ipv4_to_uint32(mcast_ipaddr_str);
+        mcast_ipaddr = c_ipv4_to_word(mcast_ipaddr_str);
 
         csocket_start_udp_mcast_sender(mcast_ipaddr, mcast_port, &sockfd);
         for(loop = 0; loop < 5; loop ++)
@@ -447,9 +449,9 @@ int main_udp(int argc, char **argv)
                 break;
             }
             sys_log(LOGCONSOLE, "send udp data: %.*s\n", dlen, (char *)data);
-            sleep(5);
+            c_sleep(5);
         }
-        csocket_stop_udp_mcast_sender(sockfd, ipv4_to_uint32(mcast_ipaddr_str));
+        csocket_stop_udp_mcast_sender(sockfd, c_ipv4_to_word(mcast_ipaddr_str));
 
         do_slave_wait_default();
     }
@@ -457,7 +459,7 @@ int main_udp(int argc, char **argv)
     else if (CMPI_FWD_RANK == this_rank)
     {
         sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
         sys_log(LOGSTDOUT,"======================================================================\n");
 

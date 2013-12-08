@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -21,25 +21,25 @@ extern "C"{
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "lib_typeconst.h"
-#include "lib_type.h"
-#include "lib_char2int.h"
-#include "lib_task.h"
-#include "lib_mod.h"
-#include "lib_log.h"
-#include "lib_debug.h"
-#include "lib_rank.h"
+#include "typeconst.h"
+#include "type.h"
+#include "cmisc.h"
+#include "task.h"
+#include "mod.h"
+#include "log.h"
+#include "debug.h"
+#include "rank.h"
 
-#include "lib_cmpic.inc"
+#include "cmpic.inc"
 
-#include "lib_cstring.h"
-#include "lib_cvector.h"
+#include "cstring.h"
+#include "cvector.h"
 
-#include "lib_findex.inc"
+#include "findex.inc"
 
-#include "lib_super.h"
+#include "super.h"
 
-#include "lib_csession.h"
+#include "csession.h"
 
 int main_csession(int argc, char **argv)
 {
@@ -87,7 +87,7 @@ int main_csession(int argc, char **argv)
     {
         UINT32 csession_md_id;
         sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
         sys_log(LOGSTDOUT,"======================================================================\n");
 

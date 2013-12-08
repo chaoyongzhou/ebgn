@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -111,6 +111,11 @@ extern "C"{
 #define            e_dbg_CSDOC_WORDS_ptr    ((UINT32) 74)
 #define            e_dbg_CSWORD_DOCS_ptr    ((UINT32) 75)
 #define                  e_dbg_CLIST_ptr    ((UINT32) 76)
+#define            e_dbg_CRFSNP_ITEM_ptr    ((UINT32) 77)
+#define           e_dbg_CRFSNP_FNODE_ptr    ((UINT32) 78)
+#define            e_dbg_CHFSNP_ITEM_ptr    ((UINT32) 79)
+#define           e_dbg_CHFSNP_FNODE_ptr    ((UINT32) 80)
+#define               e_dbg_uint64_t_ptr    ((UINT32) 81)
 #define                   e_dbg_type_end    ((UINT32)128)
 
 /* description of E_DBG_TYPE */
@@ -160,6 +165,8 @@ typedef struct
 #define                  PRIO_MD_GANGLIA    ((UINT32) 33)
 #define                 PRIO_MD_CSESSION    ((UINT32) 34)
 #define                   PRIO_MD_CSCORE    ((UINT32) 35)
+#define                   PRIO_MD_CRFS      ((UINT32) 36)
+#define                   PRIO_MD_CHFS      ((UINT32) 37)
 #define                         PRIO_END    ((UINT32)128) /*top priority*/
 
 
@@ -453,6 +460,26 @@ UINT32 dbg_clean_uint32_ptr(const UINT32 md_id, UINT32 *num);
 *
 **/
 UINT32 dbg_free_uint32_ptr(const UINT32 md_id, UINT32 *num);
+
+/**
+*
+* init uint64_t
+*
+**/
+uint64_t dbg_init_uint64_ptr(const UINT32 md_id, uint64_t *num);
+
+/**
+*
+* init uint64_t
+*
+**/
+uint64_t dbg_clean_uint64_ptr(const UINT32 md_id, uint64_t *num);
+/**
+*
+* free uint64_t
+*
+**/
+uint64_t dbg_free_uint64_ptr(const UINT32 md_id, uint64_t *num);
 
 #endif /*_DEBUG_H*/
 

@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -422,8 +422,8 @@ UINT32 matrix_r_matrix_mul_vector_p(const UINT32 matrixr_md_id, const MATRIX *sr
 
 
 /* ---------------------------------------- internal interface ------------------------------------------------ */
-UINT32 matrix_r_alloc_block( const UINT32 matrixr_md_type, const UINT32 matrixr_md_id, const MM_TYPE_UINT32 type, MATRIX_BLOCK **matrix_block);
-UINT32 matrix_r_free_block( const UINT32 matrixr_md_type, const UINT32 matrixr_md_id, const MM_TYPE_UINT32 type, MATRIX_BLOCK *matrix_block);
+UINT32 matrix_r_alloc_block( const UINT32 matrixr_md_type, const UINT32 matrixr_md_id, const UINT32 type, MATRIX_BLOCK **matrix_block);
+UINT32 matrix_r_free_block( const UINT32 matrixr_md_type, const UINT32 matrixr_md_id, const UINT32 type, MATRIX_BLOCK *matrix_block);
 UINT32 matrix_r_clone_block(const UINT32 matrixr_md_id, const MATRIX_BLOCK *src_matrix_block, MATRIX_BLOCK *des_matrix_block);
 
 

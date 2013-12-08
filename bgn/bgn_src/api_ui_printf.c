@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -81,7 +81,7 @@ void api_ui_register(size_t buffer_sz, API_UI_PRINTF_HANDLER handler)
 
     /* Allocate the node and both buffers at the same time */
     mem_sz = buffer_sz * 2 + sizeof(API_UI_BUFFER);
-    node = (API_UI_BUFFER*)api_ui_malloc(mem_sz, LOC_API_0423);
+    node = (API_UI_BUFFER*)api_ui_malloc(mem_sz, LOC_API_0343);
 
     if (node != NULL)
     {
@@ -139,7 +139,7 @@ void api_ui_unregister()
             (*(node->handler))("%s",node->primary);/*calling handler*/
 
             /* Free the memory */
-            api_ui_free(node, LOC_API_0424);
+            api_ui_free(node, LOC_API_0344);
             break;
         }
         index_ptr = &((*index_ptr)->next);
@@ -270,7 +270,7 @@ int api_ui_vprintf_imp(const char* debug_file, unsigned debug_line, const char* 
     }
 
 
-    str_temp = (char *) api_ui_malloc((index_list->size)*2, LOC_API_0425);
+    str_temp = (char *) api_ui_malloc((index_list->size)*2, LOC_API_0345);
     if (NULL == str_temp)
     {
         sys_log(LOGSTDOUT, "api_ui_printf - could not allocate %d bytes - file: %s line %u",
@@ -287,12 +287,12 @@ int api_ui_vprintf_imp(const char* debug_file, unsigned debug_line, const char* 
     {
         sys_log(LOGSTDOUT, "api_ui_printf - Printing %d - allowed %d - file: %s line %u",
                   size,index_list->size, debug_file, debug_line );
-        api_ui_free(str_temp, LOC_API_0426);
+        api_ui_free(str_temp, LOC_API_0346);
         return -3;
     }
 
     strncpy(index_list->secondary, str_temp, size);
-    api_ui_free(str_temp, LOC_API_0427);
+    api_ui_free(str_temp, LOC_API_0347);
 
     cpy_sz = index_list->size - index_list->index - 1;
 

@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -27,7 +27,7 @@ extern "C"{
 
 #include "cbc.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "task.h"
 
@@ -51,7 +51,7 @@ extern "C"{
 
 static void cdfs_print_tcid(LOG *log, const void *tcid)
 {
-    sys_print(log, "%s\n", uint32_to_ipv4((UINT32)tcid));
+    sys_print(log, "%s\n", c_word_to_ipv4((UINT32)tcid));
 }
 
 
@@ -214,6 +214,7 @@ void cdfs_end(const UINT32 cdfs_md_id)
         mod_mgr_free(CDFS_MD_NPP_MOD_MGR(cdfs_md));
         CDFS_MD_NPP_MOD_MGR(cdfs_md)  = NULL_PTR;
     }
+    
     /* free module : */
     //cdfs_free_module_static_mem(cdfs_md_id);
 
@@ -295,7 +296,7 @@ static EC_BOOL cdfs_collect_fnode_all_tcid(const CDFSNP_FNODE *cdfsnp_fnode, con
         sys_log(LOGSTDNULL, "[DEBUG] cdfs_collect_fnode_all_tcid: replica num %ld, inode num %ld, inode pos %ld, push tcid = %s\n",
                             CDFSNP_FNODE_REPNUM(cdfsnp_fnode), cdfsnp_inode_num,
                             cdfsnp_inode_pos,
-                            uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos))
+                            c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos))
                             );
     }
 
@@ -961,7 +962,7 @@ EC_BOOL cdfs_add_npp(const UINT32 cdfs_md_id, const UINT32 cdfsnpp_tcid)
 #if 1
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd, cdfsnpp_tcid))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_add_npp: cdfsnpp_tcid %s not connected\n", uint32_to_ipv4(cdfsnpp_tcid));
+        sys_log(LOGSTDOUT, "warn:cdfs_add_npp: cdfsnpp_tcid %s not connected\n", c_word_to_ipv4(cdfsnpp_tcid));
         return (EC_FALSE);
     }
 #endif
@@ -993,7 +994,7 @@ EC_BOOL cdfs_add_dn(const UINT32 cdfs_md_id, const UINT32 cdfsdn_tcid)
 #if 1
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd, cdfsdn_tcid))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_add_dn: cdfsdn_tcid %s not connected\n", uint32_to_ipv4(cdfsdn_tcid));
+        sys_log(LOGSTDOUT, "warn:cdfs_add_dn: cdfsdn_tcid %s not connected\n", c_word_to_ipv4(cdfsdn_tcid));
         return (EC_FALSE);
     }
 #endif
@@ -1037,7 +1038,7 @@ EC_BOOL cdfs_add_dn_vec(const UINT32 cdfs_md_id)
         UINT32 cdfsdn_tcid;
 
         cdfsdn_tcid = (UINT32)cvector_get(cdfsdn_tcid_vec, cdfsdn_tcid_pos);
-        sys_log(LOGSTDOUT, "[DEBUG] cdfs_add_dn_vec: add dn %s\n", uint32_to_ipv4(cdfsdn_tcid));
+        sys_log(LOGSTDOUT, "[DEBUG] cdfs_add_dn_vec: add dn %s\n", c_word_to_ipv4(cdfsdn_tcid));
         cdfs_add_dn(cdfs_md_id, cdfsdn_tcid);
     }
 
@@ -1081,7 +1082,7 @@ EC_BOOL cdfs_add_npp_vec(const UINT32 cdfs_md_id)
         UINT32 cdfsnp_tcid;
 
         cdfsnp_tcid = (UINT32)cvector_get(cdfsnp_tcid_vec, cdfsnp_tcid_pos);
-        sys_log(LOGSTDOUT, "[DEBUG] cdfs_add_npp_vec: add np %s\n", uint32_to_ipv4(cdfsnp_tcid));
+        sys_log(LOGSTDOUT, "[DEBUG] cdfs_add_npp_vec: add np %s\n", c_word_to_ipv4(cdfsnp_tcid));
         cdfs_add_npp(cdfs_md_id, cdfsnp_tcid);
     }
 
@@ -1125,7 +1126,7 @@ EC_BOOL cdfs_reg_npp(const UINT32 cdfs_md_id, const UINT32 cdfsnpp_tcid)
     MOD_NODE_RANK(&recv_mod_node) = CMPI_CDFS_RANK;
     MOD_NODE_MODI(&recv_mod_node) = 0;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_reg_npp: register as np to %s\n", uint32_to_ipv4(cdfsnpp_tcid));
+    sys_log(LOGSTDOUT, "[DEBUG] cdfs_reg_npp: register as np to %s\n", c_word_to_ipv4(cdfsnpp_tcid));
     task_super_mono(CDFS_MD_NPP_MOD_MGR(cdfs_md), TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP,
                     &recv_mod_node,
                     &ret, FI_cdfs_add_npp, ERR_MODULE_ID, TASK_BRD_TCID(task_brd));
@@ -1166,7 +1167,7 @@ EC_BOOL cdfs_reg_dn(const UINT32 cdfs_md_id, const UINT32 cdfsdn_tcid)
     MOD_NODE_RANK(&recv_mod_node) = CMPI_CDFS_RANK;
     MOD_NODE_MODI(&recv_mod_node) = 0;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_reg_dn: register as dn to %s\n", uint32_to_ipv4(cdfsdn_tcid));
+    sys_log(LOGSTDOUT, "[DEBUG] cdfs_reg_dn: register as dn to %s\n", c_word_to_ipv4(cdfsdn_tcid));
     task_super_mono(CDFS_MD_DN_MOD_MGR(cdfs_md), TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP,
                     &recv_mod_node,
                     &ret, FI_cdfs_add_dn, ERR_MODULE_ID, TASK_BRD_TCID(task_brd));
@@ -1233,7 +1234,7 @@ EC_BOOL cdfs_reg_dn_vec(const UINT32 cdfs_md_id)
         MOD_NODE_RANK(&recv_mod_node) = CMPI_CDFS_RANK;
         MOD_NODE_MODI(&recv_mod_node) = 0;
 
-        sys_log(LOGSTDOUT, "[DEBUG] cdfs_reg_dn_vec: register as dn to %s\n", uint32_to_ipv4(cdfsdn_tcid));
+        sys_log(LOGSTDOUT, "[DEBUG] cdfs_reg_dn_vec: register as dn to %s\n", c_word_to_ipv4(cdfsdn_tcid));
         task_super_inc(task_mgr, &send_mod_node, &recv_mod_node, &ret, FI_cdfs_add_dn, ERR_MODULE_ID, TASK_BRD_TCID(task_brd));
     }
 
@@ -1939,7 +1940,7 @@ EC_BOOL cdfs_truncate_dn_ppl(const UINT32 cdfs_md_id, const UINT32 fsize, const 
 
         sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [SUCC] truncate %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
                             fsize, cdfsnp_inode_pos,
-                            uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos)),
+                            c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos)),
                             CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos) & CDFSNP_32BIT_MASK,
                             CDFSNP_FNODE_INODE_FOFF(cdfsnp_fnode, cdfsnp_inode_pos) & CDFSNP_32BIT_MASK
                             );
@@ -1954,7 +1955,7 @@ EC_BOOL cdfs_truncate_dn_ppl(const UINT32 cdfs_md_id, const UINT32 fsize, const 
 
         sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [FAIL] truncate %ld bytes to %ld# (tcid %s)\n",
                             fsize, cdfsnp_inode_pos,
-                            uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos))
+                            c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos))
                             );
     }
 
@@ -2028,7 +2029,7 @@ EC_BOOL cdfs_truncate_dn_ppl(const UINT32 cdfs_md_id, const UINT32 fsize, const 
         {
             sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [SUCC] remote truncate %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
                                 fsize, cdfsnp_inode_pos + 1,
-                                uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1)),
+                                c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1)),
                                 CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos + 1) & CDFSNP_32BIT_MASK,
                                 CDFSNP_FNODE_INODE_FOFF(cdfsnp_fnode, cdfsnp_inode_pos + 1) & CDFSNP_32BIT_MASK
                                 );
@@ -2037,7 +2038,7 @@ EC_BOOL cdfs_truncate_dn_ppl(const UINT32 cdfs_md_id, const UINT32 fsize, const 
         {
             sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [FAIL] remote truncate %ld bytes to %ld# (tcid %s)\n",
                                 fsize, cdfsnp_inode_pos + 1,
-                                uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1))
+                                c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1))
                                 );
         }
 
@@ -2128,7 +2129,7 @@ EC_BOOL cdfs_truncate_dn_p(const UINT32 cdfs_md_id, const UINT32 fsize, const UI
 
         if(CDFSDN_STAT_IS_FULL == CDFSDN_STAT_FULL(&remote_cdfsdn_stat))
         {
-            sys_log(LOGSTDOUT, "warn:cdfs_truncate_dn_p: cdfsdn %s is full\n", uint32_to_ipv4(CDFSDN_STAT_TCID(&remote_cdfsdn_stat)));
+            sys_log(LOGSTDOUT, "warn:cdfs_truncate_dn_p: cdfsdn %s is full\n", c_word_to_ipv4(CDFSDN_STAT_TCID(&remote_cdfsdn_stat)));
             cdfs_disable_write_access_dn(cdfs_md_id, CDFSDN_STAT_TCID(&remote_cdfsdn_stat));
         }
     }
@@ -2278,7 +2279,7 @@ EC_BOOL cdfs_update_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const 
 
         sys_log(LOGSTDNULL, "[DEBUG] cdfs_update_dn_ppl: [SUCC] update %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
                             CBYTES_LEN(cbytes), cdfsnp_inode_pos,
-                            uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos)),
+                            c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos)),
                             CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos) & CDFSNP_32BIT_MASK,
                             CDFSNP_FNODE_INODE_FOFF(cdfsnp_fnode, cdfsnp_inode_pos) & CDFSNP_32BIT_MASK
                             );
@@ -2287,7 +2288,7 @@ EC_BOOL cdfs_update_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const 
     {
         sys_log(LOGSTDNULL, "[DEBUG] cdfs_update_dn_ppl: [FAIL] update %ld bytes to %ld# (tcid %s)\n",
                             CBYTES_LEN(cbytes), cdfsnp_inode_pos,
-                            uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos))
+                            c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos))
                             );
     }
 
@@ -2313,7 +2314,7 @@ EC_BOOL cdfs_update_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const 
         {
             sys_log(LOGSTDNULL, "[DEBUG] cdfs_update_dn_ppl: [SUCC] remote update %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
                                 CBYTES_LEN(cbytes), cdfsnp_inode_pos + 1,
-                                uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1)),
+                                c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1)),
                                 CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos + 1),
                                 CDFSNP_FNODE_INODE_FOFF(cdfsnp_fnode, cdfsnp_inode_pos + 1)
                                 );
@@ -2322,7 +2323,7 @@ EC_BOOL cdfs_update_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const 
         {
             sys_log(LOGSTDNULL, "[DEBUG] cdfs_update_dn_ppl: [FAIL] remote update %ld bytes to %ld# (tcid %s)\n",
                                 CBYTES_LEN(cbytes), cdfsnp_inode_pos + 1,
-                                uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1))
+                                c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1))
                                 );
         }
 
@@ -2404,7 +2405,7 @@ EC_BOOL cdfs_write_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const U
 
         sys_log(LOGSTDNULL, "[DEBUG] cdfs_write_dn_ppl: [SUCC] write %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
                             CBYTES_LEN(cbytes), cdfsnp_inode_pos,
-                            uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos)),
+                            c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos)),
                             CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos) & CDFSNP_32BIT_MASK,
                             CDFSNP_FNODE_INODE_FOFF(cdfsnp_fnode, cdfsnp_inode_pos) & CDFSNP_32BIT_MASK
                             );
@@ -2419,7 +2420,7 @@ EC_BOOL cdfs_write_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const U
 
         sys_log(LOGSTDNULL, "[DEBUG] cdfs_write_dn_ppl: [FAIL] write %ld bytes to %ld# (tcid %s)\n",
                             CBYTES_LEN(cbytes), cdfsnp_inode_pos,
-                            uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos))
+                            c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos))
                             );
     }
 
@@ -2493,7 +2494,7 @@ EC_BOOL cdfs_write_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const U
         {
             sys_log(LOGSTDNULL, "[DEBUG] cdfs_write_dn_ppl: [SUCC] remote write %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
                                 CBYTES_LEN(cbytes), cdfsnp_inode_pos + 1,
-                                uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1)),
+                                c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1)),
                                 CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos + 1),
                                 CDFSNP_FNODE_INODE_FOFF(cdfsnp_fnode, cdfsnp_inode_pos + 1)
                                 );
@@ -2502,7 +2503,7 @@ EC_BOOL cdfs_write_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const U
         {
             sys_log(LOGSTDNULL, "[DEBUG] cdfs_write_dn_ppl: [FAIL] remote write %ld bytes to %ld# (tcid %s)\n",
                                 CBYTES_LEN(cbytes), cdfsnp_inode_pos + 1,
-                                uint32_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1))
+                                c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1))
                                 );
         }
 
@@ -2673,7 +2674,7 @@ EC_BOOL cdfs_write_dn_p(const UINT32 cdfs_md_id, const CBYTES *cbytes, const UIN
 
         if(CDFSDN_STAT_IS_FULL == CDFSDN_STAT_FULL(&remote_cdfsdn_stat))
         {
-            sys_log(LOGSTDOUT, "warn:cdfs_write_dn_p: cdfsdn %s is full\n", uint32_to_ipv4(CDFSDN_STAT_TCID(&remote_cdfsdn_stat)));
+            sys_log(LOGSTDOUT, "warn:cdfs_write_dn_p: cdfsdn %s is full\n", c_word_to_ipv4(CDFSDN_STAT_TCID(&remote_cdfsdn_stat)));
             cdfs_disable_write_access_dn(cdfs_md_id, CDFSDN_STAT_TCID(&remote_cdfsdn_stat));
         }
     }
@@ -2808,7 +2809,7 @@ EC_BOOL cdfs_read_dn(const UINT32 cdfs_md_id, const CDFSNP_FNODE *cdfsnp_fnode, 
 
     if(cdfsnp_inode_pos >= CDFSNP_FNODE_REPNUM(cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_read_dn: local tcid %s not exist in cdfsnp_fnode %lx\n", uint32_to_ipv4(local_tcid), cdfsnp_fnode);
+        sys_log(LOGSTDOUT, "error:cdfs_read_dn: local tcid %s not exist in cdfsnp_fnode %lx\n", c_word_to_ipv4(local_tcid), cdfsnp_fnode);
         cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
         return (EC_FALSE);
     }
@@ -3641,7 +3642,7 @@ EC_BOOL cdfs_delete_dn_p(const UINT32 cdfs_md_id, const CVECTOR *cdfsnp_fnode_ve
 
             sys_log(LOGSTDOUT, "[DEBUG] cdfs_delete_dn_p: replica_pos %ld, cdfsnp_inode is (tcid %s, path %lx, offset %ld)\n",
                                 replica_pos,
-                                uint32_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
+                                c_word_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
                                 CDFSNP_INODE_PATH(cdfsnp_inode),
                                 CDFSNP_INODE_FOFF(cdfsnp_inode));
 
@@ -3661,7 +3662,7 @@ EC_BOOL cdfs_delete_dn_p(const UINT32 cdfs_md_id, const CVECTOR *cdfsnp_fnode_ve
             if(EC_FALSE == ret[replica_pos])
             {
                 sys_log(LOGSTDOUT, "error:cdfs_delete_dn_p: delete file content from dn %s, bid %ld, sid %ld failed\n",
-                                uint32_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
+                                c_word_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
                                 CDFSNP_INODE_PATH(cdfsnp_inode),
                                 CDFSNP_INODE_FOFF(cdfsnp_inode)
                                 );
@@ -4462,7 +4463,7 @@ EC_BOOL cdfs_transfer_out(const UINT32 cdfs_md_id, const UINT32 des_datanode_tci
     if(EC_FALSE == ret)
     {
         sys_log(LOGSTDOUT, "error:cdfs_transfer_out: transfer block %ld to data node %s failed\n",
-                            CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), uint32_to_ipv4(des_datanode_tcid));
+                            CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), c_word_to_ipv4(des_datanode_tcid));
         return (EC_FALSE);
     }
 
@@ -4560,13 +4561,13 @@ EC_BOOL cdfs_transfer(const UINT32 cdfs_md_id, const UINT32 src_datanode_tcid, c
                     &ret, FI_cdfs_transfer_out, ERR_MODULE_ID, des_datanode_tcid, &src_block_path_layout, &des_block_path_layout);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cdfs_transfer: transfer out of dn %s failed\n", uint32_to_ipv4(src_datanode_tcid));
+            sys_log(LOGSTDOUT, "error:cdfs_transfer: transfer out of dn %s failed\n", c_word_to_ipv4(src_datanode_tcid));
             return (EC_FALSE);
         }
 
         sys_log(LOGSTDOUT, "[DEBUG] cdfs_transfer: data was transfered from tcid %s block %ld to tcid %s block %ld\n",
-                            uint32_to_ipv4(src_datanode_tcid), src_block_path_layout,
-                            uint32_to_ipv4(des_datanode_tcid), des_block_path_layout);
+                            c_word_to_ipv4(src_datanode_tcid), src_block_path_layout,
+                            c_word_to_ipv4(des_datanode_tcid), des_block_path_layout);
         /*update all np*/
         task_bcast(CDFS_MD_NPP_MOD_MGR(cdfs_md), TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NOT_NEED_RSP_FLAG, TASK_NEED_NONE_RSP,
                    FI_cdfs_transfer_update, ERR_MODULE_ID, src_datanode_tcid, src_block_path_layout, des_datanode_tcid, des_block_path_layout);
@@ -4631,7 +4632,7 @@ EC_BOOL cdfs_snapshot_dn(const UINT32 cdfs_md_id)
     local_tcid = CMPI_LOCAL_TCID;
     if(EC_FALSE == cdfs_flush_dn(cdfs_md_id, local_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_snapshot_dn: flush dn %s failed\n", uint32_to_ipv4(local_tcid));
+        sys_log(LOGSTDOUT, "error:cdfs_snapshot_dn: flush dn %s failed\n", c_word_to_ipv4(local_tcid));
         return (EC_FALSE);
     }
 
@@ -4643,7 +4644,7 @@ EC_BOOL cdfs_snapshot_dn(const UINT32 cdfs_md_id)
     cmd_cstr = cstring_new(NULL_PTR, LOC_CDFS_0069);
     cstring_format(cmd_cstr, "%s/snapshot", db_root_dir);
 
-    if(EC_FALSE == create_dir((char *)cstring_get_str(cmd_cstr)))
+    if(EC_FALSE == c_dir_create((char *)cstring_get_str(cmd_cstr)))
     {
         sys_log(LOGSTDOUT, "error:cdfs_snapshot_npp: create dir %s failed\n", (char *)cstring_get_str(cmd_cstr));
         cstring_free(cmd_cstr);
@@ -4658,7 +4659,7 @@ EC_BOOL cdfs_snapshot_dn(const UINT32 cdfs_md_id)
     cstring_reset(cmd_cstr);
     cstring_format(cmd_cstr, "cd %s && tar zcvf snapshot/dn_%s_snapshot_%4d%02d%02d_%02d%02d%02d.tar.gz records.dat",
                             db_root_dir,
-                            uint32_to_ipv4(local_tcid),
+                            c_word_to_ipv4(local_tcid),
                             cur_time->tm_year + 1900,
                             cur_time->tm_mon + 1,
                             cur_time->tm_mday,
@@ -4672,7 +4673,7 @@ EC_BOOL cdfs_snapshot_dn(const UINT32 cdfs_md_id)
     /*make data node snapshot*/
     if(EC_FALSE == cdfs_snapshot_make(cmd_cstr))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_snapshot_dn: dn %s make snapshot failed\n", uint32_to_ipv4(local_tcid));
+        sys_log(LOGSTDOUT, "error:cdfs_snapshot_dn: dn %s make snapshot failed\n", c_word_to_ipv4(local_tcid));
         cstring_free(cmd_cstr);
         return (EC_FALSE);
     }
@@ -4708,7 +4709,7 @@ EC_BOOL cdfs_snapshot_npp(const UINT32 cdfs_md_id)
     local_tcid = CMPI_LOCAL_TCID;
     if(EC_FALSE == cdfs_flush_npp(cdfs_md_id, local_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_snapshot_npp: flush npp %s failed\n", uint32_to_ipv4(local_tcid));
+        sys_log(LOGSTDOUT, "error:cdfs_snapshot_npp: flush npp %s failed\n", c_word_to_ipv4(local_tcid));
         return (EC_FALSE);
     }
 
@@ -4720,7 +4721,7 @@ EC_BOOL cdfs_snapshot_npp(const UINT32 cdfs_md_id)
     cmd_cstr = cstring_new(NULL_PTR, LOC_CDFS_0070);
     cstring_format(cmd_cstr, "%s/snapshot", db_root_dir);
 
-    if(EC_FALSE == create_dir((char *)cstring_get_str(cmd_cstr)))
+    if(EC_FALSE == c_dir_create((char *)cstring_get_str(cmd_cstr)))
     {
         sys_log(LOGSTDOUT, "error:cdfs_snapshot_npp: create dir %s failed\n", (char *)cstring_get_str(cmd_cstr));
         cstring_free(cmd_cstr);
@@ -4735,7 +4736,7 @@ EC_BOOL cdfs_snapshot_npp(const UINT32 cdfs_md_id)
     cstring_reset(cmd_cstr);
     cstring_format(cmd_cstr, "cd %s && tar zcvf snapshot/npp_%s_snapshot_%4d%02d%02d_%02d%02d%02d.tar.gz *.db dsk*",
                             db_root_dir,
-                            uint32_to_ipv4(local_tcid),
+                            c_word_to_ipv4(local_tcid),
                             cur_time->tm_year + 1900,
                             cur_time->tm_mon + 1,
                             cur_time->tm_mday,
@@ -4749,7 +4750,7 @@ EC_BOOL cdfs_snapshot_npp(const UINT32 cdfs_md_id)
     /*make name node snapshot*/
     if(EC_FALSE == cdfs_snapshot_make(cmd_cstr))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_snapshot_npp: npp %s make snapshot failed\n", uint32_to_ipv4(local_tcid));
+        sys_log(LOGSTDOUT, "error:cdfs_snapshot_npp: npp %s make snapshot failed\n", c_word_to_ipv4(local_tcid));
         cstring_free(cmd_cstr);
         return (EC_FALSE);
     }
@@ -4806,7 +4807,7 @@ EC_BOOL cdfs_mkdir_p(const UINT32 cdfs_md_id, const CSTRING *path_cstr)
 
 static void cdfs_tcid_print(LOG *log, const UINT32 tcid)
 {
-    sys_log(log, "%s\n", uint32_to_ipv4(tcid));
+    sys_log(log, "%s\n", c_word_to_ipv4(tcid));
     return;
 }
 
@@ -5006,7 +5007,7 @@ EC_BOOL cdfs_check_replica_files_content(const UINT32 cdfs_md_id, const CSTRING 
 
                 cdfsnp_inode = CDFSNP_FNODE_INODE(cdfsnp_fnode, cdfsnp_inode_pos);
                 sys_log(LOGSTDOUT, "error:cdfs_check_replica_files_content: file %s on tcid %s with path layout %ld, foff %ld not matched\n",
-                                    (char *)cstring_get_str(file_path), uint32_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
+                                    (char *)cstring_get_str(file_path), c_word_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
                                     CDFSNP_INODE_PATH(cdfsnp_inode), CDFSNP_INODE_FOFF(cdfsnp_inode)
                         );
                 return (EC_FALSE);
@@ -5225,7 +5226,7 @@ EC_BOOL cdfs_import_lost_fnode_from_file(const UINT32 cdfs_md_id, const CSTRING 
 
         EC_BOOL ret;
 
-        field_num = str_split(str_line, " ,()\t\r\n", fields, sizeof(fields)/sizeof(fields[ 0 ]));
+        field_num = c_str_split(str_line, " ,()\t\r\n", fields, sizeof(fields)/sizeof(fields[ 0 ]));
         if(8 > field_num)
         {
             sys_log(LOGSTDOUT, "[import fnode error] line # %ld\n", line_no ++);
@@ -5236,34 +5237,34 @@ EC_BOOL cdfs_import_lost_fnode_from_file(const UINT32 cdfs_md_id, const CSTRING 
         path = cstring_new((UINT8 *)(fields[ 3 ]), LOC_CDFS_0075);
 
         /*file size*/
-        CDFSNP_FNODE_FILESZ(&cdfsnp_fnode) = str_to_uint32(fields[ 5 ]);
+        CDFSNP_FNODE_FILESZ(&cdfsnp_fnode) = c_str_to_word(fields[ 5 ]);
 
         /*replica num*/
-        CDFSNP_FNODE_REPNUM(&cdfsnp_fnode) = str_to_uint32(fields[ 7 ]);
+        CDFSNP_FNODE_REPNUM(&cdfsnp_fnode) = c_str_to_word(fields[ 7 ]);
 
         for(field_pos = 9, replica_pos = 0;
             field_pos + 4 < field_num && replica_pos < CDFSNP_FNODE_REPNUM(&cdfsnp_fnode);
             field_pos += 6, replica_pos ++)
         {
-            CDFSNP_FNODE_INODE_TCID(&cdfsnp_fnode, replica_pos) = ipv4_to_uint32(fields[ field_pos + 0]);
-            CDFSNP_FNODE_INODE_PATH(&cdfsnp_fnode, replica_pos) =  str_to_uint32(fields[ field_pos + 2 ]);
-            CDFSNP_FNODE_INODE_FOFF(&cdfsnp_fnode, replica_pos) =  str_to_uint32(fields[ field_pos + 4 ]);
+            CDFSNP_FNODE_INODE_TCID(&cdfsnp_fnode, replica_pos) = c_ipv4_to_word(fields[ field_pos + 0]);
+            CDFSNP_FNODE_INODE_PATH(&cdfsnp_fnode, replica_pos) = c_str_to_word(fields[ field_pos + 2 ]);
+            CDFSNP_FNODE_INODE_FOFF(&cdfsnp_fnode, replica_pos) = c_str_to_word(fields[ field_pos + 4 ]);
         }
 #if 0
         /*CDFSNP_INODE 1#*/
-        CDFSNP_FNODE_INODE_TCID(&cdfsnp_fnode, 0) = ipv4_to_uint32(fields[ 9 ]);
-        CDFSNP_FNODE_INODE_PATH(&cdfsnp_fnode, 0) = str_to_uint32(fields[ 11 ]);
-        CDFSNP_FNODE_INODE_FOFF(&cdfsnp_fnode, 0) = str_to_uint32(fields[ 13 ]);
+        CDFSNP_FNODE_INODE_TCID(&cdfsnp_fnode, 0) = c_ipv4_to_word(fields[ 9 ]);
+        CDFSNP_FNODE_INODE_PATH(&cdfsnp_fnode, 0) = c_str_to_word(fields[ 11 ]);
+        CDFSNP_FNODE_INODE_FOFF(&cdfsnp_fnode, 0) = c_str_to_word(fields[ 13 ]);
 
         /*CDFSNP_INODE 2#*/
-        CDFSNP_FNODE_INODE_TCID(&cdfsnp_fnode, 1) = ipv4_to_uint32(fields[ 15 ]);
-        CDFSNP_FNODE_INODE_PATH(&cdfsnp_fnode, 1) = str_to_uint32(fields[ 17 ]);
-        CDFSNP_FNODE_INODE_FOFF(&cdfsnp_fnode, 1) = str_to_uint32(fields[ 19 ]);
+        CDFSNP_FNODE_INODE_TCID(&cdfsnp_fnode, 1) = c_ipv4_to_word(fields[ 15 ]);
+        CDFSNP_FNODE_INODE_PATH(&cdfsnp_fnode, 1) = c_str_to_word(fields[ 17 ]);
+        CDFSNP_FNODE_INODE_FOFF(&cdfsnp_fnode, 1) = c_str_to_word(fields[ 19 ]);
 
         /*CDFSNP_INODE 3#*/
-        CDFSNP_FNODE_INODE_TCID(&cdfsnp_fnode, 2) = ipv4_to_uint32(fields[ 21 ]);
-        CDFSNP_FNODE_INODE_PATH(&cdfsnp_fnode, 2) = str_to_uint32(fields[ 23 ]);
-        CDFSNP_FNODE_INODE_FOFF(&cdfsnp_fnode, 2) = str_to_uint32(fields[ 25 ]);
+        CDFSNP_FNODE_INODE_TCID(&cdfsnp_fnode, 2) = c_ipv4_to_word(fields[ 21 ]);
+        CDFSNP_FNODE_INODE_PATH(&cdfsnp_fnode, 2) = c_str_to_word(fields[ 23 ]);
+        CDFSNP_FNODE_INODE_FOFF(&cdfsnp_fnode, 2) = c_str_to_word(fields[ 25 ]);
 #endif
         //sys_log(LOGSTDOUT, "path: %s\n", (char *)cstring_get_str(path));
         //cdfsnp_fnode_print(LOGSTDOUT, &cdfsnp_fnode);
@@ -5364,7 +5365,7 @@ EC_BOOL cdfs_import_lost_replica_from_file(const UINT32 cdfs_md_id, const CSTRIN
         CSTRING *path;
 
         sys_log(LOGSTDOUT, "%s", str_line);
-        field_num = str_split(str_line, " ,()\t\r\n", fields, sizeof(fields)/sizeof(fields[ 0 ]));
+        field_num = c_str_split(str_line, " ,()\t\r\n", fields, sizeof(fields)/sizeof(fields[ 0 ]));
 
         if(8 > field_num)
         {
@@ -5376,21 +5377,21 @@ EC_BOOL cdfs_import_lost_replica_from_file(const UINT32 cdfs_md_id, const CSTRIN
         path = cstring_new((UINT8 *)(fields[ 3 ]), LOC_CDFS_0076);
 
         /*expect replica num*/
-        expect_replica_num = str_to_uint32(fields[ 5 ]);
+        expect_replica_num = c_str_to_word(fields[ 5 ]);
 
         /*file size*/
-        CDFSNP_FNODE_FILESZ(&cdfsnp_fnode) = str_to_uint32(fields[ 7 ]);
+        CDFSNP_FNODE_FILESZ(&cdfsnp_fnode) = c_str_to_word(fields[ 7 ]);
 
         /*replica num*/
-        CDFSNP_FNODE_REPNUM(&cdfsnp_fnode) = str_to_uint32(fields[ 9 ]);
+        CDFSNP_FNODE_REPNUM(&cdfsnp_fnode) = c_str_to_word(fields[ 9 ]);
 
         for(field_pos = 11, replica_pos = 0;
             field_pos + 4 < field_num && replica_pos < CDFSNP_FNODE_REPNUM(&cdfsnp_fnode);
             field_pos += 6, replica_pos ++)
         {
-            CDFSNP_FNODE_INODE_TCID(&cdfsnp_fnode, replica_pos) = ipv4_to_uint32(fields[ field_pos + 0]);
-            CDFSNP_FNODE_INODE_PATH(&cdfsnp_fnode, replica_pos) =  str_to_uint32(fields[ field_pos + 2 ]);
-            CDFSNP_FNODE_INODE_FOFF(&cdfsnp_fnode, replica_pos) =  str_to_uint32(fields[ field_pos + 4 ]);
+            CDFSNP_FNODE_INODE_TCID(&cdfsnp_fnode, replica_pos) = c_ipv4_to_word(fields[ field_pos + 0]);
+            CDFSNP_FNODE_INODE_PATH(&cdfsnp_fnode, replica_pos) =  c_str_to_word(fields[ field_pos + 2 ]);
+            CDFSNP_FNODE_INODE_FOFF(&cdfsnp_fnode, replica_pos) =  c_str_to_word(fields[ field_pos + 4 ]);
         }
 
         //sys_log(LOGSTDOUT, "[DEBUG] path: %s, expect: %ld\n", (char *)cstring_get_str(path), expect_replica_num);

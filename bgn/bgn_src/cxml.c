@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -35,7 +35,7 @@ extern "C"{
 #include "cparacfg.h"
 #include "cmpic.inc"
 #include "cbtimer.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "cdfs.h"
 #include "cbgt.h"
@@ -58,7 +58,7 @@ static EC_BOOL __cxml_parse_tag_uint32(xmlNodePtr node, const char *tag, UINT32 
         xmlChar *attr_val;
         
         attr_val = xmlGetProp(node, (const xmlChar*)tag);
-        (*data) = str_to_uint32((char *)attr_val);
+        (*data) = c_str_to_word((char *)attr_val);
         xmlFree(attr_val);
         
         return (EC_TRUE);
@@ -78,7 +78,7 @@ static EC_BOOL __cxml_parse_tag_tcid(xmlNodePtr node, const char *tag, UINT32 *t
         xmlChar *attr_val;
         
         attr_val = xmlGetProp(node, (const xmlChar*)tag);
-        (*tcid) = ipv4_to_uint32((char *)attr_val);
+        (*tcid) = c_ipv4_to_word((char *)attr_val);
         xmlFree(attr_val);
         
         return (EC_TRUE);
@@ -94,7 +94,7 @@ static EC_BOOL __cxml_parse_tag_ipv4_addr(xmlNodePtr node, const char *tag, UINT
         xmlChar *attr_val;
         
         attr_val = xmlGetProp(node, (const xmlChar*)tag);
-        (*ipv4_addr) = ipv4_to_uint32((char *)attr_val);
+        (*ipv4_addr) = c_ipv4_to_word((char *)attr_val);
         xmlFree(attr_val);
         
         return (EC_TRUE);
@@ -109,7 +109,7 @@ static EC_BOOL __cxml_parse_tag_srv_port(xmlNodePtr node, const char *tag, UINT3
         xmlChar *attr_val;
         
         attr_val = xmlGetProp(node, (const xmlChar*)tag);
-        (*srv_port) = port_to_uint32((char *)attr_val);
+        (*srv_port) = c_port_to_word((char *)attr_val);
         xmlFree(attr_val);
         
         return (EC_TRUE);
@@ -126,11 +126,11 @@ static EC_BOOL __cxml_parse_tag_ipv4_mask(xmlNodePtr node, const char *tag, UINT
         attr_val = xmlGetProp(node, (const xmlChar*)tag);
         if(NULL_PTR != strchr((char *)attr_val, '.'))
         {
-            (*ipv4_mask) = ipv4_to_uint32((char *)attr_val);
+            (*ipv4_mask) = c_ipv4_to_word((char *)attr_val);
         }
         else
         {
-            (*ipv4_mask) = BITS_TO_MASK(str_to_uint32((char *)attr_val));
+            (*ipv4_mask) = BITS_TO_MASK(c_str_to_word((char *)attr_val));
         }
         xmlFree(attr_val);
         
@@ -436,14 +436,14 @@ static EC_BOOL __cxml_parse_tag_uint32_range(char *attr_val, CVECTOR *uint32_vec
     UINT32 end_num;
     UINT32 cur_num;
 
-    field_num = str_split((char *)attr_val, (const char *)"-", fields, sizeof(fields)/sizeof(fields[0]));
+    field_num = c_str_split((char *)attr_val, (const char *)"-", fields, sizeof(fields)/sizeof(fields[0]));
     if(0 == field_num)
     {
         return (EC_TRUE);
     }
     /*e.g. 3-10 <==> 3-5-8-10*/
-    beg_num = str_to_uint32(fields[0]);
-    end_num = str_to_uint32(fields[field_num - 1]);
+    beg_num = c_str_to_word(fields[0]);
+    end_num = c_str_to_word(fields[field_num - 1]);
     
     for(cur_num = beg_num; cur_num <= end_num; cur_num ++)/*close range scope*/
     {
@@ -467,7 +467,7 @@ static EC_BOOL __cxml_parse_tag_uint32_vec(xmlNodePtr node, const char *tag, CVE
         
         attr_val = xmlGetProp(node, (const xmlChar*)tag);
 
-        field_num = str_split((char *)attr_val, XML_RANK_SEPARATOR, fields, sizeof(fields)/sizeof(fields[0]));
+        field_num = c_str_split((char *)attr_val, XML_RANK_SEPARATOR, fields, sizeof(fields)/sizeof(fields[0]));
         for(field_pos = 0; field_pos < field_num; field_pos ++)
         {
             if(NULL_PTR != strchr((char *)fields[field_pos], '-'))
@@ -477,7 +477,7 @@ static EC_BOOL __cxml_parse_tag_uint32_vec(xmlNodePtr node, const char *tag, CVE
             else
             {
                 UINT32 num;
-                num = str_to_uint32(fields[field_pos]);
+                num = c_str_to_word(fields[field_pos]);
                 cvector_push(uint32_vec, (void *)num);
             }
         }
@@ -516,7 +516,7 @@ static EC_BOOL __cxml_parse_any_of_tags(xmlNodePtr node, const char *tags_str, v
 
     BCOPY(tags_str, buf, strlen(tags_str) + 1);
         
-    tag_num = str_split((char *)buf, (const char *)":", tags, sizeof(tags)/sizeof(tags[0]));        
+    tag_num = c_str_split((char *)buf, (const char *)":", tags, sizeof(tags)/sizeof(tags[0]));        
     
     for(tag_pos = 0; tag_pos < tag_num; tag_pos ++)
     {
@@ -544,7 +544,7 @@ static EC_BOOL __cxml_parse_all_of_tags(xmlNodePtr node, const char *tags_str, v
 
     BCOPY(tags_str, buf, strlen(tags_str) + 1);
         
-    tag_num = str_split((char *)buf, (const char *)":", tags, sizeof(tags)/sizeof(tags[0]));        
+    tag_num = c_str_split((char *)buf, (const char *)":", tags, sizeof(tags)/sizeof(tags[0]));        
     
     for(tag_pos = 0; tag_pos < tag_num; tag_pos ++)
     {
@@ -1019,7 +1019,7 @@ EC_BOOL cxml_parse_cparacfg_of_specific0(xmlNodePtr node, CPARACFG *cparacfg, co
         }
     }
 
-    sys_log(LOGSTDOUT, "error:cxml_parse_cparacfg_of_specific: no sysConfig for tcid %s rank %ld\n", uint32_to_ipv4(tcid), rank);
+    sys_log(LOGSTDOUT, "error:cxml_parse_cparacfg_of_specific: no sysConfig for tcid %s rank %ld\n", c_word_to_ipv4(tcid), rank);
     return (EC_FALSE);
 }
 
@@ -1046,7 +1046,7 @@ EC_BOOL cxml_parse_cparacfg_of_specific(xmlNodePtr node, CPARACFG *cparacfg, con
         return cxml_parse_cparacfg_para_cfg(node, cparacfg);
     }
 
-    sys_log(LOGSTDNULL, "error:cxml_parse_cparacfg_of_specific: no sysConfig for tcid %s rank %ld\n", uint32_to_ipv4(tcid), rank);
+    sys_log(LOGSTDNULL, "error:cxml_parse_cparacfg_of_specific: no sysConfig for tcid %s rank %ld\n", c_word_to_ipv4(tcid), rank);
     return (EC_FALSE);
 }
 

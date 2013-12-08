@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -64,10 +64,10 @@ typedef struct
 }TASKS_NODE;
 
 #define TASKS_NODE_SRVIPADDR(tasks_node)                    ((tasks_node)->srvipaddr)
-#define TASKS_NODE_SRVIPADDR_STR(tasks_node)                (uint32_to_ipv4(TASKS_NODE_SRVIPADDR(tasks_node)))
+#define TASKS_NODE_SRVIPADDR_STR(tasks_node)                (c_word_to_ipv4(TASKS_NODE_SRVIPADDR(tasks_node)))
 #define TASKS_NODE_SRVPORT(tasks_node)                      ((tasks_node)->srvport)
 #define TASKS_NODE_TCID(tasks_node)                         ((tasks_node)->tcid)
-#define TASKS_NODE_TCID_STR(tasks_node)                     (uint32_to_ipv4(TASKS_NODE_TCID(tasks_node)))
+#define TASKS_NODE_TCID_STR(tasks_node)                     (c_word_to_ipv4(TASKS_NODE_TCID(tasks_node)))
 #define TASKS_NODE_COMM(tasks_node)                         ((tasks_node)->comm)
 #define TASKS_NODE_SIZE(tasks_node)                         ((tasks_node)->size)
 #define TASKS_NODE_LOAD(tasks_node)                         ((tasks_node)->load)
@@ -115,13 +115,13 @@ typedef struct
 }TASKS_CFG;
 
 #define TASKS_CFG_TCID(tasks_cfg)                  ((tasks_cfg)->tcid)
-#define TASKS_CFG_TCID_STR(tasks_cfg)              (uint32_to_ipv4(TASKS_CFG_TCID(tasks_cfg)))
+#define TASKS_CFG_TCID_STR(tasks_cfg)              (c_word_to_ipv4(TASKS_CFG_TCID(tasks_cfg)))
 #define TASKS_CFG_MASKI(tasks_cfg)                 ((tasks_cfg)->maski)
-#define TASKS_CFG_MASKI_STR(tasks_cfg)             (uint32_to_ipv4(TASKS_CFG_MASKI(tasks_cfg)))
+#define TASKS_CFG_MASKI_STR(tasks_cfg)             (c_word_to_ipv4(TASKS_CFG_MASKI(tasks_cfg)))
 #define TASKS_CFG_MASKE(tasks_cfg)                 ((tasks_cfg)->maske)
-#define TASKS_CFG_MASKE_STR(tasks_cfg)             (uint32_to_ipv4(TASKS_CFG_MASKE(tasks_cfg)))
+#define TASKS_CFG_MASKE_STR(tasks_cfg)             (c_word_to_ipv4(TASKS_CFG_MASKE(tasks_cfg)))
 #define TASKS_CFG_SRVIPADDR(tasks_cfg)             ((tasks_cfg)->srvipaddr)
-#define TASKS_CFG_SRVIPADDR_STR(tasks_cfg)         (uint32_to_ipv4(TASKS_CFG_SRVIPADDR(tasks_cfg)))
+#define TASKS_CFG_SRVIPADDR_STR(tasks_cfg)         (c_word_to_ipv4(TASKS_CFG_SRVIPADDR(tasks_cfg)))
 #define TASKS_CFG_SRVPORT(tasks_cfg)               ((tasks_cfg)->srvport)
 #define TASKS_CFG_CSRVPORT(tasks_cfg)              ((tasks_cfg)->csrvport)
 #define TASKS_CFG_CLUSTER_VEC(tasks_cfg)           (&((tasks_cfg)->cluster_vec))
@@ -156,11 +156,11 @@ typedef struct
 }TASKR_CFG;
 
 #define TASKR_CFG_DES_TCID(taskr_cfg)              ((taskr_cfg)->des_tcid)
-#define TASKR_CFG_DES_TCID_STR(taskr_cfg)          (uint32_to_ipv4(TASKR_CFG_DES_TCID(taskr_cfg)))
+#define TASKR_CFG_DES_TCID_STR(taskr_cfg)          (c_word_to_ipv4(TASKR_CFG_DES_TCID(taskr_cfg)))
 #define TASKR_CFG_NEXT_TCID(taskr_cfg)             ((taskr_cfg)->next_tcid)
-#define TASKR_CFG_NEXT_TCID_STR(taskr_cfg)         (uint32_to_ipv4(TASKR_CFG_NEXT_TCID(taskr_cfg)))
+#define TASKR_CFG_NEXT_TCID_STR(taskr_cfg)         (c_word_to_ipv4(TASKR_CFG_NEXT_TCID(taskr_cfg)))
 #define TASKR_CFG_MASKR(taskr_cfg)                 ((taskr_cfg)->maskr)
-#define TASKR_CFG_MASKR_STR(taskr_cfg)             (uint32_to_ipv4(TASKR_CFG_MASKR(taskr_cfg)))
+#define TASKR_CFG_MASKR_STR(taskr_cfg)             (c_word_to_ipv4(TASKR_CFG_MASKR(taskr_cfg)))
 
 /*TASK CONFIG*/
 typedef struct
@@ -188,7 +188,7 @@ typedef struct
 #define TASKC_ADDR_MODI(taskc_addr)            ((taskc_addr)->modi)
 
 #define SEND_TASKC_ADDR_TCID(send_taskc_addr)       (TASKC_ADDR_TCID(send_taskc_addr))
-#define SEND_TASKC_ADDR_TCID_STR(send_taskc_addr)   (uint32_to_ipv4(SEND_TASKC_ADDR_TCID(send_taskc_addr)))
+#define SEND_TASKC_ADDR_TCID_STR(send_taskc_addr)   (c_word_to_ipv4(SEND_TASKC_ADDR_TCID(send_taskc_addr)))
 #define SEND_TASKC_ADDR_COMM(send_taskc_addr)       (TASKC_ADDR_COMM(send_taskc_addr))
 #define SEND_TASKC_ADDR_RANK(send_taskc_addr)       (TASKC_ADDR_RANK(send_taskc_addr))
 #define SEND_TASKC_ADDR_MODI(send_taskc_addr)       (TASKC_ADDR_MODI(send_taskc_addr))
@@ -214,7 +214,7 @@ typedef struct
 
 /*
 #define RECV_TASKC_ADDR_TCID(recv_taskc_addr)       (TASKC_ADDR_TCID(recv_taskc_addr))
-#define RECV_TASKC_ADDR_TCID_STR(recv_taskc_addr)   (uint32_to_ipv4(RECV_TASKC_ADDR_TCID(recv_taskc_addr)))
+#define RECV_TASKC_ADDR_TCID_STR(recv_taskc_addr)   (c_word_to_ipv4(RECV_TASKC_ADDR_TCID(recv_taskc_addr)))
 #define RECV_TASKC_ADDR_COMM(recv_taskc_addr)       (TASKC_ADDR_COMM(recv_taskc_addr))
 #define RECV_TASKC_ADDR_RANK(recv_taskc_addr)       (TASKC_ADDR_RANK(recv_taskc_addr))
 #define RECV_TASKC_ADDR_MODI(recv_taskc_addr)       (TASKC_ADDR_MODI(recv_taskc_addr))

@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -32,7 +32,7 @@ extern "C"{
 
 #include "csys.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 #include "real.h"
 #include "cbc.h"
 #include "cmpic.inc"
@@ -226,7 +226,7 @@ UINT32 csys_cpu_cfg_vec_free(CSYS_CPU_CFG_VEC *csys_cpu_cfg_vec)
 
 void csys_cpu_cfg_vec_print(LOG *log, const CSYS_CPU_CFG_VEC *csys_cpu_cfg_vec)
 {
-    cvector_print(LOGSTDOUT, csys_cpu_cfg_vec, (CVECTOR_DATA_PRINT)cstring_print);
+    cvector_print(log, csys_cpu_cfg_vec, (CVECTOR_DATA_PRINT)cstring_print);
     return;
 }
 
@@ -245,17 +245,18 @@ UINT32 csys_cpu_cfg_vec_get(CSYS_CPU_CFG_VEC *csys_cpu_cfg_vec)
         return ((UINT32)-1);
     }
 
-
     exec_shell("cat /proc/cpuinfo", cache, CSYS_SHELL_BUF_MAX_SIZE);
 
     cstring = NULL_PTR;
     next = cache;
 
-    for(buff = next; NULL_PTR != (buff = str_fetch_line(buff)); buff = next)
+    for(buff = next; NULL_PTR != (buff = c_str_fetch_line(buff)); buff = next)
     {
-        next = str_move_next(buff);
+        next = c_str_move_next(buff);
 
-        if (0 == strcmp(buff, "\n"))
+        //sys_log(LOGSTDOUT, "[DEBUG] csys_cpu_cfg_vec_get: buff: [%s]\n", buff);
+
+        if ('\0' == buff[0])/*blank line*/
         {
             cvector_push(CSYS_CPU_CFG_VEC_INFO(csys_cpu_cfg_vec), (void *)cstring);
             cstring = NULL_PTR;
@@ -268,13 +269,12 @@ UINT32 csys_cpu_cfg_vec_get(CSYS_CPU_CFG_VEC *csys_cpu_cfg_vec)
         }
         else
         {
+            cstring_append_char(cstring, (UINT8)'\n');
             cstring_append_str(cstring, (UINT8 *)buff);
         }
     }
 
     SAFE_FREE(cache, LOC_CSYS_0007);
-
-    //cvector_print(LOGSTDOUT, CSYS_CPU_CFG_VEC_INFO(csys_cpu_cfg_vec), (CVECTOR_DATA_PRINT)cstring_print);
 
     return (0);
 }
@@ -392,31 +392,31 @@ cpu3 775847  5388  247323  284054170  33718  0    17440    14749
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
-        CSYS_CPU_STAT_USER(csys_cpu_stat) = str_to_uint32(seg_ptr);
+        CSYS_CPU_STAT_USER(csys_cpu_stat) = c_str_to_word(seg_ptr);
         //sys_log(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_USER(csys_cpu_stat));
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
-        CSYS_CPU_STAT_NICE(csys_cpu_stat) = str_to_uint32(seg_ptr);
+        CSYS_CPU_STAT_NICE(csys_cpu_stat) = c_str_to_word(seg_ptr);
         //sys_log(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_NICE(csys_cpu_stat));
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
-        CSYS_CPU_STAT_SYS(csys_cpu_stat) = str_to_uint32(seg_ptr);
+        CSYS_CPU_STAT_SYS(csys_cpu_stat) = c_str_to_word(seg_ptr);
         //sys_log(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_SYS(csys_cpu_stat));
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
-        CSYS_CPU_STAT_IDLE(csys_cpu_stat) = str_to_uint32(seg_ptr);
+        CSYS_CPU_STAT_IDLE(csys_cpu_stat) = c_str_to_word(seg_ptr);
         //sys_log(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_IDLE(csys_cpu_stat));
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
-        CSYS_CPU_STAT_TOTAL(csys_cpu_stat) = str_to_uint32(seg_ptr);
+        CSYS_CPU_STAT_TOTAL(csys_cpu_stat) = c_str_to_word(seg_ptr);
         //sys_log(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_TOTAL(csys_cpu_stat));
     }
 
@@ -483,20 +483,19 @@ UINT32 csys_cpu_stat_vec_get(CSYS_CPU_STAT_VEC *csys_cpu_stat_vec)
     }
 
     exec_shell("cat /proc/stat | grep '^cpu'", cache, CSYS_SHELL_BUF_MAX_SIZE);
-
-    //sys_log(LOGSTDOUT, "[DEBUG] cache: %s\n", cache);
+    //sys_log(LOGSTDOUT, "[DEBUG] cache: \n%s\n", cache);
 
     /*note:skip the cpu average load info which locate the 1st line in /proc/stat*/
-    buff = str_fetch_line(cache);
-    next = str_move_next(buff);
+    buff = c_str_fetch_line(cache);
+    next = c_str_move_next(buff);
 
-    for(buff = next; NULL_PTR != (buff = str_fetch_line(buff)); buff = next)
+    for(buff = next; NULL_PTR != (buff = c_str_fetch_line(buff)); buff = next)
     {
         CSYS_CPU_STAT *csys_cpu_stat;
 
-        next = str_move_next(buff);
+        next = c_str_move_next(buff);
 
-        //sys_log(LOGSTDOUT, "[DEBUG] CPU: %s\n", buff);
+        //sys_log(LOGSTDOUT, "[DEBUG] CPU: \n%s\n", buff);
 
         if (0 != strncasecmp(buff, "cpu", 3))
         {
@@ -659,17 +658,20 @@ UINT32 csys_mem_stat_get(CSYS_MEM_STAT *csys_mem_stat)
     }
 
     exec_shell("cat /proc/meminfo", cache, CSYS_SHELL_BUF_MAX_SIZE);
+    //sys_log(LOGSTDOUT, "[DEBUG] csys_mem_stat_get: cache is \n %s\n", cache);
 
     next = cache;
 
-    for(buff = next; NULL_PTR != (buff = str_fetch_line(buff)); buff = next)
+    for(buff = next; NULL_PTR != (buff = c_str_fetch_line(buff)); buff = next)
     {
         char  *safe_ptr;
         char  *seg_ptr[ 3 ];
         UINT32 seg_pos;
         UINT32 seg_num;
 
-        next = str_move_next(buff);
+        next = c_str_move_next(buff);
+
+        //sys_log(LOGSTDOUT, "[DEBUG] csys_mem_stat_get: buff is \n%s\n", buff);
 
         seg_num = sizeof(seg_ptr)/sizeof(seg_ptr[0]);
 
@@ -685,14 +687,14 @@ UINT32 csys_mem_stat_get(CSYS_MEM_STAT *csys_mem_stat)
 
         if(2 < seg_pos && 0 == strcasecmp(seg_ptr[0], "MemTotal"))
         {
-            CSYS_MEM_TOTAL(csys_mem_stat) = str_to_uint32(seg_ptr[1]);/*unit: KB*/
+            CSYS_MEM_TOTAL(csys_mem_stat) = c_str_to_word(seg_ptr[1]);/*unit: KB*/
             //sys_log(LOGSTDOUT, "csys_mem_load_get: MemTotal: %s => %ld\n", seg_ptr[1], CSYS_MEM_TOTAL(csys_mem_stat));
             continue;
         }
 
         if(2 < seg_pos && 0 == strcasecmp(seg_ptr[0], "MemFree"))
         {
-            CSYS_MEM_FREE(csys_mem_stat) = str_to_uint32(seg_ptr[1]);/*unit: KB*/
+            CSYS_MEM_FREE(csys_mem_stat) = c_str_to_word(seg_ptr[1]);/*unit: KB*/
             //sys_log(LOGSTDOUT, "csys_mem_load_get: MemFree: %s => %ld\n", seg_ptr[1], CSYS_MEM_FREE(csys_mem_stat));
             continue;
         }
@@ -842,7 +844,7 @@ example:
     safe_ptr = oline_buff;
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
-        ctop_oline->pid = str_to_uint32(seg_ptr);
+        ctop_oline->pid = c_str_to_word(seg_ptr);
         //sys_log(LOGSTDOUT, "ctop_oline_parse: pid: %s => %ld\n", seg_ptr, ctop_oline->pid);
     }
 
@@ -854,13 +856,13 @@ example:
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
-        ctop_oline->pr = str_to_uint32(seg_ptr);
+        ctop_oline->pr = c_str_to_word(seg_ptr);
         //sys_log(LOGSTDOUT, "ctop_oline_parse: pr : %s => %ld\n", seg_ptr, ctop_oline->pr);
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
-        ctop_oline->ni = str_to_uint32(seg_ptr);
+        ctop_oline->ni = c_str_to_word(seg_ptr);
         //sys_log(LOGSTDOUT, "ctop_oline_parse: ni : %s => %ld\n", seg_ptr, ctop_oline->ni);
     }
 
@@ -1035,7 +1037,7 @@ UINT32 cproc_thread_stat_get(CPROC_THREAD_STAT *cproc_thread_stat)
     safe_ptr = (char *)cmd_output;
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " \t\r\n", &safe_ptr)))
     {
-        CPROC_THREAD_NUM(cproc_thread_stat) = str_to_uint32(seg_ptr);
+        CPROC_THREAD_NUM(cproc_thread_stat) = c_str_to_word(seg_ptr);
     }
 
     CSYS_DBG((LOGSTDOUT, "cproc_thread_stat_get: %s ==> %ld\n", cmd_output, CPROC_THREAD_NUM(cproc_thread_stat)));
@@ -1461,7 +1463,7 @@ Inter-|   Receive                                                |  Transmit
 */
 
     //sys_log(LOGSTDNULL, "csys_eth_stat_get: buff: \n%s\n", buff);
-    field_num = str_split(buff, " :\t\r\n", fields, sizeof(fields)/sizeof(fields[ 0 ]));
+    field_num = c_str_split(buff, " :\t\r\n", fields, sizeof(fields)/sizeof(fields[ 0 ]));
     if(11 > field_num)
     {
         sys_log(LOGSTDOUT, "error:csys_eth_stat_get: too few fields, field num %ld\n", field_num);
@@ -1543,18 +1545,30 @@ UINT32 csys_eth_stat_vec_get(CSYS_ETH_VEC *csys_eth_stat_vec)
     }
 
     exec_shell("cat /proc/net/dev", cache, CSYS_SHELL_BUF_MAX_SIZE);
-    //sys_log(LOGSTDNULL, "[DEBUG]csys_eth_stat_vec_get:cache: \n%s\n", cache);
+    //sys_log(LOGSTDOUT, "[DEBUG] csys_eth_stat_vec_get:cache: \n%s\n", cache);
+
+    /**
+      cache format:
+    ===============
+    Inter-|   Receive                                                |  Transmit
+     face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+        lo: 3910340    2390    0    0    0     0          0         0  3910340    2390    0    0    0     0       0          0
+      eth0: 7330407   42441    0    0    0     0          0         0 56330820   48197    0    0    0     0       0          0  
+    **/
 
     /*skip the eth average load info which locate the 1st line in /proc/stat*/
-    buff = str_fetch_line(cache);
-    next = str_move_next(buff);
+    buff = c_str_fetch_line(cache);
+    next = c_str_move_next(buff);
 
-    for(buff = next; NULL_PTR != (buff = str_fetch_line(buff)); buff = next)
+    for(buff = next; NULL_PTR != (buff = c_str_fetch_line(buff)); buff = next)
     {
         CSYS_ETH_STAT *csys_eth_stat;
 
-        next = str_move_next(buff);
+        next = c_str_move_next(buff);
 
+        //sys_log(LOGSTDOUT, "[DEBUG] csys_eth_stat_vec_get: buff %p, next %p\n", buff, next);
+        //sys_log(LOGSTDOUT, "[DEBUG] csys_eth_stat_vec_get: buff %s\n", buff);
+        
         if (NULL_PTR == strchr(buff, ':'))
         {
             continue;
@@ -1671,7 +1685,7 @@ tmpfs                      506         0       506   0% /dev/shm
 */
 
     //sys_log(LOGSTDNULL, "csys_dsk_stat_get: buff: \n%s\n", buff);
-    field_num = str_split(buff, " %\t\r\n", fields, sizeof(fields)/sizeof(fields[ 0 ]));
+    field_num = c_str_split(buff, " %\t\r\n", fields, sizeof(fields)/sizeof(fields[ 0 ]));
     if(6 > field_num)
     {
         sys_log(LOGSTDOUT, "error:csys_dsk_stat_get: too few fields, field num %ld\n", field_num);
@@ -1679,9 +1693,9 @@ tmpfs                      506         0       506   0% /dev/shm
     }
 
     cstring_init(CSYS_DSK_NAME(csys_dsk_stat), (UINT8 *)(fields[ 0 ]));
-    CSYS_DSK_SIZE(csys_dsk_stat) = str_to_uint32(fields[ 1 ]);/*MBytes*/
-    CSYS_DSK_USED(csys_dsk_stat) = str_to_uint32(fields[ 2 ]);/*MBytes*/
-    CSYS_DSK_AVAL(csys_dsk_stat) = str_to_uint32(fields[ 3 ]);/*MBytes*/
+    CSYS_DSK_SIZE(csys_dsk_stat) = c_str_to_word(fields[ 1 ]);/*MBytes*/
+    CSYS_DSK_USED(csys_dsk_stat) = c_str_to_word(fields[ 2 ]);/*MBytes*/
+    CSYS_DSK_AVAL(csys_dsk_stat) = c_str_to_word(fields[ 3 ]);/*MBytes*/
     CSYS_DSK_LOAD(csys_dsk_stat) = atof(fields[ 4 ]);
 #if 0
     sys_log(LOGSTDNULL, "csys_dsk_stat_get: name:%s, size %ld MBytes, used %ld MBytes, aval %ld MBytes, load %.2f%%\n",

@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -30,7 +30,7 @@ extern "C"{
 #include "cdevice.h"
 #include "csocket.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "log.h"
 
@@ -286,8 +286,8 @@ UINT32 cnetcard_collect(CSET *cnetcard_set, const UINT32 max_cnetcard_num)
             cnetcard_free(cnetcard);
             continue;
         }
-        cstring_format(CNETCARD_IPV4STR(cnetcard), "%s", inet_ntos(((struct sockaddr_in*) (&(ifreq_item->ifr_addr)))->sin_addr));
-        CNETCARD_IPV4VAL(cnetcard) = ipv4_to_uint32((char *)cstring_get_str(CNETCARD_IPV4STR(cnetcard)));
+        cstring_format(CNETCARD_IPV4STR(cnetcard), "%s", c_inet_ntos(((struct sockaddr_in*) (&(ifreq_item->ifr_addr)))->sin_addr));
+        CNETCARD_IPV4VAL(cnetcard) = c_ipv4_to_word((char *)cstring_get_str(CNETCARD_IPV4STR(cnetcard)));
 
         /*get HW ADDRESS of the net card */
         if(0 != ioctl(fd, SIOCGIFHWADDR, (char *)ifreq_item))

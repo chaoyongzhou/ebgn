@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -21,35 +21,39 @@ extern "C"{
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "lib_typeconst.h"
-#include "lib_type.h"
-#include "lib_char2int.h"
-#include "lib_task.h"
-#include "lib_mod.h"
-#include "lib_log.h"
-#include "lib_debug.h"
-#include "lib_rank.h"
+#include "typeconst.h"
+#include "type.h"
+#include "cmisc.h"
+#include "task.h"
+#include "mod.h"
+#include "log.h"
+#include "debug.h"
+#include "rank.h"
 
-#include "lib_cstring.h"
-#include "lib_cvector.h"
+#include "cstring.h"
+#include "cvector.h"
 
-#include "lib_super.h"
-#include "lib_tbd.h"
-#include "lib_crun.h"
+#include "super.h"
+#include "tbd.h"
+#include "crun.h"
 
-#include "lib_cthread.h"
+#include "cthread.h"
 
-#include "lib_cmpic.inc"
-#include "lib_findex.inc"
+#include "cmpic.inc"
+#include "findex.inc"
 
-#include "lib_chashalgo.h"
+#include "chashalgo.h"
 
-#include "lib_cbgt.h"
-#include "lib_cdfs.h"
-#include "lib_cdfsnp.h"
-#include "lib_cbytes.h"
+#include "cbgt.h"
+#include "cdfs.h"
+#include "cdfsnp.h"
+#include "cbytes.h"
 
-#include "demo.h"
+#include "demo_hsdfs.h"
+#include "demo_hsbgt.h"
+
+static CBYTES *g_cbytes[32];
+static UINT32 g_cbytes_max_len = sizeof(g_cbytes)/sizeof(g_cbytes[0]);
 
 EC_BOOL __test_cbgt_insert_client_1_runner();
 EC_BOOL __test_cbgt_insert_client_2_runner();
@@ -1030,20 +1034,20 @@ EC_BOOL __test_cbgt_delete_client_2_runner()
 EC_BOOL __test_cbgt_suite_01()
 {
     /*define specific runner for each (tcid, rank)*/
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.1"), CMPI_CDFS_RANK, __test_cbgt_np_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.20.1"), CMPI_CDFS_RANK, __test_cbgt_np_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.2"), CMPI_CDFS_RANK, __test_cbgt_dn_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.1"), CMPI_CDFS_RANK, __test_cbgt_np_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.20.1"), CMPI_CDFS_RANK, __test_cbgt_np_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.2"), CMPI_CDFS_RANK, __test_cbgt_dn_runner);
     
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.3"), 0, __test_cbgt_root_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.3"), 0, __test_cbgt_root_runner);
     
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.4"), 0, __test_cbgt_insert_client_1_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.4"), 1, __test_cbgt_insert_client_2_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.4"), 0, __test_cbgt_insert_client_1_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.4"), 1, __test_cbgt_insert_client_2_runner);
  
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.5"), 1, __test_cbgt_fetch_client_1_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.5"), 2, __test_cbgt_fetch_client_2_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.5"), 1, __test_cbgt_fetch_client_1_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.5"), 2, __test_cbgt_fetch_client_2_runner);
 
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.6"), 1, __test_cbgt_delete_client_1_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.6"), 2, __test_cbgt_delete_client_2_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.6"), 1, __test_cbgt_delete_client_1_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.6"), 2, __test_cbgt_delete_client_2_runner);
 
     /*start the defined runner on current (tcid, rank)*/
     task_brd_default_start_runner();
@@ -1054,19 +1058,19 @@ EC_BOOL __test_cbgt_suite_01()
 EC_BOOL __test_cbgt_suite_02()
 {
     /*define specific runner for each (tcid, rank)*/
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.1"), CMPI_CDFS_RANK, __test_cbgt_np_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.20.1"), CMPI_CDFS_RANK, __test_cbgt_np_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.2"), CMPI_CDFS_RANK, __test_cbgt_dn_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.3"), CMPI_CDFS_RANK, __test_cbgt_dn_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.4"), CMPI_CDFS_RANK, __test_cbgt_dn_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.1"), CMPI_CDFS_RANK, __test_cbgt_np_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.20.1"), CMPI_CDFS_RANK, __test_cbgt_np_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.2"), CMPI_CDFS_RANK, __test_cbgt_dn_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.3"), CMPI_CDFS_RANK, __test_cbgt_dn_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.4"), CMPI_CDFS_RANK, __test_cbgt_dn_runner);
     
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.30.5"), 0, __test_cbgt_root_runner);
-    //task_brd_default_add_runner(ipv4_to_uint32("10.10.30.3"), 0, __test_cbgt_insert_client_1_runner); 
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.30.5"), 0, __test_cbgt_root_runner);
+    //task_brd_default_add_runner(c_ipv4_to_word("10.10.30.3"), 0, __test_cbgt_insert_client_1_runner); 
     
-    //task_brd_default_add_runner(ipv4_to_uint32("10.10.30.4"), 0, __test_cbgt_insert_client_1_runner); 
-    //task_brd_default_add_runner(ipv4_to_uint32("10.10.30.5"), 0, __test_cbgt_insert_client_2_runner);
-    //task_brd_default_add_runner(ipv4_to_uint32("10.10.30.6"), 0, __test_cbgt_fetch_client_1_runner);
-    //task_brd_default_add_runner(ipv4_to_uint32("10.10.30.7"), 0, __test_cbgt_delete_client_1_runner);
+    //task_brd_default_add_runner(c_ipv4_to_word("10.10.30.4"), 0, __test_cbgt_insert_client_1_runner); 
+    //task_brd_default_add_runner(c_ipv4_to_word("10.10.30.5"), 0, __test_cbgt_insert_client_2_runner);
+    //task_brd_default_add_runner(c_ipv4_to_word("10.10.30.6"), 0, __test_cbgt_fetch_client_1_runner);
+    //task_brd_default_add_runner(c_ipv4_to_word("10.10.30.7"), 0, __test_cbgt_delete_client_1_runner);
 
     /*start the defined runner on current (tcid, rank)*/
     task_brd_default_start_runner();

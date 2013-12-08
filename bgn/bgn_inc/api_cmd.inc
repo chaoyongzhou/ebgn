@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -36,6 +36,7 @@ extern "C"{
 #define       CMD_SEG_TYPE_TCID                  ((UINT32) 8) /*%t*/
 #define       CMD_SEG_TYPE_MASK                  ((UINT32) 9) /*%m*/
 #define       CMD_SEG_TYPE_IPADDR                ((UINT32)10) /*%p*/
+#define       CMD_SEG_TYPE_UINT64                ((UINT32)11) /*%N*/
 
 #define       CMD_PARA_TYPE_NULL                 ((UINT32) 0)
 #define       CMD_PARA_TYPE_INTEGER              ((UINT32) 1)
@@ -57,6 +58,7 @@ typedef struct
     union
     {
         UINT32    uint32;
+        uint64_t  uint64;
         REAL      real;
         CSTRING  *cstring;
         CVECTOR  *vec;/*cmd elem vec*/
@@ -67,6 +69,7 @@ typedef struct
 #define CMD_ELEM_WORD_CHAR(this_cmd_elem, pos)       ((this_cmd_elem)->cmd_elem_word[ (pos) ])
 #define CMD_ELEM_TYPE(this_cmd_elem)                 ((this_cmd_elem)->cmd_elem_type)
 #define CMD_ELEM_UINT32(this_cmd_elem)               ((this_cmd_elem)->u.uint32)
+#define CMD_ELEM_UINT64(this_cmd_elem)               ((this_cmd_elem)->u.uint64)
 #define CMD_ELEM_REAL(this_cmd_elem)                 ((this_cmd_elem)->u.real)
 #define CMD_ELEM_CSTRING(this_cmd_elem)              ((this_cmd_elem)->u.cstring)
 #define CMD_ELEM_VEC(this_cmd_elem)                  ((this_cmd_elem)->u.vec)
@@ -108,6 +111,7 @@ typedef struct
         UINT32    uint32;
         REAL      real;
         CSTRING  *cstring;
+        uint64_t  uint64;
     }u;
 }CMD_PARA;
 
@@ -115,6 +119,7 @@ typedef struct
 #define CMD_PARA_UINT32(this_cmd_para)             ((this_cmd_para)->u.uint32)
 #define CMD_PARA_REAL(this_cmd_para)               ((this_cmd_para)->u.real)
 #define CMD_PARA_CSTRING(this_cmd_para)            ((this_cmd_para)->u.cstring)
+#define CMD_PARA_UINT64(this_cmd_para)             ((this_cmd_para)->u.uint64)
 
 typedef CVECTOR CMD_HELP_VEC;
 #define CMD_HELP_NODE_VEC(cmd_help_vec)            (cmd_help_vec)

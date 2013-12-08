@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -39,7 +39,7 @@ extern "C"{
 #include "clist.h"
 #include "cvector.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "cbc.h"
 #include "task.h"
@@ -427,7 +427,7 @@ EC_BOOL dhcp_if_enable_onboot(const char *netcard, const INET_INFO *info)
                     hw->hbuf[1],hw->hbuf[2],hw->hbuf[3],hw->hbuf[4],hw->hbuf[5],hw->hbuf[6]);
     pos += snprintf(&(script[ pos ]), IFCFG_SCRIPT_MAX - pos, "TYPE=Ethernet\n");
     pos += snprintf(&(script[ pos ]), IFCFG_SCRIPT_MAX - pos, "BOOTPROTO=none\n");
-    pos += snprintf(&(script[ pos ]), IFCFG_SCRIPT_MAX - pos, "IPADDR=%s\n", uint32_t_ntos(ipv4_addr));
+    pos += snprintf(&(script[ pos ]), IFCFG_SCRIPT_MAX - pos, "IPADDR=%s\n", c_uint32_ntos(ipv4_addr));
     pos += snprintf(&(script[ pos ]), IFCFG_SCRIPT_MAX - pos, "PREFIX=%d\n", prefix);
     pos += snprintf(&(script[ pos ]), IFCFG_SCRIPT_MAX - pos, "DEFROUTE=yes\n");
     pos += snprintf(&(script[ pos ]), IFCFG_SCRIPT_MAX - pos, "IPV4_FAILURE_FATAL=yes\n");
@@ -453,9 +453,9 @@ EC_BOOL dhcp_if_set_mcast_route(int sock, const char *netcard)
 {
     /*set default route info*/
     if(EC_FALSE == __dhcp_if_add_route(sock, netcard, 
-                                        uint32_t_ston(DHCP_DEFAULT_MCAST_ROUTE_IPADDR_STR), 
-                                        uint32_t_ston(DHCP_DEFAULT_MCAST_ROUTE_MASK_STR), 
-                                        uint32_t_ston(DHCP_DEFAULT_MCAST_ROUTE_GATEWAY_STR)))
+                                        c_uint32_ston(DHCP_DEFAULT_MCAST_ROUTE_IPADDR_STR), 
+                                        c_uint32_ston(DHCP_DEFAULT_MCAST_ROUTE_MASK_STR), 
+                                        c_uint32_ston(DHCP_DEFAULT_MCAST_ROUTE_GATEWAY_STR)))
     {
         sys_log(LOGSTDOUT, "error:dhcp_if_set_mcast_route: add default route des=%s, mask=%s, gw=%s info failed for %s\n", 
                             DHCP_DEFAULT_MCAST_ROUTE_IPADDR_STR,
@@ -693,7 +693,7 @@ EC_BOOL dhcp_if_chk_subnet_mask_info(int sock, const char *netcard, const INET_I
     if(sa_1st->sin_addr.s_addr != sa_2nd->sin_addr.s_addr)
     {
         sys_log(LOGSTDOUT, "error:dhcp_if_chk_subnet_mask_info: got %s subnet mask %s != %s\n",
-                            netcard, inet_ntos(sa_1st->sin_addr), inet_ntos(sa_2nd->sin_addr));
+                            netcard, c_inet_ntos(sa_1st->sin_addr), c_inet_ntos(sa_2nd->sin_addr));
         return (EC_FALSE);
     }
 
@@ -723,7 +723,7 @@ EC_BOOL dhcp_if_get_bcast_addr_info(int sock, const char *netcard, INET_INFO *in
         sa = ((struct sockaddr_in *)&(info->ifr_bcast.ifr_broadaddr));
 
         sys_log(LOGSTDOUT, "[DEBUG] dhcp_if_get_bcast_addr_info: bcast family %d port %d %s (%08lx)\n",
-                            sa->sin_family, sa->sin_port, inet_ntos(sa->sin_addr),(sa->sin_addr)
+                            sa->sin_family, sa->sin_port, c_inet_ntos(sa->sin_addr),(sa->sin_addr)
                             );
     }
     return (EC_TRUE);
@@ -768,7 +768,7 @@ EC_BOOL dhcp_if_chk_bcast_addr_info(int sock, const char *netcard, const INET_IN
     if(sa_1st->sin_addr.s_addr != sa_2nd->sin_addr.s_addr)
     {
         sys_log(LOGSTDOUT, "error:dhcp_if_chk_bcast_addr_info: got %s broadcast %s != %s\n",
-                            netcard, inet_ntos(sa_1st->sin_addr), inet_ntos(sa_2nd->sin_addr));
+                            netcard, c_inet_ntos(sa_1st->sin_addr), c_inet_ntos(sa_2nd->sin_addr));
         return (EC_FALSE);
     }
 
@@ -797,7 +797,7 @@ EC_BOOL dhcp_if_get_ipv4_addr_info(int sock, const char *netcard, INET_INFO *inf
         sa = ((struct sockaddr_in *)&(info->ifr_ipv4.ifr_addr));
 
         sys_log(LOGSTDOUT, "[DEBUG] dhcp_if_get_ipv4_addr_info: ipv4 family %d port %d %s (%08lx)\n",
-                            sa->sin_family, sa->sin_port, inet_ntos(sa->sin_addr),(sa->sin_addr)
+                            sa->sin_family, sa->sin_port, c_inet_ntos(sa->sin_addr),(sa->sin_addr)
                             );
     }
 
@@ -843,7 +843,7 @@ EC_BOOL dhcp_if_chk_ipv4_addr_info(int sock, const char *netcard, const INET_INF
     if(sa_1st->sin_addr.s_addr != sa_2nd->sin_addr.s_addr)
     {
         sys_log(LOGSTDOUT, "error:dhcp_if_chk_ipv4_addr_info: got %s ipv4 address %s != %s\n",
-                            netcard, inet_ntos(sa_1st->sin_addr), inet_ntos(sa_2nd->sin_addr));
+                            netcard, c_inet_ntos(sa_1st->sin_addr), c_inet_ntos(sa_2nd->sin_addr));
         return (EC_FALSE);
     }
 
@@ -1245,7 +1245,7 @@ EC_BOOL dhcp_if_check_ipv4_defined(const char *netcard)
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] dhcp_if_check_ipv4_defined: %s defined ipv4 addr %s\n", netcard, uint32_t_ntos(ipv4_addr));
+    sys_log(LOGSTDOUT, "[DEBUG] dhcp_if_check_ipv4_defined: %s defined ipv4 addr %s\n", netcard, c_uint32_ntos(ipv4_addr));
 
     close(sock);
     dhcp_if_free(info);
@@ -1789,10 +1789,10 @@ EC_BOOL dhcp_rsp_packet_handle(const DHCP_PACKET *rsp_dhcp_pkt, INET_INFO *recv_
     }
 
     sys_log(LOGSTDOUT, "[DEBUG] dhcp_rsp_packet_handle: client %s, mask %s, bcast %s, mcast %s:%d\n",
-                         uint32_t_ntos(dhcp_if_get_ipv4_addr(recv_inet_info)),
-                         uint32_t_ntos(dhcp_if_get_subnet_mask(recv_inet_info)),
-                         uint32_t_ntos(dhcp_if_get_bcast_addr(recv_inet_info)),
-                         uint32_t_ntos(dhcp_if_get_mcast_addr(recv_inet_info)),
+                         c_uint32_ntos(dhcp_if_get_ipv4_addr(recv_inet_info)),
+                         c_uint32_ntos(dhcp_if_get_subnet_mask(recv_inet_info)),
+                         c_uint32_ntos(dhcp_if_get_bcast_addr(recv_inet_info)),
+                         c_uint32_ntos(dhcp_if_get_mcast_addr(recv_inet_info)),
                          ntohs(dhcp_if_get_mcast_port(recv_inet_info))
                          );
 
@@ -1890,7 +1890,7 @@ EC_BOOL dhcp_server_do(const char *netcard, const UINT32 mcast_addr, const UINT3
     send_inet_info->mcast.sin_addr.s_addr = htonl(_mcast_addr);
 
     sys_log(LOGSTDOUT, "[DEBUG] dhcp_server_do: start bcast on netcard %s with mcast %s:%ld\n",
-                        netcard, uint32_to_ipv4(mcast_addr), mcast_port);
+                        netcard, c_word_to_ipv4(mcast_addr), mcast_port);
 
     for(;;)
     {

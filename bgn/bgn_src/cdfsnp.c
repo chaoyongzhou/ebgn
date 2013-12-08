@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -27,7 +27,7 @@ extern "C"{
 #include "cmpic.inc"
 #include "croutine.h"
 #include "cstring.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "cbloom.h"
 #include "cdfsnp.h"
@@ -143,7 +143,7 @@ EC_BOOL cdfsnp_mode_bloom_col_num(const UINT32 cdfsnp_mode, UINT32 *bloom_col_nu
 
 static EC_BOOL cdfsnp_create_dir(const char *dir_name)
 {
-    return create_dir(dir_name);
+    return c_dir_create(dir_name);
 }
 
 static EC_BOOL cdfsnp_dname_gen(const char *root_dir, const UINT32 disk_num, const UINT32 block_path_layout, char *path, const UINT32 max_len)
@@ -294,7 +294,7 @@ EC_BOOL cdfsnp_inode_clone(const CDFSNP_INODE *cdfsnp_inode_src, CDFSNP_INODE *c
 void cdfsnp_inode_print(LOG *log, const CDFSNP_INODE *cdfsnp_inode)
 {
     sys_print(log, "(tcid %s, path %lx, offset %ld)\n",
-                 uint32_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
+                 c_word_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
                  (CDFSNP_INODE_PATH(cdfsnp_inode) & CDFSNP_32BIT_MASK),
                  (CDFSNP_INODE_FOFF(cdfsnp_inode) & CDFSNP_32BIT_MASK)
              );
@@ -304,7 +304,7 @@ void cdfsnp_inode_print(LOG *log, const CDFSNP_INODE *cdfsnp_inode)
 void cdfsnp_inode_log_no_lock(LOG *log, const CDFSNP_INODE *cdfsnp_inode)
 {
     sys_print_no_lock(log, "(tcid %s, path %ld, offset %ld),",
-                 uint32_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
+                 c_word_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
                  (CDFSNP_INODE_PATH(cdfsnp_inode) & CDFSNP_32BIT_MASK),
                  (CDFSNP_INODE_FOFF(cdfsnp_inode) & CDFSNP_32BIT_MASK)
              );
@@ -797,7 +797,7 @@ EC_BOOL cdfsnp_item_load(CDFSNP *cdfsnp, const UINT32 offset, CDFSNP_ITEM *cdfsn
 {
     RWSIZE rsize;
 
-    if(CDFSNP_ERR_SEEK == lseek(CDFSNP_FD(cdfsnp), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSNP_FD(cdfsnp), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_item_load: seek offset %ld failed\n", offset);
         return (EC_FALSE);
@@ -817,7 +817,7 @@ EC_BOOL cdfsnp_item_flush(CDFSNP *cdfsnp, const UINT32 offset, const CDFSNP_ITEM
 {
     RWSIZE wsize;
 
-    if(CDFSNP_ERR_SEEK == lseek(CDFSNP_FD(cdfsnp), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSNP_FD(cdfsnp), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_item_flush: seek offset %ld failed\n", offset);
         return (EC_FALSE);
@@ -890,7 +890,7 @@ EC_BOOL cdfsnp_bucket_load(CDFSNP *cdfsnp, const UINT32 offset, UINT32 *cdfsnp_b
 {
     RWSIZE rsize;
 
-    if(CDFSNP_ERR_SEEK == lseek(CDFSNP_FD(cdfsnp), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSNP_FD(cdfsnp), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_bucket_load: seek offset %ld failed\n", offset);
         return (EC_FALSE);
@@ -910,7 +910,7 @@ EC_BOOL cdfsnp_bucket_flush(const CDFSNP *cdfsnp, const UINT32 offset, const UIN
 {
     RWSIZE wsize;
 
-    if(CDFSNP_ERR_SEEK == lseek(CDFSNP_FD(cdfsnp), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSNP_FD(cdfsnp), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_bucket_flush: seek offset %ld failed\n", offset);
         return (EC_FALSE);
@@ -1129,7 +1129,7 @@ EC_BOOL cdfsnp_init(CDFSNP *cdfsnp, const UINT32 cdfsnp_path_layout, const CDFSN
 
     CDFSNP_READER_NUM(cdfsnp) = 0;
 
-    CDFSNP_FD(cdfsnp) = CDFSNP_ERR_FD;
+    CDFSNP_FD(cdfsnp) = ERR_FD;
 
     CDFSNP_HDR(cdfsnp)    = (CDFSNP_HEADER *)cdfsnp_header;
     CDFSNP_CBLOOM(cdfsnp) = (CBLOOM *)cdfsnp_cbloom;
@@ -1149,10 +1149,10 @@ EC_BOOL cdfsnp_init(CDFSNP *cdfsnp, const UINT32 cdfsnp_path_layout, const CDFSN
 
 EC_BOOL cdfsnp_clean(CDFSNP *cdfsnp)
 {
-    if(CDFSNP_ERR_FD != CDFSNP_FD(cdfsnp))
+    if(ERR_FD != CDFSNP_FD(cdfsnp))
     {
-        close(CDFSNP_FD(cdfsnp));
-        CDFSNP_FD(cdfsnp) = CDFSNP_ERR_FD;
+        c_file_close(CDFSNP_FD(cdfsnp));
+        CDFSNP_FD(cdfsnp) = ERR_FD;
     }
 
     CDFSNP_HDR(cdfsnp) = NULL_PTR;
@@ -1178,10 +1178,10 @@ EC_BOOL cdfsnp_clean(CDFSNP *cdfsnp)
 
 EC_BOOL cdfsnp_swapout(CDFSNP *cdfsnp)
 {
-    if(CDFSNP_ERR_FD != CDFSNP_FD(cdfsnp))
+    if(ERR_FD != CDFSNP_FD(cdfsnp))
     {
-        close(CDFSNP_FD(cdfsnp));
-        CDFSNP_FD(cdfsnp) = CDFSNP_ERR_FD;
+        c_file_close(CDFSNP_FD(cdfsnp));
+        CDFSNP_FD(cdfsnp) = ERR_FD;
     }
 
     //CDFSNP_HDR(cdfsnp) = NULL_PTR;
@@ -1273,7 +1273,7 @@ EC_BOOL cdfsnp_buff_flush(const CDFSNP *cdfsnp, const UINT32 offset, const RWSIZ
     RWSIZE csize;/*write completed size*/
     RWSIZE osize;/*write once size*/
 
-    if(CDFSNP_ERR_SEEK == lseek(CDFSNP_FD(cdfsnp), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSNP_FD(cdfsnp), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_buff_flush: seek offset %ld failed\n", offset);
         return (EC_FALSE);
@@ -1302,7 +1302,7 @@ EC_BOOL cdfsnp_buff_load(const CDFSNP *cdfsnp, const UINT32 offset, const RWSIZE
     RWSIZE csize;/*read completed size*/
     RWSIZE osize;/*read once size*/
 
-    if(CDFSNP_ERR_SEEK == lseek(CDFSNP_FD(cdfsnp), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSNP_FD(cdfsnp), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_buff_load: seek offset %ld failed\n", offset);
         return (EC_FALSE);
@@ -2132,12 +2132,12 @@ EC_BOOL cdfsnp_del(CDFSNP *cdfsnp, const UINT32 path_len, const UINT8 *path, con
         }
 
         CDFSNP_LOCK(cdfsnp, LOC_CDFSNP_0030);
-        cdfsnp_item = cdfsnp_fetch(cdfsnp, cdfsnp_search(cdfsnp, path_len - 1, path, CDFSNP_ITEM_FILE_IS_DIR));
+        cdfsnp_item = cdfsnp_fetch(cdfsnp, cdfsnp_search_no_lock(cdfsnp, path_len - 1, path, CDFSNP_ITEM_FILE_IS_DIR));
     }
     else
     {
         CDFSNP_LOCK(cdfsnp, LOC_CDFSNP_0031);
-        cdfsnp_item = cdfsnp_fetch(cdfsnp, cdfsnp_search(cdfsnp, path_len, path, dflag));
+        cdfsnp_item = cdfsnp_fetch(cdfsnp, cdfsnp_search_no_lock(cdfsnp, path_len, path, dflag));
     }
 
     if(NULL_PTR == cdfsnp_item)
@@ -2728,8 +2728,8 @@ EC_BOOL cdfsnp_open(CDFSNP *cdfsnp, const char *cdfsnp_db_root_dir, UINT32 *crea
         return cdfsnp_create(cdfsnp, cdfsnp_db_root_dir);
     }
 
-    CDFSNP_FD(cdfsnp) = c_open((char *)cdfsnp_name, O_RDWR, 0666);
-    if(CDFSNP_ERR_FD == CDFSNP_FD(cdfsnp))
+    CDFSNP_FD(cdfsnp) = c_file_open((char *)cdfsnp_name, O_RDWR, 0666);
+    if(ERR_FD == CDFSNP_FD(cdfsnp))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_open: open cdfsnp file %s failed\n", cdfsnp_name);
         return (EC_FALSE);
@@ -2738,8 +2738,8 @@ EC_BOOL cdfsnp_open(CDFSNP *cdfsnp, const char *cdfsnp_db_root_dir, UINT32 *crea
     if(EC_FALSE == cdfsnp_load(cdfsnp))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_open: load cdfsnp file %s failed\n", cdfsnp_name);
-        close(CDFSNP_FD(cdfsnp));
-        CDFSNP_FD(cdfsnp) = CDFSNP_ERR_FD;
+        c_file_close(CDFSNP_FD(cdfsnp));
+        CDFSNP_FD(cdfsnp) = ERR_FD;
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -2824,8 +2824,8 @@ EC_BOOL cdfsnp_create(CDFSNP *cdfsnp, const char *cdfsnp_db_root_dir)
         return (EC_FALSE);
     }
 
-    CDFSNP_FD(cdfsnp) = c_open((char *)path, O_RDWR | O_CREAT, 0666);
-    if(CDFSNP_ERR_FD == CDFSNP_FD(cdfsnp))
+    CDFSNP_FD(cdfsnp) = c_file_open((char *)path, O_RDWR | O_CREAT, 0666);
+    if(ERR_FD == CDFSNP_FD(cdfsnp))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_create: cannot create np %s\n", (char *)path);
         return (EC_FALSE);
@@ -2836,8 +2836,8 @@ EC_BOOL cdfsnp_create(CDFSNP *cdfsnp, const char *cdfsnp_db_root_dir)
     if(NULL_PTR == base_buff)
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_create: alloc buff failed where buff len %ld\n", base_buff_len);
-        close(CDFSNP_FD(cdfsnp));
-        CDFSNP_FD(cdfsnp) = CDFSNP_ERR_FD;
+        c_file_close(CDFSNP_FD(cdfsnp));
+        CDFSNP_FD(cdfsnp) = ERR_FD;
         return (EC_FALSE);
     }
 
@@ -2920,7 +2920,7 @@ static void cdfsnp_figured_block_sort_print(LOG *log, const CVECTOR *file_size_v
         {
             sys_log(log, "file size: %8ld, (tcid %s, path %lx, offset %ld) \n",
                          file_size,
-                         uint32_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
+                         c_word_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
                          (CDFSNP_INODE_PATH(cdfsnp_inode) & CDFSNP_32BIT_MASK),
                          (CDFSNP_INODE_FOFF(cdfsnp_inode) & CDFSNP_32BIT_MASK)
                      );
@@ -2929,7 +2929,7 @@ static void cdfsnp_figured_block_sort_print(LOG *log, const CVECTOR *file_size_v
         {
             sys_log(log, "file size: %8ld, (tcid %s, path %lx, offset %ld)       [X]\n",
                          file_size,
-                         uint32_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
+                         c_word_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
                          (CDFSNP_INODE_PATH(cdfsnp_inode) & CDFSNP_32BIT_MASK),
                          (CDFSNP_INODE_FOFF(cdfsnp_inode) & CDFSNP_32BIT_MASK)
                      );
@@ -3186,15 +3186,15 @@ EC_BOOL cdfsnp_show_depth(LOG *log, const char *dbname)
         return (EC_FALSE);
     }
 
-    db_fd = c_open(dbname, O_RDWR, 0666);
-    if(CDFSNP_ERR_FD == db_fd)
+    db_fd = c_file_open(dbname, O_RDWR, 0666);
+    if(ERR_FD == db_fd)
     {
         sys_log(log, "error:cdfsnp_show_depth: cannot open db %s\n", dbname);
         return (EC_FALSE);
     }
 
     /*load header*/
-    if(CDFSNP_ERR_SEEK == lseek(db_fd, 0, SEEK_SET))
+    if(ERR_SEEK == lseek(db_fd, 0, SEEK_SET))
     {
         sys_log(log, "error:cdfsnp_show_depth: seek BEG failed\n");
         return (EC_FALSE);
@@ -3212,7 +3212,7 @@ EC_BOOL cdfsnp_show_depth(LOG *log, const char *dbname)
     sys_print(log, "\n");
 
     /*load bloom filter*/
-    if(CDFSNP_ERR_SEEK == lseek(db_fd, CDFSNP_HEADER_BMOFF(cdfsnp_header), SEEK_SET))
+    if(ERR_SEEK == lseek(db_fd, CDFSNP_HEADER_BMOFF(cdfsnp_header), SEEK_SET))
     {
         sys_log(log, "error:cdfsnp_show_depth: seek boff failed\n");
         return (EC_FALSE);
@@ -3271,18 +3271,18 @@ EC_BOOL cdfsnp_show(LOG *log, const char *dbname)
         return (EC_FALSE);
     }
 
-    db_fd = c_open(dbname, O_RDWR, 0666);
-    if(CDFSNP_ERR_FD == db_fd)
+    db_fd = c_file_open(dbname, O_RDWR, 0666);
+    if(ERR_FD == db_fd)
     {
         sys_log(log, "error:cdfsnp_show: cannot open db %s\n", dbname);
         return (EC_FALSE);
     }
 
     /*load header*/
-    if(CDFSNP_ERR_SEEK == lseek(db_fd, 0, SEEK_SET))
+    if(ERR_SEEK == lseek(db_fd, 0, SEEK_SET))
     {
         sys_log(log, "error:cdfsnp_show: seek BEG failed\n");
-        close(db_fd);
+        c_file_close(db_fd);
         return (EC_FALSE);
     }
 
@@ -3290,7 +3290,7 @@ EC_BOOL cdfsnp_show(LOG *log, const char *dbname)
     if(rwsize != read(db_fd, cdfsnp_header, rwsize))
     {
         sys_log(log, "error:cdfsnp_show: load header failed\n");
-        close(db_fd);
+        c_file_close(db_fd);
         return (EC_FALSE);
     }
 
@@ -3299,10 +3299,10 @@ EC_BOOL cdfsnp_show(LOG *log, const char *dbname)
     sys_print(log, "\n");
 
     /*load bloom filter*/
-    if(CDFSNP_ERR_SEEK == lseek(db_fd, CDFSNP_HEADER_BMOFF(cdfsnp_header), SEEK_SET))
+    if(ERR_SEEK == lseek(db_fd, CDFSNP_HEADER_BMOFF(cdfsnp_header), SEEK_SET))
     {
         sys_log(log, "error:cdfsnp_show: seek boff failed\n");
-        close(db_fd);
+        c_file_close(db_fd);
         return (EC_FALSE);
     }
 
@@ -3311,7 +3311,7 @@ EC_BOOL cdfsnp_show(LOG *log, const char *dbname)
     if(NULL_PTR == data_area)
     {
         sys_log(log, "error:cdfsnp_show: alloc %ld bytes failed\n", NWORDS_TO_NBYTES(NBITS_TO_NWORDS(max_nbits)));
-        close(db_fd);
+        c_file_close(db_fd);
         return (EC_FALSE);
     }
 
@@ -3319,7 +3319,7 @@ EC_BOOL cdfsnp_show(LOG *log, const char *dbname)
     if(rwsize != read(db_fd, data_area, rwsize))
     {
         sys_log(log, "error:cdfsnp_show: load bloom failed where rwsize = %ld\n", rwsize);
-        close(db_fd);
+        c_file_close(db_fd);
         SAFE_FREE(data_area, LOC_CDFSNP_0056);
         return (EC_FALSE);
     }
@@ -3341,24 +3341,24 @@ EC_BOOL cdfsnp_show(LOG *log, const char *dbname)
 
         cdfsnp_item = &cdfsnp_item_t;
 
-        if(CDFSNP_ERR_SEEK == lseek(db_fd, offset, SEEK_SET))
+        if(ERR_SEEK == lseek(db_fd, offset, SEEK_SET))
         {
             sys_log(log, "error:cdfsnp_show: seek item %ld# failed where offset = %ld\n", cdfsnp_item_pos, offset);
-            close(db_fd);
+            c_file_close(db_fd);
             return (EC_FALSE);
         }
 
         if (rwsize != read(db_fd, cdfsnp_item, rwsize))
         {
             sys_log(log, "error:cdfsnp_show: load item %ld# failed\n", cdfsnp_item_pos);
-            close(db_fd);
+            c_file_close(db_fd);
             return (EC_FALSE);
         }
         sys_log(log, "item %ld#, offset %ld: ", cdfsnp_item_pos, offset);
         cdfsnp_item_print(log, cdfsnp_item);
     }
 
-    close(db_fd);
+    c_file_close(db_fd);
     return (EC_TRUE);
 
 }

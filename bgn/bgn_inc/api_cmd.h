@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -30,6 +30,8 @@ extern "C"{
 UINT8 *api_cmd_greedy_space(const UINT8 *pbeg, const UINT8 *pend);
 
 UINT8 * api_cmd_greedy_uint32(const UINT8 *pbeg, const UINT8 *pend, UINT32 *value);
+
+UINT8 * api_cmd_greedy_uint64(const UINT8 *pbeg, const UINT8 *pend, uint64_t *num);
 
 UINT8 * api_cmd_greedy_real(const UINT8 *pbeg, const UINT8 *pend, REAL *value);
 
@@ -86,6 +88,8 @@ EC_BOOL api_cmd_para_free(CMD_PARA *cmd_para);
 
 EC_BOOL api_cmd_para_set_uint32(CMD_PARA *cmd_para, const UINT32 value);
 
+EC_BOOL api_cmd_para_set_uint64(CMD_PARA *cmd_para, const uint64_t value);
+
 EC_BOOL api_cmd_para_set_tcid(CMD_PARA *cmd_para, const UINT32 tcid);
 
 EC_BOOL api_cmd_para_set_real(CMD_PARA *cmd_para, const REAL *value);
@@ -93,6 +97,8 @@ EC_BOOL api_cmd_para_set_real(CMD_PARA *cmd_para, const REAL *value);
 EC_BOOL api_cmd_para_set_cstring(CMD_PARA *cmd_para, CSTRING *cstring);
 
 EC_BOOL api_cmd_para_get_uint32(const CMD_PARA *cmd_para, UINT32 *value);
+
+EC_BOOL api_cmd_para_get_uint64(const CMD_PARA *cmd_para, uint64_t *value);
 
 EC_BOOL api_cmd_para_get_tcid(const CMD_PARA *cmd_para, UINT32 *tcid);
 
@@ -115,6 +121,8 @@ EC_BOOL api_cmd_para_vec_clean(CMD_PARA_VEC *cmd_para_vec);
 EC_BOOL api_cmd_para_vec_free(CMD_PARA_VEC *cmd_para_vec);
 
 EC_BOOL api_cmd_para_vec_get_uint32(const CMD_PARA_VEC *cmd_para_vec, const UINT32 pos, UINT32 *value);
+
+EC_BOOL api_cmd_para_vec_get_uint64(const CMD_PARA_VEC *cmd_para_vec, const UINT32 pos, uint64_t *value);
 
 EC_BOOL api_cmd_para_vec_get_tcid(const CMD_PARA_VEC *cmd_para_vec, const UINT32 pos, UINT32 *tcid);
 
@@ -167,6 +175,8 @@ EC_BOOL api_cmd_elem_clean(CMD_ELEM *cmd_elem);
 EC_BOOL api_cmd_elem_free(CMD_ELEM *cmd_elem);
 
 CMD_ELEM *api_cmd_elem_create_uint32(const char *word);
+
+CMD_ELEM *api_cmd_elem_create_uint64(const char *word);
 
 CMD_ELEM *api_cmd_elem_create_cstring(const char *word);
 

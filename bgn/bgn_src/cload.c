@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -19,14 +19,14 @@ extern "C"{
 #include "clist.h"
 #include "cvector.h"
 #include "cload.h"
-#include "char2int.h"
+#include "cmisc.h"
 #include "cmpic.inc"
 #include "task.h"
 #include "log.h"
 
 #define CLOAD_TCID_ASSERT_RETURN_LOAD(info, tcid) do{\
     if(0 == (tcid) || ((tcid) & 0xFFFFFFFF) == 0xFFFFFFFF) {\
-        sys_log(LOGSTDOUT, "[DEBUG]%s error: tcid = %s\n", (info), uint32_to_ipv4(tcid));\
+        sys_log(LOGSTDOUT, "[DEBUG]%s error: tcid = %s\n", (info), c_word_to_ipv4(tcid));\
         return ((UINT32)-1);\
     }\
     return ((UINT32)0);\
@@ -150,7 +150,7 @@ CLOAD_NODE *cload_node_new(const UINT32 tcid, const UINT32 comm, const UINT32 si
 
     if(0 == tcid || 0xffffffff == (tcid & 0xffffffff) || 0x10000 < size)/*shit! debug here!*/
     {
-        sys_log(LOGSTDOUT, "error:cload_node_new: invalid tcid %s or size %ld\n", uint32_to_ipv4(tcid), size);
+        sys_log(LOGSTDOUT, "error:cload_node_new: invalid tcid %s or size %ld\n", c_word_to_ipv4(tcid), size);
         return (NULL_PTR);
     }
 
@@ -657,7 +657,7 @@ CLOAD_NODE * cload_mgr_search(const CLIST *cload_mgr, const UINT32 tcid)
     clist_data = clist_search_front(cload_mgr, (void *)&cload_node, (CLIST_DATA_DATA_CMP)cload_node_cmp_tcid);
     if(NULL_PTR == clist_data)
     {
-        //sys_log(LOGSTDOUT, "warn:cload_mgr_search: cload node of tcid %s not exist\n", uint32_to_ipv4(tcid));
+        //sys_log(LOGSTDOUT, "warn:cload_mgr_search: cload node of tcid %s not exist\n", c_word_to_ipv4(tcid));
         return (NULL_PTR);
     }
 
@@ -668,7 +668,7 @@ CLOAD_NODE * cload_mgr_search(const CLIST *cload_mgr, const UINT32 tcid)
         task_brd->dbg_counter ++;
 
         if(EC_TRUE == task_brd->dbg_flag && 500 < task_brd->dbg_counter
-        && ipv4_to_uint32("10.10.10.2") == TASK_BRD_TCID(task_brd) && CMPI_CDFS_RANK == TASK_BRD_RANK(task_brd))
+        && c_ipv4_to_word("10.10.10.2") == TASK_BRD_TCID(task_brd) && CMPI_CDFS_RANK == TASK_BRD_RANK(task_brd))
         {
             int *a;
 
@@ -693,7 +693,7 @@ CLOAD_STAT * cload_mgr_get(const CLIST *cload_mgr, const UINT32 tcid, const UINT
         return cload_node_get(cload_node, rank);
     }
 
-    sys_log(LOGSTDOUT, "error:cload_mgr_get: no cload node for tcid %s rank %ld\n", uint32_to_ipv4(tcid), rank);
+    sys_log(LOGSTDOUT, "error:cload_mgr_get: no cload node for tcid %s rank %ld\n", c_word_to_ipv4(tcid), rank);
     return (NULL_PTR);
 }
 
@@ -701,7 +701,7 @@ EC_BOOL cload_mgr_set(CLIST *cload_mgr, const UINT32 tcid, const UINT32 rank, co
 {
     CLOAD_NODE *cload_node;
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cload_mgr_set: try to set tcid %s rank %ld load %ld\n", uint32_to_ipv4(tcid), rank, load);
+    //sys_log(LOGSTDOUT, "[DEBUG] cload_mgr_set: try to set tcid %s rank %ld load %ld\n", c_word_to_ipv4(tcid), rank, load);
 
     cload_node = cload_mgr_search(cload_mgr, tcid);
     if(NULL_PTR != cload_node)
@@ -713,7 +713,7 @@ EC_BOOL cload_mgr_set(CLIST *cload_mgr, const UINT32 tcid, const UINT32 rank, co
     if(NULL_PTR == cload_node)
     {
         sys_log(LOGSTDOUT, "error:cload_mgr_set_que: new cload node for tcid %s, size %ld failed\n",
-                            uint32_to_ipv4(tcid), rank + 1);
+                            c_word_to_ipv4(tcid), rank + 1);
         return (EC_FALSE);
     }
     clist_push_back(cload_mgr, (void *)cload_node);
@@ -725,7 +725,7 @@ EC_BOOL cload_mgr_set_que(CLIST *cload_mgr, const UINT32 tcid, const UINT32 rank
 {
     CLOAD_NODE *cload_node;
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cload_mgr_set: try to set tcid %s rank %ld load %ld\n", uint32_to_ipv4(tcid), rank, que_load);
+    //sys_log(LOGSTDOUT, "[DEBUG] cload_mgr_set: try to set tcid %s rank %ld load %ld\n", c_word_to_ipv4(tcid), rank, que_load);
 
     cload_node = cload_mgr_search(cload_mgr, tcid);
     if(NULL_PTR != cload_node)
@@ -737,7 +737,7 @@ EC_BOOL cload_mgr_set_que(CLIST *cload_mgr, const UINT32 tcid, const UINT32 rank
     if(NULL_PTR == cload_node)
     {
         sys_log(LOGSTDOUT, "error:cload_mgr_set_que: new cload node for tcid %s, size %ld failed\n",
-                            uint32_to_ipv4(tcid), rank + 1);
+                            c_word_to_ipv4(tcid), rank + 1);
         return (EC_FALSE);
     }
     clist_push_back(cload_mgr, (void *)cload_node);
@@ -833,7 +833,7 @@ EC_BOOL cload_mgr_del(CLIST *cload_mgr, const UINT32 tcid)
     clist_data = clist_search_front(cload_mgr, (void *)&cload_node_t, (CLIST_DATA_DATA_CMP)cload_node_cmp_tcid);
     if(NULL_PTR == clist_data)
     {
-        sys_log(LOGSTDOUT, "error:cload_mgr_del: cload node of tcid %s not exist\n", uint32_to_ipv4(tcid));
+        sys_log(LOGSTDOUT, "error:cload_mgr_del: cload node of tcid %s not exist\n", c_word_to_ipv4(tcid));
         return (EC_FALSE);
     }
 
@@ -856,7 +856,7 @@ EC_BOOL cload_mgr_inc_que(CLIST *cload_mgr, const UINT32 tcid, const UINT32 rank
     if(NULL_PTR == cload_node)
     {
         sys_log(LOGSTDOUT, "error:cload_mgr_inc_que: new cload node for tcid %s, size %ld failed\n",
-                            uint32_to_ipv4(tcid), rank + 1);
+                            c_word_to_ipv4(tcid), rank + 1);
         return (EC_FALSE);
     }
     clist_push_back(cload_mgr, (void *)cload_node);
@@ -878,7 +878,7 @@ EC_BOOL cload_mgr_dec_que(CLIST *cload_mgr, const UINT32 tcid, const UINT32 rank
     if(NULL_PTR == cload_node)
     {
         sys_log(LOGSTDOUT, "error:cload_mgr_dec_que: new cload node for tcid %s, size %ld failed\n",
-                            uint32_to_ipv4(tcid), rank + 1);
+                            c_word_to_ipv4(tcid), rank + 1);
         return (EC_FALSE);
     }
     clist_push_back(cload_mgr, (void *)cload_node);

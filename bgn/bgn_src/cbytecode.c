@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -66,6 +66,63 @@ static UINT16 dbg_ntoh_uint16(const UINT16 x)
     sys_log(LOGSTDOUT, "ntoh_uint16: %x => %x vs %x => %x\n", x, y, x, ntohs(x));
     return (y);
 }
+
+EC_BOOL cbytecode_pack_uint64(const uint64_t *in_buff, const UINT32 data_num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+    uint64_t *src_data;
+    uint64_t *des_data;
+    UINT32  data_idx;
+    UINT32  end_pos;
+
+    end_pos = (*position) + data_num * sizeof(uint64_t);
+    if(end_pos > out_buff_max_len)
+    {
+        sys_log(LOGSTDOUT, "error:cbytecode_pack_uint64: would overflow where postion = %ld, data_num = %ld out_buff_max_len = %ld\n", (*position), data_num, out_buff_max_len);
+        return (EC_FALSE);
+    }
+
+    src_data = (uint64_t *)(in_buff);
+    des_data = (uint64_t *)(out_buff + (*position));
+    for(data_idx = 0; data_idx < data_num; data_idx ++)
+    {
+        *(des_data ++) = hton_uint64(*(src_data ++));
+    }
+
+    (*position) = end_pos;
+    return (EC_TRUE);
+}
+
+EC_BOOL cbytecode_pack_uint64_size(const UINT32 data_num, UINT32 *size)
+{
+    (*size) += (data_num * sizeof(uint64_t));
+    return (EC_TRUE);
+}
+
+EC_BOOL cbytecode_unpack_uint64(const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, uint64_t *out_buff, const UINT32 data_num)
+{
+    uint64_t *src_data;
+    uint64_t *des_data;
+    UINT32  data_idx;
+    UINT32  end_pos;
+
+    end_pos = (*position) + data_num * sizeof(uint64_t);
+    if(end_pos > in_buff_max_len)
+    {
+        sys_log(LOGSTDOUT, "error:cbytecode_unpack_uint64: would overflow where postion = %ld, data_num = %ld in_buff_max_len = %ld\n", (*position), data_num, in_buff_max_len);
+        return (EC_FALSE);
+    }
+
+    src_data = (uint64_t *)(in_buff + (*position));
+    des_data = (uint64_t *)(out_buff);
+    for(data_idx = 0; data_idx < data_num; data_idx ++)
+    {
+        *(des_data ++) = ntoh_uint64(*(src_data ++));
+    }
+
+    (*position) = end_pos;
+    return (EC_TRUE);
+}
+
 
 EC_BOOL cbytecode_pack_uint32(const UINT32 *in_buff, const UINT32 data_num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
 {
@@ -327,6 +384,8 @@ EC_BOOL cbytecode_pack(const UINT8 *in_buff, const UINT32 data_num, const UINT32
             return cbytecode_pack_uint8((UINT8 *)in_buff, data_num, out_buff, out_buff_max_len, position);
         case CMPI_REAL:
             return cbytecode_pack_real((REAL *)in_buff, data_num, out_buff, out_buff_max_len, position);
+        case CMPI_ULONGLONG:
+            return cbytecode_pack_uint64((uint64_t *)in_buff, data_num, out_buff, out_buff_max_len, position);
     }
 
     sys_log(LOGSTDOUT, "error:cbytecode_pack: unknown data_type %ld\n", data_type);
@@ -345,7 +404,10 @@ EC_BOOL cbytecode_unpack(const UINT8 *in_buff, const UINT32 in_buff_max_len, UIN
             return cbytecode_unpack_uint8(in_buff, in_buff_max_len, position, (UINT8 *)out_buff, data_num);
         case CMPI_REAL:
             return cbytecode_unpack_real(in_buff, in_buff_max_len, position, (REAL *)out_buff, data_num);
+        case CMPI_ULONGLONG:
+            return cbytecode_unpack_uint64(in_buff, in_buff_max_len, position, (uint64_t *)out_buff, data_num);
     }
+    
 
     sys_log(LOGSTDOUT, "error:cbytecode_unpack: unknown data_type %ld\n", data_type);
     return (EC_FALSE);
@@ -363,6 +425,8 @@ EC_BOOL cbytecode_pack_size(const UINT32 data_num, const UINT32 data_type, UINT3
             return cbytecode_pack_uint8_size(data_num, size);
         case CMPI_REAL:
             return cbytecode_pack_real_size(data_num, size);
+        case CMPI_ULONGLONG:
+            return cbytecode_pack_uint64_size(data_num, size);                
     }
 
     sys_log(LOGSTDOUT, "error:cbytecode_pack_size: unknown data_type %ld\n", data_type);

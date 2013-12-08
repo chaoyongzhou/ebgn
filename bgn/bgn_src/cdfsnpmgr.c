@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -28,7 +28,7 @@ extern "C"{
 #include "cmutex.h"
 #include "clist.h"
 #include "cstring.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "task.inc"
 #include "task.h"
@@ -46,19 +46,19 @@ static EC_BOOL cdfsnp_mgr_get_file_size(const int fd, UINT32 *file_size)
     UINT32 cur_offset;
     UINT32 end_offset;
 
-    if(CDFSNP_MGR_ERR_SEEK == (cur_offset = lseek(fd, 0, SEEK_CUR)))/*save current offset*/
+    if(ERR_SEEK == (cur_offset = lseek(fd, 0, SEEK_CUR)))/*save current offset*/
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_get_file_size: seek cur offset failed\n");
         return (EC_FALSE);
     }
 
-    if(CDFSNP_MGR_ERR_SEEK == (end_offset = lseek(fd, 0, SEEK_END)))/*skip to end of file*/
+    if(ERR_SEEK == (end_offset = lseek(fd, 0, SEEK_END)))/*skip to end of file*/
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_get_file_size: seek end offset failed\n");
         return (EC_FALSE);
     }
 
-    if(CDFSNP_MGR_ERR_SEEK == lseek(fd, cur_offset, SEEK_SET))/*restore the saved offset*/
+    if(ERR_SEEK == lseek(fd, cur_offset, SEEK_SET))/*restore the saved offset*/
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_get_file_size: seek offset %ld failed\n", cur_offset);
         return (EC_FALSE);
@@ -74,7 +74,7 @@ EC_BOOL cdfsnp_mgr_buff_flush(const int fd, const UINT32 offset, const RWSIZE ws
     RWSIZE csize;/*write completed size*/
     RWSIZE osize;/*write once size*/
 
-    if(CDFSNP_MGR_ERR_SEEK == lseek(fd, offset, SEEK_SET))
+    if(ERR_SEEK == lseek(fd, offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_buff_flush: seek offset %ld failed\n", offset);
         return (EC_FALSE);
@@ -103,7 +103,7 @@ EC_BOOL cdfsnp_mgr_buff_load(const int fd, const UINT32 offset, const RWSIZE rsi
     RWSIZE csize;/*read completed size*/
     RWSIZE osize;/*read once size*/
 
-    if(CDFSNP_MGR_ERR_SEEK == lseek(fd, offset, SEEK_SET))
+    if(ERR_SEEK == lseek(fd, offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_buff_load: seek offset %ld failed\n", offset);
         return (EC_FALSE);
@@ -175,8 +175,8 @@ EC_BOOL cdfsnp_mgr_init(CDFSNP_MGR *cdfsnp_mgr)
 
     clist_init(CDFSNP_MGR_NP_CACHED_LIST(cdfsnp_mgr), MM_IGNORE, LOC_CDFSNPMGR_0003);
 
-    CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
-    CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+    CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = ERR_FD;
+    CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = ERR_FD;
 
     CDFSNP_MGR_NP_HEADER_TBL_BUFF_LEN(cdfsnp_mgr) = 0;
     CDFSNP_MGR_NP_HEADER_TBL_BUFF(cdfsnp_mgr) = NULL_PTR;
@@ -204,16 +204,16 @@ EC_BOOL cdfsnp_mgr_clean(CDFSNP_MGR *cdfsnp_mgr)
     cvector_clean(CDFSNP_MGR_NP_VEC(cdfsnp_mgr), (CVECTOR_DATA_CLEANER)cdfsnp_free, LOC_CDFSNPMGR_0005);
     clist_clean(CDFSNP_MGR_NP_CACHED_LIST(cdfsnp_mgr), NULL_PTR);
 
-    if(CDFSNP_MGR_ERR_FD != CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr))
+    if(ERR_FD != CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr))
     {
-        close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = ERR_FD;
     }
 
-    if(CDFSNP_MGR_ERR_FD != CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr))
+    if(ERR_FD != CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr))
     {
-        close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = ERR_FD;
     }
 
     if(NULL_PTR != CDFSNP_MGR_NP_HEADER_TBL_BUFF(cdfsnp_mgr))
@@ -249,7 +249,7 @@ EC_BOOL cdfsnp_mgr_load_one_header(CDFSNP_MGR *cdfsnp_mgr, const UINT32 offset, 
 {
     RWSIZE rsize;
 
-    if(CDFSNP_ERR_SEEK == lseek(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_one_header: seek offset %ld failed\n", offset);
         return (EC_FALSE);
@@ -269,7 +269,7 @@ EC_BOOL cdfsnp_mgr_flush_one_header(CDFSNP_MGR *cdfsnp_mgr, const UINT32 offset,
 {
     RWSIZE wsize;
 
-    if(CDFSNP_ERR_SEEK == lseek(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_flush_one_header: seek offset %ld failed\n", offset);
         return (EC_FALSE);
@@ -287,7 +287,7 @@ EC_BOOL cdfsnp_mgr_flush_one_header(CDFSNP_MGR *cdfsnp_mgr, const UINT32 offset,
 
 EC_BOOL cdfsnp_mgr_load_one_cbloom(CDFSNP_MGR *cdfsnp_mgr, const UINT32 offset, const RWSIZE rsize, CBLOOM *cdfsnp_cbloom)
 {
-    if(CDFSNP_ERR_SEEK == lseek(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_one_cbloom: seek offset %ld failed\n", offset);
         return (EC_FALSE);
@@ -304,7 +304,7 @@ EC_BOOL cdfsnp_mgr_load_one_cbloom(CDFSNP_MGR *cdfsnp_mgr, const UINT32 offset, 
 
 EC_BOOL cdfsnp_mgr_flush_one_cbloom(CDFSNP_MGR *cdfsnp_mgr, const UINT32 offset, const RWSIZE wsize, const CBLOOM *cdfsnp_cbloom)
 {
-    if(CDFSNP_ERR_SEEK == lseek(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr), offset, SEEK_SET))
+    if(ERR_SEEK == lseek(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr), offset, SEEK_SET))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_flush_one_cbloom: seek offset %ld failed\n", offset);
         return (EC_FALSE);
@@ -334,8 +334,8 @@ EC_BOOL cdfsnp_mgr_load_header_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_
         return (EC_FALSE);
     }
 
-    CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = c_open((char *)cdfsnp_mgr_header_db_name, O_RDWR, 0666);
-    if(CDFSNP_MGR_ERR_FD == CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr))
+    CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = c_file_open((char *)cdfsnp_mgr_header_db_name, O_RDWR, 0666);
+    if(ERR_FD == CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_header_db: open cdfsnp mgr header db %s failed\n", cdfsnp_mgr_header_db_name);
         return (EC_FALSE);
@@ -344,8 +344,8 @@ EC_BOOL cdfsnp_mgr_load_header_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_
     if(EC_FALSE == cdfsnp_mgr_get_file_size(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr), &cdfsnp_mgr_header_db_size))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_header_db: get cdfsnp mgr header db %s size failed\n", cdfsnp_mgr_header_db_name);
-        close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = ERR_FD;
         return (EC_FALSE);
     }
 
@@ -354,8 +354,8 @@ EC_BOOL cdfsnp_mgr_load_header_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_header_db: mismatched cdfsnp support max num %ld and header db size %ld\n",
                             CDFSNP_MGR_NP_SUPPORT_MAX_NUM(cdfsnp_mgr), cdfsnp_mgr_header_db_size);
-        close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = ERR_FD;
         return (EC_FALSE);
     }
 
@@ -364,8 +364,8 @@ EC_BOOL cdfsnp_mgr_load_header_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_header_db: alloc %ld bytes failed for cdfsnp mgr header db %s\n",
                             cdfsnp_mgr_header_db_size, cdfsnp_mgr_header_db_name);
-        close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = ERR_FD;
         return (EC_FALSE);
     }
 
@@ -373,8 +373,8 @@ EC_BOOL cdfsnp_mgr_load_header_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_header_db: load %ld bytes failed from cdfsnp mgr header db %s\n",
                             cdfsnp_mgr_header_db_size, cdfsnp_mgr_header_db_name);
-        close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = ERR_FD;
 
         SAFE_FREE(cdfsnp_mgr_header_db_buff, LOC_CDFSNPMGR_0011);
         return (EC_FALSE);
@@ -434,8 +434,8 @@ EC_BOOL cdfsnp_mgr_load_cbloom_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_
 
     cdfsnp_cbloom_size = sizeof(CBLOOM) + NWORDS_TO_NBYTES(NBITS_TO_NWORDS(cdfsnp_cbloom_row_num * cdfsnp_cbloom_col_num));
 
-    CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = c_open((char *)cdfsnp_mgr_cbloom_db_name, O_RDWR, 0666);
-    if(CDFSNP_MGR_ERR_FD == CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr))
+    CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = c_file_open((char *)cdfsnp_mgr_cbloom_db_name, O_RDWR, 0666);
+    if(ERR_FD == CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_cbloom_db: open cdfsnp mgr cbloom db %s failed\n", cdfsnp_mgr_cbloom_db_name);
         return (EC_FALSE);
@@ -445,8 +445,8 @@ EC_BOOL cdfsnp_mgr_load_cbloom_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_cbloom_db: get cdfsnp mgr cbloom db %s size failed\n", (char *)cdfsnp_mgr_cbloom_db_name);
 
-        close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = ERR_FD;
         return (EC_FALSE);
     }
 
@@ -454,8 +454,8 @@ EC_BOOL cdfsnp_mgr_load_cbloom_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_cbloom_db: mismatched cdfsnp support max num %ld and cbloom db size %ld\n",
                             CDFSNP_MGR_NP_SUPPORT_MAX_NUM(cdfsnp_mgr), cdfsnp_mgr_cbloom_db_size);
-        close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = ERR_FD;
         return (EC_FALSE);
     }
 
@@ -465,8 +465,8 @@ EC_BOOL cdfsnp_mgr_load_cbloom_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_cbloom_db: alloc %ld bytes failed for cdfsnp mgr cbloom db %s\n",
                             cdfsnp_mgr_cbloom_db_size, cdfsnp_mgr_cbloom_db_name);
 
-        close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = ERR_FD;
         return (EC_FALSE);
     }
 
@@ -474,8 +474,8 @@ EC_BOOL cdfsnp_mgr_load_cbloom_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_cbloom_db: load %ld bytes failed from cdfsnp mgr cbloom db %s\n",
                             cdfsnp_mgr_cbloom_db_size, (char *)cdfsnp_mgr_cbloom_db_name);
-        close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = ERR_FD;
 
         SAFE_FREE(cdfsnp_mgr_cbloom_db_buff, LOC_CDFSNPMGR_0013);
         return (EC_FALSE);
@@ -489,7 +489,7 @@ EC_BOOL cdfsnp_mgr_load_cbloom_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_
 
 EC_BOOL cdfsnp_mgr_flush_header_db(const CDFSNP_MGR *cdfsnp_mgr)
 {
-    if(CDFSNP_MGR_ERR_FD != CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr))
+    if(ERR_FD != CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr))
     {
         if(EC_FALSE == cdfsnp_mgr_buff_flush(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr),
                                              (UINT32)0, CDFSNP_MGR_NP_HEADER_TBL_BUFF_LEN(cdfsnp_mgr), CDFSNP_MGR_NP_HEADER_TBL_BUFF(cdfsnp_mgr)))
@@ -503,7 +503,7 @@ EC_BOOL cdfsnp_mgr_flush_header_db(const CDFSNP_MGR *cdfsnp_mgr)
 
 EC_BOOL cdfsnp_mgr_flush_cbloom_db(const CDFSNP_MGR *cdfsnp_mgr)
 {
-    if(CDFSNP_MGR_ERR_FD != CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr))
+    if(ERR_FD != CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr))
     {
         if(EC_FALSE == cdfsnp_mgr_buff_flush(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr),
                                              (UINT32)0, CDFSNP_MGR_NP_CBLOOM_TBL_BUFF_LEN(cdfsnp_mgr), CDFSNP_MGR_NP_CBLOOM_TBL_BUFF(cdfsnp_mgr)))
@@ -517,20 +517,20 @@ EC_BOOL cdfsnp_mgr_flush_cbloom_db(const CDFSNP_MGR *cdfsnp_mgr)
 
 EC_BOOL cdfsnp_mgr_close_header_db(CDFSNP_MGR *cdfsnp_mgr)
 {
-    if(CDFSNP_MGR_ERR_FD != CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr))
+    if(ERR_FD != CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr))
     {
-        close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = ERR_FD;
     }
     return (EC_TRUE);
 }
 
 EC_BOOL cdfsnp_mgr_close_cbloom_db(CDFSNP_MGR *cdfsnp_mgr)
 {
-    if(CDFSNP_MGR_ERR_FD != CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr))
+    if(ERR_FD != CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr))
     {
-        close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = ERR_FD;
     }
     return (EC_TRUE);
 }
@@ -569,8 +569,8 @@ EC_BOOL cdfsnp_mgr_create_header_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsn
         return (EC_FALSE);
     }
 
-    CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = c_open((char *)cdfsnp_mgr_header_db_name, O_RDWR | O_CREAT, 0666);
-    if(CDFSNP_MGR_ERR_FD == CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr))
+    CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = c_file_open((char *)cdfsnp_mgr_header_db_name, O_RDWR | O_CREAT, 0666);
+    if(ERR_FD == CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_create_header_db: open cdfsnp mgr header db %s failed\n", (char *)cdfsnp_mgr_header_db_name);
         return (EC_FALSE);
@@ -582,8 +582,8 @@ EC_BOOL cdfsnp_mgr_create_header_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsn
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_create_header_db: alloc %ld bytes failed for cdfsnp mgr header db %s\n",
                             cdfsnp_mgr_header_db_size, (char *)cdfsnp_mgr_header_db_name);
-        close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = ERR_FD;
         return (EC_FALSE);
     }
 
@@ -607,8 +607,8 @@ EC_BOOL cdfsnp_mgr_create_header_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsn
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_create_header_db: load %ld bytes failed from cdfsnp mgr header db %s\n",
                             cdfsnp_mgr_header_db_size, (char *)cdfsnp_mgr_header_db_name);
-        close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_HEADER_TBL_FD(cdfsnp_mgr) = ERR_FD;
 
         SAFE_FREE(cdfsnp_mgr_header_db_buff, LOC_CDFSNPMGR_0015);
         return (EC_FALSE);
@@ -653,8 +653,8 @@ EC_BOOL cdfsnp_mgr_create_cbloom_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsn
     cdfsnp_cbloom_size = sizeof(CBLOOM) + NWORDS_TO_NBYTES(NBITS_TO_NWORDS(cdfsnp_cbloom_row_num * cdfsnp_cbloom_col_num));
     cdfsnp_mgr_cbloom_db_size = cdfsnp_cbloom_size * CDFSNP_MGR_NP_SUPPORT_MAX_NUM(cdfsnp_mgr);
 
-    CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = c_open((char *)cdfsnp_mgr_cbloom_db_name, O_RDWR | O_CREAT, 0666);
-    if(CDFSNP_MGR_ERR_FD == CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr))
+    CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = c_file_open((char *)cdfsnp_mgr_cbloom_db_name, O_RDWR | O_CREAT, 0666);
+    if(ERR_FD == CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr))
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_create_cbloom_db: open cdfsnp mgr cbloom db %s failed\n", (char *)cdfsnp_mgr_cbloom_db_name);
         return (EC_FALSE);
@@ -666,8 +666,8 @@ EC_BOOL cdfsnp_mgr_create_cbloom_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsn
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_create_cbloom_db: alloc %ld bytes failed for cdfsnp mgr cbloom db %s\n",
                             cdfsnp_mgr_cbloom_db_size, (char *)cdfsnp_mgr_cbloom_db_name);
 
-        close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = ERR_FD;
         return (EC_FALSE);
     }
 
@@ -685,8 +685,8 @@ EC_BOOL cdfsnp_mgr_create_cbloom_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsn
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_create_cbloom_db: create %ld bytes failed from cdfsnp mgr cbloom db %s\n",
                             cdfsnp_mgr_cbloom_db_size, cdfsnp_mgr_cbloom_db_name);
-        close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
-        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = CDFSNP_MGR_ERR_FD;
+        c_file_close(CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr));
+        CDFSNP_MGR_NP_CBLOOM_TBL_FD(cdfsnp_mgr) = ERR_FD;
 
         SAFE_FREE(cdfsnp_mgr_cbloom_db_buff, LOC_CDFSNPMGR_0017);
         return (EC_FALSE);
@@ -752,8 +752,8 @@ EC_BOOL cdfsnp_mgr_load_cfg_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_db_
         return (EC_FALSE);
     }
 
-    cdfsnp_mgr_cfg_fd = c_open((char *)cdfsnp_mgr_cfg_db_name, O_RDONLY, 0666);
-    if(CDFSNP_MGR_ERR_FD == cdfsnp_mgr_cfg_fd)
+    cdfsnp_mgr_cfg_fd = c_file_open((char *)cdfsnp_mgr_cfg_db_name, O_RDONLY, 0666);
+    if(ERR_FD == cdfsnp_mgr_cfg_fd)
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_cfg_db: open cdfsnp mgr cfg db %s failed\n", (char *)cdfsnp_mgr_cfg_db_name);
         return (EC_FALSE);
@@ -765,14 +765,14 @@ EC_BOOL cdfsnp_mgr_load_cfg_db(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_db_
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_load_cfg_db: load %ld bytes failed from cdfsnp mgr cfg db %s\n",
                             cdfsnp_mgr_cfg_db_size, (char *)cdfsnp_mgr_cfg_db_name);
-        close(cdfsnp_mgr_cfg_fd);
-        cdfsnp_mgr_cfg_fd = CDFSNP_MGR_ERR_FD;
+        c_file_close(cdfsnp_mgr_cfg_fd);
+        cdfsnp_mgr_cfg_fd = ERR_FD;
 
         return (EC_FALSE);
     }
 
-    close(cdfsnp_mgr_cfg_fd);
-    cdfsnp_mgr_cfg_fd = CDFSNP_MGR_ERR_FD;
+    c_file_close(cdfsnp_mgr_cfg_fd);
+    cdfsnp_mgr_cfg_fd = ERR_FD;
 
     return (EC_TRUE);
 }
@@ -792,8 +792,8 @@ EC_BOOL cdfsnp_mgr_create_cfg_db(const CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cd
         return (EC_FALSE);
     }
 
-    cdfsnp_mgr_cfg_fd = c_open((char *)cdfsnp_mgr_cfg_db_name, O_RDWR | O_CREAT, 0666);
-    if(CDFSNP_MGR_ERR_FD == cdfsnp_mgr_cfg_fd)
+    cdfsnp_mgr_cfg_fd = c_file_open((char *)cdfsnp_mgr_cfg_db_name, O_RDWR | O_CREAT, 0666);
+    if(ERR_FD == cdfsnp_mgr_cfg_fd)
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_create_cfg_db: open cdfsnp mgr cfg db %s failed\n", (char *)cdfsnp_mgr_cfg_db_name);
         return (EC_FALSE);
@@ -805,14 +805,14 @@ EC_BOOL cdfsnp_mgr_create_cfg_db(const CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cd
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_create_cfg_db: flush %ld bytes failed from cdfsnp mgr cfg db %s\n",
                             cdfsnp_mgr_cfg_db_size, (char *)cdfsnp_mgr_cfg_db_name);
-        close(cdfsnp_mgr_cfg_fd);
-        cdfsnp_mgr_cfg_fd = CDFSNP_MGR_ERR_FD;
+        c_file_close(cdfsnp_mgr_cfg_fd);
+        cdfsnp_mgr_cfg_fd = ERR_FD;
 
         return (EC_FALSE);
     }
 
-    close(cdfsnp_mgr_cfg_fd);
-    cdfsnp_mgr_cfg_fd = CDFSNP_MGR_ERR_FD;
+    c_file_close(cdfsnp_mgr_cfg_fd);
+    cdfsnp_mgr_cfg_fd = ERR_FD;
 
     return (EC_TRUE);
 }
@@ -836,8 +836,8 @@ EC_BOOL cdfsnp_mgr_flush_cfg_db(CDFSNP_MGR *cdfsnp_mgr)
         return (EC_FALSE);
     }
 
-    cdfsnp_mgr_cfg_fd = c_open((char *)cdfsnp_mgr_cfg_db_name, O_RDWR, 0666);
-    if(CDFSNP_MGR_ERR_FD == cdfsnp_mgr_cfg_fd)
+    cdfsnp_mgr_cfg_fd = c_file_open((char *)cdfsnp_mgr_cfg_db_name, O_RDWR, 0666);
+    if(ERR_FD == cdfsnp_mgr_cfg_fd)
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_flush_cfg_db: open cdfsnp mgr cfg db %s failed\n", (char *)cdfsnp_mgr_cfg_db_name);
         return (EC_FALSE);
@@ -849,14 +849,14 @@ EC_BOOL cdfsnp_mgr_flush_cfg_db(CDFSNP_MGR *cdfsnp_mgr)
     {
         sys_log(LOGSTDOUT, "error:cdfsnp_mgr_flush_cfg_db: flush %ld bytes failed from cdfsnp mgr cfg db %s\n",
                             cdfsnp_mgr_cfg_db_size, (char *)cdfsnp_mgr_cfg_db_name);
-        close(cdfsnp_mgr_cfg_fd);
-        cdfsnp_mgr_cfg_fd = CDFSNP_MGR_ERR_FD;
+        c_file_close(cdfsnp_mgr_cfg_fd);
+        cdfsnp_mgr_cfg_fd = ERR_FD;
 
         return (EC_FALSE);
     }
 
-    close(cdfsnp_mgr_cfg_fd);
-    cdfsnp_mgr_cfg_fd = CDFSNP_MGR_ERR_FD;
+    c_file_close(cdfsnp_mgr_cfg_fd);
+    cdfsnp_mgr_cfg_fd = ERR_FD;
 
     return (EC_TRUE);
 }
@@ -901,7 +901,7 @@ EC_BOOL cdfsnp_mgr_log_open(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_db_roo
     UINT8  cdfsnp_mgr_lost_replica_log_name[ CDFSNP_MGR_LOST_REPLICA_LOG_NAME_MAX_SIZE ];
 
     snprintf((char *)cdfsnp_mgr_lost_fnode_log_name, CDFSNP_MGR_LOST_FNODE_LOG_NAME_MAX_SIZE, "%s/rank_%s_lost_fnode",
-             (char *)cstring_get_str(cdfsnp_db_root_dir), uint32_to_ipv4(CMPI_LOCAL_TCID));
+             (char *)cstring_get_str(cdfsnp_db_root_dir), c_word_to_ipv4(CMPI_LOCAL_TCID));
 
     CDFSNP_MGR_LOST_FNODE_LOG(cdfsnp_mgr) = log_file_open((char *)cdfsnp_mgr_lost_fnode_log_name, "w+",
                                                 CMPI_LOCAL_TCID, CMPI_LOCAL_RANK,
@@ -915,7 +915,7 @@ EC_BOOL cdfsnp_mgr_log_open(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *cdfsnp_db_roo
     }
 
     snprintf((char *)cdfsnp_mgr_lost_replica_log_name, CDFSNP_MGR_LOST_REPLICA_LOG_NAME_MAX_SIZE, "%s/rank_%s_lost_replica",
-             (char *)cstring_get_str(cdfsnp_db_root_dir), uint32_to_ipv4(CMPI_LOCAL_TCID));
+             (char *)cstring_get_str(cdfsnp_db_root_dir), c_word_to_ipv4(CMPI_LOCAL_TCID));
 
     CDFSNP_MGR_LOST_REPLICA_LOG(cdfsnp_mgr) = log_file_open((char *)cdfsnp_mgr_lost_replica_log_name, "w+",
                                                   CMPI_LOCAL_TCID, CMPI_LOCAL_RANK,
@@ -2793,7 +2793,7 @@ EC_BOOL cdfsnp_mgr_check_replicas(CDFSNP_MGR *cdfsnp_mgr, const CSTRING *file_pa
         if(CVECTOR_ERR_POS == cvector_search_front(tcid_vec, (void *)CDFSNP_INODE_TCID(cdfsnp_inode), NULL_PTR))
         {
             sys_log(LOGSTDOUT, "error:cdfsnp_mgr_check_replicas: file %s inode %ld# has tcid %s not in expected tcid vec\n",
-                                (char *)cstring_get_str(file_path), cdfsnp_inode_pos, uint32_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode))
+                                (char *)cstring_get_str(file_path), cdfsnp_inode_pos, c_word_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode))
                     );
             return (EC_FALSE);
         }

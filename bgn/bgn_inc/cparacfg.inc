@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -47,7 +47,7 @@ typedef struct
 }CPARACFG;
 
 #define CPARACFG_TCID(cparacfg)                                     ((cparacfg)->tcid)
-#define CPARACFG_TCID_STR(cparacfg)                                 (uint32_to_ipv4(CPARACFG_TCID(cparacfg)))
+#define CPARACFG_TCID_STR(cparacfg)                                 (c_word_to_ipv4(CPARACFG_TCID(cparacfg)))
 #define CPARACFG_RANK(cparacfg)                                     ((cparacfg)->rank)
 
 #define CPARACFG_TASK_REQ_THREAD_MAX_NUM(cparacfg)                  ((cparacfg)->task_req_thread_max_num       )

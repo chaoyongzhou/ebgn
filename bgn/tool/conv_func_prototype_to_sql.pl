@@ -284,7 +284,9 @@ sub parse_func_priority
         $func_prio = "PRIO_MD_CONV";
         return $func_prio;
     }
-    if( $func_name =~ /^([a-zA-Z0-9]+_[a-zA-Z0-9]+).*/ )
+    
+    #if( $func_name =~ /^([a-zA-Z0-9]+_[a-zA-Z0-9]+).*/ )
+    if( $func_name =~ /^([a-zA-Z0-9]+).*/ )
     {
         $module = $1;
         $module =~ s/_//g;

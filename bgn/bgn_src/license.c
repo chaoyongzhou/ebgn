@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -32,7 +32,7 @@ extern "C"{
 
 #include "mm.h"
 #include "log.h"
-#include "char2int.h"
+#include "cmisc.h"
 #include "bgnz.h"
 #include "eccfp.h"
 #include "license.h"
@@ -486,16 +486,16 @@ EC_BOOL lic_date_make(LIC_DATE *lic_date, const char *start_date_str, const char
     snprintf(end_date_str_tmp, sizeof(end_date_str_tmp)/sizeof(end_date_str_tmp[0]), "%s", end_date_str);
 
     /*start date*/
-    field_num = str_split(start_date_str_tmp, "-/", fields, sizeof(fields)/sizeof(fields[ 0 ]));
+    field_num = c_str_split(start_date_str_tmp, "-/", fields, sizeof(fields)/sizeof(fields[ 0 ]));
     if(3 != field_num)
     {
         sys_log(LOGSTDOUT, "error:lic_date_make: invalid start date: %s\n", start_date_str);
         return (EC_FALSE);
     }
 
-    year  = str_to_uint32(fields[ 0 ]);
-    month = str_to_uint32(fields[ 1 ]);
-    day   = str_to_uint32(fields[ 2 ]);
+    year  = c_str_to_word(fields[ 0 ]);
+    month = c_str_to_word(fields[ 1 ]);
+    day   = c_str_to_word(fields[ 2 ]);
 
     if(2012 > year || year > 4095 || 1 > month || month > 12 || 1 > day || day > 31)
     {
@@ -508,16 +508,16 @@ EC_BOOL lic_date_make(LIC_DATE *lic_date, const char *start_date_str, const char
     LIC_DATE_START_DAY(lic_date)   = day;
 
     /*end date*/
-    field_num = str_split(end_date_str_tmp, "-/", fields, sizeof(fields)/sizeof(fields[ 0 ]));
+    field_num = c_str_split(end_date_str_tmp, "-/", fields, sizeof(fields)/sizeof(fields[ 0 ]));
     if(3 != field_num)
     {
         sys_log(LOGSTDOUT, "error:lic_date_make: invalid end date: %s\n", end_date_str);
         return (EC_FALSE);
     }
 
-    year  = str_to_uint32(fields[ 0 ]);
-    month = str_to_uint32(fields[ 1 ]);
-    day   = str_to_uint32(fields[ 2 ]);
+    year  = c_str_to_word(fields[ 0 ]);
+    month = c_str_to_word(fields[ 1 ]);
+    day   = c_str_to_word(fields[ 2 ]);
 
     if(2012 > year || year > 4095 || 1 > month || month > 12 || 1 > day || day > 31)
     {
@@ -920,7 +920,7 @@ EC_BOOL lic_make(const char *mac_str,
         return (EC_FALSE);
     }
 
-    fd = c_open(g_lic_file_name, O_RDWR | O_CREAT, 0666);
+    fd = c_file_open(g_lic_file_name, O_RDWR | O_CREAT, 0666);
     if(-1 == fd)
     {
         sys_log(LOGSTDOUT, "error:lic_make: open license file %s failed\n", g_lic_file_name);
@@ -959,7 +959,7 @@ EC_BOOL lic_check()
 
     lic_cfg_init(&lic_cfg);
 
-    fd = c_open(g_lic_file_name, O_RDONLY, 0666);
+    fd = c_file_open(g_lic_file_name, O_RDONLY, 0666);
     if(-1 == fd)
     {
         sys_log(LOGSTDOUT, "error:lic_check: open license file %s failed\n", g_lic_file_name);
@@ -1074,7 +1074,7 @@ void lic_print(LOG *log)
 
     lic_cfg_init(&lic_cfg);
 
-    fd = c_open(g_lic_file_name, O_RDONLY, 0666);
+    fd = c_file_open(g_lic_file_name, O_RDONLY, 0666);
     if(-1 == fd)
     {
         sys_log(LOGSTDOUT, "error:lic_print: open license file %s failed\n", g_lic_file_name);

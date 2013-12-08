@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -23,7 +23,7 @@ extern "C"{
 
 #include "mm.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "cmutex.h"
 #include "cstring.h"
@@ -611,7 +611,7 @@ EC_BOOL log_file_fopen(LOG *log)
         snprintf(fname, sizeof(fname) - 1, "%s.log", (char *)LOG_FILE_NAME_STR(log));
     }
 
-    if(EC_FALSE == create_basedir(fname))
+    if(EC_FALSE == c_basedir_create(fname))
     {
         return (EC_FALSE);
     }
@@ -639,7 +639,7 @@ EC_BOOL log_file_fopen(LOG *log)
                 cur_time->tm_min,
                 cur_time->tm_sec);
         fprintf(LOG_FILE_FP(log), "my pid = %u, tcid = %s, rank = %ld\n",
-                                  getpid(), uint32_to_ipv4(LOG_FILE_TCID(log)), LOG_FILE_RANK(log));
+                                  getpid(), c_word_to_ipv4(LOG_FILE_TCID(log)), LOG_FILE_RANK(log));
         fflush(LOG_FILE_FP(log));
     }
 #endif

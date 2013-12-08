@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -15,7 +15,7 @@ extern "C"{
 #include "type.h"
 #include "clist.h"
 #include "cvector.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #define CLOAD_ERR_LOAD                 ((UINT32)  -1)
 
@@ -52,7 +52,7 @@ typedef struct
 
 #define CLOAD_NODE_TCID(cload_node)                  ((cload_node)->tcid)
 #define CLOAD_NODE_COMM(cload_node)                  ((cload_node)->comm)
-#define CLOAD_NODE_TCID_STR(cload_node)              (uint32_to_ipv4(CLOAD_NODE_TCID(cload_node)))
+#define CLOAD_NODE_TCID_STR(cload_node)              (c_word_to_ipv4(CLOAD_NODE_TCID(cload_node)))
 #define CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)    (&((cload_node)->rank_load_stat_vec))
 #define CLOAD_NODE_RANK_LOAD_STAT(cload_node, rank)  ((CLOAD_STAT *)cvector_get(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node), (rank)))
 

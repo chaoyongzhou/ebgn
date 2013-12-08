@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -31,7 +31,7 @@ extern "C"{
 #include "cbc.h"
 
 #include "cxml.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "task.h"
 #include "kbuff.h"
@@ -1327,7 +1327,7 @@ EC_BOOL cdir_is_dir_on_node_tcid(const UINT32 cdir_md_id, const CSTRING *path_na
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cdir_is_dir_on_node_tcid, ERR_MODULE_ID, path_name, node_tcid))
         {
             sys_log(LOGSTDOUT, "error:cdir_is_dir_on_node_tcid: something wrong when make task to check dir %s on tcid %s\n",
-                            (char *)cstring_get_str(path_name), uint32_to_ipv4(node_tcid));
+                            (char *)cstring_get_str(path_name), c_word_to_ipv4(node_tcid));
             return (EC_FALSE);
         }
         return (ret);
@@ -1378,7 +1378,7 @@ UINT32 cdir_create_on_node_tcid(const UINT32 cdir_md_id, const CSTRING *dir_name
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cdir_create_on_node_tcid, ERR_MODULE_ID, dir_name, mode, node_tcid))
         {
             sys_log(LOGSTDOUT, "error:cdir_create_on_node_tcid: something wrong when make task to create dir %s on tcid %s\n",
-                                (char *)cstring_get_str(dir_name), uint32_to_ipv4(node_tcid));
+                                (char *)cstring_get_str(dir_name), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
         return (ret);
@@ -1441,7 +1441,7 @@ UINT32 cdir_read_on_node_tcid(const UINT32 cdir_md_id, const CSTRING *dir_name, 
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cdir_read_on_node_tcid, ERR_MODULE_ID, dir_name, cdir_node, node_tcid))
         {
             sys_log(LOGSTDOUT, "error:cdir_read_on_node_tcid: something wrong when make task to open dir %s on tcid %s\n",
-                                (char *)cstring_get_str(dir_name), uint32_to_ipv4(node_tcid));
+                                (char *)cstring_get_str(dir_name), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
         return (ret);
@@ -1592,7 +1592,7 @@ UINT32 cdir_clean_on_node_tcid(const UINT32 cdir_md_id, const CDIR_NODE *cdir_no
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cdir_clean_on_node_tcid, ERR_MODULE_ID, cdir_node, node_tcid))
         {
             sys_log(LOGSTDOUT, "error:cdir_clean_on_node_tcid: something wrong when make task to clean dir %s on tcid %s\n",
-                                (char *)CDIR_NODE_NAME(cdir_node), uint32_to_ipv4(node_tcid));
+                                (char *)CDIR_NODE_NAME(cdir_node), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
         return (ret);
@@ -1659,7 +1659,7 @@ UINT32 cdir_rmv_on_node_tcid(const UINT32 cdir_md_id, const CDIR_NODE *cdir_node
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cdir_rmv_on_node_tcid, ERR_MODULE_ID, cdir_node, node_tcid))
         {
             sys_log(LOGSTDOUT, "error:cdir_rmv_on_node_tcid: something wrong when make task to rmv dir %s on tcid %s\n",
-                                (char *)CDIR_NODE_NAME(cdir_node), uint32_to_ipv4(node_tcid));
+                                (char *)CDIR_NODE_NAME(cdir_node), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
         return (ret);
@@ -1746,7 +1746,7 @@ EC_BOOL cdir_search_trans(const UINT32 cdir_md_id, const CSTRING *dir_name, UINT
     {
         (*node_tcid) = (UINT32)cvector_get(node_tcid_list, node_tcid_pos);
         sys_log(LOGSTDOUT, "info:cdir_search_trans: dir %s found on node_tcid %s\n",
-                            (char *)cstring_get_str(dir_name), uint32_to_ipv4(*node_tcid));
+                            (char *)cstring_get_str(dir_name), c_word_to_ipv4(*node_tcid));
         carray_free(ret_list, LOC_CDIR_0021);
         return (EC_TRUE);
     }

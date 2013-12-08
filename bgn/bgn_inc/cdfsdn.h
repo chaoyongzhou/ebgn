@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -83,8 +83,6 @@ extern "C"{
 
 #define CDFSDN_32BIT_MASK               ((UINT32)0xFFFFFFFF)
 
-#define CDFSDN_ERR_FD                   (-1)
-#define CDFSDN_ERR_SEEK                 (-1)
 #define CDFSDN_ERR_POS                  ((UINT32)0xFFFFFFFF)
 #define CDFSDN_ERR_LAYOUT               ((UINT32)0xFFFFFFFF)
 

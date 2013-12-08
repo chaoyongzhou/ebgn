@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -22,7 +22,7 @@ extern "C"{
 
 #include "cbc.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 #include "cmutex.h"
 #include "cbytes.h"
 #include "cstring.h"
@@ -1188,7 +1188,7 @@ EC_BOOL __cbgt_flush_root_record_file(const UINT32 cbgt_md_id, const CSTRING *ro
         return (EC_FALSE);
     }
 
-    if(EC_FALSE == create_basedir((char *)cstring_get_str(root_record_file_name)))
+    if(EC_FALSE == c_basedir_create((char *)cstring_get_str(root_record_file_name)))
     {
         sys_log(LOGSTDOUT, "error:__cbgt_flush_root_record_file: create basedir of file %s failed\n",
                             (char *)cstring_get_str(root_record_file_name));
@@ -1196,7 +1196,7 @@ EC_BOOL __cbgt_flush_root_record_file(const UINT32 cbgt_md_id, const CSTRING *ro
         return (EC_FALSE);
     }
 
-    fd = c_open((char *)cstring_get_str(root_record_file_name), O_RDWR | O_CREAT, 0666);
+    fd = c_file_open((char *)cstring_get_str(root_record_file_name), O_RDWR | O_CREAT, 0666);
     if(-1 == fd)
     {
         sys_log(LOGSTDOUT,"error:__cbgt_flush_root_record_file: create %s failed\n", (char *)cstring_get_str(root_record_file_name));
@@ -1239,7 +1239,7 @@ EC_BOOL __cbgt_load_root_record_file(const UINT32 cbgt_md_id, const CSTRING *roo
         return (EC_FALSE);
     }
 
-    fd = c_open((char *)cstring_get_str(root_record_file_name), O_RDWR, 0666);
+    fd = c_file_open((char *)cstring_get_str(root_record_file_name), O_RDWR, 0666);
     if(-1 == fd)
     {
         sys_log(LOGSTDOUT,"error:__cbgt_load_root_record_file: open %s failed\n", (char *)cstring_get_str(root_record_file_name));
@@ -1701,7 +1701,7 @@ void cbgt_print_module_status(const UINT32 cbgt_md_id, LOG *log)
                         cbgt_md->usedcounter,
                         CBGT_MD_TABLE_ID(cbgt_md),
                         __cbgt_type(CBGT_MD_TYPE(cbgt_md)),
-                        (NULL_PTR == parent) ? uint32_to_ipv4(CMPI_ERROR_TCID) : MOD_NODE_TCID_STR(parent),
+                        (NULL_PTR == parent) ? c_word_to_ipv4(CMPI_ERROR_TCID) : MOD_NODE_TCID_STR(parent),
                         (NULL_PTR == parent) ? CMPI_ERROR_COMM                 : MOD_NODE_COMM(parent),
                         (NULL_PTR == parent) ? CMPI_ERROR_RANK                 : MOD_NODE_RANK(parent),
                         (NULL_PTR == parent) ? CMPI_ERROR_MODI                 : MOD_NODE_MODI(parent)
@@ -2411,7 +2411,7 @@ CBGT_GDB *cbgt_gdb_new()
 EC_BOOL cbgt_gdb_init(CBGT_GDB *gdb)
 {
     cstring_init(CBGT_GDB_FNAME(gdb), NULL_PTR);
-    CBGT_GDB_FD(gdb)         = CBGT_ERR_FD;
+    CBGT_GDB_FD(gdb)         = ERR_FD;
     CBGT_GDB_TABLE_ID(gdb)   = CBGT_ERR_TABLE_ID;
     CBGT_GDB_CDFS_MD_ID(gdb) = ERR_MODULE_ID;
     CBGT_GDB_CBTREE(gdb)     = NULL_PTR;
@@ -2430,10 +2430,10 @@ EC_BOOL cbgt_gdb_clean(CBGT_GDB *gdb)
         CBGT_GDB_CBTREE(gdb) = NULL_PTR;
     }
 
-    if(CBGT_ERR_FD != CBGT_GDB_FD(gdb))
+    if(ERR_FD != CBGT_GDB_FD(gdb))
     {
-        c_close(CBGT_GDB_FD(gdb));
-        CBGT_GDB_FD(gdb) = CBGT_ERR_FD;
+        c_file_close(CBGT_GDB_FD(gdb));
+        CBGT_GDB_FD(gdb) = ERR_FD;
     }
 
     CBGT_GDB_TABLE_ID(gdb)   = CBGT_ERR_TABLE_ID;
@@ -2526,14 +2526,14 @@ EC_BOOL cbgt_gdb_load(CBGT_GDB *gdb)
         CBGT_GDB_CBTREE(gdb) = NULL_PTR;
     }
 
-    if(CBGT_ERR_FD != CBGT_GDB_FD(gdb))
+    if(ERR_FD != CBGT_GDB_FD(gdb))
     {
-        c_close(CBGT_GDB_FD(gdb));
-        CBGT_GDB_FD(gdb) = CBGT_ERR_FD;
+        c_file_close(CBGT_GDB_FD(gdb));
+        CBGT_GDB_FD(gdb) = ERR_FD;
     } 
 
-    fd = c_open((char *)CBGT_GDB_FNAME_STR(gdb), O_RDWR, 0666);
-    if(CBGT_ERR_FD == fd)
+    fd = c_file_open((char *)CBGT_GDB_FNAME_STR(gdb), O_RDWR, 0666);
+    if(ERR_FD == fd)
     {
         sys_log(LOGSTDOUT, "error:cbgt_gdb_load: open file %s failed\n", (char *)CBGT_GDB_FNAME_STR(gdb));
         return (EC_FALSE);
@@ -2543,7 +2543,7 @@ EC_BOOL cbgt_gdb_load(CBGT_GDB *gdb)
     if(NULL_PTR == cbtree)
     {
         sys_log(LOGSTDOUT, "error:cbgt_gdb_load: load cbtree from file %s failed\n", (char *)CBGT_GDB_FNAME_STR(gdb));
-        c_close(fd);
+        c_file_close(fd);
         return (EC_FALSE);
     }
 
@@ -2569,8 +2569,8 @@ CBGT_GDB *cbgt_gdb_create(const uint8_t *root_path, const word_t table_id, const
         return (NULL_PTR);
     }
 
-    fd = c_open((char *)fname, O_RDWR | O_CREAT, 0666);
-    if(CBGT_ERR_FD == fd)
+    fd = c_file_open((char *)fname, O_RDWR | O_CREAT, 0666);
+    if(ERR_FD == fd)
     {
         sys_log(LOGSTDOUT, "error:cbgt_gdb_create: open file %s failed\n", fname);
         safe_free(fname, LOC_CBGT_0040);
@@ -2621,7 +2621,7 @@ EC_BOOL cbgt_gdb_flush(CBGT_GDB *gdb)
         return (EC_TRUE);
     }  
 
-    if(CBGT_ERR_FD == CBGT_GDB_FD(gdb))
+    if(ERR_FD == CBGT_GDB_FD(gdb))
     {
         sys_log(LOGSTDOUT, "error:cbgt_gdb_flush: fd is invalid\n");
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0045);
@@ -2807,7 +2807,7 @@ CBGT_GDB *cbgt_gdb_create(const uint8_t *root_path, const word_t table_id, const
     }
 
     cstring_set_str(CBGT_GDB_FNAME(gdb), fname);
-    CBGT_GDB_FD(gdb)         = CBGT_ERR_FD;
+    CBGT_GDB_FD(gdb)         = ERR_FD;
     CBGT_GDB_TABLE_ID(gdb)   = table_id;
     CBGT_GDB_CDFS_MD_ID(gdb) = cdfs_md_id;
     CBGT_GDB_CBTREE(gdb)     = cbtree;

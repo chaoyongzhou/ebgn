@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -60,9 +60,6 @@ extern "C"{
 #define CDFSNP_MGR_CBLOOM_DB_NAME_MAX_SIZE        (256)   /*max len of /$(cdfsnp_db_root_dir)/cbloom.db*/
 #define CDFSNP_MGR_LOST_FNODE_LOG_NAME_MAX_SIZE   (256)   /*max len of /$(cdfsnp_db_root_dir)/rank_{tcid}_lost_fnode.log*/
 #define CDFSNP_MGR_LOST_REPLICA_LOG_NAME_MAX_SIZE (256)   /*max len of /$(cdfsnp_db_root_dir)/rank_{tcid}_lost_replica.log*/
-
-#define CDFSNP_MGR_ERR_FD                  (-1)
-#define CDFSNP_MGR_ERR_SEEK                (-1)
 
 #define CDFSNP_MGR_WRITE_ONCE_MAX_BYTES    ((UINT32)0x7FFFF000)/*2GB - 4KB*/
 #define CDFSNP_MGR_READ_ONCE_MAX_BYTES     ((UINT32)0x7FFFF000)/*2GB - 4KB*/

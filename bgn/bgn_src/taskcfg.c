@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -25,7 +25,7 @@ extern "C"{
 #include "clist.h"
 #include "cset.h"
 #include "cstring.h"
-#include "char2int.h"
+#include "cmisc.h"
 #include "cxml.h"
 #include "cdevice.h"
 #include "csocket.h"

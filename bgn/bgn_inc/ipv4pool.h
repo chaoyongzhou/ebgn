@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -19,7 +19,7 @@ extern "C"{
 #include "mm.h"
 #include "log.h"
 
-#include "char2int.h"
+#include "cmisc.h"
 #include "cmutex.h"
 #include "cbytes.h"
 

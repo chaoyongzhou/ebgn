@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -41,7 +41,7 @@ extern "C"{
 #include "tcnode.h"
 #include "super.h"
 #include "cproc.h"
-#include "char2int.h"
+#include "cmisc.h"
 #include "cload.h"
 #include "cbtimer.h"
 #include "license.h"
@@ -247,7 +247,7 @@ EC_BOOL super_fnode_init(const UINT32 super_md_id, SUPER_FNODE *super_fnode)
 #endif/*SUPER_DEBUG_SWITCH*/
 
     cstring_init(SUPER_FNODE_FNAME(super_fnode), NULL_PTR);
-    SUPER_FNODE_FD(super_fnode) = SUPER_ERR_FD;
+    SUPER_FNODE_FD(super_fnode) = ERR_FD;
     SUPER_FNODE_PROGRESS(super_fnode) = 0.0;
     SUPER_FNODE_CMUTEX_INIT(super_fnode, LOC_SUPER_0005);
     return (EC_TRUE);
@@ -267,10 +267,10 @@ EC_BOOL super_fnode_clean(const UINT32 super_md_id, SUPER_FNODE *super_fnode)
 
     cstring_clean(SUPER_FNODE_FNAME(super_fnode));
 
-    if(SUPER_ERR_FD != SUPER_FNODE_FD(super_fnode))
+    if(ERR_FD != SUPER_FNODE_FD(super_fnode))
     {
-        close(SUPER_FNODE_FD(super_fnode));
-        SUPER_FNODE_FD(super_fnode) = SUPER_ERR_FD;
+        c_file_close(SUPER_FNODE_FD(super_fnode));
+        SUPER_FNODE_FD(super_fnode) = ERR_FD;
     }
 
     SUPER_FNODE_PROGRESS(super_fnode) = 0.0;
@@ -302,10 +302,10 @@ static EC_BOOL __super_fnode_clean(SUPER_FNODE *super_fnode)
 {
     cstring_clean(SUPER_FNODE_FNAME(super_fnode));
 
-    if(SUPER_ERR_FD != SUPER_FNODE_FD(super_fnode))
+    if(ERR_FD != SUPER_FNODE_FD(super_fnode))
     {
-        close(SUPER_FNODE_FD(super_fnode));
-        SUPER_FNODE_FD(super_fnode) = SUPER_ERR_FD;
+        c_file_close(SUPER_FNODE_FD(super_fnode));
+        SUPER_FNODE_FD(super_fnode) = ERR_FD;
     }
     SUPER_FNODE_PROGRESS(super_fnode) = 0;
     SUPER_FNODE_CMUTEX_CLEAN(super_fnode, LOC_SUPER_0008);
@@ -445,7 +445,7 @@ SUPER_FNODE *super_open_fnode_by_fname(const UINT32 super_md_id, const CSTRING *
 
     if(open_flags & (SUPER_O_WRONLY | SUPER_O_RDWR | SUPER_O_CREAT))
     {
-        if(EC_FALSE == create_basedir((char *)cstring_get_str(fname)))
+        if(EC_FALSE == c_basedir_create((char *)cstring_get_str(fname)))
         {
             sys_log(LOGSTDOUT, "error:super_open_fnode_by_fname: create basedir of file %s failed\n",
                                 (char *)cstring_get_str(fname));
@@ -454,8 +454,8 @@ SUPER_FNODE *super_open_fnode_by_fname(const UINT32 super_md_id, const CSTRING *
         }
     }
 
-    fd = c_open((char *)cstring_get_str(fname), __super_make_open_flags(open_flags), 0666);
-    if(SUPER_ERR_FD == fd)
+    fd = c_file_open((char *)cstring_get_str(fname), __super_make_open_flags(open_flags), 0666);
+    if(ERR_FD == fd)
     {
         CLIST_UNLOCK(SUPER_MD_FNODE_LIST(super_md), LOC_SUPER_0013);
         super_fnode_free(super_md_id, super_fnode);
@@ -1217,7 +1217,7 @@ void super_shutdown_taskcomm(const UINT32 super_md_id)
         TASK_BRD_CSRV(task_brd) = NULL_PTR;
     }
 
-    task_brd_clean(task_brd);
+    task_brd_free(task_brd);
 
     log_stdout = sys_log_redirect_cancel(LOGSTDOUT);
     log_stderr = sys_log_redirect_cancel(LOGSTDERR);
@@ -1871,7 +1871,7 @@ EC_BOOL super_ping_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ipaddr_c
     }
 
     task_brd = task_brd_default_get();
-    ipaddr   = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+    ipaddr   = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
 
     return super_check_ipaddr_connected(super_md_id, ipaddr);
 }
@@ -1961,7 +1961,7 @@ void super_handle_broken_tcid(const UINT32 super_md_id, const UINT32 broken_tcid
 #endif/*SUPER_DEBUG_SWITCH*/
 
     sys_log(LOGSTDOUT, "============================== super_handle_broken_tcid beg: broken tcid %s ==============================\n",
-                        uint32_to_ipv4(broken_tcid));
+                        c_word_to_ipv4(broken_tcid));
     //super_show_queues(super_md_id);/*debug only!*/
 
     task_brd = task_brd_default_get();
@@ -2094,7 +2094,7 @@ void super_handle_broken_tcid(const UINT32 super_md_id, const UINT32 broken_tcid
     }
 
     sys_log(LOGSTDOUT, "============================== super_handle_broken_tcid end: broken tcid %s ==============================\n",
-                        uint32_to_ipv4(broken_tcid));
+                        c_word_to_ipv4(broken_tcid));
     //super_show_queues(super_md_id);/*debug only!*/
 
     return;
@@ -2144,7 +2144,7 @@ void super_notify_broken_tcid(const UINT32 super_md_id, const UINT32 broken_tcid
     CVECTOR_UNLOCK(TASK_BRD_BROKEN_TCID_TBL(task_brd), LOC_SUPER_0043);
 
     sys_log(LOGSTDOUT, "============================== super_notify_broken_tcid beg: broken tcid %s ==============================\n",
-                        uint32_to_ipv4(broken_tcid));
+                        c_word_to_ipv4(broken_tcid));
 
     mod_mgr = mod_mgr_new(super_md_id, LOAD_BALANCING_LOOP);
 
@@ -2180,7 +2180,7 @@ void super_notify_broken_tcid(const UINT32 super_md_id, const UINT32 broken_tcid
     CVECTOR_UNLOCK(TASK_BRD_BROKEN_TCID_TBL(task_brd), LOC_SUPER_0045);
 
     sys_log(LOGSTDOUT, "============================== super_notify_broken_tcid end: broken tcid %s ==============================\n",
-                        uint32_to_ipv4(broken_tcid));
+                        c_word_to_ipv4(broken_tcid));
 
     return;
 }
@@ -2211,7 +2211,7 @@ void super_notify_broken_route(const UINT32 super_md_id, const UINT32 src_tcid, 
 #endif/*SUPER_DEBUG_SWITCH*/
 
     sys_log(LOGSTDOUT, "============================== super_notify_broken_route beg: src tcid %s, broken tcid %s ==============================\n",
-                        uint32_to_ipv4(src_tcid), uint32_to_ipv4(broken_tcid));
+                        c_word_to_ipv4(src_tcid), c_word_to_ipv4(broken_tcid));
 
     task_brd = task_brd_default_get();
 
@@ -2234,7 +2234,7 @@ void super_notify_broken_route(const UINT32 super_md_id, const UINT32 src_tcid, 
     task_no_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
 
     sys_log(LOGSTDOUT, "============================== super_notify_broken_route end: src tcid %s, broken tcid %s ==============================\n",
-                        uint32_to_ipv4(src_tcid), uint32_to_ipv4(broken_tcid));
+                        c_word_to_ipv4(src_tcid), c_word_to_ipv4(broken_tcid));
 
     return;
 }
@@ -2463,7 +2463,7 @@ void super_show_cstring(const UINT32 super_md_id, const UINT32 tcid, const UINT3
         dbg_exit(MD_SUPER, super_md_id);
     }
 #endif/*SUPER_DEBUG_SWITCH*/
-    //fprintf(LOGSTDOUT, "[rank_%s_%ld] ", uint32_to_ipv4(tcid), rank);
+    //fprintf(LOGSTDOUT, "[rank_%s_%ld] ", c_word_to_ipv4(tcid), rank);
     //fprintf(LOGSTDOUT, "%s", (char *)cstring_get_str(cstring));
     //fflush(LOGSTDOUT);
     fputs((char *)cstring_get_str(cstring), stdout);
@@ -2669,7 +2669,7 @@ void super_add_connection(const UINT32 super_md_id, const UINT32 des_tcid, const
         if(EC_FALSE == tasks_monitor_open(TASKS_CFG_MONITOR(local_tasks_cfg), des_tcid, des_srv_ipaddr, des_srv_port))
         {
             sys_log(LOGSTDOUT, "error:super_add_connection: failed connect to des tcid %s, srvipaddr %s, srvport %ld\n",
-                                uint32_to_ipv4(des_tcid), uint32_to_ipv4(des_srv_ipaddr), des_srv_port);
+                                c_word_to_ipv4(des_tcid), c_word_to_ipv4(des_srv_ipaddr), des_srv_port);
             break;
         }
     }
@@ -2780,7 +2780,7 @@ EC_BOOL super_exec_shell_tcid_cstr(const UINT32 super_md_id, const CSTRING *tcid
                         (char *)cstring_get_str(tcid_cstr),
                         (char *)cstring_get_str(cmd_line));
 
-    tcid = ipv4_to_uint32((char *)cstring_get_str(tcid_cstr));
+    tcid = c_ipv4_to_word((char *)cstring_get_str(tcid_cstr));
     if(CMPI_LOCAL_TCID == tcid)
     {
         return super_exec_shell(super_md_id, cmd_line, output_cbytes);
@@ -2902,7 +2902,7 @@ EC_BOOL super_exec_shell_vec_tcid_cstr(const UINT32 super_md_id, const CVECTOR *
         MOD_NODE recv_mod_node;
 
         tcid_cstr = (CSTRING *)cvector_get_no_lock(tcid_cstr_vec, tcid_pos);
-        tcid      = ipv4_to_uint32((char *)cstring_get_str(tcid_cstr));
+        tcid      = c_ipv4_to_word((char *)cstring_get_str(tcid_cstr));
 
         output_cbytes = cbytes_new(0);
         if(NULL_PTR == output_cbytes)
@@ -2970,7 +2970,7 @@ EC_BOOL super_exec_shell_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ip
                         (char *)cstring_get_str(ipaddr_cstr),
                         (char *)cstring_get_str(cmd_line));
 
-    ipaddr = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+    ipaddr = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
     tcid = task_brd_get_tcid_by_ipaddr(task_brd_default_get(), ipaddr);
     if(CMPI_ERROR_TCID == tcid)
     {
@@ -3037,7 +3037,7 @@ EC_BOOL super_exec_shell_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR
         MOD_NODE recv_mod_node;
 
         ipaddr_cstr = (CSTRING *)cvector_get_no_lock(ipaddr_cstr_vec, ipaddr_pos);
-        ipaddr      = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+        ipaddr      = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
         tcid        = task_brd_get_tcid_by_ipaddr(task_brd, ipaddr);
 
         output_cbytes = cbytes_new(0);
@@ -3349,7 +3349,7 @@ EC_BOOL super_exec_shell_ipaddr_cstr_cbtimer_set(const UINT32 super_md_id, const
                         timeout
                         );
 
-    ipaddr = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+    ipaddr = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
     tcid = task_brd_get_tcid_by_ipaddr(task_brd_default_get(), ipaddr);
     if(CMPI_ERROR_TCID == tcid)
     {
@@ -3408,7 +3408,7 @@ EC_BOOL super_exec_shell_ipaddr_cstr_cbtimer_unset(const UINT32 super_md_id, con
                         (char *)cstring_get_str(ipaddr_cstr)
                         );
 
-    ipaddr = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+    ipaddr = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
     tcid = task_brd_get_tcid_by_ipaddr(task_brd_default_get(), ipaddr);
     if(CMPI_ERROR_TCID == tcid)
     {
@@ -3804,6 +3804,7 @@ EC_BOOL super_download(const UINT32 super_md_id, const CSTRING *fname, CBYTES *c
     int fd;
     UINT32 fsize;
     UINT8 *fbuf;
+    UINT32 offset;
 
 #if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
     if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
@@ -3822,7 +3823,7 @@ EC_BOOL super_download(const UINT32 super_md_id, const CSTRING *fname, CBYTES *c
         return (EC_FALSE);
     }
 
-    fd = c_open((char *)cstring_get_str(fname), O_RDONLY, 0666);
+    fd = c_file_open((char *)cstring_get_str(fname), O_RDONLY, 0666);
     if(-1 == fd)
     {
         sys_log(LOGSTDOUT, "error:super_download: open file %s to read failed, errno = %d, errstr = %s\n",
@@ -3831,11 +3832,11 @@ EC_BOOL super_download(const UINT32 super_md_id, const CSTRING *fname, CBYTES *c
     }
 
     fsize = lseek(fd, 0, SEEK_END);
-    if(SUPER_ERR_FD == fsize)
+    if(ERR_FD == fsize)
     {
         sys_log(LOGSTDOUT, "error:super_download: seek and get file size of %s failed\n",
                            (char *)cstring_get_str(fname));
-        close(fd);
+        c_file_close(fd);
         return (EC_FALSE);
     }
 
@@ -3844,20 +3845,21 @@ EC_BOOL super_download(const UINT32 super_md_id, const CSTRING *fname, CBYTES *c
     {
         sys_log(LOGSTDOUT, "error:super_download: alloc %ld bytes for file %s buffer failed\n",
                             fsize, (char *)cstring_get_str(fname));
-        close(fd);
+        c_file_close(fd);
         return (EC_FALSE);
     }
 
-    if(EC_FALSE == file_buff_load(fd, 0, fsize, fbuf))
+    offset = 0;
+    if(EC_FALSE == c_file_load(fd, &offset, fsize, fbuf))
     {
         sys_log(LOGSTDOUT, "error:super_download: load %ld bytes from file %s to buffer failed\n",
                             fsize, (char *)cstring_get_str(fname));
         SAFE_FREE(fbuf, LOC_SUPER_0061);
-        close(fd);
+        c_file_close(fd);
         return (EC_FALSE);
     }
 
-    close(fd);
+    c_file_close(fd);
 
     cbytes_mount(cbytes, fsize, fbuf);
 
@@ -3884,7 +3886,7 @@ EC_BOOL super_download_tcid_cstr(const UINT32 super_md_id, const CSTRING *tcid_c
                         (char *)cstring_get_str(fname),
                         (char *)cstring_get_str(tcid_cstr));
 
-    tcid = ipv4_to_uint32((char *)cstring_get_str(tcid_cstr));
+    tcid = c_ipv4_to_word((char *)cstring_get_str(tcid_cstr));
     if(CMPI_LOCAL_TCID == tcid)
     {
         return super_download(super_md_id, fname, output_cbytes);
@@ -3939,7 +3941,7 @@ EC_BOOL super_download_vec_tcid_cstr(const UINT32 super_md_id, const CVECTOR *tc
         MOD_NODE recv_mod_node;
 
         tcid_cstr = (CSTRING *)cvector_get_no_lock(tcid_cstr_vec, tcid_pos);
-        tcid      = ipv4_to_uint32((char *)cstring_get_str(tcid_cstr));
+        tcid      = c_ipv4_to_word((char *)cstring_get_str(tcid_cstr));
 
         output_cbytes = cbytes_new(0);
         if(NULL_PTR == output_cbytes)
@@ -4011,7 +4013,7 @@ EC_BOOL super_download_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ipad
 
     task_brd = task_brd_default_get();
 
-    ipaddr = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+    ipaddr = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
     tcid   = task_brd_get_tcid_by_ipaddr(task_brd, ipaddr);
     if(CMPI_ERROR_TCID == tcid)
     {
@@ -4077,7 +4079,7 @@ EC_BOOL super_download_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR *
         MOD_NODE recv_mod_node;
 
         ipaddr_cstr = (CSTRING *)cvector_get_no_lock(ipaddr_cstr_vec, ipaddr_pos);
-        ipaddr      = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+        ipaddr      = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
         tcid        = task_brd_get_tcid_by_ipaddr(task_brd, ipaddr);
 
         output_cbytes = cbytes_new(0);
@@ -4172,6 +4174,7 @@ EC_BOOL super_upload(const UINT32 super_md_id, const CSTRING *fname, const CBYTE
     int fd;
     UINT32 fsize;
     UINT8 *fbuf;
+    UINT32 offset;
 
 #if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
     if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
@@ -4217,13 +4220,13 @@ EC_BOOL super_upload(const UINT32 super_md_id, const CSTRING *fname, const CBYTE
         return (EC_FALSE);
     }
 
-    if(EC_FALSE == create_basedir((char *)cstring_get_str(fname)))
+    if(EC_FALSE == c_basedir_create((char *)cstring_get_str(fname)))
     {
         sys_log(LOGSTDOUT, "error:super_upload: create basedir of file %s failed\n", (char *)cstring_get_str(fname));
         return (EC_FALSE);
     }
 
-    fd = c_open((char *)cstring_get_str(fname), O_WRONLY | O_CREAT, 0666);
+    fd = c_file_open((char *)cstring_get_str(fname), O_WRONLY | O_CREAT, 0666);
     if(-1 == fd)
     {
         sys_log(LOGSTDOUT, "error:super_upload: open file %s to write failed, errno = %d, errstr = %s\n",
@@ -4231,16 +4234,17 @@ EC_BOOL super_upload(const UINT32 super_md_id, const CSTRING *fname, const CBYTE
         return (EC_FALSE);
     }
 
-    if(EC_FALSE == file_buff_flush(fd, 0, fsize, fbuf))
+    offset = 0;
+    if(EC_FALSE == c_file_flush(fd, &offset, fsize, fbuf))
     {
         sys_log(LOGSTDOUT, "error:super_upload: flush %ld bytes to file %s failed\n",
                             fsize, (char *)cstring_get_str(fname));
-        close(fd);
+        c_file_close(fd);
         super_rmv_file(super_md_id, fname);/*remove it*/
         return (EC_FALSE);
     }
 
-    close(fd);
+    c_file_close(fd);
 
     return (EC_TRUE);
 }
@@ -4265,7 +4269,7 @@ EC_BOOL super_upload_tcid_cstr(const UINT32 super_md_id, const CSTRING *tcid_cst
                         (char *)cstring_get_str(tcid_cstr),
                         (char *)cstring_get_str(fname));
 
-    tcid = ipv4_to_uint32((char *)cstring_get_str(tcid_cstr));
+    tcid = c_ipv4_to_word((char *)cstring_get_str(tcid_cstr));
     if(CMPI_LOCAL_TCID == tcid)
     {
         return super_upload(super_md_id, fname, input_cbytes, backup_flag);
@@ -4324,7 +4328,7 @@ EC_BOOL super_upload_vec_tcid_cstr(const UINT32 super_md_id, const CVECTOR *tcid
         UINT32  *ret;
 
         tcid_cstr = (CSTRING *)cvector_get_no_lock(tcid_cstr_vec, tcid_pos);
-        tcid      = ipv4_to_uint32((char *)cstring_get_str(tcid_cstr));
+        tcid      = c_ipv4_to_word((char *)cstring_get_str(tcid_cstr));
 
         ret = (UINT32 *)cvector_get_addr_no_lock(ret_vec, tcid_pos);
         if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
@@ -4381,7 +4385,7 @@ EC_BOOL super_upload_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ipaddr
 
     task_brd = task_brd_default_get();
 
-    ipaddr = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+    ipaddr = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
     tcid   = task_brd_get_tcid_by_ipaddr(task_brd, ipaddr);
 
     if(CMPI_ERROR_TCID == tcid)
@@ -4458,7 +4462,7 @@ EC_BOOL super_upload_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR *ip
         MOD_NODE recv_mod_node;
 
         ipaddr_cstr = (CSTRING *)cvector_get_no_lock(ipaddr_cstr_vec, ipaddr_pos);
-        ipaddr      = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+        ipaddr      = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
         tcid        = task_brd_get_tcid_by_ipaddr(task_brd, ipaddr);
 
         ret = (UINT32 *)cvector_get_addr_no_lock(ret_vec, ipaddr_pos);
@@ -4521,7 +4525,7 @@ EC_BOOL super_collect_vec_ipaddr_cstr(const UINT32 super_md_id, CVECTOR *ipaddr_
         CSTRING *ipaddr_cstr;
 
         ipaddr = (UINT32)cvector_get_no_lock(ipaddr_vec, pos);
-        ipaddr_cstr = (CSTRING *)cstring_new((UINT8 *)uint32_to_ipv4(ipaddr), LOC_SUPER_0066);
+        ipaddr_cstr = (CSTRING *)cstring_new((UINT8 *)c_word_to_ipv4(ipaddr), LOC_SUPER_0066);
         if(NULL_PTR == ipaddr_cstr)
         {
             sys_log(LOGSTDOUT, "error:super_collect_vec_ipaddr_cstr: new cstring failed\n");
@@ -4538,6 +4542,7 @@ EC_BOOL super_write_fdata(const UINT32 super_md_id, const CSTRING *fname, const 
 {
     SUPER_FNODE *super_fnode;
     UINT32 cur_fsize;
+    UINT32 write_offset;
 
 #if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
     if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
@@ -4568,7 +4573,7 @@ EC_BOOL super_write_fdata(const UINT32 super_md_id, const CSTRING *fname, const 
 
     SUPER_FNODE_CMUTEX_LOCK(super_fnode, LOC_SUPER_0069);
 
-    if(EC_FALSE == file_get_size(SUPER_FNODE_FD(super_fnode), &cur_fsize))
+    if(EC_FALSE == c_file_size(SUPER_FNODE_FD(super_fnode), &cur_fsize))
     {
         sys_log(LOGSTDOUT, "error:super_write_fdata: get size of file %s failed\n", (char *)cstring_get_str(fname));
         SUPER_FNODE_CMUTEX_UNLOCK(super_fnode, LOC_SUPER_0070);
@@ -4576,17 +4581,18 @@ EC_BOOL super_write_fdata(const UINT32 super_md_id, const CSTRING *fname, const 
     }
 
     /*warning:not support disordered data writting!*/
-    if(cur_fsize != offset && EC_FALSE == file_truncate(SUPER_FNODE_FD(super_fnode), offset))
+    if(cur_fsize != offset && EC_FALSE == c_file_truncate(SUPER_FNODE_FD(super_fnode), offset))
     {
         sys_log(LOGSTDOUT, "error:super_write_fdata: truncate file %s to %ld bytes failed\n", (char *)cstring_get_str(fname), offset);
         SUPER_FNODE_CMUTEX_UNLOCK(super_fnode, LOC_SUPER_0071);
         return (EC_FALSE);
     }
 
-    if(EC_FALSE == file_buff_flush(SUPER_FNODE_FD(super_fnode), offset, cbytes_len(cbytes), cbytes_buf(cbytes)))
+    write_offset = offset;
+    if(EC_FALSE == c_file_flush(SUPER_FNODE_FD(super_fnode), &write_offset, cbytes_len(cbytes), cbytes_buf(cbytes)))
     {
         sys_log(LOGSTDOUT, "error:super_write_fdata: flush %ld bytes at offset %ld of file %s failed\n",
-                            cbytes_len(cbytes), offset, (char *)cstring_get_str(fname));
+                            cbytes_len(cbytes), write_offset, (char *)cstring_get_str(fname));
         SUPER_FNODE_CMUTEX_UNLOCK(super_fnode, LOC_SUPER_0072);
         return (EC_FALSE);
     }
@@ -4599,6 +4605,7 @@ EC_BOOL super_write_fdata(const UINT32 super_md_id, const CSTRING *fname, const 
 EC_BOOL super_read_fdata(const UINT32 super_md_id, const CSTRING *fname, const UINT32 offset, const UINT32 max_len, CBYTES *cbytes)
 {
     SUPER_FNODE *super_fnode;
+    UINT32 read_offset;
 
 #if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
     if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
@@ -4633,11 +4640,12 @@ EC_BOOL super_read_fdata(const UINT32 super_md_id, const CSTRING *fname, const U
         return (EC_FALSE);
     }
 
+    read_offset = offset;
     SUPER_FNODE_CMUTEX_LOCK(super_fnode, LOC_SUPER_0074);
-    if(EC_FALSE == file_buff_load(SUPER_FNODE_FD(super_fnode), offset, max_len, cbytes_buf(cbytes)))
+    if(EC_FALSE == c_file_load(SUPER_FNODE_FD(super_fnode), &read_offset, max_len, cbytes_buf(cbytes)))
     {
         sys_log(LOGSTDOUT, "error:super_read_fdata: load %ld bytes at offset %ld of file %s failed\n",
-                            max_len, offset, (char *)cstring_get_str(fname));
+                            max_len, read_offset, (char *)cstring_get_str(fname));
         SUPER_FNODE_CMUTEX_UNLOCK(super_fnode, LOC_SUPER_0075);
         return (EC_FALSE);
     }
@@ -4731,7 +4739,7 @@ EC_BOOL super_size_file(const UINT32 super_md_id, const CSTRING *fname, UINT32 *
     super_fnode = super_search_fnode_by_fname(super_md_id, fname);
     if(NULL_PTR != super_fnode)
     {
-        return file_get_size(SUPER_FNODE_FD(super_fnode), fsize);
+        return c_file_size(SUPER_FNODE_FD(super_fnode), fsize);
     }
 
     return (EC_FALSE);
@@ -4782,7 +4790,7 @@ EC_BOOL super_close_file(const UINT32 super_md_id, const CSTRING *fname)
 
     if(EC_FALSE == super_close_fnode_by_fname(super_md_id, fname))
     {
-        sys_log(LOGSTDOUT, "error:super_close_file:close file %s failed\n",
+        sys_log(LOGSTDOUT, "error:super_close_file:c_file_close file %s failed\n",
                             (char *)cstring_get_str(fname));
         return (EC_FALSE);
     }
@@ -4915,7 +4923,7 @@ EC_BOOL super_transfer_stop(const UINT32 super_md_id, const CSTRING *src_fname, 
     if(EC_FALSE == super_close_file(super_md_id, src_fname))
     {
         ret_src = EC_FALSE;
-        sys_log(LOGSTDOUT, "error:super_transfer_stop: close src file %s failed\n",
+        sys_log(LOGSTDOUT, "error:super_transfer_stop: c_file_close src file %s failed\n",
                            (char *)cstring_get_str(src_fname));
     }
 
@@ -4930,7 +4938,7 @@ EC_BOOL super_transfer_stop(const UINT32 super_md_id, const CSTRING *src_fname, 
                     &ret_des, FI_super_close_file, ERR_MODULE_ID, des_fname);
     if(EC_FALSE == ret_des)
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_stop: close des file %s failed\n",
+        sys_log(LOGSTDOUT, "error:super_transfer_stop: c_file_close des file %s failed\n",
                            (char *)cstring_get_str(des_fname));
     }
 
@@ -5086,7 +5094,7 @@ EC_BOOL super_transfer_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *src_
 
     task_brd = task_brd_default_get();
 
-    ipaddr = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+    ipaddr = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
     tcid   = task_brd_get_tcid_by_ipaddr(task_brd, ipaddr);
 
     if(CMPI_ERROR_TCID == tcid)
@@ -5218,7 +5226,7 @@ EC_BOOL super_transfer_vec_stop(const UINT32 super_md_id, const CSTRING *src_fna
 
     if(EC_FALSE == super_close_file(super_md_id, src_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec_stop: close src file %s failed\n",
+        sys_log(LOGSTDOUT, "error:super_transfer_vec_stop: c_file_close src file %s failed\n",
                            (char *)cstring_get_str(src_fname));
         return (EC_FALSE);
     }
@@ -5238,7 +5246,7 @@ static EC_BOOL __super_transfer_prepare(const CVECTOR *des_tcid_vec, CVECTOR *re
         /*check connectivity*/
         if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), des_tcid))
         {
-            sys_log(LOGSTDOUT, "warn:__super_transfer_prepare: tcid %s not connected, skip it\n", uint32_to_ipv4(des_tcid));
+            sys_log(LOGSTDOUT, "warn:__super_transfer_prepare: tcid %s not connected, skip it\n", c_word_to_ipv4(des_tcid));
             cvector_set_no_lock(ret_vec, pos, (void *)EC_FALSE);
         }
         else
@@ -5267,7 +5275,7 @@ static EC_BOOL __super_transfer_prepare(const CVECTOR *des_tcid_vec, CVECTOR *re
         /*check connectivity*/
         if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), des_tcid))
         {
-            sys_log(LOGSTDOUT, "warn:__super_transfer_prepare: tcid %s not connected, skip it\n", uint32_to_ipv4(des_tcid));
+            sys_log(LOGSTDOUT, "warn:__super_transfer_prepare: tcid %s not connected, skip it\n", c_word_to_ipv4(des_tcid));
             cvector_push_no_lock(ret_vec, (void *)EC_FALSE);
         }
         else
@@ -5452,7 +5460,7 @@ EC_BOOL super_transfer_vec_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
             continue;
         }
 
-        ipaddr = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+        ipaddr = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
         tcid   = task_brd_get_tcid_by_ipaddr(task_brd, ipaddr);
 
         if(CMPI_ERROR_TCID == tcid)
@@ -5716,7 +5724,7 @@ EC_BOOL super_set_hostname_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
                         (char *)cstring_get_str(ipaddr_cstr),
                         (char *)cstring_get_str(hostname_cstr));
 
-    ipaddr = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+    ipaddr = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
     tcid = task_brd_get_tcid_by_ipaddr(task_brd_default_get(), ipaddr);
     if(CMPI_ERROR_TCID == tcid)
     {
@@ -5779,7 +5787,7 @@ EC_BOOL super_get_hostname_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
     sys_log(LOGSTDOUT, "super_get_hostname_ipaddr_cstr: get hostname on ipaddr %s\n",
                         (char *)cstring_get_str(ipaddr_cstr));
 
-    ipaddr = ipv4_to_uint32((char *)cstring_get_str(ipaddr_cstr));
+    ipaddr = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
     tcid = task_brd_get_tcid_by_ipaddr(task_brd_default_get(), ipaddr);
     if(CMPI_ERROR_TCID == tcid)
     {

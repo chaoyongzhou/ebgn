@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -718,12 +718,12 @@ EC_BOOL cextsrv_thread(CEXTSRV *cextsrv)
         CEXTCLNT_IPADDR(&cextclnt) = cextclnt_ipaddr;
 
         sys_log(LOGSTDOUT, "[DEBUG] cextsrv_thread: accept connection from client %s on sockfd %d\n",
-                            uint32_to_ipv4(CEXTCLNT_IPADDR(&cextclnt)), CEXTCLNT_SOCKFD(&cextclnt));
+                            c_word_to_ipv4(CEXTCLNT_IPADDR(&cextclnt)), CEXTCLNT_SOCKFD(&cextclnt));
 
         if(EC_FALSE == cextsrv_process(cextsrv, &cextclnt))
         {
             sys_log(LOGSTDOUT, "error:cextsrv_thread: process request from client %s on client sockfd %d failed\n",
-                                uint32_to_ipv4(CEXTCLNT_IPADDR(&cextclnt)), CEXTCLNT_SOCKFD(&cextclnt));
+                                c_word_to_ipv4(CEXTCLNT_IPADDR(&cextclnt)), CEXTCLNT_SOCKFD(&cextclnt));
             cextclnt_clean(&cextclnt);
             continue;
         }

@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -34,8 +34,6 @@ extern "C"{
 
 #define CBGT_ERR_TABLE_ID           ((UINT32)-1)
 #define CBGT_ROOT_TABLE_ID          ((UINT32)10)
-
-#define CBGT_ERR_FD                 ((int)   -1)
 
 /*cbgt session name*/
 #define CBGT_SESSION_NAME           ((UINT8 *)"hsbgt")

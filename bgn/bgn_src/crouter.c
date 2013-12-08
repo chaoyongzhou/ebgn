@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -14,7 +14,7 @@ extern "C"{
 #include <unistd.h>
 
 #include "type.h"
-#include "char2int.h"
+#include "cmisc.h"
 #include "mm.h"
 
 #include "log.h"
@@ -83,14 +83,14 @@ CROUTER_NODE *crouter_node_create(const UINT32 des_tcid, const TASKS_NODE *next_
     crouter_node = crouter_node_new(des_tcid);
     if(NULL_PTR == crouter_node)
     {
-        sys_log(LOGSTDOUT, "error:crouter_node_create: failed to alloc crouter node for des tcid %s\n", uint32_to_ipv4(des_tcid));
+        sys_log(LOGSTDOUT, "error:crouter_node_create: failed to alloc crouter node for des tcid %s\n", c_word_to_ipv4(des_tcid));
         return (NULL_PTR);
     }
 
     if(CVECTOR_ERR_POS == cvector_push(CROUTER_NODE_NEXT_HOPS(crouter_node), (void *)next_hop_tasks_node))
     {
         sys_log(LOGSTDOUT, "error:crouter_node_create: failed to add route (des tcid %s, next hop tcid %s)\n",
-                            uint32_to_ipv4(des_tcid), TASKS_NODE_TCID_STR(next_hop_tasks_node));
+                            c_word_to_ipv4(des_tcid), TASKS_NODE_TCID_STR(next_hop_tasks_node));
         crouter_node_free(crouter_node);
         return (NULL_PTR);
     }
@@ -333,7 +333,7 @@ CROUTER_NODE *crouter_node_vec_add(CROUTER_NODE_VEC *crouter_node_vec, const CVE
     next_hop_tasks_node = tasks_work_search_tasks_node_by_tcid(tasks_node_work, next_hop_tcid);
     if(NULL_PTR == next_hop_tasks_node)
     {
-        sys_log(LOGSTDOUT, "error:crouter_node_vec_add: next hop tcid %s does not exist\n", uint32_to_ipv4(next_hop_tcid));
+        sys_log(LOGSTDOUT, "error:crouter_node_vec_add: next hop tcid %s does not exist\n", c_word_to_ipv4(next_hop_tcid));
         return (NULL_PTR);
     }
 
@@ -346,7 +346,7 @@ CROUTER_NODE *crouter_node_vec_add(CROUTER_NODE_VEC *crouter_node_vec, const CVE
         {
             CVECTOR_UNLOCK(CROUTER_NODE_VEC_NODES(crouter_node_vec), LOC_CROUTER_0022);
             sys_log(LOGSTDOUT, "error:crouter_node_vec_add: failed to create route (des tcid %s, next hop tcid %s)\n",
-                                uint32_to_ipv4(des_tcid), TASKS_NODE_TCID_STR(next_hop_tasks_node));
+                                c_word_to_ipv4(des_tcid), TASKS_NODE_TCID_STR(next_hop_tasks_node));
             return (NULL_PTR);
         }
 
@@ -359,7 +359,7 @@ CROUTER_NODE *crouter_node_vec_add(CROUTER_NODE_VEC *crouter_node_vec, const CVE
     {
         CVECTOR_UNLOCK(CROUTER_NODE_VEC_NODES(crouter_node_vec), LOC_CROUTER_0024);
         sys_log(LOGSTDOUT, "error:crouter_node_vec_add: failed to add route (des tcid %s, next hop tcid %s)\n",
-                            uint32_to_ipv4(des_tcid), uint32_to_ipv4(next_hop_tcid));
+                            c_word_to_ipv4(des_tcid), c_word_to_ipv4(next_hop_tcid));
         return (NULL_PTR);
     }
 
@@ -375,7 +375,7 @@ CROUTER_NODE *crouter_node_vec_add_no_lock(CROUTER_NODE_VEC *crouter_node_vec, c
     next_hop_tasks_node = tasks_work_search_tasks_node_by_tcid(tasks_node_work, next_hop_tcid);
     if(NULL_PTR == next_hop_tasks_node)
     {
-        sys_log(LOGSTDOUT, "error:crouter_node_vec_add_no_lock: next hop tcid %s does not exist\n", uint32_to_ipv4(next_hop_tcid));
+        sys_log(LOGSTDOUT, "error:crouter_node_vec_add_no_lock: next hop tcid %s does not exist\n", c_word_to_ipv4(next_hop_tcid));
         return (NULL_PTR);
     }
 
@@ -386,7 +386,7 @@ CROUTER_NODE *crouter_node_vec_add_no_lock(CROUTER_NODE_VEC *crouter_node_vec, c
         if(NULL_PTR == crouter_node)
         {
             sys_log(LOGSTDOUT, "error:crouter_node_vec_add: failed to create route (des tcid %s, next hop tcid %s)\n",
-                                uint32_to_ipv4(des_tcid), TASKS_NODE_TCID_STR(next_hop_tasks_node));
+                                c_word_to_ipv4(des_tcid), TASKS_NODE_TCID_STR(next_hop_tasks_node));
             return (NULL_PTR);
         }
 
@@ -397,7 +397,7 @@ CROUTER_NODE *crouter_node_vec_add_no_lock(CROUTER_NODE_VEC *crouter_node_vec, c
     if(CVECTOR_ERR_POS == crouter_node_add_next_hop(crouter_node, next_hop_tasks_node))
     {
         sys_log(LOGSTDOUT, "error:crouter_node_vec_add_no_lock: failed to add route (des tcid %s, next hop tcid %s)\n",
-                            uint32_to_ipv4(des_tcid), uint32_to_ipv4(next_hop_tcid));
+                            c_word_to_ipv4(des_tcid), c_word_to_ipv4(next_hop_tcid));
         return (NULL_PTR);
     }
     return (crouter_node);
@@ -423,7 +423,7 @@ EC_BOOL crouter_node_vec_rmv(CROUTER_NODE_VEC *crouter_node_vec, const UINT32 de
     if(CVECTOR_ERR_POS == crouter_node_pos)
     {
         CVECTOR_UNLOCK(CROUTER_NODE_VEC_NODES(crouter_node_vec), LOC_CROUTER_0027);
-        sys_log(LOGSTDOUT, "error:crouter_node_vec_rmv: no route to des tcid %s\n", uint32_to_ipv4(des_tcid));
+        sys_log(LOGSTDOUT, "error:crouter_node_vec_rmv: no route to des tcid %s\n", c_word_to_ipv4(des_tcid));
         return (EC_FALSE);
     }
 
@@ -436,7 +436,7 @@ EC_BOOL crouter_node_vec_rmv(CROUTER_NODE_VEC *crouter_node_vec, const UINT32 de
         crouter_node_vec_erase_no_lock(crouter_node_vec, crouter_node_pos);
         crouter_node_free(crouter_node);
         CVECTOR_UNLOCK(CROUTER_NODE_VEC_NODES(crouter_node_vec), LOC_CROUTER_0028);
-        sys_log(LOGSTDOUT, "crouter_node_vec_rmv: no more route to des tcid %s, free whole croute node\n", uint32_to_ipv4(des_tcid));
+        sys_log(LOGSTDOUT, "crouter_node_vec_rmv: no more route to des tcid %s, free whole croute node\n", c_word_to_ipv4(des_tcid));
         return (EC_TRUE);
     }
 
@@ -452,7 +452,7 @@ EC_BOOL crouter_node_vec_rmv_no_lock(CROUTER_NODE_VEC *crouter_node_vec, const U
     crouter_node_pos = crouter_node_vec_search_no_lock(crouter_node_vec, des_tcid);
     if(CVECTOR_ERR_POS == crouter_node_pos)
     {
-        sys_log(LOGSTDOUT, "error:crouter_node_vec_rmv_no_lock: no route to des tcid %s\n", uint32_to_ipv4(des_tcid));
+        sys_log(LOGSTDOUT, "error:crouter_node_vec_rmv_no_lock: no route to des tcid %s\n", c_word_to_ipv4(des_tcid));
         return (EC_FALSE);
     }
 
@@ -464,7 +464,7 @@ EC_BOOL crouter_node_vec_rmv_no_lock(CROUTER_NODE_VEC *crouter_node_vec, const U
     {
         crouter_node_vec_erase_no_lock(crouter_node_vec, crouter_node_pos);
         crouter_node_free(crouter_node);
-        sys_log(LOGSTDOUT, "crouter_node_vec_rmv_no_lock: no more route to des tcid %s, free whole croute node\n", uint32_to_ipv4(des_tcid));
+        sys_log(LOGSTDOUT, "crouter_node_vec_rmv_no_lock: no more route to des tcid %s, free whole croute node\n", c_word_to_ipv4(des_tcid));
         return (EC_TRUE);
     }
 

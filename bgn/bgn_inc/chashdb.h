@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -33,9 +33,6 @@ extern "C"{
 #define CHASHDB_KEY_MAX_SIZE	         (48)
 #define CHASHDB_DATA_REPLICA_MAX_NUM     (4)
 #define CHASHDB_BUCKET_CMUTEX_MAX_NUM    (1024)
-
-#define CHASHDB_ERR_FD                   (-1)
-#define CHASHDB_ERR_SEEK                 (-1)
 
 #define CHASHDB_ERR_PATH                 ((UINT32)  -1)
 #define CHASHDB_ERR_OFFSET               ((UINT32)  -1)

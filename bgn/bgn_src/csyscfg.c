@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -32,7 +32,7 @@ extern "C"{
 #include "cparacfg.h"
 #include "cmpic.inc"
 #include "cbtimer.h"
-#include "char2int.h"
+#include "cmisc.h"
 
 #include "cdfs.h"
 #include "cbgt.h"
@@ -55,7 +55,7 @@ CLUSTER_NODE_CFG *cluster_node_cfg_new()
 EC_BOOL cluster_node_cfg_init(CLUSTER_NODE_CFG *cluster_node_cfg)
 {
     cstring_init(CLUSTER_NODE_CFG_ROLE(cluster_node_cfg), NULL_PTR);
-    cmap_init(CLUSTER_NODE_CFG_EXTRAS(cluster_node_cfg), (CMAP_KEY_FREE)cstring_free_0, (CMAP_VAL_FREE)cstring_free_0, LOC_CSYSCFG_0002);
+    cmap_init(CLUSTER_NODE_CFG_EXTRAS(cluster_node_cfg), (CMAP_KEY_FREE)cstring_free_1, (CMAP_VAL_FREE)cstring_free_1, LOC_CSYSCFG_0002);
     CLUSTER_NODE_CFG_TCID(cluster_node_cfg) = CMPI_ERROR_TCID;
     cvector_init(CLUSTER_NODE_CFG_RANK_VEC(cluster_node_cfg), 0, MM_UINT32, CVECTOR_LOCK_ENABLE, LOC_CSYSCFG_0003);
     return (EC_TRUE);
@@ -100,7 +100,7 @@ EC_BOOL cluster_node_cfg_check_rank_exist(const CLUSTER_NODE_CFG *cluster_node_c
 
 EC_BOOL cluster_node_cfg_check_role_str(const CLUSTER_NODE_CFG *cluster_node_cfg, const char *role_str)
 {
-    if(EC_TRUE == str_is_in((char *)CLUSTER_NODE_CFG_ROLE_STR(cluster_node_cfg), (const char *)":,;", role_str))
+    if(EC_TRUE == c_str_is_in((char *)CLUSTER_NODE_CFG_ROLE_STR(cluster_node_cfg), (const char *)":,;", role_str))
     {
         sys_log(LOGSTDOUT, "[DEBUG] cluster_node_cfg_check_role_str: cluster node role %s is in %s\n", 
                            (char *)CLUSTER_NODE_CFG_ROLE_STR(cluster_node_cfg), role_str);
@@ -119,7 +119,7 @@ EC_BOOL cluster_node_cfg_check_role_cstr(const CLUSTER_NODE_CFG *cluster_node_cf
 
 EC_BOOL cluster_node_cfg_check_group_str(const CLUSTER_NODE_CFG *cluster_node_cfg, const char *group_str)
 {
-    if(EC_TRUE == str_is_in((char *)CLUSTER_NODE_CFG_GROUP_STR(cluster_node_cfg), (const char *)":,;", group_str))
+    if(EC_TRUE == c_str_is_in((char *)CLUSTER_NODE_CFG_GROUP_STR(cluster_node_cfg), (const char *)":,;", group_str))
     {
         sys_log(LOGSTDOUT, "[DEBUG] cluster_node_cfg_check_group_str: cluster node group %s is in %s\n", 
                            (char *)CLUSTER_NODE_CFG_GROUP_STR(cluster_node_cfg), group_str);
@@ -243,7 +243,7 @@ void cluster_node_cfg_print_xml(LOG *log, const CLUSTER_NODE_CFG *cluster_node_c
 
     if(NULL_PTR != rank_str)
     {    
-        ident_print(log, level);
+        c_ident_print(log, level);
         sys_print(log, "<node");
         sys_print(log, " role=\"%s\"" , (const char *)CLUSTER_NODE_CFG_ROLE_STR(cluster_node_cfg));
         sys_print(log, " tcid=\"%s\"" , (const char *)CLUSTER_NODE_CFG_TCID_STR(cluster_node_cfg));
@@ -255,7 +255,7 @@ void cluster_node_cfg_print_xml(LOG *log, const CLUSTER_NODE_CFG *cluster_node_c
     }
     else
     {
-        ident_print(log, level);
+        c_ident_print(log, level);
         sys_print(log, "<node");
         sys_print(log, " role=\"%s\"" , (const char *)CLUSTER_NODE_CFG_ROLE_STR(cluster_node_cfg));
         sys_print(log, " tcid=\"%s\"" , (const char *)CLUSTER_NODE_CFG_TCID_STR(cluster_node_cfg));
@@ -283,7 +283,7 @@ EC_BOOL cluster_cfg_init(CLUSTER_CFG *cluster_cfg)
     CLUSTER_CFG_ID(cluster_cfg) = CLUSTER_ID_ERROR;
     cstring_init(CLUSTER_CFG_NAME(cluster_cfg), NULL_PTR);
     CLUSTER_CFG_MODEL(cluster_cfg) = MODEL_TYPE_ERROR;
-    cmap_init(CLUSTER_CFG_EXTRAS(cluster_cfg), (CMAP_KEY_FREE)cstring_free_0, (CMAP_VAL_FREE)cstring_free_0, LOC_CSYSCFG_0009);
+    cmap_init(CLUSTER_CFG_EXTRAS(cluster_cfg), (CMAP_KEY_FREE)cstring_free_1, (CMAP_VAL_FREE)cstring_free_1, LOC_CSYSCFG_0009);
     cvector_init(CLUSTER_CFG_NODES(cluster_cfg), 0, MM_CLUSTER_NODE_CFG, CVECTOR_LOCK_ENABLE, LOC_CSYSCFG_0010);
     return (EC_TRUE);
 }
@@ -580,7 +580,7 @@ void cluster_cfg_print_xml(LOG *log, const CLUSTER_CFG *cluster_cfg, const UINT3
             mode_str = (const char *)"UNKNOWN";
     }
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "<cluster");
     sys_print(log, " id=\"%ld\""  , CLUSTER_CFG_ID(cluster_cfg));
     sys_print(log, " name=\"%s\"" , (const char *)CLUSTER_CFG_NAME_STR(cluster_cfg));
@@ -590,7 +590,7 @@ void cluster_cfg_print_xml(LOG *log, const CLUSTER_CFG *cluster_cfg, const UINT3
 
     cvector_print_level(log, CLUSTER_CFG_NODES(cluster_cfg), level + 1, (CVECTOR_DATA_LEVEL_PRINT)cluster_node_cfg_print_xml);
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "</cluster>\n");
     return;
 }
@@ -670,7 +670,7 @@ void mcast_cfg_body_print_xml(LOG *log, const MCAST_CFG *mcast_cfg, const UINT32
             auto_str = "UNKNOWN";
     }
 
-    ident_print(log, level);
+    c_ident_print(log, level);
 
     sys_print(log, "<udp");
     sys_print(log, " type=\"%s\""          , type_str);
@@ -688,12 +688,12 @@ void mcast_cfg_print_xml(LOG *log, const MCAST_CFG *mcast_cfg, const UINT32 leve
 {
     if(CMPI_ERROR_TCID != MCAST_CFG_TCID(mcast_cfg))
     {
-        ident_print(log, level);
+        c_ident_print(log, level);
         sys_print(log, "<udpMulticastConfig>\n");
 
         mcast_cfg_body_print_xml(log, mcast_cfg, level + 1);
 
-        ident_print(log, level);
+        c_ident_print(log, level);
         sys_print(log, "</udpMulticastConfig>\n");
     }
     return;
@@ -772,7 +772,7 @@ void bcast_dhcp_cfg_body_print_xml(LOG *log, const BCAST_DHCP_CFG *bcast_dhcp_cf
             auto_str = "UNKNOWN";
     }
 
-    ident_print(log, level);
+    c_ident_print(log, level);
 
     sys_print(log, "<dhcp");
     sys_print(log, " type=\"%s\""          , type_str);
@@ -790,12 +790,12 @@ void bcast_dhcp_cfg_print_xml(LOG *log, const BCAST_DHCP_CFG *bcast_dhcp_cfg, co
 {
     if(CMPI_ERROR_TCID != BCAST_DHCP_CFG_TCID(bcast_dhcp_cfg))
     {
-        ident_print(log, level);
+        c_ident_print(log, level);
         sys_print(log, "<udpBroadcastDHCPConfig>\n");
 
         bcast_dhcp_cfg_body_print_xml(log, bcast_dhcp_cfg, level + 1);
 
-        ident_print(log, level);
+        c_ident_print(log, level);
         sys_print(log, "</udpBroadcastDHCPConfig>\n");
     }
     return;
@@ -856,7 +856,7 @@ void ganglia_cfg_body_print_xml(LOG *log, const GANGLIA_CFG *ganglia_cfg, const 
             auto_str = "UNKNOWN";
     }
 
-    ident_print(log, level);
+    c_ident_print(log, level);
 
     sys_print(log, "<ganglia");
     sys_print(log, " tcid=\"%s\""   , (const char *)GANGLIA_CFG_TCID_STR(ganglia_cfg));
@@ -869,19 +869,19 @@ void ganglia_cfg_body_print_xml(LOG *log, const GANGLIA_CFG *ganglia_cfg, const 
 
 void ganglia_cfg_print_xml(LOG *log, const GANGLIA_CFG *ganglia_cfg, const UINT32 level)
 {
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "<gangliaConfig>\n");
 
     ganglia_cfg_body_print_xml(log, ganglia_cfg, level + 1);
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "</gangliaConfig>\n");
     return;
 }
 
 void cparacfg_thread_cfg_print_xml(LOG *log, const CPARACFG *cparacfg, const UINT32 level)
 {
-    ident_print(log, level);
+    c_ident_print(log, level);
 
     sys_print(log, "<threadConfig");
     sys_print(log, " maxReqThreadNum=\"%ld\""          , CPARACFG_TASK_REQ_THREAD_MAX_NUM(cparacfg));
@@ -901,7 +901,7 @@ void cparacfg_thread_cfg_print_xml(LOG *log, const CPARACFG *cparacfg, const UIN
 
 void cparacfg_csocket_cfg_print_xml(LOG *log, const CPARACFG *cparacfg, const UINT32 level)
 {
-    ident_print(log, level);
+    c_ident_print(log, level);
 
     sys_print(log, "<socketConfig");
     sys_print(log, " socketSendBuffSize=\"%ld\""        , CPARACFG_CSOCKET_SOSNDBUFF_SIZE(cparacfg));
@@ -915,7 +915,7 @@ void cparacfg_csocket_cfg_print_xml(LOG *log, const CPARACFG *cparacfg, const UI
 
 void cparacfg_log_cfg_print_xml(LOG *log, const CPARACFG *cparacfg, const UINT32 level)
 {
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "<logConfig");
     sys_print(log, " logMaxRecords=\"%ld\""          , CPARACFG_FILE_LOG_MAX_RECORDS(cparacfg));
     sys_print(log, " logNameWithDataSwitch=\"%s\""   , CPARACFG_FILE_LOG_NAME_WITH_DATE_SWITCH_STR(cparacfg));
@@ -925,9 +925,9 @@ void cparacfg_log_cfg_print_xml(LOG *log, const CPARACFG *cparacfg, const UINT32
 
 void cparacfg_print_xml(LOG *log, const CPARACFG *cparacfg, const UINT32 level)
 {
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "<paraConfig tcid=\"%s\" rank=\"%ld\">\n",
-                    uint32_to_ipv4(CPARACFG_TCID(cparacfg)),
+                    c_word_to_ipv4(CPARACFG_TCID(cparacfg)),
                     CPARACFG_RANK(cparacfg));
 
     cparacfg_thread_cfg_print_xml (log, cparacfg, level + 1);
@@ -938,7 +938,7 @@ void cparacfg_print_xml(LOG *log, const CPARACFG *cparacfg, const UINT32 level)
     }
     cparacfg_log_cfg_print_xml(log, cparacfg, level + 1);
 #endif
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "</paraConfig>\n");
     return;
 }
@@ -954,7 +954,7 @@ void paras_cfg_print_xml(LOG *log, const CVECTOR *paras_cfg, const UINT32 level)
         return;
     }
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "<parasConfig>\n");
 
     CVECTOR_LOCK(paras_cfg, LOC_CSYSCFG_0023);
@@ -972,7 +972,7 @@ void paras_cfg_print_xml(LOG *log, const CVECTOR *paras_cfg, const UINT32 level)
     }
     CVECTOR_UNLOCK(paras_cfg, LOC_CSYSCFG_0024);
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "</parasConfig>\n");
     return;
 }
@@ -1055,7 +1055,7 @@ EC_BOOL macip_cfg_has_null_mac_addr(const MACIP_CFG *macip_cfg)
 
 void macip_cfg_print_xml(LOG *log, const MACIP_CFG *macip_cfg, const UINT32 level)
 {
-    ident_print(log, level);
+    c_ident_print(log, level);
 
     sys_print(log, "<map");
     sys_print(log, " ipaddr=\"%s\""        , MACIP_CFG_IPV4_ADDR_STR(macip_cfg));
@@ -1075,7 +1075,7 @@ void macip_cfg_vec_print_xml(LOG *log, const CVECTOR *macip_cfg_vec, const UINT3
         return;
     }
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "<macIpMapsConfig>\n");
 
     CVECTOR_LOCK(macip_cfg_vec, LOC_CSYSCFG_0027);
@@ -1093,7 +1093,7 @@ void macip_cfg_vec_print_xml(LOG *log, const CVECTOR *macip_cfg_vec, const UINT3
     }
     CVECTOR_UNLOCK(macip_cfg_vec, LOC_CSYSCFG_0028);
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "</macIpMapsConfig>\n");
     return;
 }
@@ -1257,7 +1257,7 @@ TASK_CFG *sys_cfg_filter_task_cfg(const SYS_CFG *sys_cfg, const UINT32 tcid)
 
     if(EC_FALSE == task_cfg_filter(SYS_CFG_TASK_CFG(sys_cfg), tcid, task_cfg))
     {
-        sys_log(LOGSTDOUT, "error:sys_cfg_filter_task_cfg: filter tcid %s from task cfg of sys cfg failed\n", uint32_to_ipv4(tcid));
+        sys_log(LOGSTDOUT, "error:sys_cfg_filter_task_cfg: filter tcid %s from task cfg of sys cfg failed\n", c_word_to_ipv4(tcid));
         task_cfg_free(task_cfg);
         return (NULL_PTR);
     }
@@ -1689,7 +1689,7 @@ EC_BOOL sys_cfg_add_macip_cfg(SYS_CFG *sys_cfg, const UINT32 ipv4_addr, const UI
     if(NULL_PTR != macip_cfg)
     {
         sys_log(LOGSTDOUT, "warn:sys_cfg_add_macip_cfg: macip_cfg for ipv4 addr %s already exist, give up binding to mac %s\n",
-                            uint32_to_ipv4(ipv4_addr), mac_addr_to_str(mac_addr)
+                            c_word_to_ipv4(ipv4_addr), mac_addr_to_str(mac_addr)
                             );
         return (EC_TRUE);
     }
@@ -1705,7 +1705,7 @@ EC_BOOL sys_cfg_add_macip_cfg(SYS_CFG *sys_cfg, const UINT32 ipv4_addr, const UI
     cvector_push(SYS_CFG_MACIP_CFG_VEC(sys_cfg), (void *)macip_cfg);
 
     sys_log(LOGSTDOUT, "[DEBUG] sys_cfg_add_macip_cfg: bind (ip %s, mac %s)\n",
-                        uint32_to_ipv4(ipv4_addr), mac_addr_to_str(mac_addr)
+                        c_word_to_ipv4(ipv4_addr), mac_addr_to_str(mac_addr)
                         );
     return (EC_TRUE);
 }
@@ -1718,9 +1718,9 @@ EC_BOOL sys_cfg_add_tasks_cfg(SYS_CFG *sys_cfg, const UINT32 tcid, const UINT32 
     {
         sys_log(LOGSTDOUT, "warn:sys_cfg_add_tasks_cfg: tasks_cfg for tcid %s already exist, "
                             "give up add tasks cfg (tcid %s, maski %s, maske %s, srvipaddr %s, srvport %ld, csrvport %ld)\n",
-                            uint32_to_ipv4(tcid),
-                            uint32_to_ipv4(tcid), uint32_to_ipv4(maski),uint32_to_ipv4(maske),
-                            uint32_to_ipv4(srvipaddr), srvport,
+                            c_word_to_ipv4(tcid),
+                            c_word_to_ipv4(tcid), c_word_to_ipv4(maski),c_word_to_ipv4(maske),
+                            c_word_to_ipv4(srvipaddr), srvport,
                             csrvport
                             );
         return (EC_TRUE);
@@ -1743,8 +1743,8 @@ EC_BOOL sys_cfg_add_tasks_cfg(SYS_CFG *sys_cfg, const UINT32 tcid, const UINT32 
     cvector_push(TASK_CFG_TASKS_CFG_VEC(SYS_CFG_TASK_CFG(sys_cfg)), (void *)tasks_cfg);
 
     sys_log(LOGSTDOUT, "[DEBUG] sys_cfg_add_tasks_cfg: add tasks cfg (tcid %s, maski %s, maske %s, srvipaddr %s, srvport %ld, csrvport %ld)\n",
-                        uint32_to_ipv4(tcid), uint32_to_ipv4(maski),uint32_to_ipv4(maske),
-                        uint32_to_ipv4(srvipaddr), srvport,
+                        c_word_to_ipv4(tcid), c_word_to_ipv4(maski),c_word_to_ipv4(maske),
+                        c_word_to_ipv4(srvipaddr), srvport,
                         csrvport
                         );
     return (EC_TRUE);
@@ -1787,19 +1787,19 @@ EC_BOOL sys_cfg_flush_xml(const SYS_CFG *sys_cfg, const CSTRING *sys_cfg_xml_cst
 
 void sys_cfg_cluster_cfg_vec_print_xml(LOG *log, const CVECTOR *cluster_cfg_vec, const UINT32 level)
 {
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "<clusters>\n");
 
     cvector_print_level(log, cluster_cfg_vec, level + 1, (CVECTOR_DATA_LEVEL_PRINT)cluster_cfg_print_xml);
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "</clusters>\n");
     return;
 }
 
 void sys_cfg_print_xml(LOG *log, const SYS_CFG *sys_cfg, const UINT32 level)
 {
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "<sysConfig>\n");
 
     task_cfg_print_xml(log, SYS_CFG_TASK_CFG(sys_cfg), level + 1);
@@ -1809,7 +1809,7 @@ void sys_cfg_print_xml(LOG *log, const SYS_CFG *sys_cfg, const UINT32 level)
     paras_cfg_print_xml(log, SYS_CFG_PARAS_CFG(sys_cfg), level + 1);
     macip_cfg_vec_print_xml(log, SYS_CFG_MACIP_CFG_VEC(sys_cfg), level + 1);
 
-    ident_print(log, level);
+    c_ident_print(log, level);
     sys_print(log, "</sysConfig>\n");
     return;
 }

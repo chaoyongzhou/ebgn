@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -21,27 +21,27 @@ extern "C"{
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "lib_typeconst.h"
-#include "lib_type.h"
-#include "lib_char2int.h"
-#include "lib_clist.h"
-#include "lib_task.h"
-#include "lib_mod.h"
-#include "lib_log.h"
-#include "lib_debug.h"
-#include "lib_rank.h"
+#include "typeconst.h"
+#include "type.h"
+#include "cmisc.h"
+#include "clist.h"
+#include "task.h"
+#include "mod.h"
+#include "log.h"
+#include "debug.h"
+#include "rank.h"
 
-#include "lib_cmpic.inc"
+#include "cmpic.inc"
 
-#include "lib_cstring.h"
-#include "lib_cvector.h"
+#include "cstring.h"
+#include "cvector.h"
 
-#include "lib_findex.inc"
+#include "findex.inc"
 
-#include "lib_super.h"
-#include "lib_cbgt.h"
-#include "lib_cscore.h"
-#include "demo.h"
+#include "super.h"
+#include "cbgt.h"
+#include "cscore.h"
+#include "demo_cscore.h"
 
 extern void test_case_cbgt_create_table_on_root(const UINT32 cbgt_md_id, const char *user_table_name, const int colf_num, ...);
 
@@ -449,7 +449,7 @@ int main_cscore0(int argc, char **argv)
         do_slave_wait_default();
     }
 
-    else if (ipv4_to_uint32("10.10.10.1") == this_tcid && 1 == this_rank)
+    else if (c_ipv4_to_word("10.10.10.1") == this_tcid && 1 == this_rank)
     {
         UINT32 cbgt_md_id;
 
@@ -475,11 +475,11 @@ int main_cscore0(int argc, char **argv)
     }
 
     /*fwd rank entrance*/
-    else if (ipv4_to_uint32("10.10.10.2") == this_tcid && 1 == this_rank)
+    else if (c_ipv4_to_word("10.10.10.2") == this_tcid && 1 == this_rank)
     {
         UINT32 cscore_md_id;
         sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", uint32_to_ipv4(this_tcid), this_rank);
+        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
         sys_log(LOGSTDOUT,"======================================================================\n");
 
@@ -563,8 +563,8 @@ int main_cscore(int argc, char **argv)
     }
 
     /*define specific runner for each (tcid, rank)*/
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.1"), 1, __test_cscore_cbgt_root_server_runner);
-    task_brd_default_add_runner(ipv4_to_uint32("10.10.10.2"), 1, __test_cscore_cases_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.1"), 1, __test_cscore_cbgt_root_server_runner);
+    task_brd_default_add_runner(c_ipv4_to_word("10.10.10.2"), 1, __test_cscore_cases_runner);
 
     /*start the defined runner on current (tcid, rank)*/
     task_brd_default_start_runner();

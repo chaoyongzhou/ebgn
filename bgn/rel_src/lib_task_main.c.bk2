@@ -13,46 +13,46 @@ extern "C"{
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "lib_cmpi.h"
+#include "cmpi.h"
 
-#include "lib_typeconst.h"
-#include "lib_type.h"
-#include "lib_char2int.h"
-#include "lib_task.h"
-#include "lib_mod.h"
-#include "lib_log.h"
-#include "lib_debug.h"
-#include "lib_rank.h"
+#include "typeconst.h"
+#include "type.h"
+#include "cmisc.h"
+#include "task.h"
+#include "mod.h"
+#include "log.h"
+#include "debug.h"
+#include "rank.h"
 
-#include "lib_cstring.h"
-#include "lib_cvector.h"
+#include "cstring.h"
+#include "cvector.h"
 
-#include "lib_matrixr.h"
-#include "lib_dmatrixr.h"
-#include "lib_vmatrixr.h"
+#include "matrixr.h"
+#include "dmatrixr.h"
+#include "vmatrixr.h"
 
-#include "lib_bgnz.h"
-#include "lib_print.h"
+#include "bgnz.h"
+#include "print.h"
 
-#include "lib_super.h"
-#include "lib_tbd.h"
-#include "lib_crun.h"
+#include "super.h"
+#include "tbd.h"
+#include "crun.h"
 
-#include "lib_taskc.h"
-#include "lib_cthread.h"
+#include "taskc.h"
+#include "cthread.h"
 
-#include "lib_cmpic.inc"
-#include "lib_findex.inc"
+#include "cmpic.inc"
+#include "findex.inc"
 
-#include "lib_chashalgo.h"
+#include "chashalgo.h"
 
-#include "lib_cfile.h"
-#include "lib_cdir.h"
-#include "lib_cdfs.h"
-#include "lib_cdfsnp.h"
+#include "cfile.h"
+#include "cdir.h"
+#include "cdfs.h"
+#include "cdfsnp.h"
 
-#include "lib_cmon.h"
-#include "lib_ctimer.h"
+#include "cmon.h"
+#include "ctimer.h"
 
 
 #define ASSERT(_conditon_should_be) do{if(!(_conditon_should_be)) {sys_log(LOGSTDERR, "%s:%d:abort\n", __FILE__, __LINE__); task_brd_default_abort();}}while(0)

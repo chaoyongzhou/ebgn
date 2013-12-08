@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -1861,6 +1861,39 @@ UINT32 dbg_clean_uint32_ptr(const UINT32 md_id, UINT32 *num)
 *
 **/
 UINT32 dbg_free_uint32_ptr(const UINT32 md_id, UINT32 *num)
+{
+    (*num) = 0;
+    return (0);
+}
+
+/**
+*
+* init uint64_t
+*
+**/
+uint64_t dbg_init_uint64_ptr(const UINT32 md_id, uint64_t *num)
+{
+    (*num) = 0;
+    return (0);
+}
+
+/**
+*
+* init uint64_t
+*
+**/
+uint64_t dbg_clean_uint64_ptr(const UINT32 md_id, uint64_t *num)
+{
+    (*num) = 0;
+    return (0);
+}
+
+/**
+*
+* free uint64_t
+*
+**/
+uint64_t dbg_free_uint64_ptr(const UINT32 md_id, uint64_t *num)
 {
     (*num) = 0;
     return (0);

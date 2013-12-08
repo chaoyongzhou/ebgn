@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -14,6 +14,9 @@ extern "C"{
 
 #include "type.h"
 
+EC_BOOL cbytecode_pack_uint64(const uint64_t *in_buff, const UINT32 data_num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+EC_BOOL cbytecode_pack_uint64_size(const UINT32 data_num, UINT32 *size);
+EC_BOOL cbytecode_unpack_uint64(const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, uint64_t *out_buff, const UINT32 data_num);
 
 EC_BOOL cbytecode_pack_uint32(const UINT32 *in_buff, const UINT32 data_num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
 EC_BOOL cbytecode_pack_uint32_size(const UINT32 data_num, UINT32 *size);

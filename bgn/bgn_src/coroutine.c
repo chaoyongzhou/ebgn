@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -757,15 +757,16 @@ UINT32 coroutine_pool_shutdown(COROUTINE_POOL *coroutine_pool)
     {
         coroutine_node = (COROUTINE_NODE *)clist_pop_front_no_lock(COROUTINE_POOL_WORKER_IDLE_LIST(coroutine_pool));
         COROUTINE_NODE_STATUS(coroutine_node) |= COROUTINE_IS_DOWN;
-        sys_log(LOGSTDOUT, "coroutine_pool_shutdown: shutdown idle coroutine_node %lx\n", coroutine_node);
+        coroutine_node_free(coroutine_node);
+        //sys_log(LOGSTDOUT, "coroutine_pool_shutdown: shutdown idle coroutine_node %lx\n", coroutine_node);
     }
 
     while(EC_FALSE == clist_is_empty(COROUTINE_POOL_WORKER_BUSY_LIST(coroutine_pool)))
     {
         coroutine_node = (COROUTINE_NODE *)clist_pop_front_no_lock(COROUTINE_POOL_WORKER_BUSY_LIST(coroutine_pool));
-
         COROUTINE_NODE_STATUS(coroutine_node) |= COROUTINE_IS_DOWN;
-        sys_log(LOGSTDOUT, "coroutine_pool_shutdown: shutdown busy coroutine_node %lx\n", coroutine_node);
+        coroutine_node_free(coroutine_node);
+        //sys_log(LOGSTDOUT, "coroutine_pool_shutdown: shutdown busy coroutine_node %lx\n", coroutine_node);
     }
 
     cmutex_unlock(COROUTINE_POOL_WORKER_CMUTEX(coroutine_pool), LOC_COROUTINE_0032);
@@ -893,11 +894,11 @@ COROUTINE_NODE *coroutine_pool_get_master(COROUTINE_POOL *coroutine_pool)
 
 COROUTINE_NODE *coroutine_pool_get_slave(COROUTINE_POOL *coroutine_pool)
 {
-    COROUTINE_NODE *crounte_node;    
+    COROUTINE_NODE *coroutine_node;    
     cmutex_lock(COROUTINE_POOL_WORKER_CMUTEX(coroutine_pool), LOC_COROUTINE_0040);
-    crounte_node = (COROUTINE_NODE *)clist_first_data(COROUTINE_POOL_WORKER_BUSY_LIST(coroutine_pool));
+    coroutine_node = (COROUTINE_NODE *)clist_first_data(COROUTINE_POOL_WORKER_BUSY_LIST(coroutine_pool));
     cmutex_unlock(COROUTINE_POOL_WORKER_CMUTEX(coroutine_pool), LOC_COROUTINE_0041);
-    return (crounte_node);
+    return (coroutine_node);
 }
 
 /*endless loop*/
@@ -914,7 +915,7 @@ void coroutine_pool_run(COROUTINE_POOL *coroutine_pool)
         coroutine_node_slave = coroutine_pool_get_slave(coroutine_pool);
         if(NULL_PTR == coroutine_node_slave)
         {
-            usleep(10);
+            c_usleep(COROUTINE_SLOW_DOWN_MSEC);
             continue;
         }
 
@@ -922,7 +923,7 @@ void coroutine_pool_run(COROUTINE_POOL *coroutine_pool)
         {
             if(1 == coroutine_pool_busy_num(coroutine_pool))
             {
-                usleep(10);
+                c_usleep(COROUTINE_SLOW_DOWN_MSEC);
             }
             else
             {

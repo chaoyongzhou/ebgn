@@ -119,11 +119,15 @@ RSP_THREAD_NUM       = 128
 
 CMACRO = \
          -D_GNU_SOURCE \
+         -D_LARGEFILE_SOURCE \
+         -D_FILE_OFFSET_BITS=64 \
          -DSWITCH_ON=1 \
          -DSWITCH_OFF=0 \
          -DLICENSE_SWITCH=SWITCH_OFF \
          -DTASK_GANGLIA_SWITCH=SWITCH_ON \
          -DTASK_SLOW_DOWN_MSEC=50 \
+         -DCOROUTINE_SLOW_DOWN_MSEC=50 \
+         -DCPU_OVERLOAD_THREASHOLD=70 \
          -DDBG_ENCODING_RULE=1 \
          -DBYTE_ENCODING_RULE=2 \
          -DCPROC_PACKAGE_SWITCH=SWITCH_ON \
@@ -133,8 +137,8 @@ CMACRO = \
          -DWORDSIZE=${WORDSIZE} \
          -DDOUBLESIZE=${DOUBLESIZE} \
          -DBYTESIZE=${BYTESIZE} \
-         -DCROUTINE_SUPPORT_COROUTINE_SWITCH=SWITCH_ON \
-         -DCROUTINE_SUPPORT_CTHREAD_SWITCH=SWITCH_OFF \
+         -DCROUTINE_SUPPORT_COROUTINE_SWITCH=SWITCH_OFF \
+         -DCROUTINE_SUPPORT_CTHREAD_SWITCH=SWITCH_ON \
          -DTASK_REQ_SHORTCUT=SWITCH_OFF \
          -DTASK_FWD_SHORTCUT=SWITCH_ON \
          -DCROUTINE_STACK_MAX_SIZE=${CTHREAD_STACK_MAX_SIZE_064K} \
@@ -219,10 +223,40 @@ libgdb: $(GDB_OBJS)
 	$(AR) $(LIB_DIR)/libgdb.a $(GDB_OBJS)
 
 bgn: libbgn libgdb $(REL_OBJS) $(GAN_OBJS)
-	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/bgn $(REL_OBJS) $(GAN_OBJS) $(BGN_INC) $(GDB_INC) $(REL_INC) $(GAN_INC) $(EXT_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
+	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/bgn $(REL_OBJS) $(GAN_OBJS) $(BGN_INC) $(GDB_INC) $(GAN_INC) $(REL_INC) $(EXT_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
 
 link: $(REL_OBJS)
-	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/bgn $(REL_OBJS) $(BGN_INC) $(GDB_INC) $(REL_INC) $(EXT_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
+	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/bgn $(REL_OBJS) $(BGN_INC) $(GDB_INC) $(EXT_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
+
+test_csys: libbgn libgdb obj/crun.o obj/test_csys.o $(GAN_OBJS)
+	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/test obj/crun.o obj/test_csys.o $(GAN_OBJS) $(BGN_INC) $(GDB_INC) $(TST_INC) $(GAN_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
+
+test_crb: libbgn libgdb obj/crun.o obj/test_crb.o $(GAN_OBJS)
+	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/test obj/crun.o obj/test_crb.o $(GAN_OBJS) $(BGN_INC) $(GDB_INC) $(TST_INC) $(GAN_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
+
+test_cpgrb: libbgn libgdb obj/crun.o obj/test_cpgrb.o $(GAN_OBJS)
+	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/test obj/crun.o obj/test_cpgrb.o $(GAN_OBJS) $(BGN_INC) $(GDB_INC) $(TST_INC) $(GAN_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
+
+test_cpgb: libbgn libgdb obj/crun.o obj/test_cpgb.o $(GAN_OBJS)
+	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/test obj/crun.o obj/test_cpgb.o $(GAN_OBJS) $(BGN_INC) $(GDB_INC) $(TST_INC) $(GAN_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
+
+test_cpgd: libbgn libgdb obj/crun.o obj/test_cpgd.o $(GAN_OBJS)
+	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/test obj/crun.o obj/test_cpgd.o $(GAN_OBJS) $(BGN_INC) $(GDB_INC) $(TST_INC) $(GAN_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
+
+test_cpgv: libbgn libgdb obj/crun.o obj/test_cpgv.o $(GAN_OBJS)
+	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/test obj/crun.o obj/test_cpgv.o $(GAN_OBJS) $(BGN_INC) $(GDB_INC) $(TST_INC) $(GAN_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
+
+test_crfsdn: libbgn libgdb obj/crun.o obj/test_crfsdn.o $(GAN_OBJS)
+	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/test obj/crun.o obj/test_crfsdn.o $(GAN_OBJS) $(BGN_INC) $(GDB_INC) $(TST_INC) $(GAN_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
+
+test_crfsnp: libbgn libgdb obj/crun.o obj/test_crfsnp.o $(GAN_OBJS)
+	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/test obj/crun.o obj/test_crfsnp.o $(GAN_OBJS) $(BGN_INC) $(GDB_INC) $(TST_INC) $(GAN_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
+
+test_crfs: libbgn libgdb obj/crun.o obj/test_crfs.o $(GAN_OBJS)
+	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/test obj/crun.o obj/test_crfs.o $(GAN_OBJS) $(BGN_INC) $(GDB_INC) $(TST_INC) $(GAN_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
+
+test_chfs: libbgn libgdb obj/crun.o obj/test_chfs.o $(GAN_OBJS)
+	$(CLINKER) $(CFLAGS) -o $(BIN_DIR)/test obj/crun.o obj/test_chfs.o $(GAN_OBJS) $(BGN_INC) $(GDB_INC) $(TST_INC) $(GAN_INC) $(BGN_LIB) $(GDB_LIB) $(EXT_LIB)
 
 $(BGN_OBJS): $(OBJ_DIR)/%.o: $(BGN_SRC)/%.c
 	$(CC) $(CFLAGS) -c $< $(BGN_INC) $(GAN_INC) $(GDB_INC) $(EXT_INC) -o $@	
@@ -231,7 +265,7 @@ $(GDB_OBJS): $(OBJ_DIR)/%.o: $(GDB_SRC)/%.c
 	$(CC) $(CFLAGS) -c $< $(BGN_INC) $(GDB_INC) $(EXT_INC) -o $@
 
 $(REL_OBJS): $(OBJ_DIR)/%.o: $(REL_SRC)/%.c
-	$(CC) $(CFLAGS) -c $< $(REL_INC) $(EXT_INC) -o $@
+	$(CC) $(CFLAGS) -c $< $(BGN_INC) $(GAN_INC) $(GDB_INC) $(REL_INC) $(EXT_INC) -o $@
 
 $(GAN_OBJS): $(OBJ_DIR)/%.o: $(GAN_SRC)/%.c
 	$(CC) $(CFLAGS) -c $< $(BGN_INC) $(GAN_INC) $(GDB_INC) $(EXT_INC) -o $@
@@ -250,6 +284,7 @@ clean_log:
 
 clean_bin:
 	-rm $(BIN_DIR)/bgn
+	-rm $(BIN_DIR)/test
 
 clean_trial: clean_log clean_bin clean_obj
 	

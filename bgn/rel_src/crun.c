@@ -2,7 +2,7 @@
 *
 * Copyright (C) Chaoyong Zhou
 * Email: bgnvendor@gmail.com 
-* QQ: 2796796
+* QQ: 312230917
 *
 *******************************************************************************/
 #ifdef __cplusplus
@@ -12,10 +12,10 @@ extern "C"{
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "lib_type.h"
-#include "lib_cstring.h"
-#include "lib_crun.h"
-#include "lib_log.h"
+#include "type.h"
+#include "cstring.h"
+#include "crun.h"
+#include "log.h"
 
 UINT32 usr_run_01(const CSTRING *cstring)
 {
