@@ -189,6 +189,20 @@ UINT8 *task_brd_default_sys_cfg_xml();
 
 UINT8 *task_brd_default_basic_cfg_xml();
 
+CTIMET task_brd_default_get_time();
+
+CTM *task_brd_default_get_localtime();
+
+CEPOLL *task_brd_default_get_cepoll();
+
+CTIMET task_brd_get_time(TASK_BRD *task_brd);
+
+CTM *task_brd_get_localtime(TASK_BRD *task_brd);
+
+void task_brd_update_time(TASK_BRD *task_brd);
+
+CEPOLL *task_brd_get_cepoll(TASK_BRD *task_brd);
+
 UINT32 task_brd_default_get_ipaddr();
 
 UINT32 task_brd_default_get_port();

@@ -75,6 +75,8 @@ if(NULL_PTR != (file_log) && LOG_FILE_DEVICE == LOG_DEVICE_TYPE(file_log) && NUL
 #define LOG_FILE_UNLOCK(file_log, location) do{}while(0)
 #endif
 
+#define LOG_TM()        (task_brd_default_get_localtime())
+
 EC_BOOL log_start();
 
 void log_end();

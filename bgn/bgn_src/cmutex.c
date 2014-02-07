@@ -22,7 +22,7 @@ extern "C"{
 #include "log.h"
 
 #include "bgnctrl.h"
-
+#include "crb.h"
 
 /**********************************************************************************************************************************************\
 test_mutext.c
@@ -101,6 +101,23 @@ summary:
 static CMUTEX_POOL g_cmutex_pool;
 
 EC_BOOL cmutex_log_switch = EC_FALSE;
+
+#if (SWITCH_ON == CMUTEX_DEBUG_SWITCH)
+static EC_BOOL __ptr_dbg_cmutex_tree_update(void *pvoid, const UINT32 location);
+static EC_BOOL __ptr_dbg_ccond_tree_update(void *pvoid, const UINT32 location);
+static EC_BOOL __ptr_dbg_crwlock_tree_update(void *pvoid, const UINT32 location);
+
+#define CMUTEX_STAT_DEBUG(__pvoid, __location)      __ptr_dbg_cmutex_tree_update(__pvoid, __location)
+#define CCOND_STAT_DEBUG(__pvoid, __location)       __ptr_dbg_ccond_tree_update(__pvoid, __location)
+#define CRWLOCK_STAT_DEBUG(__pvoid, __location)     __ptr_dbg_crwlock_tree_update(__pvoid, __location)
+#endif/*(SWITCH_ON == CMUTEX_DEBUG_SWITCH)*/
+
+#if (SWITCH_OFF == CMUTEX_DEBUG_SWITCH)
+#define CMUTEX_STAT_DEBUG(__pvoid, __location)      do{}while(0)
+#define CCOND_STAT_DEBUG(__pvoid, __location)       do{}while(0)
+#define CRWLOCK_STAT_DEBUG(__pvoid, __location)     do{}while(0)
+#endif/*(SWITCH_OFF == CMUTEX_DEBUG_SWITCH)*/
+
 static EC_BOOL cmutex_check(const CMUTEX *cmutex, const UINT32 op, const UINT32 location)
 {
     switch(op)
@@ -476,6 +493,8 @@ EC_BOOL cmutex_lock(CMUTEX *cmutex, const UINT32 location)
         CMUTEX_PRINT_LOCATION(LOGSTDOUT, "cmutex_lock", cmutex);
     }
 
+    CMUTEX_STAT_DEBUG(cmutex, location);
+
     ret_val = pthread_mutex_lock(CMUTEX_MUTEX(cmutex));
     if(0 != ret_val)
     {
@@ -803,6 +822,8 @@ EC_BOOL ccond_wait(CCOND *ccond, const UINT32 location)
 EC_BOOL ccond_reserve(CCOND *ccond, const UINT32 counter, const UINT32 location)
 {
     int ret_val;
+
+    CCOND_STAT_DEBUG(ccond, location);
 
     ret_val = pthread_mutex_lock(CCOND_MUTEX(ccond));
     if(0 != ret_val)
@@ -1376,6 +1397,7 @@ EC_BOOL crwlock_rdlock(CRWLOCK *crwlock, const UINT32 location)
         return (EC_FALSE);
     }
 
+    CRWLOCK_STAT_DEBUG(crwlock, location);
 
     ret_val = pthread_rwlock_rdlock(CRWLOCK_RWLOCK(crwlock));
     if(0 != ret_val)
@@ -1432,6 +1454,8 @@ EC_BOOL crwlock_wrlock(CRWLOCK *crwlock, const UINT32 location)
         sys_log(LOGSTDOUT, "error:crwlock_wrlock: refuse to lock null crwlock, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
+
+    CRWLOCK_STAT_DEBUG(crwlock, location);
 
     ret_val = pthread_rwlock_wrlock(CRWLOCK_RWLOCK(crwlock));
     if(0 != ret_val)
@@ -1515,6 +1539,161 @@ EC_BOOL crwlock_unlock(CRWLOCK *crwlock, const UINT32 location)
     return (EC_TRUE);
 }
 
+/*--------------------------------------------- statistics debug interface (should fix recursive bug)---------------------------------------------*/
+#if (SWITCH_ON == CMUTEX_DEBUG_SWITCH)
+static EC_BOOL __ptr_dbg_node_init(PTR_DBG_NODE *ptr_dbg_node)
+{
+    ptr_dbg_node->ptr      = NULL_PTR;
+    ptr_dbg_node->location = LOC_NONE_BASE;
+    ptr_dbg_node->counter  = 0;
+    return (EC_TRUE);
+}
+
+static PTR_DBG_NODE *__ptr_dbg_node_new()
+{
+    PTR_DBG_NODE *ptr_dbg_node;
+
+    ptr_dbg_node = malloc(sizeof(PTR_DBG_NODE));
+    if(NULL_PTR == ptr_dbg_node)
+    {
+        sys_log(LOGSTDOUT, "error:__ptr_dbg_node_new: malloc PTR_DBG_NODE failed\n");
+        return (NULL_PTR);
+    }
+
+    __ptr_dbg_node_init(ptr_dbg_node);
+    return (ptr_dbg_node);
+}
+
+static void __ptr_dbg_node_free(PTR_DBG_NODE *ptr_dbg_node)
+{
+    if(NULL_PTR != ptr_dbg_node)
+    {
+        free(ptr_dbg_node);
+    }
+    return;
+}
+
+static void __ptr_dbg_node_print(LOG *log, const PTR_DBG_NODE *ptr_dbg_node)
+{
+    sys_log(log, "ptr %p, location %ld, counter %ld\n", 
+                ptr_dbg_node->ptr, 
+                ptr_dbg_node->location,
+                ptr_dbg_node->counter
+                );
+    return;
+}
+
+
+static EC_BOOL __ptr_dbg_node_set(PTR_DBG_NODE *ptr_dbg_node, void *pvoid, const UINT32 location, const UINT32 counter)
+{
+    ptr_dbg_node->ptr      = pvoid;
+    ptr_dbg_node->location = location;
+    ptr_dbg_node->counter  = counter;
+    return (EC_TRUE);
+}
+
+static EC_BOOL __ptr_dbg_node_inc(PTR_DBG_NODE *ptr_dbg_node)
+{
+    ptr_dbg_node->counter  ++;
+    return (EC_TRUE);
+}
+
+static int __ptr_dbg_node_cmp(const PTR_DBG_NODE *ptr_dbg_node_1st, const PTR_DBG_NODE *ptr_dbg_node_2nd)
+{
+    if(ptr_dbg_node_1st->ptr < ptr_dbg_node_2nd->ptr)
+    {
+        return (-1);
+    }
+
+    if(ptr_dbg_node_1st->ptr > ptr_dbg_node_2nd->ptr)
+    {
+        return (1);
+    }    
+
+    if(ptr_dbg_node_1st->location < ptr_dbg_node_2nd->location)
+    {
+        return (-1);
+    }
+
+    if(ptr_dbg_node_1st->location > ptr_dbg_node_2nd->location)
+    {
+        return (1);
+    }     
+
+    return (0);
+}
+
+static EC_BOOL __ptr_dbg_tree_update(CRB_TREE *crb_tree, void *pvoid, const UINT32 location)
+{
+    PTR_DBG_NODE  ptr_dbg_node_t;
+    PTR_DBG_NODE *ptr_dbg_node;
+
+    __ptr_dbg_node_set(&ptr_dbg_node_t, pvoid, location, 0);
+
+    ptr_dbg_node = crb_tree_search_data(crb_tree, &ptr_dbg_node_t);
+    if(NULL_PTR != ptr_dbg_node)
+    {
+        __ptr_dbg_node_inc(ptr_dbg_node);
+        return (EC_TRUE);
+    }
+
+    ptr_dbg_node = __ptr_dbg_node_new();
+    if(NULL_PTR == ptr_dbg_node)
+    {
+        return (EC_FALSE);
+    }
+
+    if(NULL_PTR == crb_tree_insert_data(crb_tree, (void *)ptr_dbg_node))
+    {
+        __ptr_dbg_node_free(ptr_dbg_node);
+        return (EC_FALSE);
+    }
+
+    return (EC_TRUE);
+}
+
+static CRB_TREE g_cmutex_crb_tree  = {0, {0,0,0}, NULL_PTR, (CRB_DATA_CMP)__ptr_dbg_node_cmp, (CRB_DATA_FREE)__ptr_dbg_node_free, (CRB_DATA_PRINT)__ptr_dbg_node_print};
+static CRB_TREE g_ccond_crb_tree   = {0, {0,0,0}, NULL_PTR, (CRB_DATA_CMP)__ptr_dbg_node_cmp, (CRB_DATA_FREE)__ptr_dbg_node_free, (CRB_DATA_PRINT)__ptr_dbg_node_print};
+static CRB_TREE g_crwlock_crb_tree = {0, {0,0,0}, NULL_PTR, (CRB_DATA_CMP)__ptr_dbg_node_cmp, (CRB_DATA_FREE)__ptr_dbg_node_free, (CRB_DATA_PRINT)__ptr_dbg_node_print};
+
+static EC_BOOL __ptr_dbg_cmutex_tree_update(void *pvoid, const UINT32 location)
+{
+    return __ptr_dbg_tree_update(&g_cmutex_crb_tree, pvoid, location);
+}
+
+static EC_BOOL __ptr_dbg_ccond_tree_update(void *pvoid, const UINT32 location)
+{
+    return __ptr_dbg_tree_update(&g_ccond_crb_tree, pvoid, location);
+}
+
+static EC_BOOL __ptr_dbg_crwlock_tree_update(void *pvoid, const UINT32 location)
+{
+    return __ptr_dbg_tree_update(&g_crwlock_crb_tree, pvoid, location);
+}
+
+void cmutex_dbg_stat_print(LOG *log)
+{
+    sys_log(log, "cmutex_dbg_stat_print: g_cmutex_crb_tree is\n");
+    crb_inorder_print(log, &g_cmutex_crb_tree);
+
+    sys_log(log, "cmutex_dbg_stat_print: g_ccond_crb_tree is\n");
+    crb_inorder_print(log, &g_ccond_crb_tree);
+
+    sys_log(log, "cmutex_dbg_stat_print: g_crwlock_crb_tree is\n");
+    crb_inorder_print(log, &g_crwlock_crb_tree);
+
+    return;
+}
+#endif/*(SWITCH_ON == CMUTEX_DEBUG_SWITCH)*/
+
+#if (SWITCH_OFF == CMUTEX_DEBUG_SWITCH)
+void cmutex_dbg_stat_print(LOG *log)
+{
+    sys_log(log, "cmutex_dbg_stat_print: this interface is disabled\b");
+
+    return;
+}
+#endif/*(SWITCH_OFF == CMUTEX_DEBUG_SWITCH)*/
 
 #ifdef __cplusplus
 }

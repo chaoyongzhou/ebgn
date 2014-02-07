@@ -41,9 +41,13 @@ extern "C"{
    2. one block was in at most one RB tree
 ************************************************************************************************/
 
-
+#if (SWITCH_ON == CRFS_ASSERT_SWITCH)
 #define CPGD_ASSERT(cond)   ASSERT(cond)
-//#define CPGD_ASSERT(cond)   do{}while(0)
+#endif/*(SWITCH_ON == CRFS_ASSERT_SWITCH)*/
+
+#if (SWITCH_OFF == CRFS_ASSERT_SWITCH)
+#define CPGD_ASSERT(cond)   do{}while(0)
+#endif/*(SWITCH_OFF == CRFS_ASSERT_SWITCH)*/
 
 #define DEBUG_COUNT_CPGD_HDR_PAD_SIZE() \
                                 (sizeof(CPGD_HDR) \
@@ -489,6 +493,16 @@ EC_BOOL cpgd_free(CPGD *cpgd)
     return (EC_TRUE);
 }
 
+EC_BOOL cpgd_exist(const uint8_t *cpgd_fname)
+{
+    return c_file_access((const char *)cpgd_fname, F_OK);
+}
+
+EC_BOOL cpgd_rmv(const uint8_t *cpgd_fname)
+{
+    return c_file_unlink((const char *)cpgd_fname);
+}
+
 CPGD *cpgd_open(const uint8_t *cpgd_fname)
 {
     CPGD      *cpgd;
@@ -498,12 +512,6 @@ CPGD *cpgd_open(const uint8_t *cpgd_fname)
 
     UINT32    fsize;
     
-    if(EC_FALSE == c_file_access((const char *)cpgd_fname, F_OK))
-    {
-        sys_log(LOGSTDOUT, "error:cpgd_open: %s not exist\n", cpgd_fname);
-        return (NULL_PTR);
-    }
-
     alloc_static_mem(MD_TBD, 0, MM_CPGD, &cpgd, LOC_CPGD_0004);
     if(NULL_PTR == cpgd)
     {
@@ -874,8 +882,7 @@ EC_BOOL cpgd_new_space(CPGD *cpgd, const uint32_t size, uint16_t *block_no, uint
     CPGD_PAGE_4K_USED_NUM(cpgd)      += page_4k_num_need;
     CPGD_PAGE_ACTUAL_USED_SIZE(cpgd) += size;
 
-    CPGD_ASSERT(EC_TRUE == cpgd_check(cpgd));
-    sys_log(LOGSTDOUT, "[DEBUG] cpgd_new_space: pgd check passed\n");
+    CPGD_ASSERT(EC_TRUE == cpgd_check(cpgd));    
     
     sys_log(LOGSTDNULL, "[DEBUG] cpgd_new_space: pgd_page_4k_used_num %u due to increment %u\n", 
                         CPGD_PAGE_4K_USED_NUM(cpgd), page_4k_num_need);
@@ -958,6 +965,25 @@ EC_BOOL cpgd_is_empty(const CPGD *cpgd)
         return (EC_TRUE);
     }
     return (EC_FALSE);
+}
+
+/*compute cpgd current page model support up to*/
+uint16_t cpgd_page_model(const CPGD *cpgd)
+{
+    uint16_t page_model;
+    uint16_t pgd_assign_bitmap;
+    uint16_t e;
+
+    pgd_assign_bitmap = CPGD_PAGE_MODEL_ASSIGN_BITMAP(cpgd);
+    for(page_model = 0, e = 1; CPGB_MODEL_NUM > page_model && 0 == (pgd_assign_bitmap & e); e <<= 1, page_model ++)
+    {
+        /*do nothing*/
+    }
+
+    sys_log(LOGSTDOUT, "[DEBUG] cpgd_page_model: cpgd %p: assign bitmap %s ==> page_model %u\n", 
+                       cpgd, c_uint16_to_bin_str(pgd_assign_bitmap), page_model);        
+
+    return (page_model);                       
 }
 
 EC_BOOL cpgd_flush_size(const CPGD *cpgd, UINT32 *size)
@@ -1128,14 +1154,18 @@ void cpgd_print(LOG *log, const CPGD *cpgd)
     CPGD_ASSERT(NULL_PTR != cpgd);
 
     //cpgrb_pool_print(log, CPGD_PAGE_BLOCK_CPGRB_POOL(cpgd));
-    
-    for(page_model = 0; CPGB_MODEL_NUM > page_model; page_model ++)
-    {
-        //cpgrb_tree_print(log, CPGD_PAGE_BLOCK_CPGRB_POOL(cpgd), CPGD_PAGE_MODEL_BLOCK_CPGRB_ROOT_POS(cpgd, page_model));
-        //sys_log(log, "----------------------------------------------------------\n");
-        sys_log(log, "cpgd_print: page_model %u, block root_pos %u\n", page_model, CPGD_PAGE_MODEL_BLOCK_CPGRB_ROOT_POS(cpgd, page_model));
-    }
 
+    if(0)
+    {
+        for(page_model = 0; CPGB_MODEL_NUM > page_model; page_model ++)
+        {
+            //cpgrb_tree_print(log, CPGD_PAGE_BLOCK_CPGRB_POOL(cpgd), CPGD_PAGE_MODEL_BLOCK_CPGRB_ROOT_POS(cpgd, page_model));
+            //sys_log(log, "----------------------------------------------------------\n");
+            sys_log(log, "cpgd_print: page_model %u, block root_pos %u\n", 
+                         page_model, 
+                         CPGD_PAGE_MODEL_BLOCK_CPGRB_ROOT_POS(cpgd, page_model));
+        }
+    }
     used_size     = (0.0 + CPGD_PAGE_ACTUAL_USED_SIZE(cpgd));
     occupied_size = (0.0 + (((uint64_t)CPGD_PAGE_4K_USED_NUM(cpgd)) << CPGB_PAGE_4K_BIT_SIZE));
     ratio         = (EC_TRUE == REAL_ISZERO(ERR_MODULE_ID, occupied_size) ? 0.0 : (used_size / occupied_size));
@@ -1158,15 +1188,19 @@ void cpgd_print(LOG *log, const CPGD *cpgd)
                  cpgd, 
                  c_uint16_to_bin_str(CPGD_PAGE_MODEL_ASSIGN_BITMAP(cpgd))
                  );
-    for(page_model = 0; CPGB_MODEL_NUM > page_model; page_model ++)
+
+    if(0)
     {
-        if(CPGD_PAGE_MODEL_ASSIGN_BITMAP(cpgd) & (1 << page_model))
+        for(page_model = 0; CPGB_MODEL_NUM > page_model; page_model ++)
         {
-            sys_log(log, "cpgd_print: cpgd %p, model %u has page to assign\n", cpgd, page_model);
-        }
-        else
-        {
-            sys_log(log, "cpgd_print: cpgd %p, model %u no  page to assign\n", cpgd, page_model);
+            if(CPGD_PAGE_MODEL_ASSIGN_BITMAP(cpgd) & (1 << page_model))
+            {
+                sys_log(log, "cpgd_print: cpgd %p, model %u has page to assign\n", cpgd, page_model);
+            }
+            else
+            {
+                sys_log(log, "cpgd_print: cpgd %p, model %u no  page to assign\n", cpgd, page_model);
+            }
         }
     }
 

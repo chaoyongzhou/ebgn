@@ -35,6 +35,7 @@ extern "C"{
 
 
 #define CRFSNP_KEY_MAX_SIZE             ( 255)  /*max len of file or dir seg name*/
+#define CRFSNP_PATH_MAX_LEN             (1024)  /*max len of file or dir path name*/
 
 #define CRFSNP_004K_MODEL   ((uint8_t) 0)
 #define CRFSNP_064K_MODEL   ((uint8_t) 1)
@@ -109,15 +110,19 @@ extern "C"{
 #define CRFSNP_PERMISSION_OTH_ABITS     ((uint32_t)  0)    /*bit alignment*/
 
 
+#define CRFSDN_DATA_NOT_IN_CACHE        ((uint16_t)0x0000)
+#define CRFSDN_DATA_IS_IN_CACHE         ((uint16_t)0x0001)
+
 typedef struct
 {
-    uint16_t    rsvd;           /*tcid: not used yet*/
+    uint16_t    cache_flag;     /*data is cached or not*/
     uint16_t    disk_no;        /*local disk_no*/
     uint16_t    block_no;       /*block_no in above disk*/
     uint16_t    page_no;        /*page_no in above block*/    
 }CRFSNP_INODE;
 
 //#define CRFSNP_INODE_TCID(crfsnp_inode)              ((crfsnp_inode)->tcid)
+#define CRFSNP_INODE_CACHE_FLAG(crfsnp_inode)        ((crfsnp_inode)->cache_flag)
 #define CRFSNP_INODE_DISK_NO(crfsnp_inode)           ((crfsnp_inode)->disk_no)
 #define CRFSNP_INODE_BLOCK_NO(crfsnp_inode)          ((crfsnp_inode)->block_no)
 #define CRFSNP_INODE_PAGE_NO(crfsnp_inode)           ((crfsnp_inode)->page_no)
@@ -131,13 +136,14 @@ typedef struct
 
     CRFSNP_INODE  inodes[ CRFSNP_FILE_REPLICA_MAX_NUM ];
     uint8_t       pad[CRFSNP_FNODE_PAD_SIZE]; /*200B*/
-}CRFSNP_FNODE;/*16B*/
+}CRFSNP_FNODE;/*216B*/
 
 #define CRFSNP_FNODE_FILESZ(crfsnp_fnode)        ((crfsnp_fnode)->file_size)
 #define CRFSNP_FNODE_REPNUM(crfsnp_fnode)        ((crfsnp_fnode)->file_replica_num)
 #define CRFSNP_FNODE_INODES(crfsnp_fnode)        ((crfsnp_fnode)->inodes)
 #define CRFSNP_FNODE_INODE(crfsnp_fnode, idx)    (&((crfsnp_fnode)->inodes[ (idx) ]))
 
+#define CRFSNP_FNODE_CACHE_FLAG(crfsnp_fnode, idx)       CRFSNP_INODE_CACHE_FLAG(CRFSNP_FNODE_INODE(crfsnp_fnode, idx))
 #define CRFSNP_FNODE_INODE_DISK_NO(crfsnp_fnode, idx)    CRFSNP_INODE_DISK_NO(CRFSNP_FNODE_INODE(crfsnp_fnode, idx))
 #define CRFSNP_FNODE_INODE_BLOCK_NO(crfsnp_fnode, idx)   CRFSNP_INODE_BLOCK_NO(CRFSNP_FNODE_INODE(crfsnp_fnode, idx))
 #define CRFSNP_FNODE_INODE_PAGE_NO(crfsnp_fnode, idx)    CRFSNP_INODE_PAGE_NO(CRFSNP_FNODE_INODE(crfsnp_fnode, idx))
@@ -522,7 +528,13 @@ EC_BOOL crfsnp_header_init(CRFSNP_HEADER *crfsnp_header, const uint32_t np_id, c
 
 EC_BOOL crfsnp_header_clean(CRFSNP_HEADER *crfsnp_header);
 
-EC_BOOL crfsnp_header_create(CRFSNP_HEADER *crfsnp_header, const uint8_t crfsnp_model, const uint32_t np_id, const uint8_t model, const uint8_t first_chash_algo_id, const uint8_t second_chash_algo_id);
+CRFSNP_HEADER *crfsnp_header_open(const uint32_t np_id, const uint32_t fsize, int fd);
+
+CRFSNP_HEADER *crfsnp_header_create(const uint32_t np_id, const uint32_t fsize, int fd, const uint8_t np_model);
+
+CRFSNP_HEADER *crfsnp_header_sync(CRFSNP_HEADER *crfsnp_header, const uint32_t np_id, const uint32_t fsize, int fd);
+
+CRFSNP_HEADER *crfsnp_header_close(CRFSNP_HEADER *crfsnp_header, const uint32_t np_id, const uint32_t fsize, int fd);
 
 CRFSNP *crfsnp_new();
 
@@ -645,6 +657,10 @@ EC_BOOL crfsnp_show_dir_depth(LOG *log, const CRFSNP *crfsnp, const CRFSNP_ITEM 
 EC_BOOL crfsnp_show_item_depth(LOG *log, const CRFSNP *crfsnp, const uint32_t node_pos);
 
 EC_BOOL crfsnp_show_path_depth(LOG *log, CRFSNP *crfsnp, const uint32_t path_len, const uint8_t *path);
+
+EC_BOOL crfsnp_get_first_fname_of_dir(const CRFSNP *crfsnp, const CRFSNP_ITEM  *crfsnp_item, uint8_t **fname, uint32_t *dflag);
+
+EC_BOOL crfsnp_get_first_fname_of_path(CRFSNP *crfsnp, const uint32_t path_len, const uint8_t *path, uint8_t **fname, uint32_t *dflag);
 
 #endif/* _CRFSNP_H */
 

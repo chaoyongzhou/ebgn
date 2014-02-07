@@ -24,6 +24,7 @@ extern "C"{
 
 #include "type.h"
 #include "cvector.h"
+#include "clist.h"
 #include "croutine.h"
 #include "cstring.h"
 
@@ -32,6 +33,14 @@ extern "C"{
 #include "crfsnprb.h"
 
 #define CRFSNP_DB_NAME      ((const char *)"rfsnp_cfg.db")
+
+
+typedef struct
+{
+    CLIST          home_dir_list;/*item is CSTRING*/
+}CRFSNP_HOME_DIRS;
+
+#define CRFSNP_HOME_DIR_LIST(crfsnp_home_dirs)      (&((crfsnp_home_dirs)->home_dir_list))
 
 typedef struct
 {
@@ -46,25 +55,25 @@ typedef struct
     uint32_t         crfsnp_item_max_num;
     uint32_t         crfsnp_max_num;                /*max np num*/
     uint32_t         rsvd2;
-    CVECTOR          crfsnp_home_dir_vec;           /*home directories in crfsnp(s)*/    
+    CVECTOR          crfsnp_home_dirs_vec;           /*home directories in crfsnp(s), item is CRFSNP_HOME_DIR*/    
     CVECTOR          crfsnp_vec;                    /*item is CRFSNP*/
 }CRFSNP_MGR;
 
-#define CRFSNP_MGR_DB_ROOT_DIR(crfsnp_mgr)              (&((crfsnp_mgr)->crfsnp_db_root_dir))
-#define CRFSNP_MGR_DB_ROOT_DIR_STR(crfsnp_mgr)          (cstring_get_str(CRFSNP_MGR_DB_ROOT_DIR(crfsnp_mgr)))
+#define CRFSNP_MGR_DB_ROOT_DIR(crfsnp_mgr)                    (&((crfsnp_mgr)->crfsnp_db_root_dir))
+#define CRFSNP_MGR_DB_ROOT_DIR_STR(crfsnp_mgr)                (cstring_get_str(CRFSNP_MGR_DB_ROOT_DIR(crfsnp_mgr)))
 
-#define CRFSNP_MGR_NP_MODEL(crfsnp_mgr)                 ((crfsnp_mgr)->crfsnp_model)
-#define CRFSNP_MGR_NP_1ST_CHASH_ALGO_ID(crfsnp_mgr)     ((crfsnp_mgr)->crfsnp_1st_chash_algo_id)
-#define CRFSNP_MGR_NP_2ND_CHASH_ALGO_ID(crfsnp_mgr)     ((crfsnp_mgr)->crfsnp_2nd_chash_algo_id)
-#define CRFSNP_MGR_NP_ITEM_MAX_NUM(crfsnp_mgr)          ((crfsnp_mgr)->crfsnp_item_max_num)
-#define CRFSNP_MGR_NP_MAX_NUM(crfsnp_mgr)               ((crfsnp_mgr)->crfsnp_max_num)
-#define CRFSNP_MGR_NP_HOME_DIR_VEC(crfsnp_mgr)          (&((crfsnp_mgr)->crfsnp_home_dir_vec))
-#define CRFSNP_MGR_NP_HOME_DIR(crfsnp_mgr, crfsnp_id)   ((CSTRING *)cvector_get(CRFSNP_MGR_NP_HOME_DIR_VEC(crfsnp_mgr), crfsnp_id))
-#define CRFSNP_MGR_NP_VEC(crfsnp_mgr)                   (&((crfsnp_mgr)->crfsnp_vec))
-#define CRFSNP_MGR_NP(crfsnp_mgr, crfsnp_id)            ((CRFSNP *)cvector_get(CRFSNP_MGR_NP_VEC(crfsnp_mgr), crfsnp_id))
+#define CRFSNP_MGR_NP_MODEL(crfsnp_mgr)                        ((crfsnp_mgr)->crfsnp_model)
+#define CRFSNP_MGR_NP_1ST_CHASH_ALGO_ID(crfsnp_mgr)            ((crfsnp_mgr)->crfsnp_1st_chash_algo_id)
+#define CRFSNP_MGR_NP_2ND_CHASH_ALGO_ID(crfsnp_mgr)            ((crfsnp_mgr)->crfsnp_2nd_chash_algo_id)
+#define CRFSNP_MGR_NP_ITEM_MAX_NUM(crfsnp_mgr)                 ((crfsnp_mgr)->crfsnp_item_max_num)
+#define CRFSNP_MGR_NP_MAX_NUM(crfsnp_mgr)                      ((crfsnp_mgr)->crfsnp_max_num)
+#define CRFSNP_MGR_NP_HOME_DIRS_VEC(crfsnp_mgr)                (&((crfsnp_mgr)->crfsnp_home_dirs_vec))
+#define CRFSNP_MGR_NP_HOME_DIRS(crfsnp_mgr, crfsnp_id)         ((CRFSNP_HOME_DIRS *)cvector_get(CRFSNP_MGR_NP_HOME_DIRS_VEC(crfsnp_mgr), crfsnp_id))
+#define CRFSNP_MGR_NP_VEC(crfsnp_mgr)                          (&((crfsnp_mgr)->crfsnp_vec))
+#define CRFSNP_MGR_NP(crfsnp_mgr, crfsnp_id)                   ((CRFSNP *)cvector_get(CRFSNP_MGR_NP_VEC(crfsnp_mgr), crfsnp_id))
 
-#define CRFSNP_MGR_NP_HOME_DIR_VEC_LOCK(crfsnp_mgr, location)   CVECTOR_LOCK(CRFSNP_MGR_NP_HOME_DIR_VEC(crfsnp_mgr), location)
-#define CRFSNP_MGR_NP_HOME_DIR_VEC_UNLOCK(crfsnp_mgr, location) CVECTOR_UNLOCK(CRFSNP_MGR_NP_HOME_DIR_VEC(crfsnp_mgr), location)
+#define CRFSNP_MGR_NP_HOME_DIRS_VEC_LOCK(crfsnp_mgr, location)   CVECTOR_LOCK(CRFSNP_MGR_NP_HOME_DIRS_VEC(crfsnp_mgr), location)
+#define CRFSNP_MGR_NP_HOME_DIRS_VEC_UNLOCK(crfsnp_mgr, location) CVECTOR_UNLOCK(CRFSNP_MGR_NP_HOME_DIRS_VEC(crfsnp_mgr), location)
 
 /*to reduce lock operation in name node*/
 #define CRFSNP_MGR_NP_GET_NO_LOCK(crfsnp_mgr, crfsnp_id) \
@@ -155,6 +164,8 @@ EC_BOOL crfsnp_mgr_find(CRFSNP_MGR *crfsnp_mgr, const CSTRING *path, const UINT3
 
 EC_BOOL crfsnp_mgr_bind(CRFSNP_MGR *crfsnp_mgr, const CSTRING *path, const UINT32 crfsnp_id);
 
+EC_BOOL crfsnp_mgr_unbind(CRFSNP_MGR *crfsnp_mgr, const CSTRING *path, const UINT32 crfsnp_id);
+
 EC_BOOL crfsnp_mgr_write(CRFSNP_MGR *crfsnp_mgr, const CSTRING *file_path, const CRFSNP_FNODE *crfsnp_fnode);
 
 EC_BOOL crfsnp_mgr_read(CRFSNP_MGR *crfsnp_mgr, const CSTRING *file_path, CRFSNP_FNODE *crfsnp_fnode);
@@ -182,6 +193,8 @@ EC_BOOL crfsnp_mgr_show_cached_np(LOG *log, const CRFSNP_MGR *crfsnp_mgr);
 EC_BOOL crfsnp_mgr_show_path_depth(LOG *log, CRFSNP_MGR *crfsnp_mgr, const CSTRING *path);
 
 EC_BOOL crfsnp_mgr_show_path(LOG *log, CRFSNP_MGR *crfsnp_mgr, const CSTRING *path);
+
+EC_BOOL crfsnp_mgr_get_first_fname_of_path(CRFSNP_MGR *crfsnp_mgr, const CSTRING *path, CSTRING *fname, uint32_t *dflag);
 
 EC_BOOL crfsnp_mgr_rdlock(CRFSNP_MGR *crfsnp_mgr, const UINT32 location);
 

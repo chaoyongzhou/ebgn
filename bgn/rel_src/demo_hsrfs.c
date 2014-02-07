@@ -165,7 +165,7 @@ static CBYTES *__test_crfs_fetch_g_cbytes(const UINT32 max_num, const UINT32 pos
     return g_cbytes[ pos ];
 }
 
-EC_BOOL test_case_82_crfs_read(const char *home, const UINT32 crfs_tcid, const UINT32 crfs_rank, const UINT32 crfs_modi, const UINT32 max_test_data_files, UINT32 *counter)
+EC_BOOL test_case_82_crfs_read(const char *home, const UINT32 crfs_tcid, const UINT32 crfs_rank, const UINT32 crfs_modi, const UINT32 max_test_data_files, UINT32 *counter, UINT32 *file_num_counter, UINT32 *byte_num_counter)
 {
     void *mod_mgr;
     void *task_mgr;
@@ -207,6 +207,9 @@ EC_BOOL test_case_82_crfs_read(const char *home, const UINT32 crfs_tcid, const U
         cbytes_des[ index ] = __test_crfs_fetch_g_cbytes(max_test_data_files, ((*counter) % max_test_data_files));
 
         ret[ index ] = EC_FALSE;
+
+        (*file_num_counter) ++;
+        (*byte_num_counter) += cbytes_len(cbytes_des[ index ]);
 
         task_inc(task_mgr, &(ret[ index ]), FI_crfs_read, ERR_MODULE_ID, path[ index ], cbytes[ index ]);
     }
@@ -270,7 +273,7 @@ EC_BOOL test_case_82_crfs_read(const char *home, const UINT32 crfs_tcid, const U
 }
 
 
-EC_BOOL test_case_83_crfs_write(const char *home, const UINT32 crfs_tcid, const UINT32 crfs_rank, const UINT32 crfs_modi, const UINT32 max_test_data_files, UINT32 *counter)
+EC_BOOL test_case_83_crfs_write(const char *home, const UINT32 crfs_tcid, const UINT32 crfs_rank, const UINT32 crfs_modi, const UINT32 max_test_data_files, UINT32 *counter, UINT32 *file_num_counter, UINT32 *byte_num_counter)
 {
     void *mod_mgr;
     void *task_mgr;
@@ -314,6 +317,9 @@ EC_BOOL test_case_83_crfs_write(const char *home, const UINT32 crfs_tcid, const 
             path[ index ] = NULL_PTR;
             break;
         }
+
+        (*file_num_counter) ++;
+        (*byte_num_counter) += cbytes_len(cbytes);
 
         task_inc(task_mgr, &(ret[ index ]), FI_crfs_write, ERR_MODULE_ID, path[ index ], cbytes);
     }
@@ -421,9 +427,12 @@ EC_BOOL test_case_85_crfs_check_file_content(const char *home, const UINT32 crfs
 
 EC_BOOL test_case_86_crfs_writer(const UINT32 crfs_tcid, const UINT32 crfs_rank, const UINT32 crfs_modi, const UINT32 max_test_data_files, const char *root_dir_in_db)
 {
-    UINT32 outer_loop;
-    UINT32 inner_loop;
+    UINT32  outer_loop;
+    UINT32  inner_loop;
     EC_BOOL continue_flag;
+
+    UINT32  file_num_counter;
+    UINT32  byte_num_counter;
 
     if(EC_FALSE == __test_crfs_init_g_cbytes(max_test_data_files))
     {
@@ -432,6 +441,9 @@ EC_BOOL test_case_86_crfs_writer(const UINT32 crfs_tcid, const UINT32 crfs_rank,
         __test_crfs_clean_g_cbytes(max_test_data_files);
         return (EC_FALSE);
     }
+
+    file_num_counter = 0;
+    byte_num_counter = 0;
 
     continue_flag = EC_TRUE;
 
@@ -444,7 +456,7 @@ EC_BOOL test_case_86_crfs_writer(const UINT32 crfs_tcid, const UINT32 crfs_rank,
         UINT32 dir1;
         UINT32 dir2;
 
-        sys_log(LOGCONSOLE, "[DEBUG] test_case_86_crfs_writer: outer_loop = %ld\n", outer_loop);
+        sys_log(LOGCONSOLE, "[DEBUG] test_case_86_crfs_writer: outer_loop = %ld, file_num = %ld, byte_num = %ld\n", outer_loop, file_num_counter, byte_num_counter);
 
         dir0 = (outer_loop % CRFS_MAX_FILE_NUM_PER_LOOP);
         dir1 = ((outer_loop / CRFS_MAX_FILE_NUM_PER_LOOP) % CRFS_MAX_FILE_NUM_PER_LOOP);
@@ -455,7 +467,7 @@ EC_BOOL test_case_86_crfs_writer(const UINT32 crfs_tcid, const UINT32 crfs_rank,
         counter = 0;
         for(inner_loop = 0; inner_loop < ((CRFS_MAX_FILE_NUM_PER_LOOP + CRFS_TEST_WRITE_MAX_FILES - 1) / CRFS_TEST_WRITE_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
         {
-            continue_flag = test_case_83_crfs_write(home, crfs_tcid, crfs_rank, crfs_modi, max_test_data_files, &counter);
+            continue_flag = test_case_83_crfs_write(home, crfs_tcid, crfs_rank, crfs_modi, max_test_data_files, &counter, &file_num_counter, &byte_num_counter);
         }
     }
 
@@ -473,6 +485,9 @@ EC_BOOL test_case_87_crfs_reader(const UINT32 crfs_tcid, const UINT32 crfs_rank,
 
     EC_BOOL continue_flag;
 
+    UINT32  file_num_counter;
+    UINT32  byte_num_counter;
+
     if(EC_FALSE == __test_crfs_init_g_cbytes(max_test_data_files))
     {
         sys_log(LOGSTDOUT, "error:test_case_87_crfs_reader:__test_crfs_init_g_cbytes failed where max_test_data_files = %ld\n", max_test_data_files);
@@ -480,6 +495,9 @@ EC_BOOL test_case_87_crfs_reader(const UINT32 crfs_tcid, const UINT32 crfs_rank,
         __test_crfs_clean_g_cbytes(max_test_data_files);
         return (EC_FALSE);
     }
+
+    file_num_counter = 0;
+    byte_num_counter = 0;    
 
     continue_flag = EC_TRUE;
     for(outer_loop = 0; outer_loop < CRFS_TEST_LOOP_MAX_TIMES && EC_TRUE == continue_flag; outer_loop ++)
@@ -491,7 +509,7 @@ EC_BOOL test_case_87_crfs_reader(const UINT32 crfs_tcid, const UINT32 crfs_rank,
         UINT32 dir1;
         UINT32 dir2;
 
-        sys_log(LOGCONSOLE, "[DEBUG] test_case_87_crfs_reader: outer_loop = %ld\n", outer_loop);
+        sys_log(LOGCONSOLE, "[DEBUG] test_case_87_crfs_reader: outer_loop = %ld, file_num = %ld, byte_num = %ld\n", outer_loop, file_num_counter, byte_num_counter);
 
         dir0 = (outer_loop % CRFS_MAX_FILE_NUM_PER_LOOP);
         dir1 = ((outer_loop / CRFS_MAX_FILE_NUM_PER_LOOP) % CRFS_MAX_FILE_NUM_PER_LOOP);
@@ -502,7 +520,7 @@ EC_BOOL test_case_87_crfs_reader(const UINT32 crfs_tcid, const UINT32 crfs_rank,
         counter = 0;
         for(inner_loop = 0; inner_loop < ((CRFS_MAX_FILE_NUM_PER_LOOP + CRFS_TEST_READ_MAX_FILES - 1) / CRFS_TEST_READ_MAX_FILES) && EC_TRUE == continue_flag; inner_loop ++)
         {
-            continue_flag = test_case_82_crfs_read(home, crfs_tcid, crfs_rank, crfs_modi, max_test_data_files, &counter);
+            continue_flag = test_case_82_crfs_read(home, crfs_tcid, crfs_rank, crfs_modi, max_test_data_files, &counter, &file_num_counter, &byte_num_counter);
         }
     }
 

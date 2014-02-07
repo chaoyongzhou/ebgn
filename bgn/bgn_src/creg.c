@@ -64,6 +64,7 @@ extern "C"{
 #include "ganglia.h"
 #include "csession.h"
 #include "cscore.h"
+#include "crfsdn.h"
 #include "crfs.h"
 #include "chfs.h"
 
@@ -1120,6 +1121,18 @@ EC_BOOL creg_type_conv_vec_add_default(CVECTOR *type_conv_vec)
         /* cmpi_encode_type_func  */(UINT32)cmpi_encode_uint64_ptr,
         /* cmpi_decode_type_func  */(UINT32)cmpi_decode_uint64,
         /* cmpi_encode_type_size  */(UINT32)cmpi_encode_uint64_ptr_size
+    );     
+    creg_type_conv_vec_add(type_conv_vec,
+        /* type                   */e_dbg_CRFSDN_CACHE_NODE_ptr,
+        /* type_sizeof            */sizeof(CRFSDN_CACHE_NODE),
+        /* pointer_flag           */EC_TRUE,
+        /* var_mm_type            */MM_CRFSDN_CACHE_NODE,
+        /* init_type_func         */(UINT32)crfsdn_cache_node_init_0,
+        /* clean_type_func        */(UINT32)crfsdn_cache_node_clean_0,
+        /* free_type_func         */(UINT32)crfsdn_cache_node_free_0,
+        /* cmpi_encode_type_func  */(UINT32)/*cmpi_encode_crfsdn_cache_node*/NULL_PTR,
+        /* cmpi_decode_type_func  */(UINT32)/*cmpi_decode_crfsdn_cache_node*/NULL_PTR,
+        /* cmpi_encode_type_size  */(UINT32)/*cmpi_encode_crfsdn_cache_node_size*/NULL_PTR
     );     
     return (EC_TRUE);
 }

@@ -123,19 +123,245 @@ DESCRIPTION
        with a core dump.
 *********************************************************************************************************************************************************************/
 
-/*define signals which will be taken over*/
-static CSIG_ACTION g_csig_action_tbl[] = {
-   // {SIGABRT , csig_core_dump,},
-    {SIGFPE  , csig_core_dump,},
-    {SIGILL  , csig_core_dump,},
-    {SIGQUIT , csig_core_dump,},
-    {SIGSEGV , csig_core_dump,},
-    {SIGTRAP , csig_core_dump,},
-    {SIGSYS  , csig_core_dump,},
-    {SIGBUS  , csig_core_dump,},
-    {SIGXCPU , csig_core_dump,},
-    //{SIGPIPE , csig_core_dump,},
-};
+EC_BOOL csig_init(CSIG *csig)
+{
+    int signo;
+    int idx;
+
+    csig->signal_queue_len = 0;
+    for(idx = 0; idx < CSIG_MAX_NUM; idx ++)
+    {
+        csig->signal_queue[ idx ] = 0;
+    }
+
+    for(signo = 0; signo < CSIG_MAX_NUM; signo ++)
+    {
+        csig->signal_action[ signo ].count   = 0;
+        csig->signal_action[ signo ].handler = NULL_PTR;
+    }   
+    
+	sigfillset(&(csig->blocked_sig));
+
+	return (EC_TRUE);
+}
+
+void csig_handler(int signo)
+{
+    TASK_BRD *task_brd;
+    CSIG *csig;
+
+    task_brd = task_brd_default_get();
+    csig = TASK_BRD_CSIG(task_brd);
+    
+	if (0 > signo || CSIG_MAX_NUM < signo || NULL_PTR == csig->signal_action[ signo ].handler) 
+	{
+		/* unhandled signal */
+		sys_log(LOGSTDOUT, "warn:csig_handler: received unhandled signal %d which has been disabled.\n", signo);
+		signal(signo, SIG_IGN);
+		return;
+	}
+
+	if (0 == csig->signal_action[ signo ].count) {
+		/* signal was not queued yet */
+		if (CSIG_MAX_NUM > csig->signal_queue_len)
+		{
+			csig->signal_queue[ csig->signal_queue_len ] = signo;
+			csig->signal_queue_len ++;
+		}
+		else
+		{
+			sys_log(LOGSTDOUT, "warn:csig_handler: received signal %d but signal queue is unexpectedly full.\n", signo);
+		}
+	}
+	csig->signal_action[ signo ].count ++;
+	signal(signo, csig_handler); /* re-arm signal */
+	
+	return;
+}
+
+
+/* Register a handler for signal <sig>. Set it to NULL, SIG_DFL or SIG_IGN to
+ * remove the handler. The signal's queue is flushed and the signal is really
+ * registered (or unregistered) for the process. The interface is the same as
+ * for standard signal delivery, except that the handler does not need to rearm
+ * the signal itself (it can disable it however).
+ */
+void csig_register(int signo, void (*handler)(int))
+{
+    TASK_BRD    *task_brd;
+    CSIG        *csig;
+    CSIG_ACTION *csig_action;
+
+    task_brd = task_brd_default_get();
+    csig = TASK_BRD_CSIG(task_brd);
+    
+	if (0 > signo || CSIG_MAX_NUM < signo) 
+	{
+		sys_log(LOGSTDOUT, "error:csig_register: failed to register signal %d : out of range [0..%d].\n", signo, CSIG_MAX_NUM);
+		return;
+	}
+
+	csig_action = &(csig->signal_action[ signo ]);
+
+	if (NULL_PTR == handler)
+	{
+		handler = SIG_IGN;
+    }
+	
+	if (SIG_IGN != handler && SIG_DFL != handler) 
+	{
+	    csig_action->count   = 0;
+		csig_action->handler = handler;
+		signal(signo, csig_handler);
+	}
+	else 
+	{
+	    csig_action->count   = 0;
+		csig_action->handler = NULL_PTR;
+		signal(signo, handler);
+	}
+	return;
+}
+
+void csigaction_register(int signo, void (*handler)(int))
+{
+	struct sigaction sa;
+	
+	sa.sa_handler = handler;
+	sigemptyset(&sa.sa_mask);				/*additional signals to block*/
+	sa.sa_flags = SA_RESTART;               /*restart the system call ,interrupted by signal*/
+	sigaction(signo, &sa, NULL_PTR);
+	
+	return;
+}
+
+EC_BOOL csig_takeover(CSIG *csig)
+{
+	csigaction_register(SIGUSR2, csig_ignore);/*sigaction*/
+	
+	csig_register(SIGQUIT, csig_core_dump);
+	csig_register(SIGUSR1, csig_ignore   );
+	csig_register(SIGHUP , csig_core_dump);
+	csig_register(SIGINT , csig_interrupt);
+	csig_register(SIGTERM, csig_terminate);
+
+	csig_register(SIGFPE , csig_core_dump);
+	csig_register(SIGILL , csig_core_dump);
+	csig_register(SIGQUIT, csig_core_dump);
+	csig_register(SIGSEGV, csig_core_dump);
+	csig_register(SIGTRAP, csig_ignore);
+	csig_register(SIGSYS , csig_core_dump);
+    csig_register(SIGBUS , csig_core_dump);
+    csig_register(SIGXCPU, csig_core_dump);
+
+    csig_register(SIGPIPE, csig_core_dump);
+	csig_register(SIGTTOU, csig_stop);
+	csig_register(SIGTTIN, csig_stop);    
+
+	return (EC_TRUE);
+}
+
+
+/* Call handlers of all pending signals and clear counts and queue length. The
+ * handlers may unregister themselves by calling signal_register() while they
+ * are called, just like it is done with normal signal handlers.
+ * Note that it is more efficient to call the inline version which checks the
+ * queue length before getting here.
+ */
+static void __csig_process_queue()
+{
+    TASK_BRD *task_brd;
+    CSIG *csig;
+    
+	int signo;
+	int cur_pos;
+	CSIG_ACTION *csig_action;
+	sigset_t old_sig;
+
+    task_brd = task_brd_default_get();
+    csig = TASK_BRD_CSIG(task_brd);
+
+	/* block signal delivery during processing */
+	sigprocmask(SIG_SETMASK, &(csig->blocked_sig), &old_sig);
+
+	for(cur_pos = 0; cur_pos < csig->signal_queue_len; cur_pos++) 
+	{
+		signo       = csig->signal_queue[cur_pos];
+		csig_action = &(csig->signal_action[ signo ]);
+		
+		if(0 < csig_action->count) 
+		{
+			if(NULL_PTR != csig_action->handler)
+			{
+				csig_action->handler(signo);
+			}
+			csig_action->count = 0;
+		}
+	}
+
+	csig->signal_queue_len = 0;
+
+	/* restore signal delivery */
+	sigprocmask(SIG_SETMASK, &old_sig, NULL_PTR);
+
+	return;
+}
+
+void csig_process_queue()
+{
+    TASK_BRD    *task_brd;
+    CSIG        *csig;
+
+    task_brd = task_brd_default_get();
+    csig = TASK_BRD_CSIG(task_brd);
+    
+	if (0 < csig->signal_queue_len)
+	{
+		__csig_process_queue();
+	}
+	return;
+}
+
+static void __csig_print_queue(LOG *log)
+{
+    TASK_BRD *task_brd;
+    CSIG *csig;
+    
+	int signo;
+	int cur_pos;
+	CSIG_ACTION *csig_action;
+
+    task_brd = task_brd_default_get();
+    csig = TASK_BRD_CSIG(task_brd);
+
+	for(cur_pos = 0; cur_pos < csig->signal_queue_len; cur_pos++) 
+	{
+		signo       = csig->signal_queue[cur_pos];
+		csig_action = &(csig->signal_action[ signo ]);
+
+		if(0 < csig_action->count) 
+		{
+		    sys_log(log, "__csig_print_queue: signal %d, count %d\n", signo, csig_action->count);
+		}
+	}
+
+	return;
+}
+
+void csig_print_queue(LOG *log)
+{
+    TASK_BRD    *task_brd;
+    CSIG        *csig;
+
+    task_brd = task_brd_default_get();
+    csig = TASK_BRD_CSIG(task_brd);
+    
+	if (0 < csig->signal_queue_len)
+	{
+		__csig_print_queue(log);
+	}
+	return;
+}
 
 void csig_set_itimer(const int which_timer, const long useconds)
 {
@@ -209,7 +435,6 @@ void csig_gdb_gcore_dump(pid_t pid)
     char   cmd_output[CSIG_SHELL_CMD_OUTPUT_BUFF_SIZE];
 
     struct tm *cur_time;
-    time_t timestamp;
 
     /*check gcore of gdb existing*/
     snprintf(cmd_line, CSIG_SHELL_CMD_LINE_BUFF_SIZE - 4, "which gcore 2>/dev/null");
@@ -226,8 +451,7 @@ void csig_gdb_gcore_dump(pid_t pid)
     }
 
     /*get time string*/
-    time(&timestamp);
-    cur_time = c_localtime_r(&timestamp);
+    cur_time = c_localtime_r(NULL_PTR);
 
     /*encapsulate cmd line*/
     snprintf(cmd_line, CSIG_SHELL_CMD_LINE_BUFF_SIZE - 4, "gcore -o core-%d-%4d%02d%02d-%02d%02d%02d %d",
@@ -261,8 +485,7 @@ void csig_core_dump(int signo)
     sys_log(LOGSTDOUT, "error:csig_core_dump: signal %d trigger core dump ......\n", signo);
 
     /*get time string*/
-    time(&timestamp);
-    cur_time = c_localtime_r(&timestamp);
+    cur_time = c_localtime_r(NULL_PTR);
 
     /*encapsulate cmd line*/
     snprintf(core_file, CSIG_SHELL_CMD_LINE_BUFF_SIZE - 4, "core-%d-%4d%02d%02d-%02d:%02d:%02d",
@@ -346,9 +569,27 @@ void csig_ignore(int signo)
     return;
 }
 
+void csig_interrupt(int signo)
+{  
+    TASK_BRD *task_brd;
+
+    sys_log(LOGSTDOUT, "error:csig_interrupt: process %d, signal %d trigger interruption ......\n", getpid(), signo);
+
+    task_brd = task_brd_default_get();
+    TASK_BRD_ABORT_FLAG(task_brd) = CPROC_IS_ABORTED;
+
+    csig_register(signo, SIG_DFL);
+    return;
+}
+
 void csig_stop(int signo)
 {
+    TASK_BRD *task_brd;
+
     sys_log(LOGSTDOUT, "error:csig_stop: process %d, signal %d trigger stopping ......\n", getpid(), signo);
+    
+    task_brd = task_brd_default_get();
+    TASK_BRD_ABORT_FLAG(task_brd) = CPROC_IS_ABORTED;
 
     signal(signo, SIG_DFL);/*restore to OS default handler!*/
     raise(signo);
@@ -357,31 +598,20 @@ void csig_stop(int signo)
 
 void csig_terminate(int signo)
 {
+    TASK_BRD *task_brd;
+
     sys_log(LOGSTDOUT, "error:csig_terminate: process %d, signal %d trigger terminating ......\n", getpid(), signo);
+
+    task_brd = task_brd_default_get();
+    TASK_BRD_ABORT_FLAG(task_brd) = CPROC_IS_ABORTED;    
 
     signal(signo, SIG_DFL);/*restore to OS default handler!*/
     raise(signo);
     return;
 }
 
+
 #if 0
-/*taskover sig handler of MPI!*/
-void csig_takeover_mpi()
-{
-    UINT32 csig_idx;
-
-    for (csig_idx = 0; csig_idx < sizeof(g_csig_action_tbl)/sizeof(g_csig_action_tbl[0]); csig_idx ++)
-    {
-        CSIG_ACTION *csig_action;
-
-        csig_action = &(g_csig_action_tbl[ csig_idx ]);
-        csig_reg_action(CSIG_ACTION_SIGNAL(csig_action), CSIG_ACTION_HANDLER(csig_action));
-    }
-    return;
-}
-#endif
-
-#if 1
 /*taskover sig handler of MPI!*/
 void csig_takeover_mpi()
 {

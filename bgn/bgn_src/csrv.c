@@ -115,8 +115,7 @@ EC_BOOL csrv_accept(CSRV *csrv)
 {
     UINT32 client_ipaddr;
 
-    int client_conn_sockfd;
-    
+    int client_conn_sockfd;    
 
     if(EC_TRUE == csocket_accept(CSRV_SOCKFD(csrv), &(client_conn_sockfd), &(client_ipaddr) ))
     {

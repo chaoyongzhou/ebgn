@@ -56,7 +56,7 @@ static char g_str_buff[CMISC_BUFF_NUM][CMISC_BUFF_LEN];
 static UINT32 g_str_idx = 0;
 
 static pthread_mutex_t g_cmisc_tm_cmutex;
-static struct tm g_tm_tbl[CMISC_TM_NUM];
+static CTM g_tm_tbl[CMISC_TM_NUM];
 static UINT32 g_tm_idx = 0;
 
 static char  g_hex_char[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
@@ -579,6 +579,39 @@ uint32_t ipv4_subnet_mask_prefix(uint32_t subnet_mask)
     return (prefix);
 }
 
+EC_BOOL c_check_is_uint8_t(const UINT32 num)
+{
+    if(0 == (num >> 8))
+    {
+        return (EC_TRUE);
+    }
+    return (EC_FALSE);
+}
+
+EC_BOOL c_check_is_uint16_t(const UINT32 num)
+{
+    if(0 == (num >> 16))
+    {
+        return (EC_TRUE);
+    }
+    return (EC_FALSE);
+}
+
+EC_BOOL c_check_is_uint32_t(const UINT32 num)
+{
+#if (32 == WORDSIZE)
+    return (EC_TRUE);
+#endif /*(32 == WORDSIZE)*/
+
+#if (64 == WORDSIZE)
+    if(32 == WORDSIZE || 0 == (num >> 32))
+    {
+        return (EC_TRUE);
+    }
+    return (EC_FALSE);
+#endif /*(64 == WORDSIZE)*/
+}
+
 void str_to_lower(UINT8 *mac_str, const UINT32 len)
 {
     UINT32 pos;
@@ -854,6 +887,60 @@ char *c_str_fetch_next_line(char *str)
 char *c_str_move_next(char *str)
 {
     return (str + strlen(str) + 1);
+}
+
+/* Searches the next delimiter (char listed in DELIM) starting at *STRINGP.
+   If one is found, it is overwritten with a NUL, and *STRINGP is advanced
+   to point to the next char after it.  Otherwise, *STRINGP is set to NULL.
+   If *STRINGP was already NULL, nothing happens.
+   Returns the old value of *STRINGP.
+
+   This is a variant of strtok() that is multithread-safe and supports
+   empty fields.
+
+   Caveat: It modifies the original string.
+   Caveat: These functions cannot be used on constant strings.
+   Caveat: The identity of the delimiting character is lost.
+   Caveat: It doesn't work with multibyte strings unless all of the delimiter
+           characters are ASCII characters < 0x30.
+
+   See also strtok_r().  
+*/
+char *c_str_seperate (char **stringp, const char *delim)
+{
+	char *start;
+	char *ptr;
+
+	start = *stringp;
+
+	if (NULL_PTR == start)
+	{
+		return (NULL_PTR);
+    }
+    
+	if (NULL_PTR == *delim)
+	{
+		ptr = start + strlen (start);
+	}
+	else
+	{
+	    /**
+	     *   char *strpbrk(const char *s, const char *accept)
+	     *   The strpbrk() function returns a pointer to the character in s that
+	     *   matches 'one' of the characters in accept, or NULL if no such character is found.
+	     **/	    
+		ptr = strpbrk (start, delim);
+		if (NULL_PTR == ptr)
+		{
+			*stringp = NULL_PTR;
+			return (start);
+		}
+	}
+
+	*ptr = '\0';
+	*stringp = ptr + 1;
+
+	return (start);
 }
 
 char *uint32_vec_to_str(const CVECTOR *uint32_vec)
@@ -1525,21 +1612,30 @@ int c_file_close(int fd)
     return (0);
 }
 
-struct tm *c_localtime_r(const time_t *timestamp)
+CTM *c_localtime_r(const time_t *timestamp)
 {
-    struct tm *ptime;
+    CTM *ptime;
     c_mutex_lock(&g_cmisc_tm_cmutex, LOC_CMISC_0040);
     ptime = &(g_tm_tbl[g_tm_idx]);
     g_tm_idx = ((g_tm_idx + 1) % (CMISC_TM_NUM));
     c_mutex_unlock(&g_cmisc_tm_cmutex, LOC_CMISC_0041);
 
-    localtime_r(timestamp, ptime);
+    if(NULL_PTR != timestamp)
+    {
+        localtime_r(timestamp, ptime);
+    }
+    else
+    {
+        time_t cur_timestamp;
+        cur_timestamp = c_time(&cur_timestamp);
+        localtime_r(&cur_timestamp, ptime);
+    }
     return (ptime);
 }
 
-ctime_t c_time()
+ctime_t c_time(ctime_t *timestamp)
 {
-    return (ctime_t)time(NULL_PTR);
+    return time(timestamp);
 }
 
 EC_BOOL c_usleep(const UINT32 msec)

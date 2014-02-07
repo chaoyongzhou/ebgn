@@ -317,6 +317,14 @@ typedef struct
 
 #define CRWLOCK_CHECK_LOCK_VALIDITY(__crwlock__, __op__, __location__) do{}while(0)
 
+typedef struct
+{
+    void       *ptr;
+    UINT32     location;
+    UINT32     counter;
+}PTR_DBG_NODE;
+
+
 CMUTEX *cmutex_new(const UINT32 flag, const UINT32 location);
 
 void    cmutex_free(CMUTEX *cmutex, const UINT32 location);
@@ -393,6 +401,8 @@ EC_BOOL crwlock_rdlock(CRWLOCK *crwlock, const UINT32 location);
 EC_BOOL crwlock_wrlock(CRWLOCK *crwlock, const UINT32 location);
 
 EC_BOOL crwlock_unlock(CRWLOCK *crwlock, const UINT32 location);
+
+void cmutex_dbg_stat_print(LOG *log);
 
 #endif /*_CMUTEX_H*/
 

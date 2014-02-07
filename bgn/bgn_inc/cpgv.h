@@ -35,13 +35,13 @@ extern "C"{
 
 typedef struct
 {
-    CPGRB_POOL   pgv_disk_rb_pool;
+    CPGRB_POOL   pgv_disk_rb_pool; /*waste many rb nodes ...*/
     
     uint16_t     pgv_disk_rb_root_pos[ CPGB_MODEL_NUM ];/*root pos of rbtree*/
     uint16_t     rsvd1;
     
     uint16_t     pgv_assign_bitmap; /*when some page model can provide pages or can borrow from upper, set bit to 1*/
-    uint16_t     pgv_disk_max_num; /*max disk number */    
+    uint16_t     pgv_disk_num;      /*current disk number support up to*/    
     uint32_t     rsvd2;
     
     uint64_t     pgv_page_4k_max_num; /*max pages number */
@@ -55,7 +55,7 @@ typedef struct
 #define CPGV_HDR_DISK_CPGRB_ROOT_POS_TBL(cpgv_hdr)              ((cpgv_hdr)->pgv_disk_rb_root_pos)
 #define CPGV_HDR_DISK_CPGRB_ROOT_POS(cpgv_hdr, page_model)      ((cpgv_hdr)->pgv_disk_rb_root_pos[ (page_model) ])
 #define CPGV_HDR_ASSIGN_BITMAP(cpgv_hdr)                        ((cpgv_hdr)->pgv_assign_bitmap)
-#define CPGV_HDR_PAGE_DISK_MAX_NUM(cpgv_hdr)                    ((cpgv_hdr)->pgv_disk_max_num)
+#define CPGV_HDR_PAGE_DISK_NUM(cpgv_hdr)                        ((cpgv_hdr)->pgv_disk_num)
 #define CPGV_HDR_PAGE_4K_MAX_NUM(cpgv_hdr)                      ((cpgv_hdr)->pgv_page_4k_max_num)
 #define CPGV_HDR_PAGE_4K_USED_NUM(cpgv_hdr)                     ((cpgv_hdr)->pgv_page_4k_used_num)
 #define CPGV_HDR_PAGE_ACTUAL_USED_SIZE(cpgv_hdr)                ((cpgv_hdr)->pgv_actual_used_size)
@@ -80,7 +80,7 @@ typedef struct
 #define CPGV_PAGE_MODEL_DISK_CPGRB_ROOT_POS_TBL(cpgv)            (CPGV_HDR_DISK_CPGRB_ROOT_POS_TBL(CPGV_HEADER(cpgv)))
 #define CPGV_PAGE_MODEL_DISK_CPGRB_ROOT_POS(cpgv, page_model)    (CPGV_HDR_DISK_CPGRB_ROOT_POS(CPGV_HEADER(cpgv), page_model))
 #define CPGV_PAGE_MODEL_ASSIGN_BITMAP(cpgv)                      (CPGV_HDR_ASSIGN_BITMAP(CPGV_HEADER(cpgv)))
-#define CPGV_PAGE_DISK_MAX_NUM(cpgv)                             (CPGV_HDR_PAGE_DISK_MAX_NUM(CPGV_HEADER(cpgv)))
+#define CPGV_PAGE_DISK_NUM(cpgv)                                 (CPGV_HDR_PAGE_DISK_NUM(CPGV_HEADER(cpgv)))
 #define CPGV_PAGE_4K_MAX_NUM(cpgv)                               (CPGV_HDR_PAGE_4K_MAX_NUM(CPGV_HEADER(cpgv)))
 #define CPGV_PAGE_4K_USED_NUM(cpgv)                              (CPGV_HDR_PAGE_4K_USED_NUM(CPGV_HEADER(cpgv)))
 #define CPGV_PAGE_ACTUAL_USED_SIZE(cpgv)                         (CPGV_HDR_PAGE_ACTUAL_USED_SIZE(CPGV_HEADER(cpgv)))
@@ -89,7 +89,9 @@ typedef struct
 #define CPGV_DISK_NODE(cpgv, disk_no)                            ((CPGV_MAX_DISK_NUM <= (disk_no)) ? NULL_PTR : CPGV_DISK_CPGD(cpgv, disk_no))
 
 
-CPGV_HDR *cpgv_hdr_new(CPGV *cpgv, const uint16_t block_num);
+CPGV_HDR *cpgv_hdr_new(CPGV *cpgv);
+
+EC_BOOL cpgv_hdr_init(CPGV *cpgv);
 
 EC_BOOL cpgv_hdr_free(CPGV *cpgv);
 
@@ -98,8 +100,6 @@ CPGV_HDR *cpgv_hdr_open(CPGV *cpgv);
 EC_BOOL cpgv_hdr_close(CPGV *cpgv);
 
 EC_BOOL cpgv_hdr_sync(CPGV *cpgv);
-
-CPGV *cpgv_new(const uint8_t *cpgv_fname, const uint16_t block_num);
 
 EC_BOOL cpgv_free(CPGV *cpgv);
 
@@ -114,11 +114,13 @@ EC_BOOL cpgv_init(CPGV *cpgv);
 
 void cpgv_clean(CPGV *cpgv);
 
-/*add one free disk into pool*/
-EC_BOOL cpgv_add_disk(CPGV *cpgv, const uint16_t disk_no, const uint16_t page_model);
+EC_BOOL cpgv_add_disk(CPGV *cpgv, const uint16_t disk_no);
 
-/*del one free disk from pool*/
-EC_BOOL cpgv_del_disk(CPGV *cpgv, const uint16_t disk_no, const uint16_t page_model);
+EC_BOOL cpgv_del_disk(CPGV *cpgv, const uint16_t disk_no);
+
+EC_BOOL cpgv_mount_disk(CPGV *cpgv, const uint16_t disk_no);
+
+EC_BOOL cpgv_umount_disk(CPGV *cpgv, const uint16_t disk_no);
 
 EC_BOOL cpgv_new_space(CPGV *cpgv, const uint32_t size, uint16_t *disk_no, uint16_t *block_no, uint16_t *page_4k_no);
 
@@ -138,7 +140,7 @@ EC_BOOL cpgv_check(const CPGV *cpgv);
 
 void cpgv_print(LOG *log, const CPGV *cpgv);
 
-CPGV *cpgv_new(const uint8_t *cpgv_dat_file, const uint16_t block_num);
+CPGV *cpgv_new(const uint8_t *cpgv_dat_file);
 
 EC_BOOL cpgv_free(CPGV *cpgv);
 

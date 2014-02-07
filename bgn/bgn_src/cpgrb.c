@@ -1321,8 +1321,8 @@ EC_BOOL cpgrb_debug_cmp(const CPGRB_POOL *pool_1st, const CPGRB_POOL *pool_2nd)
     node_num = CPGRB_POOL_NODE_NUM(pool_1st);
     for(node_pos = 0; node_pos < node_num; node_pos ++)
     {
-        CPGRB_NODE *node_1st;
-        CPGRB_NODE *node_2nd;
+        const CPGRB_NODE *node_1st;
+        const CPGRB_NODE *node_2nd;
 
         node_1st = CPGRB_POOL_NODE(pool_1st, node_pos);
         node_2nd = CPGRB_POOL_NODE(pool_2nd, node_pos);

@@ -239,7 +239,7 @@ EC_BOOL chfs_read(const UINT32 chfs_md_id, const CSTRING *file_path, CBYTES *cby
 *  create data node
 *
 **/
-EC_BOOL chfs_create_dn(const UINT32 chfs_md_id, const CSTRING *root_dir, const UINT32 max_gb_num_of_disk_space);
+EC_BOOL chfs_create_dn(const UINT32 chfs_md_id, const CSTRING *root_dir);
 
 /**
 *

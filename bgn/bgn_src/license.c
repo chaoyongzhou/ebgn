@@ -947,7 +947,6 @@ EC_BOOL lic_check()
     LIC_CFG lic_cfg;
 
     struct tm *cur_time;
-    time_t timestamp;
 
     UINT32 year;
     UINT32 month;
@@ -1011,8 +1010,7 @@ EC_BOOL lic_check()
     }
 
     /*check expiration*/
-    time(&timestamp);
-    cur_time = c_localtime_r(&timestamp);
+    cur_time = c_localtime_r(NULL_PTR);
 
     year  = cur_time->tm_year + 1900;
     month = cur_time->tm_mon + 1;

@@ -116,6 +116,7 @@ extern "C"{
 #define            e_dbg_CHFSNP_ITEM_ptr    ((UINT32) 79)
 #define           e_dbg_CHFSNP_FNODE_ptr    ((UINT32) 80)
 #define               e_dbg_uint64_t_ptr    ((UINT32) 81)
+#define      e_dbg_CRFSDN_CACHE_NODE_ptr    ((UINT32) 82)
 #define                   e_dbg_type_end    ((UINT32)128)
 
 /* description of E_DBG_TYPE */

@@ -99,14 +99,33 @@ LOG *log_get_by_fd(const UINT32 fd)
     return LOGSTDNULL;
 }
 
-static int sys_log_to_fd(FILE *fp, const char * format,va_list ap)
+static int sys_log_to_buf(FILE *fp, const char * format,va_list ap, char *buf, const int buf_max_size)
 {
-    struct tm *cur_time;
-    time_t timestamp;
+    CTM *cur_time;
+    int len;
+
+    cur_time = LOG_TM();
+
+    len = 0;
+    len += snprintf(buf, buf_max_size, "[%4d-%02d-%02d %02d:%02d:%02d] ",
+                    cur_time->tm_year + 1900,
+                    cur_time->tm_mon + 1,
+                    cur_time->tm_mday,
+                    cur_time->tm_hour,
+                    cur_time->tm_min,
+                    cur_time->tm_sec);
+
+    len += vsnprintf((char *)(buf + len), buf_max_size - len, format, ap);
+
+    return (len);
+}
+
+static int sys_log_to_fd_orig(FILE *fp, const char * format,va_list ap)
+{
+    CTM *cur_time;
     int ret;
 
-    time(&timestamp);
-    cur_time = c_localtime_r(&timestamp);
+    cur_time = LOG_TM();
 
     fprintf(fp, "[%4d-%02d-%02d %02d:%02d:%02d] ",
             cur_time->tm_year + 1900,
@@ -123,13 +142,31 @@ static int sys_log_to_fd(FILE *fp, const char * format,va_list ap)
     return (ret);
 }
 
+static int sys_log_to_fd(FILE *fp, const char * format,va_list ap)
+{
+    int   len;
+    char *buf;
+
+    alloc_static_mem(MD_TASK, CMPI_ANY_MODI, MM_UINT8_064K, &buf, LOC_LOG_0001);
+    if(NULL_PTR == buf)
+    {
+        return (0);
+    }
+
+    len = sys_log_to_buf(fp, format, ap, buf, 64 * 1024);
+    fprintf(fp, "%.*s", len, buf);
+    fflush(fp);
+
+    free_static_mem(MD_TASK, CMPI_ANY_MODI, MM_UINT8_064K, buf, LOC_LOG_0002);
+
+    return (len);
+}
+
 static int sys_log_to_cstring(CSTRING *cstring, const char * format, va_list ap)
 {
-    struct tm *cur_time;
-    time_t timestamp;
+    CTM *cur_time;
 
-    time(&timestamp);
-    cur_time = c_localtime_r(&timestamp);
+    cur_time = LOG_TM();
 
     cstring_format(cstring, "[%4d-%02d-%02d %02d:%02d:%02d] ",
             cur_time->tm_year + 1900,
@@ -224,15 +261,12 @@ int sys_log(LOG *log, const char * format, ...)
     LOG *des_log;
     va_list ap;
 
-    //return (0);/*debug*/
-
     if( SWITCH_OFF == g_log_switch && NULL_PTR != log && LOGD_SWITCH_OFF_ENABLE == LOG_SWITCH_OFF_ENABLE(log) )
     {
         return (0);
     }
 
     des_log = log;
-    //if(LOGSTDNULL == log) des_log = LOGSTDOUT; /*debug!*/
     while(NULL_PTR != des_log && NULL_PTR != des_log->redirect_log)
     {
         des_log = des_log->redirect_log;
@@ -247,20 +281,20 @@ int sys_log(LOG *log, const char * format, ...)
     {
         int ret;
 
-        LOG_FILE_LOCK(des_log, LOC_LOG_0001);
+        LOG_FILE_LOCK(des_log, LOC_LOG_0003);
 
         va_start(ap, format);
         ret = sys_log_to_fd(LOG_FILE_FP(des_log), format, ap);
         va_end(ap);
 
-        LOG_FILE_UNLOCK(des_log, LOC_LOG_0002);
+        LOG_FILE_UNLOCK(des_log, LOC_LOG_0004);
 
         if(LOGD_FILE_RECORD_LIMIT_ENABLED == LOG_FILE_LIMIT_ENABLED(des_log))
         {
             //WARNING: here need a lock!
             if(LOG_FILE_CUR_RECORDS(des_log) > LOG_FILE_RECORDS_LIMIT(des_log))
             {
-                LOG_FILE_LOCK(des_log, LOC_LOG_0003);
+                LOG_FILE_LOCK(des_log, LOC_LOG_0005);
 
                 if(LOG_FILE_CUR_RECORDS(des_log) > LOG_FILE_RECORDS_LIMIT(des_log))/*double confirm!*/
                 {
@@ -268,7 +302,7 @@ int sys_log(LOG *log, const char * format, ...)
                     LOG_FILE_CUR_RECORDS(des_log) = 0;
                 }
 
-                LOG_FILE_UNLOCK(des_log, LOC_LOG_0004);
+                LOG_FILE_UNLOCK(des_log, LOC_LOG_0006);
             }
 
             ++ LOG_FILE_CUR_RECORDS(des_log);
@@ -377,20 +411,20 @@ int sys_print(LOG *log, const char * format, ...)
     {
         int ret;
 
-        LOG_FILE_LOCK(des_log, LOC_LOG_0005);
+        LOG_FILE_LOCK(des_log, LOC_LOG_0007);
 
         va_start(ap, format);
         ret = sys_print_to_fd(LOG_FILE_FP(des_log), format, ap);
         va_end(ap);
 
-        LOG_FILE_UNLOCK(des_log, LOC_LOG_0006);
+        LOG_FILE_UNLOCK(des_log, LOC_LOG_0008);
 
         if(LOGD_FILE_RECORD_LIMIT_ENABLED == LOG_FILE_LIMIT_ENABLED(des_log))
         {
             //WARNING: here need a lock!
             if(LOG_FILE_CUR_RECORDS(des_log) > LOG_FILE_RECORDS_LIMIT(des_log))
             {
-                LOG_FILE_LOCK(des_log, LOC_LOG_0007);
+                LOG_FILE_LOCK(des_log, LOC_LOG_0009);
 
                 if(LOG_FILE_CUR_RECORDS(des_log) > LOG_FILE_RECORDS_LIMIT(des_log))/*double confirm!*/
                 {
@@ -398,7 +432,7 @@ int sys_print(LOG *log, const char * format, ...)
                     LOG_FILE_CUR_RECORDS(des_log) = 0;
                 }
 
-                LOG_FILE_UNLOCK(des_log, LOC_LOG_0008);
+                LOG_FILE_UNLOCK(des_log, LOC_LOG_0010);
             }
 
             ++ LOG_FILE_CUR_RECORDS(des_log);
@@ -451,11 +485,11 @@ LOG *log_file_new(const char *fname, const char *mode, const UINT32 tcid, const 
 {
     LOG *log;
 
-    alloc_static_mem(MD_TASK, 0, MM_LOG, &log, LOC_LOG_0009);
+    alloc_static_mem(MD_TASK, 0, MM_LOG, &log, LOC_LOG_0011);
     if(EC_FALSE == log_file_init(log, fname, mode, tcid, rank, record_limit_enabled, fname_with_date_switch, switch_off_enable, pid_info_enable))
     {
         sys_log(LOGSTDOUT, "error:log_file_new: log file %s init failed\n", fname);
-        free_static_mem(MD_TASK, 0, MM_LOG, log, LOC_LOG_0010);
+        free_static_mem(MD_TASK, 0, MM_LOG, log, LOC_LOG_0012);
         return (NULL_PTR);
     }
     return (log);
@@ -495,10 +529,10 @@ EC_BOOL log_file_init(LOG *log, const char *fname, const char *mode, const UINT3
 
     LOG_FILE_NAME_WITH_DATE_SWITCH(log) = fname_with_date_switch;
 
-    LOG_FILE_NAME(log) = cstring_new((UINT8 *)fname, LOC_LOG_0011);
-    LOG_FILE_MODE(log) = cstring_new((UINT8 *)mode, LOC_LOG_0012);
+    LOG_FILE_NAME(log) = cstring_new((UINT8 *)fname, LOC_LOG_0013);
+    LOG_FILE_MODE(log) = cstring_new((UINT8 *)mode, LOC_LOG_0014);
 
-    LOG_FILE_CMUTEX(log) = c_mutex_new(CMUTEX_PROCESS_PRIVATE, LOC_LOG_0013);
+    LOG_FILE_CMUTEX(log) = c_mutex_new(CMUTEX_PROCESS_PRIVATE, LOC_LOG_0015);
     if(NULL_PTR == LOG_FILE_CMUTEX(log))
     {
         fprintf(stderr,"error:log_file_init: failed to new cmutex for %s\n", (char *)LOG_FILE_NAME_STR(log));
@@ -528,7 +562,7 @@ EC_BOOL log_file_init(LOG *log, const char *fname, const char *mode, const UINT3
 
         LOG_DEVICE_TYPE(log) = LOG_NULL_DEVICE;
 
-        c_mutex_free(LOG_FILE_CMUTEX(log), LOC_LOG_0014);
+        c_mutex_free(LOG_FILE_CMUTEX(log), LOC_LOG_0016);
         LOG_FILE_CMUTEX(log) = NULL_PTR;
 
         return (EC_FALSE);
@@ -571,7 +605,7 @@ EC_BOOL log_file_clean(LOG *log)
     log_file_fclose(log);
     if(NULL_PTR != LOG_FILE_CMUTEX(log))
     {
-        c_mutex_free(LOG_FILE_CMUTEX(log), LOC_LOG_0015);
+        c_mutex_free(LOG_FILE_CMUTEX(log), LOC_LOG_0017);
         LOG_FILE_CMUTEX(log) = NULL_PTR;
     }
 
@@ -591,11 +625,8 @@ EC_BOOL log_file_fopen(LOG *log)
 
     if(SWITCH_ON == LOG_FILE_NAME_WITH_DATE_SWITCH(log))
     {
-        struct tm *cur_time;
-        time_t timestamp;
-
-        time(&timestamp);
-        cur_time = c_localtime_r(&timestamp);
+        CTM *cur_time;
+        cur_time = LOG_TM();
 
         snprintf(fname, sizeof(fname) - 1, "%s_%4d%02d%02d_%02d%02d%02d.log",
                 (char *)LOG_FILE_NAME_STR(log),
@@ -625,11 +656,8 @@ EC_BOOL log_file_fopen(LOG *log)
 #if 1
     if(LOGD_PID_INFO_ENABLE == LOG_PID_INFO_ENABLE(log))
     {
-        struct tm *cur_time;
-        time_t timestamp;
-
-        time(&timestamp);
-        cur_time = c_localtime_r(&timestamp);
+        CTM *cur_time;
+        cur_time = LOG_TM();
 
         fprintf(LOG_FILE_FP(log), "[%4d-%02d-%02d %02d:%02d:%02d] ",
                 cur_time->tm_year + 1900,
@@ -686,7 +714,7 @@ void log_file_free(LOG *log)
     if(NULL_PTR != log)
     {
         log_file_clean(log);
-        free_static_mem(MD_TASK, 0, MM_LOG, log, LOC_LOG_0016);
+        free_static_mem(MD_TASK, 0, MM_LOG, log, LOC_LOG_0018);
     }
     return;
 }
@@ -705,7 +733,7 @@ LOG *log_cstr_new()
 {
     LOG *log;
 
-    alloc_static_mem(MD_TASK, 0, MM_LOG, &log, LOC_LOG_0017);
+    alloc_static_mem(MD_TASK, 0, MM_LOG, &log, LOC_LOG_0019);
     LOG_CSTR(log) = NULL_PTR;
     log_cstr_init(log);
 
@@ -719,7 +747,7 @@ EC_BOOL log_cstr_init(LOG *log)
 
     if(NULL_PTR == LOG_CSTR(log))
     {
-        LOG_CSTR(log) = cstring_new(NULL_PTR, LOC_LOG_0018);
+        LOG_CSTR(log) = cstring_new(NULL_PTR, LOC_LOG_0020);
     }
 
     return (EC_TRUE);
@@ -740,7 +768,7 @@ void log_cstr_free(LOG *log)
     if(NULL_PTR != log)
     {
         log_cstr_clean(log);
-        free_static_mem(MD_TASK, 0, MM_LOG, log, LOC_LOG_0019);
+        free_static_mem(MD_TASK, 0, MM_LOG, log, LOC_LOG_0021);
     }
     return;
 }
@@ -784,7 +812,7 @@ EC_BOOL log_free(LOG *log)
     if(NULL_PTR != log)
     {
         log_clean(log);
-        free_static_mem(MD_TASK, 0, MM_LOG, log, LOC_LOG_0020);
+        free_static_mem(MD_TASK, 0, MM_LOG, log, LOC_LOG_0022);
     }
     return (EC_TRUE);
 }

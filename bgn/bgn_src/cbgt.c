@@ -231,7 +231,7 @@ static void __cbgt_error_mod_node(const UINT32 cbgt_md_id, MOD_NODE *mod_node)
 /*note: here no val parameter is inputed, hence the vlen in user table key must be zero*/
 static EC_BOOL __cbgt_make_user_table_key(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTES *colf, const CBYTES *colq, CBYTES *user_table_key)
 {
-    if(EC_FALSE == cbgt_key_init(cbgt_md_id, row, colf, colq, c_time(), user_table_key))
+    if(EC_FALSE == cbgt_key_init(cbgt_md_id, row, colf, colq, c_time(NULL_PTR), user_table_key))
     {
         sys_log(LOGSTDOUT, "error:__cbgt_make_user_table_key: init key failed\n");
         return (EC_FALSE);
@@ -265,7 +265,7 @@ static EC_BOOL __cbgt_make_rmc_table_key(const UINT32 cbgt_md_id, const CBYTES *
     cbytes_mount(&colf , strlen("info")         , (uint8_t *)"info"         );
     cbytes_mount(&colq , strlen("vpath")        , (uint8_t *)"vpath"        );
 
-    if(EC_FALSE == cbgt_key_init(cbgt_md_id, row, &colf, &colq, c_time(), rmc_table_key))
+    if(EC_FALSE == cbgt_key_init(cbgt_md_id, row, &colf, &colq, c_time(NULL_PTR), rmc_table_key))
     {
         sys_log(LOGSTDOUT, "error:__cbgt_make_rmc_table_key: init key failed\n");
         return (EC_FALSE);
@@ -3058,7 +3058,7 @@ EC_BOOL   cbgt_gdb_update_val(CBGT_GDB *gdb, const uint8_t *key, const uint8_t *
                    keyGetrLenHs(key) , keyGetRowHs(key),
                    keyGetcfLenHs(key), keyGetColFamilyHs(key),
                    keyGetcqLenHs(key), keyGetColQualifierHs(key),
-                   c_time(), /*timestamp*/
+                   c_time(NULL_PTR), /*timestamp*/
                    KEY_TYPE_IS_PUT,
                    val  /*val is null*/
                    );
@@ -3460,7 +3460,7 @@ EC_BOOL cbgt_kv_init(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTES *c
                        (uint16_t)cbytes_len(row), cbytes_buf(row),
                        (uint8_t )cbytes_len(colf), cbytes_buf(colf),
                        (uint16_t)cbytes_len(colq), cbytes_buf(colq),
-                       c_time(),
+                       c_time(NULL_PTR),
                        KEY_TYPE_IS_PUT,
                        cbytes_buf(val));
     }
@@ -3471,7 +3471,7 @@ EC_BOOL cbgt_kv_init(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTES *c
                        (uint16_t)cbytes_len(row), cbytes_buf(row),
                        (uint8_t )cbytes_len(colf), cbytes_buf(colf),
                        (uint16_t)cbytes_len(colq), cbytes_buf(colq),
-                       c_time(),
+                       c_time(NULL_PTR),
                        KEY_TYPE_IS_PUT,
                        NULL_PTR);
     

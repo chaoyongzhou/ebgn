@@ -45,7 +45,13 @@ extern "C"{
 #define CPGD_TEST_SCENARIO_032G_DISK     (3)
 #define CPGD_TEST_SCENARIO_001T_DISK     (4)
 
+#if (32 == WORDSIZE)
 #define CPGD_DEBUG_CHOICE CPGD_TEST_SCENARIO_512M_DISK
+#endif/*(32 == WORDSIZE)*/
+
+#if (64 == WORDSIZE)
+#define CPGD_DEBUG_CHOICE CPGD_TEST_SCENARIO_032G_DISK
+#endif/*(64 == WORDSIZE)*/
 
 #if (CPGD_TEST_SCENARIO_001T_DISK == CPGD_DEBUG_CHOICE)
 #define CPGD_MAX_BLOCK_NUM               (CPGD_001TB_BLOCK_NUM)
@@ -149,6 +155,10 @@ CPGD *cpgd_new(const uint8_t *cpgd_fname, const uint16_t block_num);
 
 EC_BOOL cpgd_free(CPGD *cpgd);
 
+EC_BOOL cpgd_exist(const uint8_t *cpgd_fname);
+
+EC_BOOL cpgd_rmv(const uint8_t *cpgd_fname);
+
 CPGD *cpgd_open(const uint8_t *cpgd_fname);
 
 EC_BOOL cpgd_close(CPGD *cpgd);
@@ -174,6 +184,8 @@ EC_BOOL cpgd_is_full(const CPGD *cpgd);
 
 EC_BOOL cpgd_is_empty(const CPGD *cpgd);
 
+uint16_t cpgd_page_model(const CPGD *cpgd);
+
 EC_BOOL cpgd_flush_size(const CPGD *cpgd, UINT32 *size);
 
 EC_BOOL cpgd_flush(const CPGD *cpgd, int fd, UINT32 *offset);
@@ -189,8 +201,6 @@ CPGD *cpgd_new(const uint8_t *cpgd_dat_file, const uint16_t block_num);
 EC_BOOL cpgd_free(CPGD *cpgd);
 
 EC_BOOL cpgd_close(CPGD *cpgd);
-
-CPGD *cpgd_open(const uint8_t *cpgd_dat_file);
 
 
 /* ---- debug ---- */

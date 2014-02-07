@@ -78,6 +78,12 @@ char *c_word_to_port(const UINT32 port_num);
 /*note: subnet_mask is in host order*/
 uint32_t ipv4_subnet_mask_prefix(uint32_t subnet_mask);
 
+EC_BOOL c_check_is_uint8_t(const UINT32 num);
+
+EC_BOOL c_check_is_uint16_t(const UINT32 num);
+
+EC_BOOL c_check_is_uint32_t(const UINT32 num);
+
 void str_to_lower(UINT8 *mac_str, UINT32 len);
 
 char *mac_addr_to_str(const UINT8 *mac);
@@ -103,6 +109,8 @@ char *c_str_fetch_line(char *str);
 char *c_str_fetch_next_line(char *str);
 
 char *c_str_move_next(char *str);
+
+char *c_str_seperate (char **stringp, const char *delim);
 
 char *uint32_vec_to_str(const CVECTOR *uint32_vec);
 
@@ -166,7 +174,7 @@ int c_file_close(int fd);
 
 struct tm *c_localtime_r(const time_t *timestamp);
 
-ctime_t c_time();
+ctime_t c_time(ctime_t *timestamp);
 
 EC_BOOL c_usleep(const UINT32 msec);
 EC_BOOL c_sleep(const UINT32 nsec);

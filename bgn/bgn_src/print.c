@@ -79,10 +79,8 @@ struct tm {
 void print_cur_time(LOG *log, const UINT8 *info )
 {
    struct tm *cur_time;
-   time_t timestamp;
-
-   time(&timestamp);
-   cur_time = c_localtime_r(&timestamp);
+   
+   cur_time = c_localtime_r(NULL_PTR);
 
    sys_print(log, "time: %02d:%02d:%02d: %s",
                     cur_time->tm_hour,

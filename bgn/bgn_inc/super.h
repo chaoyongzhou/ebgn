@@ -639,6 +639,9 @@ EC_BOOL super_print_obj_vec(const UINT32 super_md_id, const CVECTOR *obj_vec, LO
 EC_BOOL super_print_data(const UINT32 super_md_id, LOG *log);
 EC_BOOL super_print_data_all(const UINT32 super_md_id, const UINT32 obj_zone_num, LOG *log);
 
+/*------------------------------------------------------ debug cmutex -----------------------------------------------------------------------*/
+EC_BOOL super_print_cmutex_stat(const UINT32 super_md_id, LOG *log);
+
 #endif /*_SUPER_H*/
 
 #ifdef __cplusplus

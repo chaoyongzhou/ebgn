@@ -1100,11 +1100,15 @@ void crfsnprb_pool_print(LOG *log, const CRFSNPRB_POOL *pool)
                  CRFSNPRB_POOL_NODE_USED_NUM(pool),
                  CRFSNPRB_POOL_FREE_HEAD(pool),
                  CRFSNPRB_POOL_NODE_SIZEOF(pool));
-    for(node_pos = 0; node_pos < node_max_num; node_pos ++)
+
+    if(1)
     {
-        if(EC_TRUE == crfsnprb_node_is_used(pool, node_pos))
+        for(node_pos = 0; node_pos < node_max_num; node_pos ++)
         {
-            crfsnprb_node_print(log, pool, node_pos);
+            if(EC_TRUE == crfsnprb_node_is_used(pool, node_pos))
+            {
+                crfsnprb_node_print(log, pool, node_pos);
+            }
         }
     }
     return;

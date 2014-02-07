@@ -79,6 +79,7 @@ extern "C"{
 #include "cproc.h"
 #include "csolr.h"
 #include "dhcp.h"
+#include "cepoll.h"
 #include "license.h"
 
 #include "findex.inc"
@@ -736,6 +737,43 @@ EC_BOOL task_default_not_null_pointer_checker(const void *pointer)
         return (EC_TRUE);
     }
     return (EC_FALSE);
+}
+
+CTIMET task_brd_default_get_time()
+{
+    return TASK_BRD_CTIME(task_brd_default_get());
+}
+
+CTM *task_brd_default_get_localtime()
+{
+    return TASK_BRD_CTM(task_brd_default_get());
+}
+
+CEPOLL *task_brd_default_get_cepoll()
+{
+    return TASK_BRD_CEPOLL(task_brd_default_get());
+}
+
+CTIMET task_brd_get_time(TASK_BRD *task_brd)
+{
+    return TASK_BRD_CTIME(task_brd);
+}
+
+CTM *task_brd_get_localtime(TASK_BRD *task_brd)
+{
+    return TASK_BRD_CTM(task_brd);
+}
+
+void task_brd_update_time(TASK_BRD *task_brd)
+{
+    TASK_BRD_CTIME(task_brd) = c_time(NULL_PTR);
+    localtime_r(&(TASK_BRD_CTIME(task_brd)), TASK_BRD_CTM(task_brd));
+    return;
+}
+
+CEPOLL *task_brd_get_cepoll(TASK_BRD *task_brd)
+{
+    return TASK_BRD_CEPOLL(task_brd);
 }
 
 #define RATE(used, max) ((1.0 * (used))/(1.0 * (max)))
@@ -4631,23 +4669,27 @@ EC_BOOL task_report_node_gen(TASK_REPORT_NODE *task_report_node, const TASK_BRD 
 {
     TASK_TIME_FMT *start_time;
     TASK_TIME_FMT *end_time;
+    CTM *task_mgr_start_tm;
+    CTM *task_mgr_end_tm;
 
     start_time = TASK_REPORT_NODE_START_TIME(task_report_node);
     end_time   = TASK_REPORT_NODE_END_TIME(task_report_node);
 
-    TASK_TIME_FMT_YEAR(start_time)  = CTIMET_YEAR(TASK_MGR_START_TIME(task_mgr));
-    TASK_TIME_FMT_MONTH(start_time) = CTIMET_MONTH(TASK_MGR_START_TIME(task_mgr));
-    TASK_TIME_FMT_MDAY(start_time)  = CTIMET_MDAY(TASK_MGR_START_TIME(task_mgr));
-    TASK_TIME_FMT_HOUR(start_time)  = CTIMET_HOUR(TASK_MGR_START_TIME(task_mgr));
-    TASK_TIME_FMT_MIN(start_time)   = CTIMET_MIN(TASK_MGR_START_TIME(task_mgr));
-    TASK_TIME_FMT_SEC(start_time)   = CTIMET_SEC(TASK_MGR_START_TIME(task_mgr));
+    task_mgr_start_tm = CTIMET_TO_TM(TASK_MGR_START_TIME(task_mgr));
+    TASK_TIME_FMT_YEAR(start_time)  = CTM_YEAR(task_mgr_start_tm);
+    TASK_TIME_FMT_MONTH(start_time) = CTM_MONTH(task_mgr_start_tm);
+    TASK_TIME_FMT_MDAY(start_time)  = CTM_MDAY(task_mgr_start_tm);
+    TASK_TIME_FMT_HOUR(start_time)  = CTM_HOUR(task_mgr_start_tm);
+    TASK_TIME_FMT_MIN(start_time)   = CTM_MIN(task_mgr_start_tm);
+    TASK_TIME_FMT_SEC(start_time)   = CTM_SEC(task_mgr_start_tm);
 
-    TASK_TIME_FMT_YEAR(end_time)  = CTIMET_YEAR(TASK_MGR_END_TIME(task_mgr));
-    TASK_TIME_FMT_MONTH(end_time) = CTIMET_MONTH(TASK_MGR_END_TIME(task_mgr));
-    TASK_TIME_FMT_MDAY(end_time)  = CTIMET_MDAY(TASK_MGR_END_TIME(task_mgr));
-    TASK_TIME_FMT_HOUR(end_time)  = CTIMET_HOUR(TASK_MGR_END_TIME(task_mgr));
-    TASK_TIME_FMT_MIN(end_time)   = CTIMET_MIN(TASK_MGR_END_TIME(task_mgr));
-    TASK_TIME_FMT_SEC(end_time)   = CTIMET_SEC(TASK_MGR_END_TIME(task_mgr));
+    task_mgr_end_tm = CTIMET_TO_TM(TASK_MGR_END_TIME(task_mgr));
+    TASK_TIME_FMT_YEAR(end_time)  = CTM_YEAR(task_mgr_end_tm);
+    TASK_TIME_FMT_MONTH(end_time) = CTM_MONTH(task_mgr_end_tm);
+    TASK_TIME_FMT_MDAY(end_time)  = CTM_MDAY(task_mgr_end_tm);
+    TASK_TIME_FMT_HOUR(end_time)  = CTM_HOUR(task_mgr_end_tm);
+    TASK_TIME_FMT_MIN(end_time)   = CTM_MIN(task_mgr_end_tm);
+    TASK_TIME_FMT_SEC(end_time)   = CTM_SEC(task_mgr_end_tm);
 
     TASK_REPORT_NODE_TCID(task_report_node)  = TASK_BRD_TCID(task_brd);
     TASK_REPORT_NODE_RANK(task_report_node)  = TASK_BRD_RANK(task_brd);
@@ -4951,6 +4993,11 @@ EC_BOOL task_brd_init(TASK_BRD *task_brd,
     //seqno = ((this_tcid << (WORDSIZE/4)) | this_rank);
     //seqno = (seqno << (WORDSIZE/2));
     seqno = 0;
+
+    /*update task_brd time*/
+    task_brd_update_time(task_brd);
+
+    TASK_BRD_CEPOLL(task_brd) = NULL_PTR;
 
     TASK_BRD_SYS_CFG_FNAME(task_brd)   = sys_cfg_xml_fname_cstr;
     TASK_BRD_BASIC_CFG_FNAME(task_brd) = basic_cfg_xml_fname_cstr;
@@ -6288,6 +6335,61 @@ EC_BOOL task_brd_adjust_reg_type(TASK_BRD *task_brd, const UINT32 this_tcid, UIN
     return (EC_TRUE);
 }
 
+EC_BOOL task_brd_os_setting(TASK_BRD *task_brd)
+{
+    sys_log(LOGSTDOUT, "[DEBUG] warn:task_brd_os_setting: ulimit not implemented yet !\n");
+#if 0
+	/* ulimits */
+	if (!global.rlimit_nofile)
+	{
+		global.rlimit_nofile = global.maxsock;
+    }
+    
+	if (global.rlimit_nofile) 
+	{
+		limit.rlim_cur = limit.rlim_max = global.rlimit_nofile;
+		if (setrlimit(RLIMIT_NOFILE, &limit) == -1) 
+		{
+			Warning("[%s.main()] Cannot raise FD limit to %d.\n", argv[0], global.rlimit_nofile);
+		}
+	}
+
+	if (global.rlimit_memmax) 
+	{
+		limit.rlim_cur = limit.rlim_max = 
+			global.rlimit_memmax * 1048576 / global.nbproc;
+#ifdef RLIMIT_AS
+		if (setrlimit(RLIMIT_AS, &limit) == -1) 
+		{
+			Warning("[%s.main()] Cannot fix MEM limit to %d megs.\n", argv[0], global.rlimit_memmax);
+		}
+#else
+		if (setrlimit(RLIMIT_DATA, &limit) == -1) 
+		{
+			Warning("[%s.main()] Cannot fix MEM limit to %d megs.\n", argv[0], global.rlimit_memmax);
+		}
+#endif
+#endif
+
+#if 0
+	/* setgid / setuid */
+	if (global.gid && setgid(global.gid) == -1) 
+	{
+		Alert("[%s.main()] Cannot set gid %d.\n", argv[0], global.gid);
+		protocol_unbind_all();
+		exit(1);
+	}
+
+	if (global.uid && setuid(global.uid) == -1) 
+	{
+		Alert("[%s.main()] Cannot set uid %d.\n", argv[0], global.uid);
+		protocol_unbind_all();
+		exit(1);
+	}
+#endif
+    return (EC_TRUE);
+}
+
 /**
 *
 * task brd init procedure
@@ -6322,8 +6424,6 @@ LOG * task_brd_default_init(int argc, char **argv)
     /*prepare stdout,stderr, stdin devices*/
     log_start();
 
-    csig_takeover_mpi();/*taskover signal handlers from MPI and restore to system default handlers*/
-
     this_comm = CMPI_COMM_WORLD;
     this_size = CMPI_MIN_SIZE;      /*default*/
     this_tcid = CMPI_ERROR_TCID;    /*default*/
@@ -6347,8 +6447,16 @@ LOG * task_brd_default_init(int argc, char **argv)
     task_brd = task_brd_default_new();
     task_brd_init(task_brd, sys_cfg_xml_fname_cstr, basic_cfg_xml_fname_cstr, log_path_cstr);
 
+    /*taskover some signals*/
+    csig_init(TASK_BRD_CSIG(task_brd));
+    csig_takeover(TASK_BRD_CSIG(task_brd));
+
+    /*set os or process limite*/
+    task_brd_os_setting(task_brd);
+
     /*if sysconfig xml file not exist, then try to get it from multicast network*/
-    if(NULL_PTR == TASK_BRD_SYS_CFG_FNAME(task_brd ) || 0 != access((char *)TASK_BRD_SYS_CFG_FNAME_STR(task_brd), F_OK | R_OK))
+    if(NULL_PTR == TASK_BRD_SYS_CFG_FNAME(task_brd ) 
+    || EC_FALSE == c_file_access((char *)TASK_BRD_SYS_CFG_FNAME_STR(task_brd), F_OK | R_OK))
     {
         sys_log(LOGSTDOUT, "task_brd_default_init: %s not accessible\n", (char *)TASK_BRD_SYS_CFG_FNAME_STR(task_brd));
 
@@ -6483,6 +6591,17 @@ LOG * task_brd_default_init(int argc, char **argv)
 
     if(CMPI_FWD_RANK == TASK_BRD_RANK(task_brd))
     {
+#if (SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)    
+        TASK_BRD_CEPOLL(task_brd) = cepoll_new(TASK_BRD_CEPOLL_MAX_EVENT_NUM);
+        if(NULL_PTR == TASK_BRD_CEPOLL(task_brd))
+        {
+            sys_log(LOGSTDOUT, "error:task_brd_default_init: abort due to cepoll new failed\n");
+            task_brd_free(task_brd);
+
+            task_brd_default_abort();/*abort !*/
+        }
+#endif/*(SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)*/        
+        
         if(EC_FALSE == tasks_srv_start(TASK_BRD_TASKS_CFG(task_brd)))
         {
             sys_log(LOGSTDOUT, "error:task_brd_default_init: abort due to start server failed\n");
@@ -6490,6 +6609,10 @@ LOG * task_brd_default_init(int argc, char **argv)
 
             task_brd_default_abort();/*abort !*/
         }
+
+#if (SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)
+        cepoll_add_srv_event(TASK_BRD_CEPOLL(task_brd), CEPOLL_RD_EVENT, TASK_BRD_TASKS_CFG(task_brd));
+#endif/*(SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)*/
 
         TASK_BRD_IPADDR(task_brd) = TASKS_CFG_SRVIPADDR(TASK_BRD_TASKS_CFG(task_brd));
         TASK_BRD_PORT(task_brd)   = TASKS_CFG_SRVPORT(TASK_BRD_TASKS_CFG(task_brd));
@@ -7184,6 +7307,12 @@ EC_BOOL task_brd_clean(TASK_BRD *task_brd)
     {
         cextsrv_end(TASK_BRD_CEXTSRV(task_brd));
         TASK_BRD_CEXTSRV(task_brd) = NULL_PTR;
+    }
+
+    if(NULL_PTR != TASK_BRD_CSRV(task_brd))
+    {
+        tasks_srv_end(TASK_BRD_TASKS_CFG(task_brd));
+        TASK_BRD_CSRV(task_brd) = NULL_PTR;
     }
 
 #if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)
@@ -9983,12 +10112,22 @@ EC_BOOL do_slave(TASK_BRD *task_brd)
 {
     for(;;)
     {
+        /*update task_brd time*/
+        task_brd_update_time(task_brd);
+    
+        /* check if we caught some signals and process them */
+        csig_process_queue();
+    
         if(CPROC_IS_ABORTED == TASK_BRD_ABORT_FLAG(task_brd))
         {
             TASK_BRD_RESET_FLAG(task_brd) = EC_FALSE;
             break;
         }
+#if (SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)
+        cepoll_wait(TASK_BRD_CEPOLL(task_brd), TASK_SLOW_DOWN_MSEC);
+#endif/*(SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)*/
 
+#if (SWITCH_OFF == TASK_BRD_CEPOLL_SWITCH)
         //sys_log(LOGSTDOUT, "[DEBUG] do_slave: active-counter %u\n", TASK_BRD_DEFAULT_ACTIVE_COUNTER());
 
         if(TASK_BRD_DEFAULT_ACTIVE_COUNTER_IS_NOT_SET())
@@ -10000,7 +10139,7 @@ EC_BOOL do_slave(TASK_BRD *task_brd)
             c_usleep(TASK_SLOW_DOWN_MSEC);
             //sys_log(LOGSTDOUT, "[DEBUG] wakeup\n");
         }
-        
+#endif/*(SWITCH_OFF == TASK_BRD_CEPOLL_SWITCH)*/        
         if(CPU_OVERLOAD_THREASHOLD < task_brd_cpu_load(task_brd))
         {
             /*when overload, go to sleep*/
@@ -10547,6 +10686,8 @@ EC_BOOL task_wait0(TASK_MGR *task_mgr)
 EC_BOOL task_wait(TASK_MGR *task_mgr, const UINT32 time_to_live, const UINT32 task_reschedule_flag, CHECKER ret_val_checker)
 {
     TASK_BRD *task_brd;
+    CTM *start_tm;
+    CTM *end_tm;
 
     /*if no task req in task mgr, then return after clean up task mgr*/
     if(EC_TRUE == clist_is_empty(TASK_MGR_QUEUE(task_mgr)))
@@ -10581,21 +10722,24 @@ EC_BOOL task_wait(TASK_MGR *task_mgr, const UINT32 time_to_live, const UINT32 ta
     sys_log(LOGDEBUG, "================================= task %lx.%lx.%lx  end %lx ================================================\n",
                         TASK_BRD_TCID(task_brd), TASK_BRD_RANK(task_brd), TASK_MGR_SEQNO(task_mgr), task_mgr);
 
+    start_tm = CTIMET_TO_LOCAL_TIME(TASK_MGR_START_TIME(task_mgr));
+    end_tm   = CTIMET_TO_LOCAL_TIME(TASK_MGR_END_TIME(task_mgr));
+
 #if 0
     sys_log(LOGSTDOUT, "task_wait report: start at %4d-%02d-%02d %02d:%02d:%02d, end at %4d-%02d-%02d %02d:%02d:%02d, task mgr %lx, seqno %lx.%lx.%lx, req num %ld, need rsp %ld, succ rsp %ld, fail rsp %ld, rsvd rsp %ld, sent req %ld, discard req %ld, timeout req %ld\n",
-                       CTIMET_YEAR(TASK_MGR_START_TIME(task_mgr) ),
-                       CTIMET_MONTH(TASK_MGR_START_TIME(task_mgr)),
-                       CTIMET_MDAY(TASK_MGR_START_TIME(task_mgr) ),
-                       CTIMET_HOUR(TASK_MGR_START_TIME(task_mgr) ),
-                       CTIMET_MIN(TASK_MGR_START_TIME(task_mgr)  ),
-                       CTIMET_SEC(TASK_MGR_START_TIME(task_mgr)  ),
+                       CTM_YEAR(start_tm ),
+                       CTM_MONTH(start_tm),
+                       CTM_MDAY(start_tm ),
+                       CTM_HOUR(start_tm ),
+                       CTM_MIN(start_tm  ),
+                       CTM_SEC(start_tm  ),
 
-                       CTIMET_YEAR(TASK_MGR_END_TIME(task_mgr) ),
-                       CTIMET_MONTH(TASK_MGR_END_TIME(task_mgr)),
-                       CTIMET_MDAY(TASK_MGR_END_TIME(task_mgr) ),
-                       CTIMET_HOUR(TASK_MGR_END_TIME(task_mgr) ),
-                       CTIMET_MIN(TASK_MGR_END_TIME(task_mgr)  ),
-                       CTIMET_SEC(TASK_MGR_END_TIME(task_mgr)  ),
+                       CTM_YEAR(end_tm ),
+                       CTM_MONTH(end_tm),
+                       CTM_MDAY(end_tm ),
+                       CTM_HOUR(end_tm ),
+                       CTM_MIN(end_tm  ),
+                       CTM_SEC(end_tm  ),
 
                        task_mgr, TASK_BRD_TCID(task_brd), TASK_BRD_RANK(task_brd), TASK_MGR_SEQNO(task_mgr),
                        clist_size(TASK_MGR_QUEUE(task_mgr)),
@@ -10611,19 +10755,19 @@ EC_BOOL task_wait(TASK_MGR *task_mgr, const UINT32 time_to_live, const UINT32 ta
 
 #if 1
     sys_log(LOGDEBUG, "task_wait report: start at %4d-%02d-%02d %02d:%02d:%02d, end at %4d-%02d-%02d %02d:%02d:%02d, seqno %lx.%lx.%lx, req num %ld, need rsp %ld, succ rsp %ld, fail rsp %ld, rsvd rsp %ld, sent req %ld, discard req %ld, timeout req %ld\n",
-                       CTIMET_YEAR(TASK_MGR_START_TIME(task_mgr) ),
-                       CTIMET_MONTH(TASK_MGR_START_TIME(task_mgr)),
-                       CTIMET_MDAY(TASK_MGR_START_TIME(task_mgr) ),
-                       CTIMET_HOUR(TASK_MGR_START_TIME(task_mgr) ),
-                       CTIMET_MIN(TASK_MGR_START_TIME(task_mgr)  ),
-                       CTIMET_SEC(TASK_MGR_START_TIME(task_mgr)  ),
+                       CTM_YEAR(start_tm ),
+                       CTM_MONTH(start_tm),
+                       CTM_MDAY(start_tm ),
+                       CTM_HOUR(start_tm ),
+                       CTM_MIN(start_tm  ),
+                       CTM_SEC(start_tm  ),
 
-                       CTIMET_YEAR(TASK_MGR_END_TIME(task_mgr) ),
-                       CTIMET_MONTH(TASK_MGR_END_TIME(task_mgr)),
-                       CTIMET_MDAY(TASK_MGR_END_TIME(task_mgr) ),
-                       CTIMET_HOUR(TASK_MGR_END_TIME(task_mgr) ),
-                       CTIMET_MIN(TASK_MGR_END_TIME(task_mgr)  ),
-                       CTIMET_SEC(TASK_MGR_END_TIME(task_mgr)  ),
+                       CTM_YEAR(end_tm ),
+                       CTM_MONTH(end_tm),
+                       CTM_MDAY(end_tm ),
+                       CTM_HOUR(end_tm ),
+                       CTM_MIN(end_tm  ),
+                       CTM_SEC(end_tm  ),
 
                        TASK_BRD_TCID(task_brd), TASK_BRD_RANK(task_brd), TASK_MGR_SEQNO(task_mgr),
                        clist_size(TASK_MGR_QUEUE(task_mgr)),

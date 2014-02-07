@@ -4616,7 +4616,6 @@ EC_BOOL cdfs_snapshot_dn(const UINT32 cdfs_md_id)
     UINT32 local_tcid;
 
     struct tm *cur_time;
-    time_t timestamp;
 
 #if ( SWITCH_ON == CDFS_DEBUG_SWITCH )
     if ( CDFS_MD_ID_CHECK_INVALID(cdfs_md_id) )
@@ -4653,8 +4652,7 @@ EC_BOOL cdfs_snapshot_dn(const UINT32 cdfs_md_id)
 
     sys_log(LOGSTDOUT, "[DEBUG] cdfs_snapshot_dn: create dir %s\n", (char *)cstring_get_str(cmd_cstr));
 
-    time(&timestamp);
-    cur_time = c_localtime_r(&timestamp);
+    cur_time = c_localtime_r(NULL_PTR);
 
     cstring_reset(cmd_cstr);
     cstring_format(cmd_cstr, "cd %s && tar zcvf snapshot/dn_%s_snapshot_%4d%02d%02d_%02d%02d%02d.tar.gz records.dat",
@@ -4693,7 +4691,6 @@ EC_BOOL cdfs_snapshot_npp(const UINT32 cdfs_md_id)
     UINT32 local_tcid;
 
     struct tm *cur_time;
-    time_t timestamp;
 
 #if ( SWITCH_ON == CDFS_DEBUG_SWITCH )
     if ( CDFS_MD_ID_CHECK_INVALID(cdfs_md_id) )
@@ -4730,8 +4727,7 @@ EC_BOOL cdfs_snapshot_npp(const UINT32 cdfs_md_id)
 
     sys_log(LOGSTDOUT, "[DEBUG] cdfs_snapshot_npp: create dir %s\n", (char *)cstring_get_str(cmd_cstr));
 
-    time(&timestamp);
-    cur_time = c_localtime_r(&timestamp);
+    cur_time = c_localtime_r(NULL_PTR);
 
     cstring_reset(cmd_cstr);
     cstring_format(cmd_cstr, "cd %s && tar zcvf snapshot/npp_%s_snapshot_%4d%02d%02d_%02d%02d%02d.tar.gz *.db dsk*",

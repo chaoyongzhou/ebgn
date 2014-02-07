@@ -925,12 +925,16 @@ UINT32 cthread_node_shutdown(CTHREAD_NODE *cthread_node, CTHREAD_POOL *cthread_p
 UINT32 cthread_node_busy_to_idle(CTHREAD_NODE *cthread_node, CTHREAD_POOL *cthread_pool)
 {
     /*move cthread_node from busy list to idle list*/
+    CLIST_DATA *clist_data;
 
     cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0022);
 
     ccond_reserve(CTHREAD_NODE_CCOND(cthread_node), 1, LOC_CTHREAD_0023);
-
-    clist_rmv(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool), CTHREAD_NODE_MOUNTED(cthread_node));
+    clist_data = CTHREAD_NODE_MOUNTED(cthread_node);
+    if(NULL_PTR != clist_data)
+    {
+        clist_rmv(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool), clist_data);
+    }
     CTHREAD_NODE_STATUS(cthread_node)  = ((CTHREAD_NODE_STATUS(cthread_node) & CTHREAD_HI_MASK) | CTHREAD_IS_IDLE);
     CTHREAD_NODE_MOUNTED(cthread_node) = clist_push_back(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), cthread_node);
 

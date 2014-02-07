@@ -6201,6 +6201,23 @@ EC_BOOL super_print_data_all(const UINT32 super_md_id, const UINT32 obj_zone_num
     return (EC_TRUE);
 }
 
+EC_BOOL super_print_cmutex_stat(const UINT32 super_md_id, LOG *log)
+{
+#if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
+    if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
+    {
+        sys_log(LOGSTDOUT,
+                "error:super_print_cmutex_stat: super module #0x%lx not started.\n",
+                super_md_id);
+        dbg_exit(MD_SUPER, super_md_id);
+    }
+#endif/*SUPER_DEBUG_SWITCH*/
+
+    cmutex_dbg_stat_print(log);
+
+    return (EC_TRUE);
+}
+
 #ifdef __cplusplus
 }
 #endif/*__cplusplus*/

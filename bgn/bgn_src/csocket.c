@@ -250,6 +250,8 @@ CSOCKET_CNODE * csocket_cnode_new(const UINT32 tcid, const int sockfd, const UIN
     CSOCKET_CNODE_LOAD(csocket_cnode)    = 0;
     CSOCKET_CNODE_PKT_POS(csocket_cnode) = 0;
 
+    CSOCKET_CNODE_SET_CONNECTED(csocket_cnode);
+
     return (csocket_cnode);
 }
 
@@ -267,6 +269,9 @@ void csocket_cnode_close(CSOCKET_CNODE *csocket_cnode)
 {
     if(NULL_PTR != csocket_cnode)
     {
+#if (SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)
+        cepoll_del_event(task_brd_default_get_cepoll(), CSOCKET_CNODE_SOCKFD(csocket_cnode));
+#endif/*(SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)*/
         csocket_close(CSOCKET_CNODE_SOCKFD(csocket_cnode));
         csocket_cnode_free(csocket_cnode);
     }
@@ -1931,6 +1936,7 @@ EC_BOOL csocket_is_connected(const int sockfd)
         return (EC_FALSE);
     }
 
+    //sys_log(LOGSTDOUT, "[DEBUG] csocket_is_connected: called for sockfd %d\n", sockfd);
     switch(info.tcpi_state)
     {
         case TCP_ESTABLISHED:
@@ -2370,7 +2376,7 @@ EC_BOOL csocket_write(const int sockfd, const UINT8 *out_buff, const UINT32 out_
         once_sent_len = out_buff_max_len - (*pos);
         if(0 == once_sent_len)
         {
-            break;
+            return (EC_TRUE);
         }
 
         once_sent_len = DMIN(CSOCKET_SEND_ONCE_MAX_SIZE, once_sent_len);
@@ -2438,7 +2444,7 @@ EC_BOOL csocket_read(const int sockfd, UINT8 *in_buff, const UINT32 in_buff_expe
         once_recv_len = in_buff_expect_len - (*pos);
         if(0 == once_recv_len)/*no free space to recv*/
         {
-            break;
+            return (EC_TRUE);
         }
 
         once_recv_len = DMIN(CSOCKET_RECV_ONCE_MAX_SIZE, once_recv_len);
@@ -2772,7 +2778,7 @@ TASK_NODE *csocket_fetch_task_node(CSOCKET_CNODE *csocket_cnode)
 
 EC_BOOL csocket_isend_task_node(CSOCKET_CNODE *csocket_cnode, TASK_NODE *task_node)
 {
-    if(EC_FALSE == csocket_is_connected(CSOCKET_CNODE_SOCKFD(csocket_cnode)))
+    if(EC_FALSE == CSOCKET_CNODE_IS_CONNECTED(csocket_cnode))
     {
         sys_log(LOGSTDERR, "error:csocket_request_isend: sockfd %d is disconnected\n", CSOCKET_CNODE_SOCKFD(csocket_cnode));
         return (EC_FALSE);

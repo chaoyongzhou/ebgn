@@ -519,7 +519,8 @@ typedef struct tm CTM;
 extern long int lrint(double x);
 
 /*---------------------------------------- interface of ctimet ----------------------------------------------*/
-#define CTIMET_GET(ctimet)                                 (time(&(ctimet)))
+//#define CTIMET_GET(ctimet)                                 (c_time(&(ctimet)))
+#define CTIMET_GET(ctimet)                                 do{(ctimet) = task_brd_default_get_time();}while(0)
 #define CTIMET_DIFF(ctimet_start, ctimet_end)              (difftime(ctimet_end, ctimet_start))
 //#define CTIMET_DIFF(ctimet_start, ctimet_end)              ((double)((ctimet_end) - (ctimet_start)))
 
@@ -531,6 +532,13 @@ extern long int lrint(double x);
 #define CTIMET_HOUR(ctimet)          ((CTIMET_TO_LOCAL_TIME(ctimet)->tm_hour))
 #define CTIMET_MIN(ctimet)           ((CTIMET_TO_LOCAL_TIME(ctimet)->tm_min))
 #define CTIMET_SEC(ctimet)           ((CTIMET_TO_LOCAL_TIME(ctimet)->tm_sec))
+
+#define CTM_YEAR(ctm)          (((ctm)->tm_year) + 1900)
+#define CTM_MONTH(ctm)         (((ctm)->tm_mon) + 1)
+#define CTM_MDAY(ctm)          (((ctm)->tm_mday))
+#define CTM_HOUR(ctm)          (((ctm)->tm_hour))
+#define CTM_MIN(ctm)           (((ctm)->tm_min))
+#define CTM_SEC(ctm)           (((ctm)->tm_sec))
 
 #define BCOPY(src, des, len)    memcpy(des, src, len)
 #define BSET(pstr, ch, len)     memset(pstr, ch, len)

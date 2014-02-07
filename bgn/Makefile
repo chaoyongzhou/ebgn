@@ -110,7 +110,7 @@ CTHREAD_STACK_GUARD_SIZE_002M = 2097152
 CTHREAD_STACK_GUARD_SIZE_004M = 4194304
 CTHREAD_STACK_GUARD_SIZE_008M = 8388608
 
-CONN_NUM             = 1
+CONN_NUM             = 8
 REQ_THREAD_NUM       = 128
 RSP_THREAD_NUM       = 128
 
@@ -144,7 +144,6 @@ CMACRO = \
          -DCROUTINE_STACK_MAX_SIZE=${CTHREAD_STACK_MAX_SIZE_064K} \
          -DCROUTINE_STACK_GUARD_SIZE=${CTHREAD_STACK_GUARD_SIZE_004K} \
          -DCTHREAD_SET_CORE_SWITCH=SWITCH_OFF \
-         -DTASK_THREAD_SPOOL_LOCK=${TASK_THREAD_SPOOL_CMUTEX} \
          -DTASK_REQ_HANDLE_THREAD_SWITCH=SWITCH_ON \
          -DTASK_REQ_DECODE_THREAD_SWITCH=SWITCH_ON \
          -DTASK_RSP_DECODE_THREAD_SWITCH=SWITCH_ON \
@@ -166,7 +165,7 @@ CMACRO = \
          -DCSOCKET_HEARTBEAT_INTVL_NSEC=10 \
          -DCSOCKET_CNODE_NUM=${CONN_NUM} \
          -DTASK_REPORT_MAX_NUM=16 \
-         -DTASK_DEFAULT_LIVE_NSEC=120 \
+         -DTASK_DEFAULT_LIVE_NSEC=600 \
          -DRANK_HEARTBEAT_ALL_SWITCH=SWITCH_OFF \
          -DRANK_HEARTBEAT_FASTDEC_SWITCH=SWITCH_ON \
          -DRANK_HEARTBEAT_FWD_SWITCH=SWITCH_OFF \
@@ -180,6 +179,13 @@ CMACRO = \
          -DFILE_LOG_NAME_WITH_DATE_SWITCH=SWITCH_OFF \
          -DCBGT_BASED_ON_HSDFS_SWITCH=SWITCH_ON \
          -DCFUSE_SUPPORT_SWITCH=SWITCH_OFF \
+         -DCRFS_ASSERT_SWITCH=SWITCH_OFF \
+         -DCRFS_NP_CACHE_IN_MEM=SWITCH_OFF \
+         -DCRFS_DN_DEFER_WRITE=SWITCH_OFF \
+         -DCRFS_DN_WRITE_THREAD_NUM=2 \
+         -DCMUTEX_DEBUG_SWITCH=SWITCH_OFF \
+         -DTASK_BRD_CEPOLL_SWITCH=SWITCH_OFF \
+         -DTASK_BRD_CEPOLL_MAX_EVENT_NUM=256 \
 
 # C Language
 CC       = /usr/bin/gcc
@@ -205,15 +211,7 @@ TST_OBJS  = $(patsubst $(TST_SRC)/%.c, $(OBJ_DIR)/%.o, $(wildcard $(TST_SRC)/*.c
 
 usage:
 	@echo "usage:"
-	@echo "    make libbgn"
-	@echo "    make libusr"
-	@echo "    make link"
 	@echo "    make bgn"
-	@echo "    make clean_obj"
-	@echo "    make clean_log"
-	@echo "    make clean_bin"
-	@echo "    make clean_lib"
-	@echo "    make clean_trial"
 	@echo "    make clean"
 
 libbgn: $(BGN_OBJS)

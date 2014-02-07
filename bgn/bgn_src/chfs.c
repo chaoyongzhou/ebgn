@@ -982,7 +982,7 @@ EC_BOOL chfs_read(const UINT32 chfs_md_id, const CSTRING *file_path, CBYTES *cby
 *  create data node
 *
 **/
-EC_BOOL chfs_create_dn(const UINT32 chfs_md_id, const CSTRING *root_dir, const UINT32 max_gb_num_of_disk_space)
+EC_BOOL chfs_create_dn(const UINT32 chfs_md_id, const CSTRING *root_dir)
 {
     CHFS_MD   *chfs_md;
 
@@ -1003,13 +1003,7 @@ EC_BOOL chfs_create_dn(const UINT32 chfs_md_id, const CSTRING *root_dir, const U
         return (EC_FALSE);
     }
 
-    if(EC_FALSE == __chfs_check_is_uint16_t(max_gb_num_of_disk_space))
-    {
-        sys_log(LOGSTDOUT, "error:chfs_create_dn: max_gb_num_of_disk_space %u is invalid\n", max_gb_num_of_disk_space);
-        return (EC_FALSE);
-    }
-
-    CHFS_MD_DN(chfs_md) = crfsdn_create((char *)cstring_get_str(root_dir), max_gb_num_of_disk_space);
+    CHFS_MD_DN(chfs_md) = crfsdn_create((char *)cstring_get_str(root_dir));
     if(NULL_PTR == CHFS_MD_DN(chfs_md))
     {
         sys_log(LOGSTDOUT, "error:chfs_create_dn: create dn failed\n");

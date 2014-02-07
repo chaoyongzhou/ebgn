@@ -58,6 +58,9 @@ EC_BOOL api_cmd_ui_clean_mem_all(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_breathing_mem(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_breathing_mem_all(CMD_PARA_VEC * param);
 
+EC_BOOL api_cmd_ui_show_cmutex_dbg_stat(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_show_cmutex_dbg_stat_all(CMD_PARA_VEC * param);
+
 EC_BOOL api_cmd_ui_switch_log(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_switch_log_all(CMD_PARA_VEC * param);
 
@@ -298,9 +301,14 @@ EC_BOOL api_cmd_ui_status_mcast_udp_server(CMD_PARA_VEC * param);
 #if 1
 EC_BOOL api_cmd_ui_crfs_create_npp(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_crfs_create_dn(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_add_disk(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_del_disk(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_mount_disk(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_umount_disk(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_crfs_open(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_crfs_close(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_crfs_bind(CMD_PARA_VEC * param);
+EC_BOOL api_cmd_ui_crfs_unbind(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_crfs_read(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_crfs_write(CMD_PARA_VEC * param);
 EC_BOOL api_cmd_ui_crfs_create_b(CMD_PARA_VEC * param);

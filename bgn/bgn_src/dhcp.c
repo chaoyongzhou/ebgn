@@ -1829,8 +1829,8 @@ DHCP_PACKET * dhcp_client_wait_rsp(const INET_INFO *send_inet_info, INET_INFO *r
     CTIMET start;
     CTIMET cur;
 
-    CTIMET_GET(start);
-    for(CTIMET_GET(cur); CTIMET_DIFF(start, cur) < 0.0 + 3/*3 seconds*/; CTIMET_GET(cur))
+    c_time(start);
+    for(c_time(cur); CTIMET_DIFF(start, cur) < 0.0 + 3/*3 seconds*/; c_time(cur))
     {
         if(EC_FALSE == dhcp_packet_recv(&rsp_dhcp_pkt, recv_inet_info))
         {

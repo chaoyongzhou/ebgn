@@ -74,6 +74,7 @@ extern "C"{
 #include "crfsnpmgr.h"
 #include "chfsnp.h"
 #include "chfsnpmgr.h"
+#include "cepoll.h"
 
 /* memory manager will manage all node blocks and node block manage its nodes.*/
 /* each memory manager manage only one type of node block */
@@ -393,15 +394,18 @@ static UINT32 init_mem_manager()
     MM_MGR_DEF(MM_CRFSNP_ITEM                  ,"MM_CRFSNP_ITEM                  ",1        , sizeof(CRFSNP_ITEM)                 , LOC_MM_0199);    
     MM_MGR_DEF(MM_CRFSNP                       ,"MM_CRFSNP                       ",1        , sizeof(CRFSNP)                      , LOC_MM_0200);    
     MM_MGR_DEF(MM_CRFSNP_MGR                   ,"MM_CRFSNP_MGR                   ",1        , sizeof(CRFSNP_MGR)                  , LOC_MM_0201);    
-    MM_MGR_DEF(MM_CRFSNP_BNODE                 ,"MM_CRFSNP_BNODE                 ",1        , sizeof(CRFSNP_BNODE)                , LOC_MM_0202);    
+    MM_MGR_DEF(MM_CRFSNP_HOME_DIRS             ,"MM_CRFSNP_HOME_DIRS             ",1        , sizeof(CRFSNP_HOME_DIRS)            , LOC_MM_0202);    
+    MM_MGR_DEF(MM_CRFSNP_BNODE                 ,"MM_CRFSNP_BNODE                 ",1        , sizeof(CRFSNP_BNODE)                , LOC_MM_0203);    
+    MM_MGR_DEF(MM_CRFSDN_CACHE_NODE            ,"MM_CRFSDN_CACHE_NODE            ",1        , sizeof(CRFSDN_CACHE_NODE)           , LOC_MM_0204);    
 
-    MM_MGR_DEF(MM_CHFSNP_FNODE                 ,"MM_CHFSNP_FNODE                 ",1        , sizeof(CHFSNP_FNODE)                , LOC_MM_0203);    
-    MM_MGR_DEF(MM_CHFSNP_ITEM                  ,"MM_CHFSNP_ITEM                  ",1        , sizeof(CHFSNP_ITEM)                 , LOC_MM_0204);    
-    MM_MGR_DEF(MM_CHFSNP                       ,"MM_CHFSNP                       ",1        , sizeof(CHFSNP)                      , LOC_MM_0205);    
-    MM_MGR_DEF(MM_CHFSNP_MGR                   ,"MM_CHFSNP_MGR                   ",1        , sizeof(CHFSNP_MGR)                  , LOC_MM_0206);    
+    MM_MGR_DEF(MM_CHFSNP_FNODE                 ,"MM_CHFSNP_FNODE                 ",1        , sizeof(CHFSNP_FNODE)                , LOC_MM_0205);    
+    MM_MGR_DEF(MM_CHFSNP_ITEM                  ,"MM_CHFSNP_ITEM                  ",1        , sizeof(CHFSNP_ITEM)                 , LOC_MM_0206);    
+    MM_MGR_DEF(MM_CHFSNP                       ,"MM_CHFSNP                       ",1        , sizeof(CHFSNP)                      , LOC_MM_0207);    
+    MM_MGR_DEF(MM_CHFSNP_MGR                   ,"MM_CHFSNP_MGR                   ",1        , sizeof(CHFSNP_MGR)                  , LOC_MM_0208);    
 
-    MM_MGR_DEF(MM_UINT64                       ,"MM_UINT64                       ",32       , sizeof(uint64_t)                    , LOC_MM_0207);    
-    
+    MM_MGR_DEF(MM_UINT64                       ,"MM_UINT64                       ",32       , sizeof(uint64_t)                    , LOC_MM_0209);    
+
+    MM_MGR_DEF(MM_CEPOLL                       ,"MM_CEPOLL                       ",1        , sizeof(CEPOLL)                      , LOC_MM_0210);    
 
     return ( 0 );
 }
@@ -571,7 +575,7 @@ EC_BOOL man_debug(const UINT8 *info, const MM_MAN *pMan)
 {
     MM_NODE_BLOCK *pNodeBlock;
 
-    MAN_LOCK(pMan, LOC_MM_0208);
+    MAN_LOCK(pMan, LOC_MM_0211);
 
     sys_log(LOGSTDOUT, "[debug] ========================== man_debug beg ==========================\n\n");
     sys_log(LOGSTDOUT, "%s\n", info);
@@ -587,7 +591,7 @@ EC_BOOL man_debug(const UINT8 *info, const MM_MAN *pMan)
     }
     sys_log(LOGSTDOUT, "[debug] ========================== man_debug end ==========================\n\n");
 
-    MAN_UNLOCK(pMan, LOC_MM_0209);
+    MAN_UNLOCK(pMan, LOC_MM_0212);
     return (EC_TRUE);
 }
 
@@ -917,7 +921,7 @@ UINT32 alloc_static_mem_0(const UINT32 location,
     }
 
     pMan = &(g_mem_manager[ type ]);
-    MAN_LOCK(pMan, LOC_MM_0210);
+    MAN_LOCK(pMan, LOC_MM_0213);
 
     /*if manager has no more free node, then alloc a new node block*/
     if ( pMan->curusedsum >= pMan->nodenumsum )
@@ -937,7 +941,7 @@ UINT32 alloc_static_mem_0(const UINT32 location,
 
             (*ppvoid) = NULL_PTR;
 
-            MAN_UNLOCK(pMan, LOC_MM_0211);
+            MAN_UNLOCK(pMan, LOC_MM_0214);
             /*return ((UINT32)( -1 ));*/
             exit( 0 );
         }
@@ -969,7 +973,7 @@ UINT32 alloc_static_mem_0(const UINT32 location,
 
         (*ppvoid) = NULL_PTR;
 
-        MAN_UNLOCK(pMan, LOC_MM_0212);
+        MAN_UNLOCK(pMan, LOC_MM_0215);
         //print_static_mem_status(LOGSTDOUT);
         exit ( 0 );
     }
@@ -986,7 +990,7 @@ UINT32 alloc_static_mem_0(const UINT32 location,
 
         (*ppvoid) = NULL_PTR;
 
-        MAN_UNLOCK(pMan, LOC_MM_0213);
+        MAN_UNLOCK(pMan, LOC_MM_0216);
         exit ( 0 );
     }
 
@@ -1036,7 +1040,7 @@ UINT32 alloc_static_mem_0(const UINT32 location,
 */
 #endif/*SWITCH_ON == STATIC_MEM_DIAG_LOC_SWITCH*/
 
-    MAN_UNLOCK(pMan, LOC_MM_0214);
+    MAN_UNLOCK(pMan, LOC_MM_0217);
     return ( 0 );
 }
 
@@ -1094,7 +1098,7 @@ UINT32 free_static_mem_0(const UINT32 location,
     }
 
     pMan = &(g_mem_manager[ type ]);
-    MAN_LOCK(pMan, LOC_MM_0215);
+    MAN_LOCK(pMan, LOC_MM_0218);
 
     if ( 0 == pMan->curusedsum )
     {
@@ -1102,7 +1106,7 @@ UINT32 free_static_mem_0(const UINT32 location,
         sys_log(LOGSTDOUT,"error reported by: %s:%ld\n",MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));
         print_static_mem_status(LOGSTDOUT);
 
-        MAN_UNLOCK(pMan, LOC_MM_0216);
+        MAN_UNLOCK(pMan, LOC_MM_0219);
         exit ( 0 );
     }
 
@@ -1118,7 +1122,7 @@ UINT32 free_static_mem_0(const UINT32 location,
                         (UINT32)pvoid);
         sys_log(LOGSTDOUT,"error reported by: %s:%ld\n",MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));
 
-        MAN_UNLOCK(pMan, LOC_MM_0217);
+        MAN_UNLOCK(pMan, LOC_MM_0220);
         exit ( 0 );
     }
 
@@ -1132,7 +1136,7 @@ UINT32 free_static_mem_0(const UINT32 location,
                         (UINT32)pvoid);
         sys_log(LOGSTDOUT,"error reported by: %s:%ld\n",MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));
 
-        MAN_UNLOCK(pMan, LOC_MM_0218);
+        MAN_UNLOCK(pMan, LOC_MM_0221);
         exit ( 0 );
     }
 
@@ -1145,7 +1149,7 @@ UINT32 free_static_mem_0(const UINT32 location,
                         type);
         sys_log(LOGSTDOUT,"error reported by: %s:%ld\n",MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));
 
-        MAN_UNLOCK(pMan, LOC_MM_0219);
+        MAN_UNLOCK(pMan, LOC_MM_0222);
         exit ( 0 );
     }
 
@@ -1156,7 +1160,7 @@ UINT32 free_static_mem_0(const UINT32 location,
                         pvoid, type);
         sys_log(LOGSTDOUT,"error reported by: %s:%ld\n",MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));
 
-        MAN_UNLOCK(pMan, LOC_MM_0220);
+        MAN_UNLOCK(pMan, LOC_MM_0223);
         exit ( 0 );
     }
 
@@ -1170,7 +1174,7 @@ UINT32 free_static_mem_0(const UINT32 location,
                             module_id);
         sys_log(LOGSTDOUT,"error reported by: %s:%ld\n",MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));
 
-        MAN_UNLOCK(pMan, LOC_MM_0221);
+        MAN_UNLOCK(pMan, LOC_MM_0224);
         exit ( 0 );
     }
 #endif/*SWITCH_ON == MULTI_USER_MODE_SWITCH*/
@@ -1218,7 +1222,7 @@ UINT32 free_static_mem_0(const UINT32 location,
         free_nodeblock_static_mem(pMan, pNodeBlock);
     }
 
-    MAN_UNLOCK(pMan, LOC_MM_0222);
+    MAN_UNLOCK(pMan, LOC_MM_0225);
     return 0;
 }
 
@@ -1328,7 +1332,7 @@ UINT32 breathing_static_mem()
         /* do this manager */
         pMan = &(g_mem_manager[ type ]);
 
-        MAN_LOCK(pMan, LOC_MM_0223);
+        MAN_LOCK(pMan, LOC_MM_0226);
         //sys_log(LOGSTDOUT, "breathing_static_mem: type = %ld\n", type);
         //man_debug("breathing_static_mem: ", pMan);
 
@@ -1344,7 +1348,7 @@ UINT32 breathing_static_mem()
             }
         }
 
-        MAN_UNLOCK(pMan, LOC_MM_0224);
+        MAN_UNLOCK(pMan, LOC_MM_0227);
     }
 
     return 0;
@@ -1382,7 +1386,7 @@ UINT32 free_module_static_mem(UINT32 module_type, UINT32 module_id)
     {
         /* do this manager */
         pMan = &(g_mem_manager[ type ]);
-        MAN_LOCK(pMan, LOC_MM_0225);
+        MAN_LOCK(pMan, LOC_MM_0228);
 
         MAN_LINKNODEBLOCK_LOOP_NEXT(pMan, pNodeBlock)
         {
@@ -1414,7 +1418,7 @@ UINT32 free_module_static_mem(UINT32 module_type, UINT32 module_id)
             }
         }
 
-        MAN_UNLOCK(pMan, LOC_MM_0226);
+        MAN_UNLOCK(pMan, LOC_MM_0229);
     }
 
     /*at the end of module static memory free, do one time of memory breathing*/
@@ -1447,7 +1451,7 @@ UINT32 destory_static_mem()
     for ( type = 0; type < MM_END; type ++ )
     {
         pMan = &(g_mem_manager[ type ]);
-        MAN_LOCK(pMan, LOC_MM_0227);
+        MAN_LOCK(pMan, LOC_MM_0230);
 
         MAN_LINKNODEBLOCK_LOOP_NEXT(pMan, pNodeBlock)
         {
@@ -1474,8 +1478,8 @@ UINT32 destory_static_mem()
         MAN_LINKNODEBLOCK_HEAD_INIT(pMan);
         MAN_FREENODEBLOCK_HEAD_INIT(pMan);
 
-        MAN_UNLOCK(pMan, LOC_MM_0228);
-        MAN_CLEAN_LOCK(pMan, LOC_MM_0229);/*clean lock*/
+        MAN_UNLOCK(pMan, LOC_MM_0231);
+        MAN_CLEAN_LOCK(pMan, LOC_MM_0232);/*clean lock*/
     }
 
     return 0;
@@ -1649,6 +1653,42 @@ UINT32 get_static_mem_type(const UINT32 size)
     return (MM_END);
 }
 
+void *safe_calloc(const UINT32 size, const UINT32 location)
+{
+    UINT32 mm_type;
+    void *pmem;
+
+    mm_type = get_static_mem_type(size);
+    if(MM_END != mm_type)
+    {
+        void    *pvoid;
+        alloc_static_mem(MD_TBD, 0, mm_type, &pvoid, location);
+        return (pvoid);
+    }
+
+    pmem = calloc(1, sizeof(MM_AUX) + size);
+    if(NULL_PTR != pmem)
+    {
+        void    *pvoid;
+        MM_COMM *mm_comm;
+        MM_AUX  *pAux;
+
+        /*to record the malloced memory, we have to alloc a comm node :-(*/
+        /*if not need to record it, pmem is enough for free*/
+        alloc_static_mem(MD_TBD, 0, MM_COMM_NODE, &mm_comm, location);
+
+        pvoid = (void *)((UINT32)pmem + sizeof(MM_AUX));
+        pAux  = (MM_AUX *)pmem;
+        pAux->type      = MM_END;
+        pAux->u.mm_comm = mm_comm;
+
+        mm_comm->type = MM_END;
+        mm_comm->pmem = pmem;
+        return (pvoid);
+    }
+    return (NULL_PTR);
+}
+
 void *safe_malloc(const UINT32 size, const UINT32 location)
 {
     UINT32 mm_type;
@@ -1780,7 +1820,7 @@ void print_static_mem_status_of_type(LOG *log, const UINT32  type)
     }
 
     pMan = &(g_mem_manager[ type ]);
-    //MAN_LOCK(pMan, LOC_MM_0230);
+    //MAN_LOCK(pMan, LOC_MM_0233);
 
     if( 0 < pMan->nodeblocknum || 0 < pMan->nodenumsum || 0 < pMan->maxusedsum || 0 < pMan->curusedsum )
     {
@@ -1837,7 +1877,7 @@ UINT32 print_static_mem_diag_info_of_type(LOG *log, const UINT32 type)
 
     /* do this manager */
     pMan = &(g_mem_manager[ type ]);
-    //MAN_LOCK(pMan, LOC_MM_0231);
+    //MAN_LOCK(pMan, LOC_MM_0234);
 
     //sys_log(LOGSTDOUT, "print_static_mem_diag_info: type = %ld\n", type);
     //man_debug("print_static_mem_diag_info: ", pMan);
@@ -2047,7 +2087,7 @@ UINT32 mm_man_occupy_node_clean_0(const UINT32 md_id, MM_MAN_OCCUPY_NODE *mm_man
 
 UINT32 mm_man_occupy_node_free_0(const UINT32 md_id, MM_MAN_OCCUPY_NODE *mm_man_occupy_node)
 {
-    free_static_mem(MD_TBD, CMPI_ANY_MODI, MM_MM_MAN_OCCUPY_NODE, mm_man_occupy_node, LOC_MM_0232);
+    free_static_mem(MD_TBD, CMPI_ANY_MODI, MM_MM_MAN_OCCUPY_NODE, mm_man_occupy_node, LOC_MM_0235);
     return (0);
 }
 
@@ -2063,7 +2103,7 @@ UINT32 mm_man_occupy_node_init(MM_MAN_OCCUPY_NODE *mm_man_occupy_node)
 
 UINT32 mm_man_occupy_node_free(MM_MAN_OCCUPY_NODE *mm_man_occupy_node)
 {
-    free_static_mem(MD_TBD, CMPI_ANY_MODI, MM_MM_MAN_OCCUPY_NODE, mm_man_occupy_node, LOC_MM_0233);
+    free_static_mem(MD_TBD, CMPI_ANY_MODI, MM_MM_MAN_OCCUPY_NODE, mm_man_occupy_node, LOC_MM_0236);
     return (0);
 }
 
@@ -2137,7 +2177,7 @@ UINT32 mm_man_load_node_clean_0(const UINT32 md_id, MM_MAN_LOAD_NODE *mm_man_loa
 
 UINT32 mm_man_load_node_free_0(const UINT32 md_id, MM_MAN_LOAD_NODE *mm_man_load_node)
 {
-    free_static_mem(MD_TBD, CMPI_ANY_MODI, MM_MM_MAN_LOAD_NODE, mm_man_load_node, LOC_MM_0234);
+    free_static_mem(MD_TBD, CMPI_ANY_MODI, MM_MM_MAN_LOAD_NODE, mm_man_load_node, LOC_MM_0237);
     return (0);
 }
 
@@ -2152,7 +2192,7 @@ UINT32 mm_man_load_node_init(MM_MAN_LOAD_NODE *mm_man_load_node)
 
 UINT32 mm_man_load_node_free(MM_MAN_LOAD_NODE *mm_man_load_node)
 {
-    free_static_mem(MD_TBD, CMPI_ANY_MODI, MM_MM_MAN_LOAD_NODE, mm_man_load_node, LOC_MM_0235);
+    free_static_mem(MD_TBD, CMPI_ANY_MODI, MM_MM_MAN_LOAD_NODE, mm_man_load_node, LOC_MM_0238);
     return (0);
 }
 

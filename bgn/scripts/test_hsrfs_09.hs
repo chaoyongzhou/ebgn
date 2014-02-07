@@ -1,6 +1,8 @@
-hsrfs create np model 6 max num 2 with 1st hash algo 1 2nd hash algo 2 and root . on tcid 10.10.10.1 at console
+hsrfs create np model 4 max num 2 with 1st hash algo 1 2nd hash algo 2 and root . on tcid 10.10.10.1 at console
 
-hsrfs create dn 8 GB and root . on tcid 10.10.10.1 at console
+hsrfs create dn with root . on tcid 10.10.10.1 at console
+hsrfs add disk 0 on tcid 10.10.10.1 at console
+hsrfs add disk 1 on tcid 10.10.10.1 at console
 
 hsrfs bind np 0 with home /h1 on tcid 10.10.10.1 at console
 

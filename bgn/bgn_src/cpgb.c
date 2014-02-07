@@ -38,9 +38,13 @@ extern "C"{
       where 256KB = 2^15 2k-pages * 8B/per-2k-page-record, current 15 bits representation needs
       128KB for 2k-page block.
 ************************************************************************************************/
-
+#if (SWITCH_ON == CRFS_ASSERT_SWITCH)
 #define CPGB_ASSERT(cond)   ASSERT(cond)
-//#define CPGB_ASSERT(cond)   do{}while(0)
+#endif/*(SWITCH_ON == CRFS_ASSERT_SWITCH)*/
+
+#if (SWITCH_OFF == CRFS_ASSERT_SWITCH)
+#define CPGB_ASSERT(cond)   do{}while(0)
+#endif/*(SWITCH_OFF == CRFS_ASSERT_SWITCH)*/
 
 #define ASSERT_CPGB_PAD_SIZE() \
     CPGB_ASSERT( CPGB_PAD_SIZE == (sizeof(CPGB) \
@@ -968,6 +972,16 @@ EC_BOOL cpgb_check(const CPGB *cpgb)
                            page_4k_free_num);
         ret = EC_FALSE;
     }
+#if 1
+    if(EC_FALSE == ret)
+    {
+        sys_log(LOGSTDOUT, "error:cpgb_check: check cpgb %p failed\n", cpgb);
+    }
+    else
+    {
+        sys_log(LOGSTDOUT, "[DEBUG] cpgb_check: check cpgb %p done\n", cpgb);
+    }
+#endif    
     return (ret);    
 }
 

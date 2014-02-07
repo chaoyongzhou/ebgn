@@ -327,7 +327,7 @@ FUNC_ADDR_NODE g_chfs_func_addr_list[ ] = {
 /*func para val   */     0, 0, {0},
 },
 {
-/* -- EC_BOOL chfs_create_dn(const UINT32 chfs_md_id, const CSTRING *root_dir, const UINT32 max_gb_num_of_disk_space); -- */
+/* -- EC_BOOL chfs_create_dn(const UINT32 chfs_md_id, const CSTRING *root_dir); -- */
 /*func priority   */     PRIO_MD_CHFS,
 /*func logic addr */     (UINT32)chfs_create_dn,
 /*func beg addr   */     0,
@@ -336,9 +336,9 @@ FUNC_ADDR_NODE g_chfs_func_addr_list[ ] = {
 /*func name       */     "chfs_create_dn",
 /*func index      */     FI_chfs_create_dn,
 /*func ret type   */     e_dbg_EC_BOOL,
-/*func para num   */     3,
-/*func para direct*/     {E_DIRECT_IN,E_DIRECT_IN,E_DIRECT_IN,},
-/*func para type  */     {e_dbg_UINT32,e_dbg_CSTRING_ptr,e_dbg_UINT32,},
+/*func para num   */     2,
+/*func para direct*/     {E_DIRECT_IN,E_DIRECT_IN,},
+/*func para type  */     {e_dbg_UINT32,e_dbg_CSTRING_ptr,},
 /*func para val   */     0, 0, {0},
 },
 {

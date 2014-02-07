@@ -287,14 +287,17 @@ extern "C"{
 #define                   MM_CRFSNP_ITEM    ((UINT32)196)
 #define                        MM_CRFSNP    ((UINT32)197)
 #define                    MM_CRFSNP_MGR    ((UINT32)198)
-#define                  MM_CRFSNP_BNODE    ((UINT32)199)
+#define              MM_CRFSNP_HOME_DIRS    ((UINT32)199)
+#define                  MM_CRFSNP_BNODE    ((UINT32)200)
+#define             MM_CRFSDN_CACHE_NODE    ((UINT32)201)
 
-#define                  MM_CHFSNP_FNODE    ((UINT32)200)
-#define                   MM_CHFSNP_ITEM    ((UINT32)201)
-#define                        MM_CHFSNP    ((UINT32)202)
-#define                    MM_CHFSNP_MGR    ((UINT32)203)
+#define                  MM_CHFSNP_FNODE    ((UINT32)202)
+#define                   MM_CHFSNP_ITEM    ((UINT32)203)
+#define                        MM_CHFSNP    ((UINT32)204)
+#define                    MM_CHFSNP_MGR    ((UINT32)205)
 
-#define                        MM_UINT64    ((UINT32)204)
+#define                        MM_UINT64    ((UINT32)206)
+#define                        MM_CEPOLL    ((UINT32)207)
 
 #define                           MM_END    ((UINT32)256)
 #define                        MM_IGNORE    ((UINT32)0xFFFF)
@@ -581,6 +584,7 @@ UINT32 free_module_static_mem(UINT32 module_type, UINT32 module_id);
 UINT32 breathing_static_mem();
 UINT32 destory_static_mem();
 
+void *safe_calloc(const UINT32 size, const UINT32 location);
 void *safe_malloc(const UINT32 size, const UINT32 location);
 void safe_free(void *pvoid, const UINT32 location);
 void *safe_realloc_0(void *old_pvoid, const UINT32 new_size, const UINT32 location);

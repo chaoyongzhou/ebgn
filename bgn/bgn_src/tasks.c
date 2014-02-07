@@ -69,6 +69,7 @@ EC_BOOL tasks_srv_start(TASKS_CFG *tasks_cfg)
                     TASKS_CFG_SRVIPADDR_STR(tasks_cfg),
                     TASKS_CFG_SRVPORT(tasks_cfg),
                     TASKS_CFG_SRVSOCKFD(tasks_cfg));
+
     return (EC_TRUE);
 }
 
@@ -226,6 +227,7 @@ EC_BOOL tasks_srv_handle(TASKS_CFG *tasks_cfg)
 
 EC_BOOL tasks_do_once(TASKS_CFG *tasks_cfg)
 {
+#if (SWITCH_OFF == TASK_BRD_CEPOLL_SWITCH)
     int ret;
 
     if(EC_FALSE == tasks_srv_select(tasks_cfg, &ret))
@@ -240,6 +242,7 @@ EC_BOOL tasks_do_once(TASKS_CFG *tasks_cfg)
         tasks_srv_accept(tasks_cfg);
         TASK_BRD_DEFAULT_ACTIVE_COUNTER_INC(LOC_TASKS_0002);
     }
+#endif/*(SWITCH_OFF == TASK_BRD_CEPOLL_SWITCH)*/
 
     /*handle each connection*/
     tasks_srv_handle(tasks_cfg);
@@ -754,6 +757,9 @@ EC_BOOL tasks_node_trigger(TASK_BRD *task_brd, TASK_MGR *task_mgr, TASKS_NODE *t
     if(3 * heartbeat_interval <= elapsed_time_from_last_update)
     {
         MOD_NODE recv_mod_node;
+        CTM   *last_update_tm;
+        CTM   *last_end_tm;
+        CTM   *cur_tm;
 
         MOD_NODE_TCID(&recv_mod_node) = TASK_BRD_TCID(task_brd);
         MOD_NODE_COMM(&recv_mod_node) = TASK_BRD_COMM(task_brd);
@@ -764,19 +770,23 @@ EC_BOOL tasks_node_trigger(TASK_BRD *task_brd, TASK_MGR *task_mgr, TASKS_NODE *t
 
         task_super_inc(task_mgr, &send_mod_node, &recv_mod_node, NULL_PTR, FI_super_notify_broken_tcid, ERR_MODULE_ID, TASKS_NODE_TCID(tasks_node));
 
+        last_update_tm = CTIMET_TO_TM(TASKS_NODE_LAST_UPDATE_TIME(tasks_node));
+        last_end_tm    = CTIMET_TO_TM(TASKS_NODE_LAST_SEND_TIME(tasks_node));
+        cur_tm         = CTIMET_TO_TM(cur);
+
         sys_log(LOGSTDOUT, "[%s] last update time: %02d:%02d:%02d, last send time: %02d:%02d:%02d, cur time: %02d:%02d:%02d, CSOCKET_HEARTBEAT_INTVL_NSEC = (%ld), elapsed from last update: %ld, elapsed from last send: %ld, trigger broken\n",
                 TASKS_NODE_TCID_STR(tasks_node),
-                CTIMET_HOUR(TASKS_NODE_LAST_UPDATE_TIME(tasks_node)),
-                CTIMET_MIN(TASKS_NODE_LAST_UPDATE_TIME(tasks_node) ),
-                CTIMET_SEC(TASKS_NODE_LAST_UPDATE_TIME(tasks_node) ),
+                CTM_HOUR(last_update_tm),
+                CTM_MIN(last_update_tm ),
+                CTM_SEC(last_update_tm ),
 
-                CTIMET_HOUR(TASKS_NODE_LAST_SEND_TIME(tasks_node)  ),
-                CTIMET_MIN(TASKS_NODE_LAST_SEND_TIME(tasks_node)   ),
-                CTIMET_SEC(TASKS_NODE_LAST_SEND_TIME(tasks_node)   ),
+                CTM_HOUR(last_end_tm  ),
+                CTM_MIN(last_end_tm   ),
+                CTM_SEC(last_end_tm   ),
 
-                CTIMET_HOUR(cur),
-                CTIMET_MIN(cur ),
-                CTIMET_SEC(cur ),
+                CTM_HOUR(cur_tm),
+                CTM_MIN(cur_tm ),
+                CTM_SEC(cur_tm ),
 
                 heartbeat_interval, elapsed_time_from_last_update, elapsed_time_from_last_send
             );
@@ -788,6 +798,10 @@ EC_BOOL tasks_node_trigger(TASK_BRD *task_brd, TASK_MGR *task_mgr, TASKS_NODE *t
     {
         MOD_NODE recv_mod_node;
         CLOAD_NODE *cload_node;
+
+        CTM   *last_update_tm;
+        CTM   *last_end_tm;
+        CTM   *cur_tm;        
 
         MOD_NODE_TCID(&recv_mod_node) = TASKS_NODE_TCID(tasks_node);
         MOD_NODE_COMM(&recv_mod_node) = CMPI_ANY_COMM;
@@ -805,19 +819,24 @@ EC_BOOL tasks_node_trigger(TASK_BRD *task_brd, TASK_MGR *task_mgr, TASKS_NODE *t
 
         task_super_inc(task_mgr, &send_mod_node, &recv_mod_node, NULL_PTR, FI_super_heartbeat_on_node, ERR_MODULE_ID, cload_node);
 
+        last_update_tm = CTIMET_TO_TM(TASKS_NODE_LAST_UPDATE_TIME(tasks_node));
+        last_end_tm    = CTIMET_TO_TM(TASKS_NODE_LAST_SEND_TIME(tasks_node));
+        cur_tm         = CTIMET_TO_TM(cur);
+
         sys_log(LOGSTDOUT, "[%s] last update time: %02d:%02d:%02d, last send time: %02d:%02d:%02d, cur time: %02d:%02d:%02d, CSOCKET_HEARTBEAT_INTVL_NSEC = (%ld), elapsed from last update: %ld, elapsed from last send: %ld, trigger heartbeat\n",
                 TASKS_NODE_TCID_STR(tasks_node),
-                CTIMET_HOUR(TASKS_NODE_LAST_UPDATE_TIME(tasks_node)),
-                CTIMET_MIN(TASKS_NODE_LAST_UPDATE_TIME(tasks_node) ),
-                CTIMET_SEC(TASKS_NODE_LAST_UPDATE_TIME(tasks_node) ),
+                CTM_HOUR(last_update_tm),
+                CTM_MIN(last_update_tm ),
+                CTM_SEC(last_update_tm ),
 
-                CTIMET_HOUR(TASKS_NODE_LAST_SEND_TIME(tasks_node)),
-                CTIMET_MIN(TASKS_NODE_LAST_SEND_TIME(tasks_node) ),
-                CTIMET_SEC(TASKS_NODE_LAST_SEND_TIME(tasks_node) ),
+                CTM_HOUR(last_end_tm  ),
+                CTM_MIN(last_end_tm   ),
+                CTM_SEC(last_end_tm   ),
 
-                CTIMET_HOUR(cur),
-                CTIMET_MIN(cur ),
-                CTIMET_SEC(cur ),
+                CTM_HOUR(cur_tm),
+                CTM_MIN(cur_tm ),
+                CTM_SEC(cur_tm ),
+                
                 heartbeat_interval, elapsed_time_from_last_update, elapsed_time_from_last_send
             );
 
@@ -829,6 +848,11 @@ EC_BOOL tasks_node_trigger(TASK_BRD *task_brd, TASK_MGR *task_mgr, TASKS_NODE *t
     {
         MOD_NODE recv_mod_node;
 
+        CTM   *last_update_tm;
+        CTM   *last_end_tm;
+        CTM   *cur_tm;        
+        
+
         MOD_NODE_TCID(&recv_mod_node) = TASKS_NODE_TCID(tasks_node);
         MOD_NODE_COMM(&recv_mod_node) = CMPI_ANY_COMM;
         MOD_NODE_RANK(&recv_mod_node) = CMPI_FWD_RANK;
@@ -838,19 +862,24 @@ EC_BOOL tasks_node_trigger(TASK_BRD *task_brd, TASK_MGR *task_mgr, TASKS_NODE *t
 
         task_super_inc(task_mgr, &send_mod_node, &recv_mod_node, NULL_PTR, FI_super_heartbeat_none, ERR_MODULE_ID);
 
+        last_update_tm = CTIMET_TO_TM(TASKS_NODE_LAST_UPDATE_TIME(tasks_node));
+        last_end_tm    = CTIMET_TO_TM(TASKS_NODE_LAST_SEND_TIME(tasks_node));
+        cur_tm         = CTIMET_TO_TM(cur);
+
         sys_log(LOGSTDOUT, "[%s] last update time: %02d:%02d:%02d, last send time: %02d:%02d:%02d, cur time: %02d:%02d:%02d, CSOCKET_HEARTBEAT_INTVL_NSEC = (%ld), elapsed from last update: %ld, elapsed from last send: %ld, trigger heartbeat\n",
                 TASKS_NODE_TCID_STR(tasks_node),
-                CTIMET_HOUR(TASKS_NODE_LAST_UPDATE_TIME(tasks_node)),
-                CTIMET_MIN(TASKS_NODE_LAST_UPDATE_TIME(tasks_node) ),
-                CTIMET_SEC(TASKS_NODE_LAST_UPDATE_TIME(tasks_node) ),
+                CTM_HOUR(last_update_tm),
+                CTM_MIN(last_update_tm ),
+                CTM_SEC(last_update_tm ),
 
-                CTIMET_HOUR(TASKS_NODE_LAST_SEND_TIME(tasks_node)),
-                CTIMET_MIN(TASKS_NODE_LAST_SEND_TIME(tasks_node) ) ,
-                CTIMET_SEC(TASKS_NODE_LAST_SEND_TIME(tasks_node) ),
+                CTM_HOUR(last_end_tm  ),
+                CTM_MIN(last_end_tm   ),
+                CTM_SEC(last_end_tm   ),
 
-                CTIMET_HOUR(cur),
-                CTIMET_MIN(cur ),
-                CTIMET_SEC(cur ),
+                CTM_HOUR(cur_tm),
+                CTM_MIN(cur_tm ),
+                CTM_SEC(cur_tm ),
+                
                 heartbeat_interval, elapsed_time_from_last_update, elapsed_time_from_last_send
             );
 
@@ -1255,6 +1284,7 @@ EC_BOOL tasks_work_add_csocket_cnode(CVECTOR *tasks_node_work, CSOCKET_CNODE *cs
     cvector_push(TASKS_NODE_CSOCKET_CNODE_VEC(tasks_node), (void *)csocket_cnode);/*add csocket_cnode to tasks_node*/
 
     cvector_push(tasks_node_work, (void *)tasks_node);      /*add tasks_node to tasks_work   */
+    
     return (EC_TRUE);
 }
 
@@ -1410,11 +1440,14 @@ EC_BOOL tasks_work_isend_node(CVECTOR *tasks_node_work, const UINT32 des_tcid, c
     TASKS_NODE_LOAD(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)) += msg_len;
 #endif/*(SWITCH_OFF == CBASE64_ENCODE_SWITCH)*/
 
-
     PRINT_BUFF("tasks_work_isend_node: buff = ", TASK_NODE_BUFF(task_node), TASK_NODE_BUFF_POS(task_node));
 
     /*if data sending is not completed, mount request to list for monitoring*/
     clist_push_back(CSOCKET_CNODE_SENDING_LIST(csocket_cnode), task_node);
+
+#if (SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)
+    cepoll_mod_client_event(TASK_BRD_CEPOLL(task_brd), CEPOLL_RD_EVENT | CEPOLL_WR_EVENT, csocket_cnode);
+#endif/*(SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)*/
 
     return (EC_TRUE);
 }
@@ -1493,6 +1526,17 @@ EC_BOOL tasks_work_isend_on_csocket_cnode(CVECTOR *tasks_work, CSOCKET_CNODE *cs
         }
         /*continue next sending*/
     }
+
+#if (SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)
+    if(EC_TRUE == clist_is_empty_no_lock(CSOCKET_CNODE_SENDING_LIST(csocket_cnode)))
+    {
+        TASK_BRD *task_brd;
+        task_brd = task_brd_default_get();
+
+        /*try to remove WR event and keep RD event only*/
+        cepoll_mod_client_event(TASK_BRD_CEPOLL(task_brd), CEPOLL_RD_EVENT, csocket_cnode);
+    }
+#endif/*(SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)*/    
     CLIST_UNLOCK(CSOCKET_CNODE_SENDING_LIST(csocket_cnode), LOC_TASKS_0062);
     return (EC_TRUE);
 }
@@ -1513,10 +1557,13 @@ EC_BOOL tasks_work_irecv_on_csocket_cnode(CVECTOR *tasks_node_work, CSOCKET_CNOD
     {
         TASK_NODE  *task_node;
 
+        CTM *last_update_tm;
+        CTM *last_end_tm;        
+
         /*handle incoming tas_node*/
         task_node = CSOCKET_CNODE_INCOMING_TASK_NODE(csocket_cnode);
         if(NULL_PTR != task_node)
-        {
+        {   
             TASK_BRD_DEFAULT_ACTIVE_COUNTER_INC(LOC_TASKS_0063);
             /*if fix cannot complete the csocket_request, CRBUFF has no data to handle, so terminate*/
             if(EC_FALSE == csocket_fix_task_node(CSOCKET_CNODE_SOCKFD(csocket_cnode), task_node))
@@ -1527,15 +1574,18 @@ EC_BOOL tasks_work_irecv_on_csocket_cnode(CVECTOR *tasks_node_work, CSOCKET_CNOD
 
             CTIMET_GET(TASKS_NODE_LAST_UPDATE_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)));/*update*/
 
+            last_update_tm = CTIMET_TO_TM(TASKS_NODE_LAST_UPDATE_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)));
+            last_end_tm    = CTIMET_TO_TM(TASKS_NODE_LAST_SEND_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)));
+            
             sys_log(LOGSTDNULL, "[DEBUG][%s] last update time: %02d:%02d:%02d, last send time: %02d:%02d:%02d, updated in tasks_work_irecv_on_csocket_cnode[0]\n",
                     TASKS_NODE_TCID_STR(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)),
-                    CTIMET_HOUR(TASKS_NODE_LAST_UPDATE_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode))),
-                    CTIMET_MIN(TASKS_NODE_LAST_UPDATE_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode))),
-                    CTIMET_SEC(TASKS_NODE_LAST_UPDATE_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode))),
+                    CTM_HOUR(last_update_tm),
+                    CTM_MIN(last_update_tm),
+                    CTM_SEC(last_update_tm),
 
-                    CTIMET_HOUR(TASKS_NODE_LAST_SEND_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode))),
-                    CTIMET_MIN(TASKS_NODE_LAST_SEND_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)) ),
-                    CTIMET_SEC(TASKS_NODE_LAST_SEND_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)) )
+                    CTM_HOUR(last_end_tm),
+                    CTM_MIN(last_end_tm ),
+                    CTM_SEC(last_end_tm )
                 );
 
             /*otherwise, remove it from INCOMING list and push it to INCOMED list*/
@@ -1553,15 +1603,20 @@ EC_BOOL tasks_work_irecv_on_csocket_cnode(CVECTOR *tasks_node_work, CSOCKET_CNOD
         TASK_BRD_DEFAULT_ACTIVE_COUNTER_INC(LOC_TASKS_0064);
 
         CTIMET_GET(TASKS_NODE_LAST_UPDATE_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)));/*update*/
+
+        last_update_tm = CTIMET_TO_TM(TASKS_NODE_LAST_UPDATE_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)));
+        last_end_tm    = CTIMET_TO_TM(TASKS_NODE_LAST_SEND_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)));
+
+        
         sys_log(LOGSTDNULL, "[DEBUG][%s] last update time: %02d:%02d:%02d, last send time: %02d:%02d:%02d, updated in tasks_work_irecv_on_csocket_cnode[1]\n",
                 TASKS_NODE_TCID_STR(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)),
-                CTIMET_HOUR(TASKS_NODE_LAST_UPDATE_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode))),
-                CTIMET_MIN(TASKS_NODE_LAST_UPDATE_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)) ),
-                CTIMET_SEC(TASKS_NODE_LAST_UPDATE_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)) ),
+                CTM_HOUR(last_update_tm),
+                CTM_MIN(last_update_tm),
+                CTM_SEC(last_update_tm),
 
-                CTIMET_HOUR(TASKS_NODE_LAST_SEND_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode))),
-                CTIMET_MIN(TASKS_NODE_LAST_SEND_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)) ),
-                CTIMET_SEC(TASKS_NODE_LAST_SEND_TIME(CSOCKET_CNODE_TASKS_NODE(csocket_cnode)) )
+                CTM_HOUR(last_end_tm),
+                CTM_MIN(last_end_tm),
+                CTM_SEC(last_end_tm)
             );
 
         if(TASK_NODE_BUFF_POS(task_node) == TASK_NODE_BUFF_LEN(task_node))
@@ -1588,11 +1643,10 @@ EC_BOOL tasks_work_isend_on_tasks_node(CVECTOR *tasks_node_work, TASKS_NODE *tas
     UINT32 pos;
 
     CVECTOR_LOCK(TASKS_NODE_CSOCKET_CNODE_VEC(tasks_node), LOC_TASKS_0065);
+    TASKS_NODE_LOAD(tasks_node) = 0;
     for(pos = 0; pos < cvector_size(TASKS_NODE_CSOCKET_CNODE_VEC(tasks_node)); /*pos ++*/)
     {
         CSOCKET_CNODE *csocket_cnode;
-        UINT32 saved_load;
-
         csocket_cnode = (CSOCKET_CNODE *)cvector_get_no_lock(TASKS_NODE_CSOCKET_CNODE_VEC(tasks_node), pos);
         if(NULL_PTR == csocket_cnode)
         {
@@ -1637,9 +1691,8 @@ EC_BOOL tasks_work_isend_on_tasks_node(CVECTOR *tasks_node_work, TASKS_NODE *tas
 
             continue;
         }
-
-        saved_load = CSOCKET_CNODE_LOAD(csocket_cnode);
-
+        
+#if (SWITCH_OFF == TASK_BRD_CEPOLL_SWITCH)
         if(EC_FALSE == tasks_work_isend_on_csocket_cnode(tasks_node_work, csocket_cnode))
         {
             TASK_BRD *task_brd;
@@ -1652,8 +1705,6 @@ EC_BOOL tasks_work_isend_on_tasks_node(CVECTOR *tasks_node_work, TASKS_NODE *tas
             cvector_erase_no_lock(TASKS_NODE_CSOCKET_CNODE_VEC(tasks_node), pos);
             csocket_cnode_close(csocket_cnode);
 
-            TASKS_NODE_LOAD(tasks_node) -= saved_load;/*update tasks node load*/
-
             sys_log(LOGSTDOUT, "tasks_work_isend_on_tasks_node[2] call super_notify_broken_tcid\n");
             task_brd = task_brd_default_get();
             super_notify_broken_tcid(TASK_BRD_SUPER_MD_ID(task_brd), broken_tcid);
@@ -1661,7 +1712,8 @@ EC_BOOL tasks_work_isend_on_tasks_node(CVECTOR *tasks_node_work, TASKS_NODE *tas
             continue;
         }
 
-        TASKS_NODE_LOAD(tasks_node) -= (saved_load - CSOCKET_CNODE_LOAD(csocket_cnode));/*update tasks node load*/
+        TASKS_NODE_LOAD(tasks_node) += CSOCKET_CNODE_LOAD(csocket_cnode);/*update tasks node load*/
+#endif/*(SWITCH_OFF == TASK_BRD_CEPOLL_SWITCH)*/
 
         pos ++;/*move forward*/
     }
@@ -1711,7 +1763,7 @@ EC_BOOL tasks_work_irecv_on_tasks_node(CVECTOR *tasks_node_work, TASKS_NODE *tas
         }
 
         /*clean up broken connection*/
-        if(EC_FALSE == csocket_is_connected(CSOCKET_CNODE_SOCKFD(csocket_cnode)))
+        if(EC_FALSE == CSOCKET_CNODE_IS_CONNECTED(csocket_cnode))
         {
             TASK_BRD *task_brd;
             UINT32  broken_tcid;
@@ -1733,6 +1785,7 @@ EC_BOOL tasks_work_irecv_on_tasks_node(CVECTOR *tasks_node_work, TASKS_NODE *tas
             continue;
         }
 
+#if (SWITCH_OFF == TASK_BRD_CEPOLL_SWITCH)
         //sys_log(LOGSTDOUT, "[DEBUG] tasks_work_irecv_on_tasks_node: pos %ld: try to irecv on sockfd %d ...\n", pos, CSOCKET_CNODE_SOCKFD(csocket_cnode));
 
         if(EC_FALSE == tasks_work_irecv_on_csocket_cnode(tasks_node_work, csocket_cnode, save_to_list))
@@ -1753,6 +1806,7 @@ EC_BOOL tasks_work_irecv_on_tasks_node(CVECTOR *tasks_node_work, TASKS_NODE *tas
 
             continue;
         }
+#endif/*(SWITCH_OFF == TASK_BRD_CEPOLL_SWITCH)*/
 
         pos ++;/*move forward*/
     }
@@ -2592,6 +2646,11 @@ EC_BOOL tasks_monitor_move_to_work(CVECTOR *tasks_node_monitor, CVECTOR *tasks_n
                                 CSOCKET_CNODE_TCID_STR(csocket_cnode), CSOCKET_CNODE_COMM(csocket_cnode), CSOCKET_CNODE_SIZE(csocket_cnode),
                                 CSOCKET_CNODE_SOCKFD(csocket_cnode), CSOCKET_CNODE_IPADDR_STR(csocket_cnode), CSOCKET_CNODE_SRVPORT(csocket_cnode)
                                 );
+                                
+#if (SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)
+            cepoll_add_client_event(TASK_BRD_CEPOLL(task_brd), CEPOLL_RD_EVENT, csocket_cnode);
+#endif/*(SWITCH_ON == TASK_BRD_CEPOLL_SWITCH)*/
+
             continue;
         }
 

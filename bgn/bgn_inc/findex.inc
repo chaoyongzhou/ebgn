@@ -988,6 +988,7 @@
 #define                    FI_super_print_obj_vec  ((UINT32) ((MD_SUPER << (WORDSIZE/2)) +  111))
 #define                    FI_super_set_zone_size  ((UINT32) ((MD_SUPER << (WORDSIZE/2)) +  112))
 #define                    FI_super_breathing_mem  ((UINT32) ((MD_SUPER << (WORDSIZE/2)) +  113))
+#define                FI_super_print_cmutex_stat  ((UINT32) ((MD_SUPER << (WORDSIZE/2)) +  114))
 
 #define               FI_cdfs_print_module_status  ((UINT32) ((MD_CDFS << (WORDSIZE/2)) +  0))
 #define            FI_cdfs_free_module_static_mem  ((UINT32) ((MD_CDFS << (WORDSIZE/2)) +  1))
@@ -1268,6 +1269,15 @@
 #define                          FI_crfs_create_b  ((UINT32) ((MD_CRFS << (WORDSIZE/2)) + 47))
 #define                           FI_crfs_write_b  ((UINT32) ((MD_CRFS << (WORDSIZE/2)) + 48))
 #define                            FI_crfs_read_b  ((UINT32) ((MD_CRFS << (WORDSIZE/2)) + 49))
+#define                             FI_crfs_unset  ((UINT32) ((MD_CRFS << (WORDSIZE/2)) + 50))
+#define                          FI_crfs_add_disk  ((UINT32) ((MD_CRFS << (WORDSIZE/2)) + 51))
+#define                          FI_crfs_del_disk  ((UINT32) ((MD_CRFS << (WORDSIZE/2)) + 52))
+#define                        FI_crfs_mount_disk  ((UINT32) ((MD_CRFS << (WORDSIZE/2)) + 53))
+#define                       FI_crfs_umount_disk  ((UINT32) ((MD_CRFS << (WORDSIZE/2)) + 54))
+#define                        FI_crfs_reserve_dn  ((UINT32) ((MD_CRFS << (WORDSIZE/2)) + 55))
+#define                        FI_crfs_release_dn  ((UINT32) ((MD_CRFS << (WORDSIZE/2)) + 56))
+#define                         FI_crfs_export_dn  ((UINT32) ((MD_CRFS << (WORDSIZE/2)) + 57))
+//#define                       FI_crfs_write_cache  ((UINT32) ((MD_CRFS << (WORDSIZE/2)) + 58))
 
 #define               FI_chfs_print_module_status  ((UINT32) ((MD_CHFS << (WORDSIZE/2)) +  0))
 #define            FI_chfs_free_module_static_mem  ((UINT32) ((MD_CHFS << (WORDSIZE/2)) +  1))

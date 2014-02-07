@@ -44,14 +44,14 @@ gdbCacheAddBlockNoLock(GDatabase *db, GdbBlock *block)
 
         newSize = 2 * db->openBlockSize;
 
-        MEM_CHECK(newBlocks = (GdbBlock **)SAFE_MALLOC(newSize * sizeof(GdbBlock *), LOC_DB_0068));
+        MEM_CHECK(newBlocks = (GdbBlock **)SAFE_MALLOC(newSize * sizeof(GdbBlock *), LOC_DB_0047));
         memset(newBlocks, 0, newSize * sizeof(GdbBlock *));
 
         for (i = 0; i < db->openBlockSize; i++)
         {
             newBlocks[i] = db->openBlocks[i];
         }
-        SAFE_FREE(db->openBlocks, LOC_DB_0069);
+        SAFE_FREE(db->openBlocks, LOC_DB_0048);
 
         db->openBlocks    = newBlocks;
         db->openBlockSize = newSize;
@@ -80,10 +80,10 @@ GdbBlock *
 gdbCacheAddBlock(GDatabase *db, GdbBlock *block)
 {
     GdbBlock *block_cached;
-    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0070);
+    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0049);
     block_cached = gdbCacheAddBlockNoLock(db, block);
     //sys_log(LOGSTDOUT, "[DEBUG] gdbCacheAddBlock: openBlockCount %d, openBlockSize %d\n", db->openBlockCount, db->openBlockSize);
-    gdbUnlockFreeBlockList(db, LOC_DB_0071);
+    gdbUnlockFreeBlockList(db, LOC_DB_0050);
     return block_cached;
 }
 
@@ -141,9 +141,9 @@ gdbCacheRemoveBlock(GDatabase *db, GdbBlock *block)
         abort();
     }
 
-    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0072);
+    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0051);
     refCount = gdbCacheRemoveBlockNoLock(db, block);
-    gdbUnlockFreeBlockList(db, LOC_DB_0073);
+    gdbUnlockFreeBlockList(db, LOC_DB_0052);
     return refCount;
 }
 
@@ -171,9 +171,9 @@ gdbCacheGetBlock(GDatabase *db, offset_t offset)
 {
     GdbBlock *block;
 
-    gdbLockFreeBlockList(db, DB_READ_LOCK, LOC_DB_0074);
+    gdbLockFreeBlockList(db, DB_READ_LOCK, LOC_DB_0053);
     block = gdbCacheGetBlockNoLock(db, offset);
-    gdbUnlockFreeBlockList(db, LOC_DB_0075);
+    gdbUnlockFreeBlockList(db, LOC_DB_0054);
     return block;
 }
 
@@ -198,9 +198,9 @@ gdbCachePrintBlockNoLock(LOG *log, const GDatabase *db)
 void
 gdbCachePrintBlock(LOG *log, GDatabase *db)
 {
-    gdbLockFreeBlockList(db, DB_READ_LOCK, LOC_DB_0076);
+    gdbLockFreeBlockList(db, DB_READ_LOCK, LOC_DB_0055);
     gdbCachePrintBlockNoLock(log, db);
-    gdbUnlockFreeBlockList(db, LOC_DB_0077);
+    gdbUnlockFreeBlockList(db, LOC_DB_0056);
     return;
 }
 

@@ -37,7 +37,8 @@ extern "C"{
 
 #define CRFSDN_NODE_CACHED_MAX_NUM      (1024)
 
-#define CRFSDN_DISK_FIXED_NUM           (16)    /*virtual disk, fix its number*/
+//#define CRFSDN_DISK_FIXED_NUM           (16)    /*virtual disk, fix its number*/
+#define CRFSDN_DISK_FIXED_NUM           (10)    /*virtual disk number*/
 
 #define CRFSDN_NODE_O_RDONLY           ((UINT32)O_RDONLY)
 #define CRFSDN_NODE_O_WRONLY           ((UINT32)O_WRONLY)
@@ -108,7 +109,8 @@ typedef struct
 #define CRFSDN_NODE_DISK_NO(crfsdn_node)                  (CRFSDN_NODE_ID_GET_DISK_NO(CRFSDN_NODE_ID(crfsdn_node)))
 #define CRFSDN_NODE_BLOCK_NO(crfsdn_node)                 (CRFSDN_NODE_ID_GET_BLOCK_NO(CRFSDN_NODE_ID(crfsdn_node)))
 
-#define CRFSDN_PATH_LAYOUT(disk_no, block_no)             ((((UINT32)(block_no)) << 16) | (((UINT32)(disk_no)) << 0)) /*disorder*/
+//#define CRFSDN_PATH_LAYOUT(disk_no, block_no)             ((((UINT32)(block_no)) << 16) | (((UINT32)(disk_no)) << 0)) /*disorder*/
+#define CRFSDN_PATH_LAYOUT(disk_no, block_no)             ((((UINT32)(disk_no)) << 16) | (((UINT32)(block_no)) << 0))
 #define CRFSDN_NODE_PATH_LAYOUT(crfsdn_node)              (CRFSDN_PATH_LAYOUT(CRFSDN_NODE_DISK_NO(crfsdn_node), CRFSDN_NODE_BLOCK_NO(crfsdn_node)))
 
 
@@ -119,12 +121,28 @@ typedef struct
 #define CRFSDN_NODE_CMUTEX_UNLOCK(crfsdn_node, location)  (croutine_mutex_unlock(CRFSDN_NODE_CMUTEX(crfsdn_node), location))
 #endif
 
+typedef struct
+{
+    uint16_t        disk_no;
+    uint16_t        block_no;
+    uint16_t        page_no;
+    uint16_t        rsvd1;
+    UINT32          data_size;
+    uint8_t        *data_buff;
+}CRFSDN_CACHE_NODE;
+
+#define CRFSDN_CACHE_NODE_DISK_NO(crfsdn_cache_node)        ((crfsdn_cache_node)->disk_no)
+#define CRFSDN_CACHE_NODE_BLOCK_NO(crfsdn_cache_node)       ((crfsdn_cache_node)->block_no)
+#define CRFSDN_CACHE_NODE_PAGE_NO(crfsdn_cache_node)        ((crfsdn_cache_node)->page_no)
+#define CRFSDN_CACHE_NODE_DATA_SIZE(crfsdn_cache_node)      ((crfsdn_cache_node)->data_size)
+#define CRFSDN_CACHE_NODE_DATA_BUFF(crfsdn_cache_node)      ((crfsdn_cache_node)->data_buff)
 
 typedef struct
 {
     CROUTINE_RWLOCK    rwlock;
-    CRB_TREE           cached_nodes;
-    CROUTINE_MUTEX     cmutex;     /*cmutex for cached nodes*/
+    CRB_TREE           open_nodes;  /*open nodes to read or write, item is CRFSDN_NODE*/
+    CROUTINE_MUTEX     cmutex;      /*cmutex for open nodes*/
+    CLIST              cached_nodes;/*cached nodes to read or write, item is CRFSDN_NODE*/
 
     uint8_t           *root_dname;
     CPGV              *cpgv;
@@ -132,11 +150,12 @@ typedef struct
 
 #define CRFSDN_CRWLOCK(crfsdn)                             (&((crfsdn)->rwlock))
 #define CRFSDN_CMUTEX(crfsdn)                              (&((crfsdn)->cmutex))
+#define CRFSDN_OPEN_NODES(crfsdn)                          (&((crfsdn)->open_nodes))
 #define CRFSDN_CACHED_NODES(crfsdn)                        (&((crfsdn)->cached_nodes))
 #define CRFSDN_ROOT_DNAME(crfsdn)                          ((crfsdn)->root_dname)
 #define CRFSDN_CPGV(crfsdn)                                ((crfsdn)->cpgv)
 
-#define CRFSDN_CACHED_NODE(_crfsdn, node_id)               (crfsdn_node_fetch((_crfsdn), (node_id)))
+#define CRFSDN_OPEN_NODE(_crfsdn, node_id)                 (crfsdn_node_fetch((_crfsdn), (node_id)))
 
 #if 0
 #define CRFSDN_CRWLOCK_INIT(crfsdn, location)       (croutine_rwlock_init(CRFSDN_CRWLOCK(crfsdn), CMUTEX_PROCESS_PRIVATE, location))
@@ -211,7 +230,39 @@ EC_BOOL crfsdn_node_write(CRFSDN *crfsdn, const UINT32 node_id, const UINT32 dat
 
 EC_BOOL crfsdn_node_read(CRFSDN *crfsdn, const UINT32 node_id, const UINT32 data_max_len, UINT8 *data_buff, UINT32 *offset);
 
-CRFSDN *crfsdn_create(const char *root_dname, const uint16_t max_gb_num_of_disk_space);
+CRFSDN_CACHE_NODE *crfsdn_cache_node_new();
+
+EC_BOOL crfsdn_cache_node_init(CRFSDN_CACHE_NODE *crfsdn_cache_node);
+
+EC_BOOL crfsdn_cache_node_clean(CRFSDN_CACHE_NODE *crfsdn_cache_node);
+
+EC_BOOL crfsdn_cache_node_free(CRFSDN_CACHE_NODE *crfsdn_cache_node);
+
+EC_BOOL crfsdn_cache_node_init_0(const UINT32 md_id, CRFSDN_CACHE_NODE *crfsdn_cache_node);
+
+EC_BOOL crfsdn_cache_node_clean_0(const UINT32 md_id, CRFSDN_CACHE_NODE *crfsdn_cache_node);
+
+EC_BOOL crfsdn_cache_node_free_0(const UINT32 md_id, CRFSDN_CACHE_NODE *crfsdn_cache_node);
+
+EC_BOOL crfsdn_has_no_cache_node(const CRFSDN *crfsdn);
+
+EC_BOOL crfsdn_push_cache_node(CRFSDN *crfsdn, CRFSDN_CACHE_NODE *crfsdn_cache_node);
+
+CRFSDN_CACHE_NODE *crfsdn_pop_cache_node(CRFSDN *crfsdn);
+
+EC_BOOL crfsdn_flush_cache_node(CRFSDN *crfsdn, CRFSDN_CACHE_NODE *crfsdn_cache_node);
+
+void crfsdn_flush_cache_nodes(CRFSDN **crfsdn, EC_BOOL *terminate_flag);
+
+CRFSDN *crfsdn_create(const char *root_dname);
+
+EC_BOOL crfsdn_add_disk(CRFSDN *crfsdn, const uint16_t disk_no);
+
+EC_BOOL crfsdn_del_disk(CRFSDN *crfsdn, const uint16_t disk_no);
+
+EC_BOOL crfsdn_mount_disk(CRFSDN *crfsdn, const uint16_t disk_no);
+
+EC_BOOL crfsdn_umount_disk(CRFSDN *crfsdn, const uint16_t disk_no);
 
 CRFSDN *crfsdn_new();
 
@@ -251,6 +302,8 @@ EC_BOOL crfsdn_update_b(CRFSDN *crfsdn, const UINT32 data_max_len, const UINT8 *
 EC_BOOL crfsdn_read_p(CRFSDN *crfsdn, const uint16_t disk_no, const uint16_t block_no, const uint16_t page_no, const UINT32 data_max_len, UINT8 *data_buff, UINT32 *data_len);
 
 EC_BOOL crfsdn_write_p(CRFSDN *crfsdn, const UINT32 data_max_len, const UINT8 *data_buff, uint16_t *disk_no, uint16_t *block_no, uint16_t *page_no);
+
+EC_BOOL crfsdn_write_p_cache(CRFSDN *crfsdn, const UINT32 data_max_len, const UINT8 *data_buff, uint16_t *disk_no, uint16_t *block_no, uint16_t *page_no);
 
 /*random access for reading, the offset is for the user file but not for the whole 64M page-block */
 EC_BOOL crfsdn_read_e(CRFSDN *crfsdn, const uint16_t disk_no, const uint16_t block_no, const uint16_t page_no, const uint32_t offset, const UINT32 data_max_len, UINT8 *data_buff, UINT32 *data_len);

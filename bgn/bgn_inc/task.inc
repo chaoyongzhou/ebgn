@@ -24,6 +24,7 @@ extern "C"{
 #include "cqueue.h"
 #include "cvector.h"
 #include "cstack.h"
+#include "csig.h"
 
 #include "cthread.h"
 
@@ -39,6 +40,7 @@ extern "C"{
 #include "cproc.h"
 #include "ipv4pool.h"
 #include "croutine.h"
+#include "cepoll.h"
 
 #define ERR_TASK_SEQNO ((UINT32)(~((UINT32)0)))
 #define ERR_FUNC_ID    ((UINT32)(~((UINT32)0)))
@@ -410,6 +412,12 @@ typedef struct
 /*task board*/
 typedef struct _TASK_BRD
 {
+    CTIMET       ctime;/*current task_brd time on wall*/
+    CTM          ctm;  /*current task_brd time on wall*/
+
+    CEPOLL      *cepoll;
+    
+    CSIG         csig;
     CSTRING     *sys_cfg_xml_fname_cstr;
     CSTRING     *basic_cfg_xml_fname_cstr;
     CSTRING     *log_path_cstr;
@@ -817,6 +825,10 @@ typedef MOD_MGR * (* MD_FGET_MOD_MGR)(const UINT32);
 
 
 /*---------------------------------------- interface of task board ----------------------------------------------*/
+#define TASK_BRD_CTIME(task_brd)                           ((task_brd)->ctime)
+#define TASK_BRD_CTM(task_brd)                             (&((task_brd)->ctm))
+#define TASK_BRD_CEPOLL(task_brd)                          ((task_brd)->cepoll)
+#define TASK_BRD_CSIG(task_brd)                            (&((task_brd)->csig))
 #define TASK_BRD_TASK_MGR_STACK(task_brd)                  (&((task_brd)->task_mgr_stack))
 #define TASK_BRD_TASK_MGR_STACK_INIT(task_brd, location)   (cstack_init(TASK_BRD_TASK_MGR_STACK(task_brd), MM_IGNORE, location))
 #define TASK_BRD_STACK_MGR_STACK_PUSH(task_brd, task_mgr)  (cstack_push(TASK_BRD_TASK_MGR_STACK(task_brd), task_mgr))
