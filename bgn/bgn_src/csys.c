@@ -155,7 +155,7 @@ UINT32 csys_info_print()
 
     if(0 != sysinfo(&info))
     {
-        sys_log(LOGSTDOUT, "error:csys_info_print: failed to fetch sysinfo\n");
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_info_print: failed to fetch sysinfo\n");
         return ((UINT32)-1);
     }
 
@@ -168,22 +168,22 @@ UINT32 csys_info_print()
     #define _B2MB_(nbytes) ((nbytes) >> 20)
     #define _B2GB_(nbytes) ((nbytes) >> 30)
 
-    sys_log(LOGSTDOUT, "uptime   : %ld secs or %ld mins or %ld hours since boot\n", info.uptime, _S2M_(info.uptime), _S2H_(info.uptime));
-    sys_log(LOGSTDOUT, "loads    : %ld(%.2f), %ld(%.2f), %ld(%.2f)\n",
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "uptime   : %ld secs or %ld mins or %ld hours since boot\n", info.uptime, _S2M_(info.uptime), _S2H_(info.uptime));
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "loads    : %ld(%.2f), %ld(%.2f), %ld(%.2f)\n",
                                    info.loads[0], _LDR_(info.loads[0]),
                                    info.loads[1], _LDR_(info.loads[1]),
                                    info.loads[2], _LDR_(info.loads[2])
                                    );
-    sys_log(LOGSTDOUT, "csys_info_print:totalram : %ld Bytes, %ld KB, %ld MB\n", info.totalram , _B2KB_(info.totalram) , _B2MB_(info.totalram));
-    sys_log(LOGSTDOUT, "csys_info_print:freeram  : %ld Bytes, %ld KB, %ld MB\n", info.freeram  , _B2KB_(info.freeram)  , _B2MB_(info.freeram));
-    sys_log(LOGSTDOUT, "csys_info_print:sharedram: %ld Bytes, %ld KB, %ld MB\n", info.sharedram, _B2KB_(info.sharedram), _B2MB_(info.sharedram));
-    sys_log(LOGSTDOUT, "csys_info_print:bufferram: %ld Bytes, %ld KB, %ld MB\n", info.bufferram, _B2KB_(info.bufferram), _B2MB_(info.bufferram));
-    sys_log(LOGSTDOUT, "csys_info_print:totalswap: %ld Bytes, %ld KB, %ld MB\n", info.totalswap, _B2KB_(info.totalswap), _B2MB_(info.totalswap));
-    sys_log(LOGSTDOUT, "csys_info_print:freeswap : %ld Bytes, %ld KB, %ld MB\n", info.freeswap , _B2KB_(info.freeswap) , _B2MB_(info.freeswap));
-    sys_log(LOGSTDOUT, "csys_info_print:procs    : %ld\n", info.procs);
-    sys_log(LOGSTDOUT, "csys_info_print:totalhigh: %ld\n", info.totalhigh);
-    sys_log(LOGSTDOUT, "csys_info_print:freehigh : %ld\n", info.freehigh);
-    sys_log(LOGSTDOUT, "csys_info_print:mem_unit : %ld\n", info.mem_unit);
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_info_print:totalram : %ld Bytes, %ld KB, %ld MB\n", info.totalram , _B2KB_(info.totalram) , _B2MB_(info.totalram));
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_info_print:freeram  : %ld Bytes, %ld KB, %ld MB\n", info.freeram  , _B2KB_(info.freeram)  , _B2MB_(info.freeram));
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_info_print:sharedram: %ld Bytes, %ld KB, %ld MB\n", info.sharedram, _B2KB_(info.sharedram), _B2MB_(info.sharedram));
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_info_print:bufferram: %ld Bytes, %ld KB, %ld MB\n", info.bufferram, _B2KB_(info.bufferram), _B2MB_(info.bufferram));
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_info_print:totalswap: %ld Bytes, %ld KB, %ld MB\n", info.totalswap, _B2KB_(info.totalswap), _B2MB_(info.totalswap));
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_info_print:freeswap : %ld Bytes, %ld KB, %ld MB\n", info.freeswap , _B2KB_(info.freeswap) , _B2MB_(info.freeswap));
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_info_print:procs    : %ld\n", info.procs);
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_info_print:totalhigh: %ld\n", info.totalhigh);
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_info_print:freehigh : %ld\n", info.freehigh);
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_info_print:mem_unit : %ld\n", info.mem_unit);
 
     #undef _S2M_
     #undef _S2H_
@@ -241,7 +241,7 @@ UINT32 csys_cpu_cfg_vec_get(CSYS_CPU_CFG_VEC *csys_cpu_cfg_vec)
     cache = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0005);
     if(NULL_PTR == cache)
     {
-        sys_log(LOGSTDOUT, "error:csys_cpu_cfg_vec_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_cpu_cfg_vec_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         return ((UINT32)-1);
     }
 
@@ -254,7 +254,7 @@ UINT32 csys_cpu_cfg_vec_get(CSYS_CPU_CFG_VEC *csys_cpu_cfg_vec)
     {
         next = c_str_move_next(buff);
 
-        //sys_log(LOGSTDOUT, "[DEBUG] csys_cpu_cfg_vec_get: buff: [%s]\n", buff);
+        //dbg_log(SEC_0077_CSYS, 9)(LOGSTDOUT, "[DEBUG] csys_cpu_cfg_vec_get: buff: [%s]\n", buff);
 
         if ('\0' == buff[0])/*blank line*/
         {
@@ -384,7 +384,7 @@ cpu3 775847  5388  247323  284054170  33718  0    17440    14749
 */
 
     safe_ptr = (char *)buff;
-    //sys_log(LOGSTDOUT, "info:csys_cpu_stat_get: %s\n", buff);
+    //dbg_log(SEC_0077_CSYS, 3)(LOGSTDOUT, "info:csys_cpu_stat_get: %s\n", buff);
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         cstring_init(CSYS_CPU_STAT_CSTR(csys_cpu_stat), (UINT8 *)seg_ptr);
@@ -393,31 +393,31 @@ cpu3 775847  5388  247323  284054170  33718  0    17440    14749
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         CSYS_CPU_STAT_USER(csys_cpu_stat) = c_str_to_word(seg_ptr);
-        //sys_log(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_USER(csys_cpu_stat));
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_USER(csys_cpu_stat));
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         CSYS_CPU_STAT_NICE(csys_cpu_stat) = c_str_to_word(seg_ptr);
-        //sys_log(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_NICE(csys_cpu_stat));
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_NICE(csys_cpu_stat));
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         CSYS_CPU_STAT_SYS(csys_cpu_stat) = c_str_to_word(seg_ptr);
-        //sys_log(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_SYS(csys_cpu_stat));
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_SYS(csys_cpu_stat));
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         CSYS_CPU_STAT_IDLE(csys_cpu_stat) = c_str_to_word(seg_ptr);
-        //sys_log(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_IDLE(csys_cpu_stat));
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_IDLE(csys_cpu_stat));
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         CSYS_CPU_STAT_TOTAL(csys_cpu_stat) = c_str_to_word(seg_ptr);
-        //sys_log(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_TOTAL(csys_cpu_stat));
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "%s ===> %ld\n", seg_ptr, CSYS_CPU_STAT_TOTAL(csys_cpu_stat));
     }
 
     return (0);
@@ -478,12 +478,12 @@ UINT32 csys_cpu_stat_vec_get(CSYS_CPU_STAT_VEC *csys_cpu_stat_vec)
     cache = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0014);
     if(NULL_PTR == cache)
     {
-        sys_log(LOGSTDOUT, "error:csys_cpu_stat_vec_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_cpu_stat_vec_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         return ((UINT32)-1);
     }
 
     exec_shell("cat /proc/stat | grep '^cpu'", cache, CSYS_SHELL_BUF_MAX_SIZE);
-    //sys_log(LOGSTDOUT, "[DEBUG] cache: \n%s\n", cache);
+    //dbg_log(SEC_0077_CSYS, 9)(LOGSTDOUT, "[DEBUG] cache: \n%s\n", cache);
 
     /*note:skip the cpu average load info which locate the 1st line in /proc/stat*/
     buff = c_str_fetch_line(cache);
@@ -495,14 +495,14 @@ UINT32 csys_cpu_stat_vec_get(CSYS_CPU_STAT_VEC *csys_cpu_stat_vec)
 
         next = c_str_move_next(buff);
 
-        //sys_log(LOGSTDOUT, "[DEBUG] CPU: \n%s\n", buff);
+        //dbg_log(SEC_0077_CSYS, 9)(LOGSTDOUT, "[DEBUG] CPU: \n%s\n", buff);
 
         if (0 != strncasecmp(buff, "cpu", 3))
         {
             break;
         }
 
-        //sys_log(LOGSTDOUT, "csys_cpu_stat_vec_get: %s\n", (char *)buff);
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_cpu_stat_vec_get: %s\n", (char *)buff);
 
         csys_cpu_stat = csys_cpu_stat_new();
         csys_cpu_stat_get(buff, csys_cpu_stat);/*here buff will be modified*/
@@ -569,7 +569,7 @@ UINT32 csys_cpu_avg_stat_get(CSYS_CPU_AVG_STAT *csys_cpu_avg_stat)
     buff = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0017);
     if(NULL_PTR == buff)
     {
-        sys_log(LOGSTDOUT, "error:csys_cpu_avg_stat_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_cpu_avg_stat_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         return ((UINT32)-1);
     }
 
@@ -579,26 +579,26 @@ UINT32 csys_cpu_avg_stat_get(CSYS_CPU_AVG_STAT *csys_cpu_avg_stat)
 */
 
     exec_shell("cat /proc/loadavg", buff, CSYS_SHELL_BUF_MAX_SIZE);
-    //sys_log(LOGSTDNULL, "[DEBUG]csys_cpu_avg_stat_get: \n%s\n", buff);
+    //dbg_log(SEC_0077_CSYS, 9)(LOGSTDNULL, "[DEBUG]csys_cpu_avg_stat_get: \n%s\n", buff);
 
     safe_ptr = (char *)buff;
-    //sys_log(LOGSTDOUT, "info:csys_cpu_avg_stat_get: %s\n", buff);
+    //dbg_log(SEC_0077_CSYS, 3)(LOGSTDOUT, "info:csys_cpu_avg_stat_get: %s\n", buff);
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         CSYS_CPU_AVG_STAT_01_MIN(csys_cpu_avg_stat) = strtod(seg_ptr, (char **)0);
-        //sys_log(LOGSTDOUT, "csys_cpu_avg_stat_get: avg of 01 min: %s => %.2f\n", seg_ptr, CSYS_CPU_AVG_STAT_01_MIN(csys_cpu_avg_stat));
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_cpu_avg_stat_get: avg of 01 min: %s => %.2f\n", seg_ptr, CSYS_CPU_AVG_STAT_01_MIN(csys_cpu_avg_stat));
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         CSYS_CPU_AVG_STAT_05_MIN(csys_cpu_avg_stat) = strtod(seg_ptr, (char **)0);
-        //sys_log(LOGSTDOUT, "csys_cpu_avg_stat_get: avg of 05 min: %s => %.2f\n", seg_ptr, CSYS_CPU_AVG_STAT_05_MIN(csys_cpu_avg_stat));
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_cpu_avg_stat_get: avg of 05 min: %s => %.2f\n", seg_ptr, CSYS_CPU_AVG_STAT_05_MIN(csys_cpu_avg_stat));
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         CSYS_CPU_AVG_STAT_15_MIN(csys_cpu_avg_stat) = strtod(seg_ptr, (char **)0);
-        //sys_log(LOGSTDOUT, "csys_cpu_avg_stat_get: avg of 15 min: %s => %.2f\n", seg_ptr, CSYS_CPU_AVG_STAT_15_MIN(csys_cpu_avg_stat));
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_cpu_avg_stat_get: avg of 15 min: %s => %.2f\n", seg_ptr, CSYS_CPU_AVG_STAT_15_MIN(csys_cpu_avg_stat));
     }
 
     SAFE_FREE(buff, LOC_CSYS_0018);
@@ -653,12 +653,12 @@ UINT32 csys_mem_stat_get(CSYS_MEM_STAT *csys_mem_stat)
     cache = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0021);
     if(NULL_PTR == cache)
     {
-        sys_log(LOGSTDOUT, "error:csys_mem_stat_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_mem_stat_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         return ((UINT32)-1);
     }
 
     exec_shell("cat /proc/meminfo", cache, CSYS_SHELL_BUF_MAX_SIZE);
-    //sys_log(LOGSTDOUT, "[DEBUG] csys_mem_stat_get: cache is \n %s\n", cache);
+    //dbg_log(SEC_0077_CSYS, 9)(LOGSTDOUT, "[DEBUG] csys_mem_stat_get: cache is \n %s\n", cache);
 
     next = cache;
 
@@ -671,7 +671,7 @@ UINT32 csys_mem_stat_get(CSYS_MEM_STAT *csys_mem_stat)
 
         next = c_str_move_next(buff);
 
-        //sys_log(LOGSTDOUT, "[DEBUG] csys_mem_stat_get: buff is \n%s\n", buff);
+        //dbg_log(SEC_0077_CSYS, 9)(LOGSTDOUT, "[DEBUG] csys_mem_stat_get: buff is \n%s\n", buff);
 
         seg_num = sizeof(seg_ptr)/sizeof(seg_ptr[0]);
 
@@ -688,14 +688,14 @@ UINT32 csys_mem_stat_get(CSYS_MEM_STAT *csys_mem_stat)
         if(2 < seg_pos && 0 == strcasecmp(seg_ptr[0], "MemTotal"))
         {
             CSYS_MEM_TOTAL(csys_mem_stat) = c_str_to_word(seg_ptr[1]);/*unit: KB*/
-            //sys_log(LOGSTDOUT, "csys_mem_load_get: MemTotal: %s => %ld\n", seg_ptr[1], CSYS_MEM_TOTAL(csys_mem_stat));
+            //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_mem_load_get: MemTotal: %s => %ld\n", seg_ptr[1], CSYS_MEM_TOTAL(csys_mem_stat));
             continue;
         }
 
         if(2 < seg_pos && 0 == strcasecmp(seg_ptr[0], "MemFree"))
         {
             CSYS_MEM_FREE(csys_mem_stat) = c_str_to_word(seg_ptr[1]);/*unit: KB*/
-            //sys_log(LOGSTDOUT, "csys_mem_load_get: MemFree: %s => %ld\n", seg_ptr[1], CSYS_MEM_FREE(csys_mem_stat));
+            //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "csys_mem_load_get: MemFree: %s => %ld\n", seg_ptr[1], CSYS_MEM_FREE(csys_mem_stat));
             continue;
         }
     }
@@ -840,66 +840,66 @@ example:
   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
  3704 gdm       15   0 22764  11m 6412 S  0.3  1.4   0:14.34 gdmgreeter
 **/
-    //sys_log(LOGSTDOUT, "ctop_oline_parse: %s\n", oline_buff);
+    //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "ctop_oline_parse: %s\n", oline_buff);
     safe_ptr = oline_buff;
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         ctop_oline->pid = c_str_to_word(seg_ptr);
-        //sys_log(LOGSTDOUT, "ctop_oline_parse: pid: %s => %ld\n", seg_ptr, ctop_oline->pid);
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "ctop_oline_parse: pid: %s => %ld\n", seg_ptr, ctop_oline->pid);
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         ctop_oline->usr = (UINT8 *)seg_ptr;
-        //sys_log(LOGSTDOUT, "ctop_oline_parse: usr: %s => %s\n", seg_ptr, ctop_oline->usr);
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "ctop_oline_parse: usr: %s => %s\n", seg_ptr, ctop_oline->usr);
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         ctop_oline->pr = c_str_to_word(seg_ptr);
-        //sys_log(LOGSTDOUT, "ctop_oline_parse: pr : %s => %ld\n", seg_ptr, ctop_oline->pr);
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "ctop_oline_parse: pr : %s => %ld\n", seg_ptr, ctop_oline->pr);
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         ctop_oline->ni = c_str_to_word(seg_ptr);
-        //sys_log(LOGSTDOUT, "ctop_oline_parse: ni : %s => %ld\n", seg_ptr, ctop_oline->ni);
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "ctop_oline_parse: ni : %s => %ld\n", seg_ptr, ctop_oline->ni);
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         ctop_oline->virt = ctop_mem_str_to_uint32(seg_ptr);
-        //sys_log(LOGSTDOUT, "ctop_oline_parse: virt : %s => %ld\n", seg_ptr, ctop_oline->virt);
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "ctop_oline_parse: virt : %s => %ld\n", seg_ptr, ctop_oline->virt);
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         ctop_oline->res = ctop_mem_str_to_uint32(seg_ptr);
-        //sys_log(LOGSTDOUT, "ctop_oline_parse: res : %s => %ld\n", seg_ptr, ctop_oline->res);
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "ctop_oline_parse: res : %s => %ld\n", seg_ptr, ctop_oline->res);
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         ctop_oline->shr = ctop_mem_str_to_uint32(seg_ptr);
-        //sys_log(LOGSTDOUT, "ctop_oline_parse: shr : %s => %ld\n", seg_ptr, ctop_oline->shr);
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "ctop_oline_parse: shr : %s => %ld\n", seg_ptr, ctop_oline->shr);
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         ctop_oline->status = (UINT8 *)seg_ptr;
-        //sys_log(LOGSTDOUT, "ctop_oline_parse: status : %s => %s\n", seg_ptr, ctop_oline->status);
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "ctop_oline_parse: status : %s => %s\n", seg_ptr, ctop_oline->status);
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         ctop_oline->cpu_load = strtod(seg_ptr, (char **)0);
-        //sys_log(LOGSTDOUT, "ctop_oline_parse: cpu_load : %s => %.1f\n", seg_ptr, ctop_oline->cpu_load);
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "ctop_oline_parse: cpu_load : %s => %.1f\n", seg_ptr, ctop_oline->cpu_load);
     }
 
     if((char *)0 != (seg_ptr = strtok_r(NULL_PTR, " ", &safe_ptr)))
     {
         ctop_oline->mem_load = strtod(seg_ptr, (char **)0);
-        //sys_log(LOGSTDOUT, "ctop_oline_parse: mem_load : %s => %.1f\n", seg_ptr, ctop_oline->mem_load);
+        //dbg_log(SEC_0077_CSYS, 5)(LOGSTDOUT, "ctop_oline_parse: mem_load : %s => %.1f\n", seg_ptr, ctop_oline->mem_load);
     }
     return (0);
 }
@@ -914,14 +914,14 @@ UINT32 ctop_process_stat(const UINT32 pid, CTOP_OLINE *ctop_oline)
     cmd_line = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0026);
     if(NULL_PTR == cmd_line)
     {
-        sys_log(LOGSTDOUT, "error:ctop_process_stat: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:ctop_process_stat: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         return ((UINT32)-1);
     }
 
     cmd_output = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0027);
     if(NULL_PTR == cmd_output)
     {
-        sys_log(LOGSTDOUT, "error:ctop_process_stat: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:ctop_process_stat: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         SAFE_FREE(cmd_line, LOC_CSYS_0028);
         return ((UINT32)-1);
     }
@@ -934,7 +934,7 @@ UINT32 ctop_process_stat(const UINT32 pid, CTOP_OLINE *ctop_oline)
     rstream = popen((char *)cmd_line, "r");
     if(NULL_PTR == rstream)
     {
-        sys_log(LOGSTDOUT, "error:ctop_process_stat: popen %s failed\n", cmd_line);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:ctop_process_stat: popen %s failed\n", cmd_line);
         SAFE_FREE(cmd_line, LOC_CSYS_0029);
         SAFE_FREE(cmd_output, LOC_CSYS_0030);
         return ((UINT32)-1);
@@ -1008,14 +1008,14 @@ UINT32 cproc_thread_stat_get(CPROC_THREAD_STAT *cproc_thread_stat)
     cmd_line = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0035);
     if(NULL_PTR == cmd_line)
     {
-        sys_log(LOGSTDOUT, "error:cproc_thread_stat_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:cproc_thread_stat_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         return ((UINT32)-1);
     }
 
     cmd_output = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0036);
     if(NULL_PTR == cmd_output)
     {
-        sys_log(LOGSTDOUT, "error:cproc_thread_stat_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:cproc_thread_stat_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         SAFE_FREE(cmd_line, LOC_CSYS_0037);
         return ((UINT32)-1);
     }
@@ -1027,7 +1027,7 @@ UINT32 cproc_thread_stat_get(CPROC_THREAD_STAT *cproc_thread_stat)
     rstream = popen((char *)cmd_line, "r");
     if(NULL_PTR == rstream)
     {
-        sys_log(LOGSTDOUT, "error:cproc_thread_stat_get: popen %s failed\n", cmd_line);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:cproc_thread_stat_get: popen %s failed\n", cmd_line);
         SAFE_FREE(cmd_line, LOC_CSYS_0038);
         SAFE_FREE(cmd_output, LOC_CSYS_0039);
         return ((UINT32)-1);
@@ -1127,7 +1127,7 @@ EC_BOOL cproc_module_stat_cmp_type(const CPROC_MODULE_STAT *cproc_module_stat_1s
 
 UINT32 cproc_module_stat_get(CPROC_MODULE_STAT *cproc_module_stat)
 {
-    //sys_log(LOGSTDOUT, "[DEBUG] cproc_module_stat_get: type = %ld\n", CPROC_MODULE_TYPE(cproc_module_stat));
+    //dbg_log(SEC_0077_CSYS, 9)(LOGSTDOUT, "[DEBUG] cproc_module_stat_get: type = %ld\n", CPROC_MODULE_TYPE(cproc_module_stat));
     CPROC_MODULE_NUM(cproc_module_stat) = cbc_md_num(CPROC_MODULE_TYPE(cproc_module_stat));
 
     return (0);
@@ -1195,7 +1195,7 @@ UINT32 cproc_module_stat_vec_get(CPROC_MODULE_STAT_VEC *cproc_module_stat_vec)
         CPROC_MODULE_TYPE(cproc_module_stat) = module_type;
         cproc_module_stat_get(cproc_module_stat);
 /*
-        sys_log(LOGSTDOUT, "[DEBUG] cproc_module_stat_vec_get: module type %ld, module num %ld\n",
+        dbg_log(SEC_0077_CSYS, 9)(LOGSTDOUT, "[DEBUG] cproc_module_stat_vec_get: module type %ld, module num %ld\n",
                             CPROC_MODULE_TYPE(cproc_module_stat), CPROC_MODULE_NUM(cproc_module_stat));
 */
         cvector_push(cproc_module_stat_vec, (void *)cproc_module_stat);
@@ -1300,21 +1300,21 @@ static UINT32 csys_eth_stat_speed(const char *eth_name)
 
     if(0 != access(ethtool, X_OK))
     {
-        sys_log(LOGSTDOUT, "error:csys_eth_stat_speed: unable to execute %s\n", ethtool);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_eth_stat_speed: unable to execute %s\n", ethtool);
         return (0);
     }
 
     cmd_line = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0050);
     if(NULL_PTR == cmd_line)
     {
-        sys_log(LOGSTDOUT, "error:csys_eth_stat_speed: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_eth_stat_speed: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         return ((UINT32)-1);
     }
 
     cmd_output = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0051);
     if(NULL_PTR == cmd_output)
     {
-        sys_log(LOGSTDOUT, "error:csys_eth_stat_speed: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_eth_stat_speed: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         SAFE_FREE(cmd_line, LOC_CSYS_0052);
         return ((UINT32)-1);
     }
@@ -1328,7 +1328,7 @@ static UINT32 csys_eth_stat_speed(const char *eth_name)
     rstream = popen((char *)cmd_line, "r");
     if(NULL_PTR == rstream)
     {
-        sys_log(LOGSTDOUT, "error:csys_eth_stat_speed: popen %s failed\n", cmd_line);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_eth_stat_speed: popen %s failed\n", cmd_line);
         speed = 1000;/*guess default*/
         SAFE_FREE(cmd_line, LOC_CSYS_0053);
         SAFE_FREE(cmd_output, LOC_CSYS_0054);
@@ -1344,7 +1344,7 @@ static UINT32 csys_eth_stat_speed(const char *eth_name)
 
         if((char *)0 != strcasestr(cmd_output, "No data available"))
         {
-           sys_log(LOGSTDNULL, "warn:csys_eth_stat_speed: please check netcard %s installation"
+           dbg_log(SEC_0077_CSYS, 1)(LOGSTDNULL, "warn:csys_eth_stat_speed: please check netcard %s installation"
                               " or permission of execution \"%s\", set to default 1000Mb/s\n",
                               eth_name, cmd_line);
            speed = 1000;/*guess default*/
@@ -1358,7 +1358,7 @@ static UINT32 csys_eth_stat_speed(const char *eth_name)
         || (char *)0 != strcasestr(cmd_output, "Cannot get link status: Operation not permitted")
         )
         {
-           sys_log(LOGSTDNULL, "warn:csys_eth_stat_speed: please check permission of execution \"%s\", set to default 1000Mb/s\n", cmd_line);
+           dbg_log(SEC_0077_CSYS, 1)(LOGSTDNULL, "warn:csys_eth_stat_speed: please check permission of execution \"%s\", set to default 1000Mb/s\n", cmd_line);
            speed = 1000;/*guess default*/
            break;
         }
@@ -1462,11 +1462,11 @@ Inter-|   Receive                                                |  Transmit
   eth0: 8828650   12288    0    0    0     0          0         0  1427337   10360    0    0    0     0       0          0
 */
 
-    //sys_log(LOGSTDNULL, "csys_eth_stat_get: buff: \n%s\n", buff);
+    //dbg_log(SEC_0077_CSYS, 5)(LOGSTDNULL, "csys_eth_stat_get: buff: \n%s\n", buff);
     field_num = c_str_split(buff, " :\t\r\n", fields, sizeof(fields)/sizeof(fields[ 0 ]));
     if(11 > field_num)
     {
-        sys_log(LOGSTDOUT, "error:csys_eth_stat_get: too few fields, field num %ld\n", field_num);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_eth_stat_get: too few fields, field num %ld\n", field_num);
         return ((UINT32)-1);
     }
 
@@ -1475,7 +1475,7 @@ Inter-|   Receive                                                |  Transmit
     CSYS_ETH_RXMOCT(csys_eth_stat) = (atoll (fields[ 1 ]) >> 20);/*MBytes*/
     CSYS_ETH_TXMOCT(csys_eth_stat) = (atoll (fields[ 9 ]) >> 20);/*MBytes*/
 #if 0
-    sys_log(LOGSTDNULL, "csys_eth_stat_get: name:%s, speed %ld Mb/s, rxmoct %u MBytes, txmoct %u MBytes\n",
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDNULL, "csys_eth_stat_get: name:%s, speed %ld Mb/s, rxmoct %u MBytes, txmoct %u MBytes\n",
                         (char *)cstring_get_str(CSYS_ETH_NAME(csys_eth_stat)),
                         CSYS_ETH_SPEEDMBS(csys_eth_stat),
                         CSYS_ETH_RXMOCT(csys_eth_stat),
@@ -1540,12 +1540,12 @@ UINT32 csys_eth_stat_vec_get(CSYS_ETH_VEC *csys_eth_stat_vec)
     cache = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0063);
     if(NULL_PTR == cache)
     {
-        sys_log(LOGSTDOUT, "error:csys_eth_stat_vec_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_eth_stat_vec_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         return ((UINT32)-1);
     }
 
     exec_shell("cat /proc/net/dev", cache, CSYS_SHELL_BUF_MAX_SIZE);
-    //sys_log(LOGSTDOUT, "[DEBUG] csys_eth_stat_vec_get:cache: \n%s\n", cache);
+    //dbg_log(SEC_0077_CSYS, 9)(LOGSTDOUT, "[DEBUG] csys_eth_stat_vec_get:cache: \n%s\n", cache);
 
     /**
       cache format:
@@ -1566,15 +1566,15 @@ UINT32 csys_eth_stat_vec_get(CSYS_ETH_VEC *csys_eth_stat_vec)
 
         next = c_str_move_next(buff);
 
-        //sys_log(LOGSTDOUT, "[DEBUG] csys_eth_stat_vec_get: buff %p, next %p\n", buff, next);
-        //sys_log(LOGSTDOUT, "[DEBUG] csys_eth_stat_vec_get: buff %s\n", buff);
+        //dbg_log(SEC_0077_CSYS, 9)(LOGSTDOUT, "[DEBUG] csys_eth_stat_vec_get: buff %p, next %p\n", buff, next);
+        //dbg_log(SEC_0077_CSYS, 9)(LOGSTDOUT, "[DEBUG] csys_eth_stat_vec_get: buff %s\n", buff);
         
         if (NULL_PTR == strchr(buff, ':'))
         {
             continue;
         }
 
-        //sys_log(LOGSTDNULL, "[DEBUG]csys_eth_stat_vec_get:buff: \n%s\n", buff);
+        //dbg_log(SEC_0077_CSYS, 9)(LOGSTDNULL, "[DEBUG]csys_eth_stat_vec_get:buff: \n%s\n", buff);
 
         csys_eth_stat = csys_eth_stat_new();
         csys_eth_stat_get(buff + strspn(buff," "), csys_eth_stat);/*skip leading spaces*/
@@ -1684,11 +1684,11 @@ Filesystem           1M-blocks      Used Available Use% Mounted on
 tmpfs                      506         0       506   0% /dev/shm
 */
 
-    //sys_log(LOGSTDNULL, "csys_dsk_stat_get: buff: \n%s\n", buff);
+    //dbg_log(SEC_0077_CSYS, 5)(LOGSTDNULL, "csys_dsk_stat_get: buff: \n%s\n", buff);
     field_num = c_str_split(buff, " %\t\r\n", fields, sizeof(fields)/sizeof(fields[ 0 ]));
     if(6 > field_num)
     {
-        sys_log(LOGSTDOUT, "error:csys_dsk_stat_get: too few fields, field num %ld\n", field_num);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_dsk_stat_get: too few fields, field num %ld\n", field_num);
         return ((UINT32)-1);
     }
 
@@ -1698,7 +1698,7 @@ tmpfs                      506         0       506   0% /dev/shm
     CSYS_DSK_AVAL(csys_dsk_stat) = c_str_to_word(fields[ 3 ]);/*MBytes*/
     CSYS_DSK_LOAD(csys_dsk_stat) = atof(fields[ 4 ]);
 #if 0
-    sys_log(LOGSTDNULL, "csys_dsk_stat_get: name:%s, size %ld MBytes, used %ld MBytes, aval %ld MBytes, load %.2f%%\n",
+    dbg_log(SEC_0077_CSYS, 5)(LOGSTDNULL, "csys_dsk_stat_get: name:%s, size %ld MBytes, used %ld MBytes, aval %ld MBytes, load %.2f%%\n",
                         (char *)cstring_get_str(CSYS_DSK_NAME(csys_dsk_stat)),
                         CSYS_DSK_SIZE(csys_dsk_stat),
                         CSYS_DSK_USED(csys_dsk_stat),
@@ -1764,21 +1764,21 @@ UINT32 csys_dsk_stat_vec_get(CSYS_DSK_VEC *csys_dsk_stat_vec)
 
     if(0 != access(df, X_OK))
     {
-        sys_log(LOGSTDOUT, "error:csys_dsk_stat_vec_get: unable to execute %s\n", df);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_dsk_stat_vec_get: unable to execute %s\n", df);
         return (0);
     }
 
     cmd_line = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0070);
     if(NULL_PTR == cmd_line)
     {
-        sys_log(LOGSTDOUT, "error:csys_dsk_stat_vec_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_dsk_stat_vec_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         return ((UINT32)-1);
     }
 
     cmd_output = (char *)SAFE_MALLOC(CSYS_SHELL_BUF_MAX_SIZE, LOC_CSYS_0071);
     if(NULL_PTR == cmd_output)
     {
-        sys_log(LOGSTDOUT, "error:csys_dsk_stat_vec_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_dsk_stat_vec_get: alloc %ld bytes failed\n", CSYS_SHELL_BUF_MAX_SIZE);
         SAFE_FREE(cmd_line, LOC_CSYS_0072);
         return ((UINT32)-1);
     }
@@ -1791,7 +1791,7 @@ UINT32 csys_dsk_stat_vec_get(CSYS_DSK_VEC *csys_dsk_stat_vec)
     rstream = popen((char *)cmd_line, "r");
     if(NULL_PTR == rstream)
     {
-        sys_log(LOGSTDOUT, "error:csys_dsk_stat_vec_get: popen %s failed\n", cmd_line);
+        dbg_log(SEC_0077_CSYS, 0)(LOGSTDOUT, "error:csys_dsk_stat_vec_get: popen %s failed\n", cmd_line);
 
         SAFE_FREE(cmd_line, LOC_CSYS_0073);
         SAFE_FREE(cmd_output, LOC_CSYS_0074);

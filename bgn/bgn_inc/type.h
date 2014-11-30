@@ -181,6 +181,9 @@ netinet/in.h
 #define ntoh_uint32(x)       (x)
 #define hton_uint32(x)       (x)
 
+#define ntoh_uint32_t(x)     (x)
+#define hton_uint32_t(x)     (x)
+
 #define ntoh_uint16(x)       (x)
 #define hton_uint16(x)       (x)
 
@@ -195,11 +198,15 @@ netinet/in.h
 #if (32 == WORDSIZE)
 #define ntoh_uint32(x)       __bswap_32(x)
 #define hton_uint32(x)       __bswap_32(x)
+#define ntoh_uint32_t(x)     __bswap_32(x)
+#define hton_uint32_t(x)     __bswap_32(x)
 #endif/*(32 == WORDSIZE)*/
 
 #if (64 == WORDSIZE)
 #define ntoh_uint32(x)       __bswap_64(x)
 #define hton_uint32(x)       __bswap_64(x)
+#define ntoh_uint32_t(x)     __bswap_32(x)
+#define hton_uint32_t(x)     __bswap_32(x)
 #endif/*(64 == WORDSIZE)*/
 
 #define ntoh_uint16(x)       __bswap_16(x)
@@ -218,6 +225,15 @@ netinet/in.h
 #endif
 
 #endif/*(__BYTE_ORDER == __LITTLE_ENDIAN)*/
+
+#ifndef PRIx64
+#if (32 == __WORDSIZE)
+#define PRIx64 "lld" 
+#endif
+#if (64 == __WORDSIZE)
+#define PRIx64 "lu" 
+#endif
+#endif/*PRIx64*/
 
 
 /**
@@ -254,7 +270,7 @@ typedef UINT8  STRCHAR;
 #define EC_GE     ((UINT32) 3) /* >= */
 #define EC_LE     ((UINT32) 4) /* <= */
 
-#define UINT32_ZERO ((UINT32) 1)
+#define UINT32_ZERO ((UINT32) 0)
 #define UINT32_ONE  ((UINT32) 1)
 
 #define ERR_FD      ((int)-1)
@@ -515,6 +531,7 @@ typedef struct _LOG
 typedef time_t CTIMET;  /*32 bits for 32bit OS, 64 bits for 64bit OS*/
 //typedef time_t ctime_t; /*32 bits for 32bit OS, 64 bits for 64bit OS*/
 typedef struct tm CTM;
+typedef struct timeval CTMV;
 
 extern long int lrint(double x);
 
@@ -523,15 +540,10 @@ extern long int lrint(double x);
 #define CTIMET_GET(ctimet)                                 do{(ctimet) = task_brd_default_get_time();}while(0)
 #define CTIMET_DIFF(ctimet_start, ctimet_end)              (difftime(ctimet_end, ctimet_start))
 //#define CTIMET_DIFF(ctimet_start, ctimet_end)              ((double)((ctimet_end) - (ctimet_start)))
+#define CTIMEOFDAY_GET(ctimev)                             do{gettimeofday(&(ctimev), NULL_PTR);}while(0)
 
 #define CTIMET_TO_LOCAL_TIME(ctimet) (c_localtime_r(&(ctimet)))
 #define CTIMET_TO_TM(ctimet)         (CTIMET_TO_LOCAL_TIME(ctimet))
-#define CTIMET_YEAR(ctimet)          ((CTIMET_TO_LOCAL_TIME(ctimet)->tm_year) + 1900)
-#define CTIMET_MONTH(ctimet)         ((CTIMET_TO_LOCAL_TIME(ctimet)->tm_mon) + 1)
-#define CTIMET_MDAY(ctimet)          ((CTIMET_TO_LOCAL_TIME(ctimet)->tm_mday))
-#define CTIMET_HOUR(ctimet)          ((CTIMET_TO_LOCAL_TIME(ctimet)->tm_hour))
-#define CTIMET_MIN(ctimet)           ((CTIMET_TO_LOCAL_TIME(ctimet)->tm_min))
-#define CTIMET_SEC(ctimet)           ((CTIMET_TO_LOCAL_TIME(ctimet)->tm_sec))
 
 #define CTM_YEAR(ctm)          (((ctm)->tm_year) + 1900)
 #define CTM_MONTH(ctm)         (((ctm)->tm_mon) + 1)
@@ -540,10 +552,21 @@ extern long int lrint(double x);
 #define CTM_MIN(ctm)           (((ctm)->tm_min))
 #define CTM_SEC(ctm)           (((ctm)->tm_sec))
 
-#define BCOPY(src, des, len)    memcpy(des, src, len)
-#define BSET(pstr, ch, len)     memset(pstr, ch, len)
-#define BCMP(pstr1, pstr2, len) memcmp(pstr1, pstr2, len)
-#define STRCMP(pstr1, pstr2)    strcmp(pstr1, pstr2)
+#define CTMV_INIT(tmv)         do{(tmv)->tv_sec = 0; (tmv)->tv_usec = 0;}while(0)
+#define CTMV_CLEAN(tmv)        do{(tmv)->tv_sec = 0; (tmv)->tv_usec = 0;}while(0)
+#define CTMV_CLONE(src, des)   do{(des)->tv_sec = (src)->tv_sec; (des)->tv_usec = (src)->tv_usec;}while(0)
+
+#define CTMV_NSEC(tmv)         ((tmv)->tv_sec)
+#define CTMV_MSEC(tmv)         ((tmv)->tv_usec / 1000)
+
+#define BCOPY(src, des, len)           memcpy(des, src, len)
+#define BMOVE(src, des, len)           memmove(des, src, len)
+#define BSET(pstr, ch, len)            memset(pstr, ch, len)
+#define BCMP(pstr1, pstr2, len)        memcmp(pstr1, pstr2, len)
+#define STRCMP(pstr1, pstr2)           strcmp(pstr1, pstr2)
+#define STRCASECMP(pstr1, pstr2)       strcasecmp(pstr1, pstr2)
+#define STRNCMP(pstr1,pstr2, len)      strncmp(pstr1, pstr2, len)
+#define STRNCASECMP(pstr1,pstr2, len)  strncasecmp(pstr1, pstr2, len)
 
 #define DMIN(a, b)      ((a) <= (b) ? (a) : (b))
 #define DMAX(a, b)      ((a) <= (b) ? (b) : (a))
@@ -551,10 +574,28 @@ extern long int lrint(double x);
 /*feed src to des and take back des by src at last*/
 #define XCHG(type, des, src)  do{type __t__; (__t__) = (des); (des)=(src); (src)=(__t__);}while(0)
 
+/*note, sizeof trap here ....*/
+//#define CONST_STR_LEN(str)     ((str) ? (sizeof(str) - 1) : 0)
+#define CONST_STR_LEN(str)     ((str) ? strlen(str) : 0)
+
+#define CONST_STR_AND_LEN(str) (str), CONST_STR_LEN(str)
+
+#define CONST_UINT8_STR_AND_LEN(str) ((uint8_t *)(str)), CONST_STR_LEN((char *)str)
+
+#define CONST_UINT8_STR_AND_UINT32T_LEN(str) ((uint8_t *)(str)), (uint32_t)CONST_STR_LEN((char *)str)
+
+
+#define BASE_ENTRY(ptr, type, member) \
+    ((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
+
+
+#define ISSPACE(c) (( ' ' == (c) || '\n' == (c) || '\t' == (c) || '\f' == (c) || '\v' == (c) || '\r' == (c)))
+
 //#define DEBUG(x) x
 #define DEBUG(x) do{}while(0)
 
 #include "loc_macro.inc"
+#include "sec_macro.inc"
 
 #endif /*_TYPE_H*/
 

@@ -75,6 +75,12 @@ extern "C"{
 #include "csession.h"
 #include "cscore.h"
 
+#include "crfsbk.inc"
+#include "crfsconhash.h"
+#include "crfsdt.h"
+
+#include "cbuffer.h"
+
 
 //#define CMPI_DBG(x) sys_log x
 #define CMPI_DBG(x) do{}while(0)
@@ -82,7 +88,7 @@ extern "C"{
 #if 0
 #define PRINT_BUFF(info, buff, len) do{\
     UINT32 pos;\
-    sys_log(LOGSTDOUT, "%s: ", info);\
+    dbg_log(SEC_0035_CMPIE, 5)(LOGSTDOUT, "%s: ", info);\
     for(pos = 0; pos < len; pos ++)\
     {\
         sys_print(LOGSTDOUT, "%x,", ((UINT8 *)buff)[ pos ]);\
@@ -180,6 +186,35 @@ UINT32 cmpi_encode_uint32_ptr_size(const UINT32 comm, const UINT32 *num, UINT32 
 UINT32 cmpi_decode_uint32(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, UINT32 *num)
 {
     cmpi_unpack(in_buff, in_buff_max_len, position, (UINT8 *)num, 1, CMPI_ULONG, comm);
+    return (0);
+}
+
+UINT32 cmpi_encode_uint32_t(const UINT32 comm, const uint32_t num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+    cmpi_pack((UINT8 *)&num, 1, CMPI_U32, out_buff, out_buff_max_len, position,  comm);
+    return (0);
+}
+
+UINT32 cmpi_encode_uint32_t_ptr(const UINT32 comm, const uint32_t *num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+    cmpi_pack((UINT8 *)num, 1, CMPI_U32, out_buff, out_buff_max_len, position,  comm);
+    return (0);
+}
+
+UINT32 cmpi_encode_uint32_t_size(const UINT32 comm, const uint32_t num, UINT32 *size)
+{
+    cmpi_pack_size(1, CMPI_U32, size,  comm);
+    return (0);
+}
+UINT32 cmpi_encode_uint32_t_ptr_size(const UINT32 comm, const uint32_t *num, UINT32 *size)
+{
+    cmpi_pack_size(1, CMPI_U32, size,  comm);
+    return (0);
+}
+
+UINT32 cmpi_decode_uint32_t(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, uint32_t *num)
+{
+    cmpi_unpack(in_buff, in_buff_max_len, position, (UINT8 *)num, 1, CMPI_U32, comm);
     return (0);
 }
 
@@ -337,17 +372,17 @@ UINT32 cmpi_encode_bgn(const UINT32 comm, const BIGINT *bgn, UINT8 *out_buff, co
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == bgn )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_bgn: bgn is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_bgn: bgn is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_bgn: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_bgn: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_bgn: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_bgn: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 
@@ -370,17 +405,17 @@ UINT32 cmpi_decode_bgn(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_bgn: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_bgn: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_bgn: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_bgn: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == bgn )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_bgn: bgn is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_bgn: bgn is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -396,17 +431,17 @@ UINT32 cmpi_encode_ebgn(const UINT32 comm, const EBIGINT *ebgn, UINT8 *out_buff,
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ebgn: ebgn is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ebgn: ebgn is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ebgn: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ebgn: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ebgn: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ebgn: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 
@@ -448,17 +483,17 @@ UINT32 cmpi_decode_ebgn(const UINT32 comm, const UINT8 *in_buff, const UINT32 in
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ebgn: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ebgn: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ebgn: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ebgn: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ebgn: ebgn is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ebgn: ebgn is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -488,17 +523,17 @@ UINT32 cmpi_encode_ec_curve_point(const UINT32 comm, const EC_CURVE_POINT *ec_cu
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == ec_curve_point )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ec_curve_point: ec_curve_point is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ec_curve_point: ec_curve_point is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ec_curve_point: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ec_curve_point: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ec_curve_point: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ec_curve_point: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 
@@ -523,17 +558,17 @@ UINT32 cmpi_decode_ec_curve_point(const UINT32 comm, const UINT8 *in_buff, const
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ec_curve_point: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ec_curve_point: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ec_curve_point: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ec_curve_point: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == ec_curve_point )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ec_curve_point: ec_curve_point is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ec_curve_point: ec_curve_point is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -549,17 +584,17 @@ UINT32 cmpi_encode_ec_curve_aff_point(const UINT32 comm, const EC_CURVE_AFF_POIN
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == ec_curve_aff_point )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ec_curve_aff_point: ec_curve_aff_point is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ec_curve_aff_point: ec_curve_aff_point is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ec_curve_aff_point: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ec_curve_aff_point: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ec_curve_aff_point: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ec_curve_aff_point: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 
@@ -586,17 +621,17 @@ UINT32 cmpi_decode_ec_curve_aff_point(const UINT32 comm, const UINT8 *in_buff, c
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ec_curve_aff_point: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ec_curve_aff_point: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ec_curve_aff_point: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ec_curve_aff_point: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == ec_curve_aff_point )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ec_curve_aff_point: ec_curve_aff_point is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ec_curve_aff_point: ec_curve_aff_point is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -613,17 +648,17 @@ UINT32 cmpi_encode_ecf2n_curve(const UINT32 comm, const ECF2N_CURVE *ecf2n_curve
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == ecf2n_curve )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ecf2n_curve: ecf2n_curve is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ecf2n_curve: ecf2n_curve is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ecf2n_curve: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ecf2n_curve: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ecf2n_curve: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ecf2n_curve: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 
@@ -647,17 +682,17 @@ UINT32 cmpi_decode_ecf2n_curve(const UINT32 comm, const UINT8 *in_buff, const UI
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ecf2n_curve: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ecf2n_curve: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ecf2n_curve: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ecf2n_curve: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == ecf2n_curve )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ecf2n_curve: ecf2n_curve is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ecf2n_curve: ecf2n_curve is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -673,17 +708,17 @@ UINT32 cmpi_encode_ecfp_curve(const UINT32 comm, const ECFP_CURVE *ecfp_curve, U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == ecfp_curve )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ecfp_curve: ecfp_curve is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ecfp_curve: ecfp_curve is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ecfp_curve: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ecfp_curve: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ecfp_curve: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ecfp_curve: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 
@@ -708,17 +743,17 @@ UINT32 cmpi_decode_ecfp_curve(const UINT32 comm, const UINT8 *in_buff, const UIN
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ecfp_curve: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ecfp_curve: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ecfp_curve: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ecfp_curve: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == ecfp_curve )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ecfp_curve: ecfp_curve is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ecfp_curve: ecfp_curve is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -734,17 +769,17 @@ UINT32 cmpi_encode_ecc_keypair(const UINT32 comm, const ECC_KEYPAIR *ecc_keypair
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == ecc_keypair )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ecc_keypair: ecc_keypair is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ecc_keypair: ecc_keypair is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ecc_keypair: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ecc_keypair: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ecc_keypair: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ecc_keypair: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 
@@ -769,17 +804,17 @@ UINT32 cmpi_decode_ecc_keypair(const UINT32 comm, const UINT8 *in_buff, const UI
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ecc_keypair: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ecc_keypair: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ecc_keypair: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ecc_keypair: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == ecc_keypair )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ecc_keypair: ecc_keypair is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ecc_keypair: ecc_keypair is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -795,17 +830,17 @@ UINT32 cmpi_encode_ecc_signature(const UINT32 comm, const ECC_SIGNATURE *ecc_sig
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == ecc_signature )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ecc_signature: ecc_signature is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ecc_signature: ecc_signature is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ecc_signature: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ecc_signature: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ecc_signature: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ecc_signature: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 
@@ -829,17 +864,17 @@ UINT32 cmpi_decode_ecc_signature(const UINT32 comm, const UINT8 *in_buff, const 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ecc_signature: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ecc_signature: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ecc_signature: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ecc_signature: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == ecc_signature )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ecc_signature: ecc_signature is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ecc_signature: ecc_signature is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -892,17 +927,17 @@ UINT32 cmpi_encode_poly_item(const UINT32 comm, const POLY_ITEM *poly_item, UINT
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == poly_item )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_poly_item: poly_item is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_poly_item: poly_item is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_poly_item: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_poly_item: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_poly_item: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_poly_item: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -941,17 +976,17 @@ UINT32 cmpi_decode_poly_item(const UINT32 comm, const UINT8 *in_buff, const UINT
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_poly_item: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_poly_item: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_poly_item: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_poly_item: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == poly_item )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_poly_item: poly_item is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_poly_item: poly_item is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -980,17 +1015,17 @@ UINT32 cmpi_encode_poly(const UINT32 comm, const POLY *poly, UINT8 *out_buff, co
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_poly: poly is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_poly: poly is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_poly: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_poly: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_poly: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_poly: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1059,17 +1094,17 @@ UINT32 cmpi_decode_poly(const UINT32 comm, const UINT8 *in_buff, const UINT32 in
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_poly: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_poly: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_poly: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_poly: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_poly: poly is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_poly: poly is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1104,17 +1139,17 @@ UINT32 cmpi_encode_vectorr_block(const UINT32 comm, const VECTOR_BLOCK *vectorr_
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == vectorr_block )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_vectorr_block: vectorr_block is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_vectorr_block: vectorr_block is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_vectorr_block: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_vectorr_block: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_vectorr_block: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_vectorr_block: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1175,17 +1210,17 @@ UINT32 cmpi_decode_vectorr_block(const UINT32 comm, const UINT8 *in_buff, const 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_vectorr_block: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_vectorr_block: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_vectorr_block: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_vectorr_block: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == vectorr_block )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_vectorr_block: vectorr_block is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_vectorr_block: vectorr_block is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1211,17 +1246,17 @@ UINT32 cmpi_encode_vectorr(const UINT32 comm, const VECTOR *vectorr, UINT8 *out_
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == vectorr )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_vectorr: vectorr is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_vectorr: vectorr is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_vectorr: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_vectorr: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_vectorr: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_vectorr: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1262,17 +1297,17 @@ UINT32 cmpi_decode_vectorr(const UINT32 comm, const UINT8 *in_buff, const UINT32
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_vectorr: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_vectorr: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_vectorr: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_vectorr: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == vectorr )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_vectorr: vectorr is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_vectorr: vectorr is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1282,7 +1317,7 @@ UINT32 cmpi_decode_vectorr(const UINT32 comm, const UINT8 *in_buff, const UINT32
 
     if(0 != VECTOR_GET_NUM(vectorr))
     {
-        sys_log(LOGSTDERR, "fatal error:cmpi_decode_vectorr: vectorr %lx width is %ld, but it must be zero!\n", vectorr, VECTOR_GET_NUM(vectorr));
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDERR, "fatal error:cmpi_decode_vectorr: vectorr %lx width is %ld, but it must be zero!\n", vectorr, VECTOR_GET_NUM(vectorr));
         dbg_exit(MD_TBD, 0);
     }
 
@@ -1316,17 +1351,17 @@ UINT32 cmpi_encode_matrixr_block(const UINT32 comm, const MATRIX_BLOCK *matrixr_
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == matrixr_block )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_matrixr_block: matrixr_block is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_matrixr_block: matrixr_block is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_matrixr_block: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_matrixr_block: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_matrixr_block: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_matrixr_block: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1408,17 +1443,17 @@ UINT32 cmpi_decode_matrixr_block(const UINT32 comm, const UINT8 *in_buff, const 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_matrixr_block: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_matrixr_block: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_matrixr_block: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_matrixr_block: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == matrixr_block )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_matrixr_block: matrixr_block is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_matrixr_block: matrixr_block is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1453,7 +1488,7 @@ UINT32 cmpi_decode_matrixr_block(const UINT32 comm, const UINT8 *in_buff, const 
     }
 #if 0
     print_cmpi_in_buff("cmpi_decode_matrixr_block: \n", in_buff + save_position, *position - save_position);
-    sys_log(LOGSTDOUT, "cmpi_decode_matrixr_block: ==========================================================\n");
+    dbg_log(SEC_0035_CMPIE, 5)(LOGSTDOUT, "cmpi_decode_matrixr_block: ==========================================================\n");
     matrix_r_print_matrix_block_data_info(0, matrixr_block);
 #endif
     return (0);
@@ -1473,17 +1508,17 @@ UINT32 cmpi_encode_matrixr(const UINT32 comm, const MATRIX *matrixr, UINT8 *out_
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == matrixr )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_matrixr: matrixr is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_matrixr: matrixr is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_matrixr: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_matrixr: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_matrixr: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_matrixr: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1547,17 +1582,17 @@ UINT32 cmpi_decode_matrixr(const UINT32 comm, const UINT8 *in_buff, const UINT32
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_matrixr: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_matrixr: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_matrixr: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_matrixr: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == matrixr )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_matrixr: matrixr is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_matrixr: matrixr is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1569,7 +1604,7 @@ UINT32 cmpi_decode_matrixr(const UINT32 comm, const UINT8 *in_buff, const UINT32
     if(0 != MATRIX_GET_ROW_NUM(matrixr)
     || 0 != MATRIX_GET_COL_NUM(matrixr))
     {
-        sys_log(LOGSTDERR, "fatal error:cmpi_decode_matrixr: matrixr %lx is (%ld, %ld), but it must be (0, 0)!\n",
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDERR, "fatal error:cmpi_decode_matrixr: matrixr %lx is (%ld, %ld), but it must be (0, 0)!\n",
                          matrixr, MATRIX_GET_ROW_NUM(matrixr), MATRIX_GET_COL_NUM(matrixr));
         dbg_exit(MD_TBD, 0);
     }
@@ -1591,17 +1626,17 @@ UINT32 cmpi_encode_mod_node(const UINT32 comm, const MOD_NODE *mod_node, UINT8 *
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == mod_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_mod_node: mod_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_mod_node: mod_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_mod_node: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_mod_node: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_mod_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_mod_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1637,17 +1672,17 @@ UINT32 cmpi_decode_mod_node(const UINT32 comm, const UINT8 *in_buff, const UINT3
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_mod_node: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_mod_node: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_mod_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_mod_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == mod_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_mod_node: mod_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_mod_node: mod_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1674,17 +1709,17 @@ UINT32 cmpi_encode_mod_mgr(const UINT32 comm, const MOD_MGR *mod_mgr, UINT8 *out
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == mod_mgr )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_mod_mgr: mod_mgr is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_mod_mgr: mod_mgr is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_mod_mgr: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_mod_mgr: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_mod_mgr: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_mod_mgr: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1741,17 +1776,17 @@ UINT32 cmpi_decode_mod_mgr(const UINT32 comm, const UINT8 *in_buff, const UINT32
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_mod_mgr: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_mod_mgr: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_mod_mgr: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_mod_mgr: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == mod_mgr )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_mod_mgr: mod_mgr is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_mod_mgr: mod_mgr is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1773,7 +1808,7 @@ UINT32 cmpi_decode_mod_mgr(const UINT32 comm, const UINT8 *in_buff, const UINT32
     }
 #if 0
     print_cmpi_in_buff("cmpi_decode_mod_mgr: \n", in_buff + save_position, *position - save_position);
-    sys_log(LOGSTDOUT, "cmpi_decode_mod_mgr: ==========================================================\n");
+    dbg_log(SEC_0035_CMPIE, 5)(LOGSTDOUT, "cmpi_decode_mod_mgr: ==========================================================\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
 #endif
     return (0);
@@ -1785,18 +1820,18 @@ UINT32 cmpi_encode_cstring(const UINT32 comm, const CSTRING *cstring, UINT8 *out
 /*
     if ( NULL_PTR == cstring )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cstring: cstring is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cstring: cstring is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 */    
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cstring: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cstring: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cstring: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cstring: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1807,8 +1842,8 @@ UINT32 cmpi_encode_cstring(const UINT32 comm, const CSTRING *cstring, UINT8 *out
         return (0);
     }
 
-    //sys_log(LOGSTDOUT, "cmpi_encode_cstring: cstring: %lx, %s\n", cstring, (char *)cstring_get_str(cstring));
-    //sys_log(LOGSTDOUT, "cmpi_encode_cstring: cstring %lx, out_buff_max_len %ld, beg position %ld\n", cstring, out_buff_max_len, *position);
+    //dbg_log(SEC_0035_CMPIE, 5)(LOGSTDOUT, "cmpi_encode_cstring: cstring: %lx, %s\n", cstring, (char *)cstring_get_str(cstring));
+    //dbg_log(SEC_0035_CMPIE, 5)(LOGSTDOUT, "cmpi_encode_cstring: cstring %lx, out_buff_max_len %ld, beg position %ld\n", cstring, out_buff_max_len, *position);
 
     cmpi_pack((UINT8 *)&(cstring->len), 1, CMPI_ULONG, out_buff, out_buff_max_len, position,  comm);
     cmpi_pack(cstring->str, cstring->len, CMPI_UCHAR, out_buff, out_buff_max_len, position,  comm);
@@ -1832,22 +1867,22 @@ UINT32 cmpi_decode_cstring(const UINT32 comm, const UINT8 *in_buff, const UINT32
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cstring: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cstring: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cstring: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cstring: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cstring )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cstring: cstring is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cstring: cstring is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
 
-    //sys_log(LOGSTDOUT, "cmpi_decode_cstring: in_buff_max_len %ld, position %ld, cstring: %lx, %s\n", in_buff_max_len, *position, cstring, (char *)cstring_get_str(cstring));
+    //dbg_log(SEC_0035_CMPIE, 5)(LOGSTDOUT, "cmpi_decode_cstring: in_buff_max_len %ld, position %ld, cstring: %lx, %s\n", in_buff_max_len, *position, cstring, (char *)cstring_get_str(cstring));
 
     cmpi_unpack(in_buff, in_buff_max_len, position, (UINT8 *)&len, 1,   CMPI_ULONG, comm);
 
@@ -1858,7 +1893,7 @@ UINT32 cmpi_decode_cstring(const UINT32 comm, const UINT8 *in_buff, const UINT32
 
     if(EC_FALSE == cstring_expand_to(cstring, len + cstring->len + 1))
     {
-        sys_log(LOGSTDOUT, "error:cmpi_decode_cstring: failed to expand cstring with capaciy %ld and len %ld to size %ld\n",
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cstring: failed to expand cstring with capaciy %ld and len %ld to size %ld\n",
                         cstring->capacity, cstring->len, len + cstring->len + 1);
         return ((UINT32)(-1));
     }
@@ -1867,7 +1902,7 @@ UINT32 cmpi_decode_cstring(const UINT32 comm, const UINT8 *in_buff, const UINT32
     cstring->len += len;
     cstring->str[ cstring->len ] = '\0';
 
-    //sys_log(LOGSTDOUT, "cmpi_decode_cstring: cstring: %lx, %s\n", cstring, (char *)cstring_get_str(cstring));
+    //dbg_log(SEC_0035_CMPIE, 5)(LOGSTDOUT, "cmpi_decode_cstring: cstring: %lx, %s\n", cstring, (char *)cstring_get_str(cstring));
 
     return (0);
 }
@@ -1877,17 +1912,17 @@ UINT32 cmpi_encode_taskc_node(const UINT32 comm, const TASKC_NODE *taskc_node, U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == taskc_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_taskc_node: taskc_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_taskc_node: taskc_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_taskc_node: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_taskc_node: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_taskc_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_taskc_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1913,17 +1948,17 @@ UINT32 cmpi_decode_taskc_node(const UINT32 comm, const UINT8 *in_buff, const UIN
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_taskc_node: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_taskc_node: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_taskc_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_taskc_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == taskc_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_taskc_node: taskc_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_taskc_node: taskc_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1946,17 +1981,17 @@ UINT32 cmpi_encode_taskc_mgr(const UINT32 comm, const TASKC_MGR *taskc_mgr, UINT
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == taskc_mgr )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_taskc_mgr: taskc_mgr is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_taskc_mgr: taskc_mgr is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_taskc_mgr: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_taskc_mgr: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_taskc_mgr: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_taskc_mgr: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -1978,7 +2013,7 @@ UINT32 cmpi_encode_taskc_mgr(const UINT32 comm, const TASKC_MGR *taskc_mgr, UINT
     /*validity checking*/
     if(taskc_node_idx != taskc_node_num)
     {
-        sys_log(LOGSTDOUT, "error:cmpi_encode_taskc_mgr: encoded taskc node num = %ld, but clist size = %ld\n", taskc_node_idx, taskc_node_num);
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_encode_taskc_mgr: encoded taskc node num = %ld, but clist size = %ld\n", taskc_node_idx, taskc_node_num);
         dbg_exit(MD_TBD, 0);
     }
 
@@ -2010,7 +2045,7 @@ UINT32 cmpi_encode_taskc_mgr_size(const UINT32 comm, const TASKC_MGR *taskc_mgr,
     /*validity checking*/
     if(taskc_node_idx != taskc_node_num)
     {
-        sys_log(LOGSTDOUT, "error:cmpi_encode_taskc_mgr_size: encoded taskc node num = %ld, but clist size = %ld\n", taskc_node_idx, taskc_node_num);
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_encode_taskc_mgr_size: encoded taskc node num = %ld, but clist size = %ld\n", taskc_node_idx, taskc_node_num);
         dbg_exit(MD_TBD, 0);
     }
 
@@ -2028,17 +2063,17 @@ UINT32 cmpi_decode_taskc_mgr(const UINT32 comm, const UINT8 *in_buff, const UINT
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_taskc_mgr: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_taskc_mgr: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_taskc_mgr: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_taskc_mgr: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == taskc_mgr )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_taskc_mgr: taskc_mgr is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_taskc_mgr: taskc_mgr is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2047,7 +2082,7 @@ UINT32 cmpi_decode_taskc_mgr(const UINT32 comm, const UINT8 *in_buff, const UINT
 
     cmpi_decode_uint32(comm, in_buff, in_buff_max_len, position, &(taskc_node_num));
 
-    //sys_log(LOGSTDOUT, "cmpi_decode_taskc_mgr: before decode, taskc_node_list is:\n");
+    //dbg_log(SEC_0035_CMPIE, 5)(LOGSTDOUT, "cmpi_decode_taskc_mgr: before decode, taskc_node_list is:\n");
     //clist_print(LOGSTDOUT, taskc_node_list, (CLIST_DATA_DATA_PRINT)tst_taskc_node_print);
 
     for(taskc_node_idx = 0; taskc_node_idx < taskc_node_num; taskc_node_idx ++)
@@ -2055,15 +2090,15 @@ UINT32 cmpi_decode_taskc_mgr(const UINT32 comm, const UINT8 *in_buff, const UINT
         taskc_node_new(&taskc_node);
         if(NULL_PTR == taskc_node)
         {
-            sys_log(LOGSTDOUT, "error:cmpi_decode_taskc_mgr: failed to alloc TASKC_NODE when idx = %ld\n", taskc_node_idx);
+            dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_taskc_mgr: failed to alloc TASKC_NODE when idx = %ld\n", taskc_node_idx);
             return ((UINT32)(-1));
         }
         cmpi_decode_taskc_node(comm, in_buff, in_buff_max_len, position, taskc_node);
 
         clist_push_back(taskc_node_list, (void *)taskc_node);
-        //sys_log(LOGSTDOUT, "cmpi_decode_taskc_mgr: new taskc_node %lx\n", taskc_node);
+        //dbg_log(SEC_0035_CMPIE, 5)(LOGSTDOUT, "cmpi_decode_taskc_mgr: new taskc_node %lx\n", taskc_node);
 
-        //sys_log(LOGSTDOUT, "cmpi_decode_taskc_mgr: after decode # %ld, taskc_node_list is:\n", taskc_node_idx);
+        //dbg_log(SEC_0035_CMPIE, 5)(LOGSTDOUT, "cmpi_decode_taskc_mgr: after decode # %ld, taskc_node_list is:\n", taskc_node_idx);
         //clist_print(LOGSTDOUT, taskc_node_list, (CLIST_DATA_DATA_PRINT)tst_taskc_node_print);
     }
 
@@ -2075,17 +2110,17 @@ UINT32 cmpi_encode_vmm_node(const UINT32 comm, const VMM_NODE *vmm_node, UINT8 *
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == vmm_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_vmm_node: vmm_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_vmm_node: vmm_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_vmm_node: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_vmm_node: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_vmm_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_vmm_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2117,17 +2152,17 @@ UINT32 cmpi_decode_vmm_node(const UINT32 comm, const UINT8 *in_buff, const UINT3
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_vmm_node: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_vmm_node: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_vmm_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_vmm_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == vmm_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_vmm_node: vmm_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_vmm_node: vmm_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2147,17 +2182,17 @@ UINT32 cmpi_encode_log(const UINT32 comm, const LOG *log, UINT8 *out_buff, const
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == log )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_log: log is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_log: log is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_log: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_log: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_log: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_log: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2218,17 +2253,17 @@ UINT32 cmpi_decode_log(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_log: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_log: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_log: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_log: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == log )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_log: log is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_log: log is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2294,17 +2329,17 @@ UINT32 cmpi_encode_kbuff(const UINT32 comm, const KBUFF *kbuff, UINT8 *out_buff,
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == kbuff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_kbuff: kbuff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_kbuff: kbuff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_kbuff: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_kbuff: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_kbuff: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_kbuff: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2359,17 +2394,17 @@ UINT32 cmpi_decode_kbuff(const UINT32 comm, const UINT8 *in_buff, const UINT32 i
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_kbuff: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_kbuff: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_kbuff: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_kbuff: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == kbuff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_kbuff: kbuff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_kbuff: kbuff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2384,7 +2419,7 @@ UINT32 cmpi_decode_kbuff(const UINT32 comm, const UINT8 *in_buff, const UINT32 i
     if(NULL_PTR == KBUFF_CACHE(kbuff))
     {
 #if 0
-        sys_log(LOGSTDOUT, "error:cmpi_decode_kbuff: to decode len %ld but kbuff %lx cache is null\n",
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_kbuff: to decode len %ld but kbuff %lx cache is null\n",
                            len, kbuff);
         return ((UINT32)-1);
 #endif
@@ -2394,7 +2429,7 @@ UINT32 cmpi_decode_kbuff(const UINT32 comm, const UINT8 *in_buff, const UINT32 i
     if(len + KBUFF_CUR_LEN(kbuff) > KBUFF_MAX_LEN(kbuff))
     {
 #if 1
-       sys_log(LOGSTDOUT, "error:cmpi_decode_kbuff: len %ld overflow kbuff %lx with cur len %ld and max len %ld\n",
+       dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_kbuff: len %ld overflow kbuff %lx with cur len %ld and max len %ld\n",
                            len, kbuff, KBUFF_CUR_LEN(kbuff), KBUFF_MAX_LEN(kbuff));
        return ((UINT32)-1);
 #endif
@@ -2408,7 +2443,7 @@ UINT32 cmpi_decode_kbuff(const UINT32 comm, const UINT8 *in_buff, const UINT32 i
 
     KBUFF_CUR_LEN(kbuff) += len;
 
-    //sys_log(LOGSTDOUT, "info:cmpi_decode_kbuff: encoded len = %ld and kbuff %lx, cur_len = %ld, max_len = %ld\n", len, kbuff, KBUFF_CUR_LEN(kbuff), KBUFF_MAX_LEN(kbuff));
+    //dbg_log(SEC_0035_CMPIE, 3)(LOGSTDOUT, "info:cmpi_decode_kbuff: encoded len = %ld and kbuff %lx, cur_len = %ld, max_len = %ld\n", len, kbuff, KBUFF_CUR_LEN(kbuff), KBUFF_MAX_LEN(kbuff));
 
     return (0);
 }
@@ -2422,17 +2457,17 @@ UINT32 cmpi_encode_cfile_seg(const UINT32 comm, const CFILE_SEG *cfile_seg, UINT
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cfile_seg )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfile_seg: cfile_seg is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfile_seg: cfile_seg is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfile_seg: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfile_seg: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfile_seg: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfile_seg: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2491,17 +2526,17 @@ UINT32 cmpi_decode_cfile_seg(const UINT32 comm, const UINT8 *in_buff, const UINT
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfile_seg: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfile_seg: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfile_seg: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfile_seg: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cfile_seg )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfile_seg: cfile_seg is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfile_seg: cfile_seg is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2538,17 +2573,17 @@ UINT32 cmpi_encode_cfile_seg_vec(const UINT32 comm, const CFILE_SEG_VEC *cfile_s
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cfile_seg_vec )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfile_seg_vec: cfile_seg_vec is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfile_seg_vec: cfile_seg_vec is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfile_seg_vec: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfile_seg_vec: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfile_seg_vec: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfile_seg_vec: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2597,17 +2632,17 @@ UINT32 cmpi_decode_cfile_seg_vec(const UINT32 comm, const UINT8 *in_buff, const 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfile_seg_vec: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfile_seg_vec: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfile_seg_vec: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfile_seg_vec: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cfile_seg_vec )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfile_seg_vec: cfile_seg_vec is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfile_seg_vec: cfile_seg_vec is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2619,7 +2654,7 @@ UINT32 cmpi_decode_cfile_seg_vec(const UINT32 comm, const UINT8 *in_buff, const 
         if(0 != cvector_size(CFILE_SEG_VEC(cfile_seg_vec)))
         {
             /*sorry: if seg num in vec is not zero or not matched, we have no idea regarding free segs. that is the problem.*/
-            sys_log(LOGSTDOUT, "error:cmpi_decode_cfile_seg_vec: mismatched or invalid seg num %ld in vec against to decoded num %ld\n",
+            dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cfile_seg_vec: mismatched or invalid seg num %ld in vec against to decoded num %ld\n",
                                cvector_size(CFILE_SEG_VEC(cfile_seg_vec)), cfile_seg_num);
             return ((UINT32)-1);
         }
@@ -2654,17 +2689,17 @@ UINT32 cmpi_encode_cfile_node(const UINT32 comm, const CFILE_NODE *cfile_node, U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cfile_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfile_node: cfile_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfile_node: cfile_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfile_node: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfile_node: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfile_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfile_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2720,17 +2755,17 @@ UINT32 cmpi_decode_cfile_node(const UINT32 comm, const UINT8 *in_buff, const UIN
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfile_node: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfile_node: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfile_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfile_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cfile_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfile_node: cfile_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfile_node: cfile_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2760,17 +2795,17 @@ UINT32 cmpi_encode_cdir_seg(const UINT32 comm, const CDIR_SEG *cdir_seg, UINT8 *
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cdir_seg )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdir_seg: cdir_seg is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdir_seg: cdir_seg is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdir_seg: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdir_seg: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdir_seg: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdir_seg: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2794,17 +2829,17 @@ UINT32 cmpi_decode_cdir_seg(const UINT32 comm, const UINT8 *in_buff, const UINT3
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdir_seg: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdir_seg: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdir_seg: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdir_seg: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cdir_seg )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdir_seg: cdir_seg is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdir_seg: cdir_seg is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2826,17 +2861,17 @@ UINT32 cmpi_encode_cdir_node(const UINT32 comm, const CDIR_NODE *cdir_node, UINT
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cdir_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdir_node: cdir_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdir_node: cdir_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdir_node: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdir_node: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdir_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdir_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2887,17 +2922,17 @@ UINT32 cmpi_decode_cdir_node(const UINT32 comm, const UINT8 *in_buff, const UINT
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdir_node: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdir_node: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdir_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdir_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cdir_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdir_node: cdir_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdir_node: cdir_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2914,7 +2949,7 @@ UINT32 cmpi_decode_cdir_node(const UINT32 comm, const UINT8 *in_buff, const UINT
         if(0 != cvector_size(CDIR_NODE_SEGS(cdir_node)))
         {
             /*sorry: if seg num in vec is not zero or not matched, we have no idea regarding free segs. that is the problem.*/
-            sys_log(LOGSTDOUT, "error:cmpi_decode_cdir_node: mismatched or invalid seg num %ld in vec against to decoded num %ld\n",
+            dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cdir_node: mismatched or invalid seg num %ld in vec against to decoded num %ld\n",
                                cvector_size(CDIR_NODE_SEGS(cdir_node)), cdir_seg_num);
             return ((UINT32)-1);
         }
@@ -2951,17 +2986,17 @@ UINT32 cmpi_encode_cvector(const UINT32 comm, const CVECTOR *cvector, UINT8 *out
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cvector )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cvector: cvector is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cvector: cvector is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cvector: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cvector: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cvector: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cvector: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -2983,7 +3018,7 @@ UINT32 cmpi_encode_cvector(const UINT32 comm, const CVECTOR *cvector, UINT8 *out
     data_encoder = (CVECTOR_DATA_ENCODER)cvector_codec_get(cvector, CVECTOR_CODEC_ENCODER);
     if(NULL_PTR == data_encoder)
     {
-        sys_log(LOGSTDOUT, "error:cmpi_encode_cvector: cvector data encoder is null\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_encode_cvector: cvector data encoder is null\n");
         return ((UINT32)-1);
     }
 #if 0
@@ -3040,7 +3075,7 @@ UINT32 cmpi_encode_cvector_size(const UINT32 comm, const CVECTOR *cvector, UINT3
 
     if(MM_END == type)
     {
-        sys_log(LOGSTDOUT, "error:cmpi_encode_cvector_size: cvector %lx: invalid type = %ld, num = %ld\n", cvector, type, num);
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_encode_cvector_size: cvector %lx: invalid type = %ld, num = %ld\n", cvector, type, num);
     }
 
     cmpi_encode_uint32_size(comm, type, size);
@@ -3054,12 +3089,12 @@ UINT32 cmpi_encode_cvector_size(const UINT32 comm, const CVECTOR *cvector, UINT3
     data_encoder_size = (CVECTOR_DATA_ENCODER_SIZE)cvector_codec_get(cvector, CVECTOR_CODEC_ENCODER_SIZE);
     if(NULL_PTR == data_encoder_size)
     {
-        sys_log(LOGSTDOUT, "error:cmpi_encode_cvector_size: cvector %lx: type = %ld, num = %ld, data encoder_size is null\n",
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_encode_cvector_size: cvector %lx: type = %ld, num = %ld, data encoder_size is null\n",
                             cvector, type, num);
         return ((UINT32)-1);
     }
 
-     //sys_log(LOGCONSOLE, "[DEBUG] cmpi_encode_cvector_size: cvector %lx, mm type %ld\n", cvector, cvector->data_mm_type);
+     //dbg_log(SEC_0035_CMPIE, 0)(LOGCONSOLE, "[DEBUG] cmpi_encode_cvector_size: cvector %lx, mm type %ld\n", cvector, cvector->data_mm_type);
 
     if(MM_UINT32 == type)
     {
@@ -3097,17 +3132,17 @@ UINT32 cmpi_decode_cvector(const UINT32 comm, const UINT8 *in_buff, const UINT32
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cvector: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cvector: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cvector: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cvector: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cvector )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cvector: cvector is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cvector: cvector is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3115,14 +3150,14 @@ UINT32 cmpi_decode_cvector(const UINT32 comm, const UINT8 *in_buff, const UINT32
     cmpi_decode_uint32(comm, in_buff, in_buff_max_len, position, &(type));
     cmpi_decode_uint32(comm, in_buff, in_buff_max_len, position, &(num));
 
-    sys_log(LOGSTDNULL, "info:cmpi_decode_cvector: enter: cvector %lx, type = %ld, num = %ld, size = %ld\n", cvector, type, num, cvector->size);
+    dbg_log(SEC_0035_CMPIE, 3)(LOGSTDNULL, "info:cmpi_decode_cvector: enter: cvector %lx, type = %ld, num = %ld, size = %ld\n", cvector, type, num, cvector->size);
 
     if(type != cvector->data_mm_type)
     {
-        sys_log(LOGSTDNULL, "info:cmpi_decode_cvector: cvector %lx, data type %ld ==> %ld\n", cvector, cvector->data_mm_type, type);
+        dbg_log(SEC_0035_CMPIE, 3)(LOGSTDNULL, "info:cmpi_decode_cvector: cvector %lx, data type %ld ==> %ld\n", cvector, cvector->data_mm_type, type);
         cvector_codec_set(cvector, type);
     }
-    sys_log(LOGSTDNULL, "info:cmpi_decode_cvector: [0] cvector %lx, data type %ld \n", cvector, cvector->data_mm_type);
+    dbg_log(SEC_0035_CMPIE, 3)(LOGSTDNULL, "info:cmpi_decode_cvector: [0] cvector %lx, data type %ld \n", cvector, cvector->data_mm_type);
 
     if(0 == num)
     {
@@ -3155,7 +3190,7 @@ UINT32 cmpi_decode_cvector(const UINT32 comm, const UINT8 *in_buff, const UINT32
     data_decoder = (CVECTOR_DATA_DECODER)cvector_codec_get(cvector, CVECTOR_CODEC_DECODER);
     if(NULL_PTR == data_decoder)
     {
-        sys_log(LOGSTDOUT, "error:cmpi_decode_cvector: cvector %lx data decoder is null\n", cvector);
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cvector: cvector %lx data decoder is null\n", cvector);
         return ((UINT32)-1);
     }
 
@@ -3173,7 +3208,7 @@ UINT32 cmpi_decode_cvector(const UINT32 comm, const UINT8 *in_buff, const UINT32
             if(NULL_PTR == data)
             {
                 data = (void *)cvector_get_addr(cvector, pos);
-                //sys_log(LOGSTDOUT, "info:cmpi_decode_cvector: [2] cvector %lx, size %ld, capacity %ld\n", cvector, cvector->size, cvector->capacity);
+                //dbg_log(SEC_0035_CMPIE, 3)(LOGSTDOUT, "info:cmpi_decode_cvector: [2] cvector %lx, size %ld, capacity %ld\n", cvector, cvector->size, cvector->capacity);
             }
             data_decoder(comm, in_buff, in_buff_max_len, position, data);
         }
@@ -3186,7 +3221,7 @@ UINT32 cmpi_decode_cvector(const UINT32 comm, const UINT8 *in_buff, const UINT32
             data = (void *)cvector_get_addr(cvector, pos);
             if(NULL_PTR == data)
             {
-                sys_log(LOGSTDOUT, "error:cmpi_decode_cvector: cvector %lx, size %ld, capacity %ld, pos = %ld is null\n",
+                dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cvector: cvector %lx, size %ld, capacity %ld, pos = %ld is null\n",
                                     cvector, cvector->size, cvector->capacity, pos);
                 return ((UINT32)-1);
             }
@@ -3202,7 +3237,7 @@ UINT32 cmpi_decode_cvector(const UINT32 comm, const UINT8 *in_buff, const UINT32
         data_init = (CVECTOR_DATA_INIT)cvector_codec_get(cvector, CVECTOR_CODEC_INIT);/*data_init may be null pointer*/
         if(NULL_PTR == data_init)
         {
-            sys_log(LOGSTDOUT, "error:cmpi_decode_cvector: cvector %lx data init is null\n", cvector);
+            dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cvector: cvector %lx data init is null\n", cvector);
             return ((UINT32)-1);
         }
 
@@ -3218,7 +3253,7 @@ UINT32 cmpi_decode_cvector(const UINT32 comm, const UINT8 *in_buff, const UINT32
                 alloc_static_mem(MD_TBD, 0, type, &data, LOC_CMPIE_0015);
                 data_init(CMPI_ANY_MODI, data);
                 cvector_set(cvector, pos, (void *)data);/*add new one*/
-                //sys_log(LOGSTDOUT, "info:cmpi_decode_cvector: [3] cvector %lx, size %ld, capacity %ld\n", cvector, cvector->size, cvector->capacity);
+                //dbg_log(SEC_0035_CMPIE, 3)(LOGSTDOUT, "info:cmpi_decode_cvector: [3] cvector %lx, size %ld, capacity %ld\n", cvector, cvector->size, cvector->capacity);
             }
             data_decoder(comm, in_buff, in_buff_max_len, position, data);
         }
@@ -3231,7 +3266,7 @@ UINT32 cmpi_decode_cvector(const UINT32 comm, const UINT8 *in_buff, const UINT32
             alloc_static_mem(MD_TBD, 0, type, &data, LOC_CMPIE_0016);
             if(NULL_PTR == data)
             {
-                sys_log(LOGSTDOUT, "error:cmpi_decode_cvector: [3] cvector %lx, size %ld, capacity %ld, pos = %ld failed to alloc\n",
+                dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cvector: [3] cvector %lx, size %ld, capacity %ld, pos = %ld failed to alloc\n",
                                     cvector, cvector->size, cvector->capacity, pos);
             }
             data_init(CMPI_ANY_MODI, data);
@@ -3250,17 +3285,17 @@ UINT32 cmpi_encode_csocket_cnode(const UINT32 comm, const CSOCKET_CNODE *csocket
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == csocket_cnode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csocket_cnode: csocket_cnode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csocket_cnode: csocket_cnode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csocket_cnode: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csocket_cnode: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csocket_cnode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csocket_cnode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3300,17 +3335,17 @@ UINT32 cmpi_decode_csocket_cnode(const UINT32 comm, const UINT8 *in_buff, const 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csocket_cnode: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csocket_cnode: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csocket_cnode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csocket_cnode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == csocket_cnode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csocket_cnode: csocket_cnode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csocket_cnode: csocket_cnode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3332,17 +3367,17 @@ UINT32 cmpi_encode_cmon_obj(const UINT32 comm, const CMON_OBJ *cmon_obj, UINT8 *
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cmon_obj )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cmon_obj: cmon_obj is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cmon_obj: cmon_obj is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cmon_obj: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cmon_obj: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cmon_obj: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cmon_obj: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3360,7 +3395,7 @@ UINT32 cmpi_encode_cmon_obj(const UINT32 comm, const CMON_OBJ *cmon_obj, UINT8 *
             break;
 
         case MM_CVECTOR:
-            //sys_log(LOGSTDOUT, "info:cmpi_encode_cmon_obj: beg to encode cvector %lx, type = %ld, item type = %ld\n", CMON_OBJ_MEAS_DATA_VEC(cmon_obj), cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)), CMON_OBJ_ITEM_TYPE(cmon_obj));
+            //dbg_log(SEC_0035_CMPIE, 3)(LOGSTDOUT, "info:cmpi_encode_cmon_obj: beg to encode cvector %lx, type = %ld, item type = %ld\n", CMON_OBJ_MEAS_DATA_VEC(cmon_obj), cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)), CMON_OBJ_ITEM_TYPE(cmon_obj));
             cmpi_encode_cvector(comm, CMON_OBJ_MEAS_DATA_VEC(cmon_obj), out_buff, out_buff_max_len, position);
             break;
 
@@ -3369,7 +3404,7 @@ UINT32 cmpi_encode_cmon_obj(const UINT32 comm, const CMON_OBJ *cmon_obj, UINT8 *
             break;
 
         default:
-            sys_log(LOGSTDOUT, "error:cmpi_encode_cmon_obj: unknow data type %ld\n", CMON_OBJ_DATA_TYPE(cmon_obj));
+            dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_encode_cmon_obj: unknow data type %ld\n", CMON_OBJ_DATA_TYPE(cmon_obj));
             return ((UINT32)-1);
     }
 
@@ -3394,12 +3429,12 @@ UINT32 cmpi_encode_cmon_obj_size(const UINT32 comm, const CMON_OBJ *cmon_obj, UI
             //cvector_codec_set(CMON_OBJ_MEAS_DATA_VEC(cmon_obj), CMON_OBJ_ITEM_TYPE(cmon_obj));
             if(cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)) != CMON_OBJ_ITEM_TYPE(cmon_obj))
             {
-                sys_log(LOGSTDOUT, "error:cmpi_encode_cmon_obj_size: before encode size, cvector %lx, type %ld but item type %ld\n",
+                dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_encode_cmon_obj_size: before encode size, cvector %lx, type %ld but item type %ld\n",
                                     CMON_OBJ_MEAS_DATA_VEC(cmon_obj),
                                     cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)),
                                     CMON_OBJ_ITEM_TYPE(cmon_obj));
             }
-            //sys_log(LOGSTDOUT, "info:cmpi_encode_cmon_obj_size: beg to encode_size cvector %lx, type = %ld, item type = %ld\n", CMON_OBJ_MEAS_DATA_VEC(cmon_obj), cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)), CMON_OBJ_ITEM_TYPE(cmon_obj));
+            //dbg_log(SEC_0035_CMPIE, 3)(LOGSTDOUT, "info:cmpi_encode_cmon_obj_size: beg to encode_size cvector %lx, type = %ld, item type = %ld\n", CMON_OBJ_MEAS_DATA_VEC(cmon_obj), cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)), CMON_OBJ_ITEM_TYPE(cmon_obj));
             cmpi_encode_cvector_size(comm, CMON_OBJ_MEAS_DATA_VEC(cmon_obj), size);
             break;
 
@@ -3408,7 +3443,7 @@ UINT32 cmpi_encode_cmon_obj_size(const UINT32 comm, const CMON_OBJ *cmon_obj, UI
             break;
 
         default:
-            sys_log(LOGSTDOUT, "error:cmpi_encode_cmon_obj_size: unknow data type %ld\n", CMON_OBJ_DATA_TYPE(cmon_obj));
+            dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_encode_cmon_obj_size: unknow data type %ld\n", CMON_OBJ_DATA_TYPE(cmon_obj));
             return ((UINT32)-1);
     }
 
@@ -3423,17 +3458,17 @@ UINT32 cmpi_decode_cmon_obj(const UINT32 comm, const UINT8 *in_buff, const UINT3
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cmon_obj: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cmon_obj: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cmon_obj: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cmon_obj: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cmon_obj )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cmon_obj: cmon_obj is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cmon_obj: cmon_obj is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3450,7 +3485,7 @@ UINT32 cmpi_decode_cmon_obj(const UINT32 comm, const UINT8 *in_buff, const UINT3
 
     if(CMON_OBJ_OID(cmon_obj) != cmon_oid)
     {
-        sys_log(LOGSTDOUT, "error:cmpi_decode_cmon_obj: cmon_oid %ld mismatched with cmon_obj_oid %ld\n", cmon_oid, CMON_OBJ_OID(cmon_obj));
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cmon_obj: cmon_oid %ld mismatched with cmon_obj_oid %ld\n", cmon_oid, CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
 
@@ -3466,18 +3501,18 @@ UINT32 cmpi_decode_cmon_obj(const UINT32 comm, const UINT8 *in_buff, const UINT3
 
         case MM_CVECTOR:
             //xxxx receiver should initialize cvector,fuck!
-            //sys_log(LOGSTDOUT, "info:cmpi_decode_cmon_obj: beg to decode cvector %lx, type = %ld, item type = %ld\n", CMON_OBJ_MEAS_DATA_VEC(cmon_obj), cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)), CMON_OBJ_ITEM_TYPE(cmon_obj));
+            //dbg_log(SEC_0035_CMPIE, 3)(LOGSTDOUT, "info:cmpi_decode_cmon_obj: beg to decode cvector %lx, type = %ld, item type = %ld\n", CMON_OBJ_MEAS_DATA_VEC(cmon_obj), cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)), CMON_OBJ_ITEM_TYPE(cmon_obj));
 #if 0
             if(cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)) != CMON_OBJ_ITEM_TYPE(cmon_obj))
             {
-                sys_log(LOGSTDOUT, "cmpi_decode_cmon_obj: cvector type %ld ===> %ld\n", cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)), CMON_OBJ_ITEM_TYPE(cmon_obj));
+                dbg_log(SEC_0035_CMPIE, 5)(LOGSTDOUT, "cmpi_decode_cmon_obj: cvector type %ld ===> %ld\n", cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)), CMON_OBJ_ITEM_TYPE(cmon_obj));
                 cvector_codec_set(CMON_OBJ_MEAS_DATA_VEC(cmon_obj), CMON_OBJ_ITEM_TYPE(cmon_obj));/*this line is must when receiver is decoding!*/
             }
 #endif
             cmpi_decode_cvector(comm, in_buff, in_buff_max_len, position, CMON_OBJ_MEAS_DATA_VEC(cmon_obj));
             if(cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)) != CMON_OBJ_ITEM_TYPE(cmon_obj))
             {
-                sys_log(LOGSTDOUT, "error:cmpi_decode_cmon_obj: afeter decode, cvector %lx, type %ld but item type %ld\n",
+                dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cmon_obj: afeter decode, cvector %lx, type %ld but item type %ld\n",
                                     CMON_OBJ_MEAS_DATA_VEC(cmon_obj),
                                     cvector_type(CMON_OBJ_MEAS_DATA_VEC(cmon_obj)),
                                     CMON_OBJ_ITEM_TYPE(cmon_obj));
@@ -3490,7 +3525,7 @@ UINT32 cmpi_decode_cmon_obj(const UINT32 comm, const UINT8 *in_buff, const UINT3
             break;
 
         default:
-            sys_log(LOGSTDOUT, "error:cmpi_decode_cmon_obj: unknow data type %ld\n", CMON_MAP_DATA_TYPE(cmon_map));
+            dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cmon_obj: unknow data type %ld\n", CMON_MAP_DATA_TYPE(cmon_map));
             return ((UINT32)-1);
     }
 
@@ -3502,17 +3537,17 @@ UINT32 cmpi_encode_cmon_obj_vec(const UINT32 comm, const CMON_OBJ_VEC *cmon_obj_
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cmon_obj_vec )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cmon_obj_vec: cmon_obj_vec is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cmon_obj_vec: cmon_obj_vec is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cmon_obj_vec: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cmon_obj_vec: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cmon_obj_vec: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cmon_obj_vec: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3535,17 +3570,17 @@ UINT32 cmpi_decode_cmon_obj_vec(const UINT32 comm, const UINT8 *in_buff, const U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cmon_obj_vec: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cmon_obj_vec: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cmon_obj_vec: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cmon_obj_vec: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cmon_obj_vec )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cmon_obj_vec: cmon_obj_vec is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cmon_obj_vec: cmon_obj_vec is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3561,17 +3596,17 @@ UINT32 cmpi_encode_csys_cpu_stat(const UINT32 comm, const CSYS_CPU_STAT *csys_cp
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == csys_cpu_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csys_cpu_stat: csys_cpu_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csys_cpu_stat: csys_cpu_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csys_cpu_stat: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csys_cpu_stat: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csys_cpu_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csys_cpu_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3603,17 +3638,17 @@ UINT32 cmpi_decode_csys_cpu_stat(const UINT32 comm, const UINT8 *in_buff, const 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csys_cpu_stat: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csys_cpu_stat: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csys_cpu_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csys_cpu_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == csys_cpu_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csys_cpu_stat: csys_cpu_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csys_cpu_stat: csys_cpu_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3634,17 +3669,17 @@ UINT32 cmpi_encode_mm_man_occupy_node(const UINT32 comm, const MM_MAN_OCCUPY_NOD
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == mm_man_occupy_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_mm_man_occupy_node: mm_man_occupy_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_mm_man_occupy_node: mm_man_occupy_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_mm_man_occupy_node: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_mm_man_occupy_node: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_mm_man_occupy_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_mm_man_occupy_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3672,17 +3707,17 @@ UINT32 cmpi_decode_mm_man_occupy_node(const UINT32 comm, const UINT8 *in_buff, c
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_mm_man_occupy_node: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_mm_man_occupy_node: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_mm_man_occupy_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_mm_man_occupy_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == mm_man_occupy_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_mm_man_occupy_node: mm_man_occupy_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_mm_man_occupy_node: mm_man_occupy_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3700,17 +3735,17 @@ UINT32 cmpi_encode_mm_man_load_node(const UINT32 comm, const MM_MAN_LOAD_NODE *m
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == mm_man_load_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_mm_man_load_node: mm_man_load_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_mm_man_load_node: mm_man_load_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_mm_man_load_node: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_mm_man_load_node: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_mm_man_load_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_mm_man_load_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3736,17 +3771,17 @@ UINT32 cmpi_decode_mm_man_load_node(const UINT32 comm, const UINT8 *in_buff, con
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_mm_man_load_node: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_mm_man_load_node: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_mm_man_load_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_mm_man_load_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == mm_man_load_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_mm_man_load_node: mm_man_load_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_mm_man_load_node: mm_man_load_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3793,17 +3828,17 @@ UINT32 cmpi_encode_cproc_module_stat(const UINT32 comm, const CPROC_MODULE_STAT 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cproc_module_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cproc_module_stat: cproc_module_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cproc_module_stat: cproc_module_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cproc_module_stat: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cproc_module_stat: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cproc_module_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cproc_module_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3827,17 +3862,17 @@ UINT32 cmpi_decode_cproc_module_stat(const UINT32 comm, const UINT8 *in_buff, co
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cproc_module_stat: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cproc_module_stat: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cproc_module_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cproc_module_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cproc_module_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cproc_module_stat: cproc_module_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cproc_module_stat: cproc_module_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3853,17 +3888,17 @@ UINT32 cmpi_encode_crank_thread_stat(const UINT32 comm, const CRANK_THREAD_STAT 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == crank_thread_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_crank_thread_stat: crank_thread_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crank_thread_stat: crank_thread_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_crank_thread_stat: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crank_thread_stat: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_crank_thread_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crank_thread_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3889,17 +3924,17 @@ UINT32 cmpi_decode_crank_thread_stat(const UINT32 comm, const UINT8 *in_buff, co
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_crank_thread_stat: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crank_thread_stat: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_crank_thread_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crank_thread_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == crank_thread_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_crank_thread_stat: crank_thread_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crank_thread_stat: crank_thread_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3916,17 +3951,17 @@ UINT32 cmpi_encode_csys_eth_stat(const UINT32 comm, const CSYS_ETH_STAT *csys_et
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == csys_eth_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csys_eth_stat: csys_eth_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csys_eth_stat: csys_eth_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csys_eth_stat: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csys_eth_stat: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csys_eth_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csys_eth_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3958,17 +3993,17 @@ UINT32 cmpi_decode_csys_eth_stat(const UINT32 comm, const UINT8 *in_buff, const 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csys_eth_stat: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csys_eth_stat: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csys_eth_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csys_eth_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == csys_eth_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csys_eth_stat: csys_eth_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csys_eth_stat: csys_eth_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -3988,17 +4023,17 @@ UINT32 cmpi_encode_csys_dsk_stat(const UINT32 comm, const CSYS_DSK_STAT *csys_ds
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == csys_dsk_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csys_dsk_stat: csys_dsk_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csys_dsk_stat: csys_dsk_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csys_dsk_stat: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csys_dsk_stat: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csys_dsk_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csys_dsk_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4028,17 +4063,17 @@ UINT32 cmpi_decode_csys_dsk_stat(const UINT32 comm, const UINT8 *in_buff, const 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csys_dsk_stat: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csys_dsk_stat: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csys_dsk_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csys_dsk_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == csys_dsk_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csys_dsk_stat: csys_dsk_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csys_dsk_stat: csys_dsk_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4057,17 +4092,17 @@ UINT32 cmpi_encode_task_time_fmt(const UINT32 comm, const TASK_TIME_FMT *task_ti
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == task_time_fmt )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_task_time_fmt: task_time_fmt is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_task_time_fmt: task_time_fmt is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_task_time_fmt: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_task_time_fmt: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_task_time_fmt: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_task_time_fmt: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4099,17 +4134,17 @@ UINT32 cmpi_decode_task_time_fmt(const UINT32 comm, const UINT8 *in_buff, const 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_task_time_fmt: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_task_time_fmt: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_task_time_fmt: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_task_time_fmt: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == task_time_fmt )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_task_time_fmt: task_time_fmt is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_task_time_fmt: task_time_fmt is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4130,17 +4165,17 @@ UINT32 cmpi_encode_task_report_node(const UINT32 comm, const TASK_REPORT_NODE *t
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == task_report_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_task_report_node: task_report_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_task_report_node: task_report_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_task_report_node: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_task_report_node: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_task_report_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_task_report_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4191,17 +4226,17 @@ UINT32 cmpi_decode_task_report_node(const UINT32 comm, const UINT8 *in_buff, con
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_task_report_node: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_task_report_node: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_task_report_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_task_report_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == task_report_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_task_report_node: task_report_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_task_report_node: task_report_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4230,17 +4265,17 @@ UINT32 cmpi_encode_cdfsnp_inode(const UINT32 comm, const CDFSNP_INODE *cdfsnp_in
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cdfsnp_inode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsnp_inode: cdfsnp_inode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsnp_inode: cdfsnp_inode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsnp_inode: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsnp_inode: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsnp_inode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsnp_inode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4269,17 +4304,17 @@ UINT32 cmpi_decode_cdfsnp_inode(const UINT32 comm, const UINT8 *in_buff, const U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsnp_inode: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsnp_inode: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsnp_inode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsnp_inode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cdfsnp_inode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsnp_inode: cdfsnp_inode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsnp_inode: cdfsnp_inode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4302,17 +4337,17 @@ UINT32 cmpi_encode_cdfsnp_fnode(const UINT32 comm, const CDFSNP_FNODE *cdfsnp_fn
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cdfsnp_fnode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsnp_fnode: cdfsnp_fnode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsnp_fnode: cdfsnp_fnode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsnp_fnode: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsnp_fnode: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsnp_fnode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsnp_fnode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4363,17 +4398,17 @@ UINT32 cmpi_decode_cdfsnp_fnode(const UINT32 comm, const UINT8 *in_buff, const U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsnp_fnode: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsnp_fnode: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsnp_fnode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsnp_fnode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cdfsnp_fnode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsnp_fnode: cdfsnp_fnode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsnp_fnode: cdfsnp_fnode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4385,7 +4420,7 @@ UINT32 cmpi_decode_cdfsnp_fnode(const UINT32 comm, const UINT8 *in_buff, const U
 
     if(CDFSNP_FILE_REPLICA_MAX_NUM < (replica_num & CDFSNP_32BIT_MASK))
     {
-        sys_log(LOGSTDOUT, "error:cmpi_decode_cdfsnp_fnode: replica num %ld overflow\n", replica_num);
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cdfsnp_fnode: replica num %ld overflow\n", replica_num);
         return ((UINT32)-1);
     }
 
@@ -4410,17 +4445,17 @@ UINT32 cmpi_encode_cdfsnp_item(const UINT32 comm, const CDFSNP_ITEM *cdfsnp_item
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cdfsnp_item )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsnp_item: cdfsnp_item is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsnp_item: cdfsnp_item is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsnp_item: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsnp_item: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsnp_item: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsnp_item: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4483,17 +4518,17 @@ UINT32 cmpi_decode_cdfsnp_item(const UINT32 comm, const UINT8 *in_buff, const UI
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsnp_item: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsnp_item: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsnp_item: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsnp_item: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cdfsnp_item )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsnp_item: cdfsnp_item is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsnp_item: cdfsnp_item is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4536,17 +4571,17 @@ UINT32 cmpi_encode_cdfsdn_stat(const UINT32 comm, const CDFSDN_STAT *cdfsdn_stat
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cdfsdn_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsdn_stat: cdfsdn_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsdn_stat: cdfsdn_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsdn_stat: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsdn_stat: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsdn_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsdn_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4569,17 +4604,17 @@ UINT32 cmpi_decode_cdfsdn_stat(const UINT32 comm, const UINT8 *in_buff, const UI
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsdn_stat: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsdn_stat: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsdn_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsdn_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cdfsdn_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsdn_stat: cdfsdn_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsdn_stat: cdfsdn_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4595,17 +4630,17 @@ UINT32 cmpi_encode_cload_stat(const UINT32 comm, const CLOAD_STAT *cload_stat, U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cload_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cload_stat: cload_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cload_stat: cload_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cload_stat: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cload_stat: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cload_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cload_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4636,17 +4671,17 @@ UINT32 cmpi_decode_cload_stat(const UINT32 comm, const UINT8 *in_buff, const UIN
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cload_stat: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cload_stat: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cload_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cload_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cload_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cload_stat: cload_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cload_stat: cload_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4667,17 +4702,17 @@ UINT32 cmpi_encode_cload_node(const UINT32 comm, const CLOAD_NODE *cload_node, U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cload_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cload_node: cload_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cload_node: cload_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cload_node: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cload_node: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cload_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cload_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4702,17 +4737,17 @@ UINT32 cmpi_decode_cload_node(const UINT32 comm, const UINT8 *in_buff, const UIN
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cload_node: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cload_node: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cload_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cload_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cload_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cload_node: cload_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cload_node: cload_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4731,17 +4766,17 @@ UINT32 cmpi_encode_cload_mgr(const UINT32 comm, const CLOAD_MGR *cload_mgr, UINT
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cload_mgr )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cload_mgr: cload_mgr is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cload_mgr: cload_mgr is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cload_mgr: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cload_mgr: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cload_mgr: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cload_mgr: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4784,17 +4819,17 @@ UINT32 cmpi_decode_cload_mgr(const UINT32 comm, const UINT8 *in_buff, const UINT
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cload_mgr: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cload_mgr: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cload_mgr: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cload_mgr: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cload_mgr )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cload_mgr: cload_mgr is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cload_mgr: cload_mgr is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4817,17 +4852,17 @@ UINT32 cmpi_encode_cfuse_mode(const UINT32 comm, const CFUSE_MODE *cfuse_mode, U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cfuse_mode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfuse_mode: cfuse_mode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfuse_mode: cfuse_mode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfuse_mode: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfuse_mode: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfuse_mode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfuse_mode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4878,17 +4913,17 @@ UINT32 cmpi_decode_cfuse_mode(const UINT32 comm, const UINT8 *in_buff, const UIN
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfuse_mode: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfuse_mode: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfuse_mode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfuse_mode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cfuse_mode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfuse_mode: cfuse_mode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfuse_mode: cfuse_mode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4939,17 +4974,17 @@ UINT32 cmpi_encode_cfuse_stat(const UINT32 comm, const CFUSE_STAT *cfuse_stat, U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cfuse_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfuse_stat: cfuse_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfuse_stat: cfuse_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfuse_stat: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfuse_stat: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cfuse_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cfuse_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -4981,17 +5016,17 @@ UINT32 cmpi_decode_cfuse_stat(const UINT32 comm, const UINT8 *in_buff, const UIN
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfuse_stat: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfuse_stat: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfuse_stat: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfuse_stat: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cfuse_stat )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cfuse_stat: cfuse_stat is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cfuse_stat: cfuse_stat is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5014,17 +5049,17 @@ UINT32 cmpi_encode_cdfsdn_record(const UINT32 comm, const CDFSDN_RECORD *cdfsdn_
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cdfsdn_record )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsdn_record: cdfsdn_record is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsdn_record: cdfsdn_record is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsdn_record: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsdn_record: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsdn_record: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsdn_record: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5049,17 +5084,17 @@ UINT32 cmpi_decode_cdfsdn_record(const UINT32 comm, const UINT8 *in_buff, const 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsdn_record: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsdn_record: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsdn_record: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsdn_record: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cdfsdn_record )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsdn_record: cdfsdn_record is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsdn_record: cdfsdn_record is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5077,17 +5112,17 @@ UINT32 cmpi_encode_cdfsdn_block(const UINT32 comm, const CDFSDN_BLOCK *cdfsdn_bl
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == cdfsdn_block )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsdn_block: cdfsdn_block is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsdn_block: cdfsdn_block is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsdn_block: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsdn_block: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cdfsdn_block: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cdfsdn_block: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5109,17 +5144,17 @@ UINT32 cmpi_decode_cdfsdn_block(const UINT32 comm, const UINT8 *in_buff, const U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsdn_block: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsdn_block: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsdn_block: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsdn_block: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cdfsdn_block )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cdfsdn_block: cdfsdn_block is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cdfsdn_block: cdfsdn_block is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5127,7 +5162,7 @@ UINT32 cmpi_decode_cdfsdn_block(const UINT32 comm, const UINT8 *in_buff, const U
     CDFSDN_BLOCK_CACHE(cdfsdn_block) = cdfsdn_cache_new();
     if(NULL_PTR == CDFSDN_BLOCK_CACHE(cdfsdn_block))
     {
-        sys_log(LOGSTDOUT, "error:cmpi_decode_cdfsdn_block: block cache is null\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cdfsdn_block: block cache is null\n");
         return ((UINT32)-1);
     }
 
@@ -5141,18 +5176,18 @@ UINT32 cmpi_encode_cbytes(const UINT32 comm, const CBYTES *cbytes, UINT8 *out_bu
 /*
     if ( NULL_PTR == cbytes )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cbytes: cbytes is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cbytes: cbytes is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 */    
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cbytes: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cbytes: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_cbytes: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cbytes: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5186,17 +5221,17 @@ UINT32 cmpi_decode_cbytes(const UINT32 comm, const UINT8 *in_buff, const UINT32 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cbytes: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cbytes: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cbytes: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cbytes: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == cbytes )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_cbytes: cbytes is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cbytes: cbytes is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5211,7 +5246,7 @@ UINT32 cmpi_decode_cbytes(const UINT32 comm, const UINT8 *in_buff, const UINT32 
 
     if(NULL_PTR == CBYTES_BUF(cbytes))
     {
-        //sys_log(LOGSTDOUT, "warn:cmpi_decode_cbytes: len %ld but buff is null\n", len);
+        //dbg_log(SEC_0035_CMPIE, 1)(LOGSTDOUT, "warn:cmpi_decode_cbytes: len %ld but buff is null\n", len);
         CBYTES_BUF(cbytes) = (UINT8 *)SAFE_MALLOC(len, LOC_CMPIE_0021);
         CBYTES_LEN(cbytes) = len;
     }
@@ -5219,7 +5254,7 @@ UINT32 cmpi_decode_cbytes(const UINT32 comm, const UINT8 *in_buff, const UINT32 
     {
         if(CBYTES_LEN(cbytes) < len)
         {
-            sys_log(LOGSTDOUT, "error:cmpi_decode_cbytes: buff room is %ld bytes, no enough memory to accept %ld bytes\n", CBYTES_LEN(cbytes), len);
+            dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_cbytes: buff room is %ld bytes, no enough memory to accept %ld bytes\n", CBYTES_LEN(cbytes), len);
             return ((UINT32)-1);
         }
         CBYTES_LEN(cbytes) = len;
@@ -5237,17 +5272,17 @@ UINT32 cmpi_encode_ctimet(const UINT32 comm, const CTIMET *ctimet, UINT8 *out_bu
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == ctimet )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ctimet: ctimet is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ctimet: ctimet is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ctimet: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ctimet: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_ctimet: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_ctimet: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5277,17 +5312,17 @@ UINT32 cmpi_decode_ctimet(const UINT32 comm, const UINT8 *in_buff, const UINT32 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ctimet: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ctimet: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ctimet: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ctimet: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == ctimet )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_ctimet: ctimet is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_ctimet: ctimet is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5306,17 +5341,17 @@ UINT32 cmpi_encode_csession_node(const UINT32 comm, const CSESSION_NODE *csessio
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == csession_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csession_node: csession_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csession_node: csession_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csession_node: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csession_node: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csession_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csession_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5349,17 +5384,17 @@ UINT32 cmpi_decode_csession_node(const UINT32 comm, const UINT8 *in_buff, const 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csession_node: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csession_node: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csession_node: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csession_node: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == csession_node )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csession_node: csession_node is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csession_node: csession_node is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5379,17 +5414,17 @@ UINT32 cmpi_encode_csession_item(const UINT32 comm, const CSESSION_ITEM *csessio
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == csession_item )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csession_item: csession_item is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csession_item: csession_item is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csession_item: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csession_item: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csession_item: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csession_item: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5415,17 +5450,17 @@ UINT32 cmpi_decode_csession_item(const UINT32 comm, const UINT8 *in_buff, const 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csession_item: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csession_item: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csession_item: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csession_item: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == csession_item )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csession_item: csession_item is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csession_item: csession_item is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5442,17 +5477,17 @@ UINT32 cmpi_encode_csword(const UINT32 comm, const CSWORD *csword, UINT8 *out_bu
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == csword )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csword: csword is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csword: csword is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csword: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csword: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csword: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csword: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5472,17 +5507,17 @@ UINT32 cmpi_decode_csword(const UINT32 comm, const UINT8 *in_buff, const UINT32 
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csword: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csword: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csword: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csword: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == csword )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csword: csword is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csword: csword is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5496,17 +5531,17 @@ UINT32 cmpi_encode_csdoc(const UINT32 comm, const CSDOC *csdoc, UINT8 *out_buff,
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == csdoc )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csdoc: csdoc is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csdoc: csdoc is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csdoc: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csdoc: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csdoc: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csdoc: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5541,17 +5576,17 @@ UINT32 cmpi_decode_csdoc(const UINT32 comm, const UINT8 *in_buff, const UINT32 i
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csdoc: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csdoc: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csdoc: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csdoc: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == csdoc )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csdoc: csdoc is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csdoc: csdoc is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5575,17 +5610,17 @@ UINT32 cmpi_encode_csdoc_words(const UINT32 comm, const CSDOC_WORDS *csdoc_words
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == csdoc_words )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csdoc_words: csdoc_words is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csdoc_words: csdoc_words is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csdoc_words: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csdoc_words: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csdoc_words: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csdoc_words: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5607,17 +5642,17 @@ UINT32 cmpi_decode_csdoc_words(const UINT32 comm, const UINT8 *in_buff, const UI
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csdoc_words: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csdoc_words: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csdoc_words: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csdoc_words: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == csdoc_words )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csdoc_words: csdoc_words is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csdoc_words: csdoc_words is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5632,17 +5667,17 @@ UINT32 cmpi_encode_csword_docs(const UINT32 comm, const CSWORD_DOCS *csword_docs
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == csword_docs )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csword_docs: csword_docs is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csword_docs: csword_docs is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csword_docs: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csword_docs: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_csword_docs: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_csword_docs: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5664,17 +5699,17 @@ UINT32 cmpi_decode_csword_docs(const UINT32 comm, const UINT8 *in_buff, const UI
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csword_docs: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csword_docs: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csword_docs: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csword_docs: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == csword_docs )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_csword_docs: csword_docs is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_csword_docs: csword_docs is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5697,17 +5732,17 @@ UINT32 cmpi_encode_clist(const UINT32 comm, const CLIST *clist, UINT8 *out_buff,
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == clist )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_clist: clist is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_clist: clist is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_clist: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_clist: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_clist: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_clist: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5729,7 +5764,7 @@ UINT32 cmpi_encode_clist(const UINT32 comm, const CLIST *clist, UINT8 *out_buff,
     data_encoder = (CLIST_DATA_ENCODER)clist_codec_get(clist, CLIST_CODEC_ENCODER);
     if(NULL_PTR == data_encoder)
     {
-        sys_log(LOGSTDOUT, "error:cmpi_encode_clist: clist data encoder is null\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_encode_clist: clist data encoder is null\n");
         return ((UINT32)-1);
     }
 
@@ -5747,7 +5782,7 @@ UINT32 cmpi_encode_clist(const UINT32 comm, const CLIST *clist, UINT8 *out_buff,
     /*check again*/
     if(size != num)
     {
-        sys_log(LOGSTDOUT, "error:cmpi_encode_clist: clist size = %ld but encoded item num = %ld\n", size, num);
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_encode_clist: clist size = %ld but encoded item num = %ld\n", size, num);
         return ((UINT32)-1);
     }
 
@@ -5771,7 +5806,7 @@ UINT32 cmpi_encode_clist_size(const UINT32 comm, const CLIST *clist, UINT32 *siz
 
     if(MM_END == type)
     {
-        sys_log(LOGSTDOUT, "error:cmpi_encode_clist_size: clist %lx: invalid type = %ld, num = %ld\n", clist, type, num);
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_encode_clist_size: clist %lx: invalid type = %ld, num = %ld\n", clist, type, num);
     }
 
     cmpi_encode_uint32_size(comm, type, size);
@@ -5785,7 +5820,7 @@ UINT32 cmpi_encode_clist_size(const UINT32 comm, const CLIST *clist, UINT32 *siz
     data_encoder_size = (CLIST_DATA_ENCODER_SIZE)clist_codec_get(clist, CLIST_CODEC_ENCODER_SIZE);
     if(NULL_PTR == data_encoder_size)
     {
-        sys_log(LOGSTDOUT, "error:cmpi_encode_clist_size: clist %lx: type = %ld, num = %ld, data encoder_size is null\n",
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_encode_clist_size: clist %lx: type = %ld, num = %ld, data encoder_size is null\n",
                             clist, type, num);
         return ((UINT32)-1);
     }
@@ -5834,17 +5869,17 @@ UINT32 cmpi_decode_clist(const UINT32 comm, const UINT8 *in_buff, const UINT32 i
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_clist: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_clist: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_clist: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_clist: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == clist )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_clist: clist is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_clist: clist is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5852,14 +5887,14 @@ UINT32 cmpi_decode_clist(const UINT32 comm, const UINT8 *in_buff, const UINT32 i
     cmpi_decode_uint32(comm, in_buff, in_buff_max_len, position, &(type));
     cmpi_decode_uint32(comm, in_buff, in_buff_max_len, position, &(num));
 
-    sys_log(LOGSTDNULL, "info:cmpi_decode_clist: enter: clist %lx, type = %ld, num = %ld, size = %ld\n", clist, type, num, clist->size);
+    dbg_log(SEC_0035_CMPIE, 3)(LOGSTDNULL, "info:cmpi_decode_clist: enter: clist %lx, type = %ld, num = %ld, size = %ld\n", clist, type, num, clist->size);
 
     if(type != clist->data_mm_type)
     {
-        sys_log(LOGSTDNULL, "info:cmpi_decode_clist: clist %lx, data type %ld ==> %ld\n", clist, clist->data_mm_type, type);
+        dbg_log(SEC_0035_CMPIE, 3)(LOGSTDNULL, "info:cmpi_decode_clist: clist %lx, data type %ld ==> %ld\n", clist, clist->data_mm_type, type);
         clist_codec_set(clist, type);
     }
-    sys_log(LOGSTDNULL, "info:cmpi_decode_clist: [0] clist %lx, data type %ld \n", clist, clist->data_mm_type);
+    dbg_log(SEC_0035_CMPIE, 3)(LOGSTDNULL, "info:cmpi_decode_clist: [0] clist %lx, data type %ld \n", clist, clist->data_mm_type);
 
     if(0 == num)
     {
@@ -5869,7 +5904,7 @@ UINT32 cmpi_decode_clist(const UINT32 comm, const UINT8 *in_buff, const UINT32 i
     data_decoder = (CLIST_DATA_DECODER)clist_codec_get(clist, CLIST_CODEC_DECODER);
     if(NULL_PTR == data_decoder)
     {
-        sys_log(LOGSTDOUT, "error:cmpi_decode_clist: clist %lx data decoder is null\n", clist);
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_clist: clist %lx data decoder is null\n", clist);
         return ((UINT32)-1);
     }
 
@@ -5891,7 +5926,7 @@ UINT32 cmpi_decode_clist(const UINT32 comm, const UINT8 *in_buff, const UINT32 i
         data_init = (CLIST_DATA_INIT)clist_codec_get(clist, CLIST_CODEC_INIT);/*data_init may be null pointer*/
         if(NULL_PTR == data_init)
         {
-            sys_log(LOGSTDOUT, "error:cmpi_decode_clist: clist %lx data init is null\n", clist);
+            dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_clist: clist %lx data init is null\n", clist);
             return ((UINT32)-1);
         }
         /*alloc new item to accept the decoded result, and push the new item*/
@@ -5902,7 +5937,7 @@ UINT32 cmpi_decode_clist(const UINT32 comm, const UINT8 *in_buff, const UINT32 i
             alloc_static_mem(MD_TBD, CMPI_ANY_MODI, type, &data, LOC_CMPIE_0028);
             if(NULL_PTR == data)
             {
-                sys_log(LOGSTDOUT, "error:cmpi_decode_clist: [3] clist %lx, size %ld, pos = %ld failed to alloc\n",
+                dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_clist: [3] clist %lx, size %ld, pos = %ld failed to alloc\n",
                                     clist, clist->size, pos);
                 return ((UINT32)-1);
             }
@@ -5920,33 +5955,33 @@ UINT32 cmpi_encode_crfsnp_inode(const UINT32 comm, const CRFSNP_INODE *crfsnp_in
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == crfsnp_inode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_crfsnp_inode: crfsnp_inode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsnp_inode: crfsnp_inode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_crfsnp_inode: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsnp_inode: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_crfsnp_inode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsnp_inode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
 
-    cmpi_encode_uint32(comm, CRFSNP_INODE_DISK_NO(crfsnp_inode), out_buff, out_buff_max_len, position);
-    cmpi_encode_uint32(comm, CRFSNP_INODE_BLOCK_NO(crfsnp_inode), out_buff, out_buff_max_len, position);
-    cmpi_encode_uint32(comm, CRFSNP_INODE_PAGE_NO(crfsnp_inode), out_buff, out_buff_max_len, position);
+    cmpi_encode_uint16(comm, CRFSNP_INODE_DISK_NO(crfsnp_inode), out_buff, out_buff_max_len, position);
+    cmpi_encode_uint16(comm, CRFSNP_INODE_BLOCK_NO(crfsnp_inode), out_buff, out_buff_max_len, position);
+    cmpi_encode_uint16(comm, CRFSNP_INODE_PAGE_NO(crfsnp_inode), out_buff, out_buff_max_len, position);
 
     return (0);
 }
 
 UINT32 cmpi_encode_crfsnp_inode_size(const UINT32 comm, const CRFSNP_INODE *crfsnp_inode, UINT32 *size)
 {
-    cmpi_encode_uint32_size(comm, CRFSNP_INODE_DISK_NO(crfsnp_inode), size);
-    cmpi_encode_uint32_size(comm, CRFSNP_INODE_BLOCK_NO(crfsnp_inode), size);
-    cmpi_encode_uint32_size(comm, CRFSNP_INODE_PAGE_NO(crfsnp_inode), size);
+    cmpi_encode_uint16_size(comm, CRFSNP_INODE_DISK_NO(crfsnp_inode), size);
+    cmpi_encode_uint16_size(comm, CRFSNP_INODE_BLOCK_NO(crfsnp_inode), size);
+    cmpi_encode_uint16_size(comm, CRFSNP_INODE_PAGE_NO(crfsnp_inode), size);
 
     return (0);
 }
@@ -5956,17 +5991,17 @@ UINT32 cmpi_decode_crfsnp_inode(const UINT32 comm, const UINT8 *in_buff, const U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_crfsnp_inode: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsnp_inode: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_crfsnp_inode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsnp_inode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == crfsnp_inode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_crfsnp_inode: crfsnp_inode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsnp_inode: crfsnp_inode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -5986,17 +6021,17 @@ UINT32 cmpi_encode_crfsnp_fnode(const UINT32 comm, const CRFSNP_FNODE *crfsnp_fn
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == crfsnp_fnode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_crfsnp_fnode: crfsnp_fnode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsnp_fnode: crfsnp_fnode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_crfsnp_fnode: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsnp_fnode: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_crfsnp_fnode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsnp_fnode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -6042,17 +6077,17 @@ UINT32 cmpi_decode_crfsnp_fnode(const UINT32 comm, const UINT8 *in_buff, const U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_crfsnp_fnode: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsnp_fnode: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_crfsnp_fnode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsnp_fnode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == crfsnp_fnode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_crfsnp_fnode: crfsnp_fnode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsnp_fnode: crfsnp_fnode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -6062,7 +6097,7 @@ UINT32 cmpi_decode_crfsnp_fnode(const UINT32 comm, const UINT8 *in_buff, const U
 
     if(CRFSNP_FILE_REPLICA_MAX_NUM < (replica_num))
     {
-        sys_log(LOGSTDOUT, "error:cmpi_decode_crfsnp_fnode: replica num %ld overflow\n", replica_num);
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_crfsnp_fnode: replica num %ld overflow\n", replica_num);
         return ((UINT32)-1);
     }
 
@@ -6080,67 +6115,143 @@ UINT32 cmpi_decode_crfsnp_fnode(const UINT32 comm, const UINT8 *in_buff, const U
     return (0);
 }
 
+UINT32 cmpi_encode_crfsnp_bnode(const UINT32 comm, const CRFSNP_BNODE *crfsnp_bnode, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == crfsnp_bnode )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsnp_bnode: crfsnp_bnode is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == out_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsnp_bnode: out_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsnp_bnode: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+
+    cmpi_encode_uint64(comm, CRFSNP_BNODE_FILESZ(crfsnp_bnode), out_buff, out_buff_max_len, position);
+    cmpi_encode_uint64(comm, CRFSNP_BNODE_STORESZ(crfsnp_bnode), out_buff, out_buff_max_len, position);
+  
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsnp_bnode_size(const UINT32 comm, const CRFSNP_BNODE *crfsnp_bnode, UINT32 *size)
+{
+    cmpi_encode_uint64_size(comm, CRFSNP_BNODE_FILESZ(crfsnp_bnode), size);
+    cmpi_encode_uint64_size(comm, CRFSNP_BNODE_STORESZ(crfsnp_bnode), size);
+
+    return (0);
+}
+
+UINT32 cmpi_decode_crfsnp_bnode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSNP_BNODE *crfsnp_bnode)
+{
+    uint64_t file_size;
+    uint64_t store_size;
+    
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == in_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsnp_bnode: in_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsnp_bnode: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == crfsnp_bnode )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsnp_bnode: crfsnp_bnode is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+
+    cmpi_decode_uint64(comm, in_buff, in_buff_max_len, position, &(file_size));
+    cmpi_decode_uint64(comm, in_buff, in_buff_max_len, position, &(store_size));
+
+
+    CRFSNP_BNODE_FILESZ(crfsnp_bnode)  = (uint32_t)(file_size);
+    CRFSNP_BNODE_STORESZ(crfsnp_bnode) = (uint32_t)(store_size);
+
+    return (0);
+}
+
 UINT32 cmpi_encode_crfsnp_item(const UINT32 comm, const CRFSNP_ITEM *crfsnp_item, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
 {
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == crfsnp_item )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_crfsnp_item: crfsnp_item is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsnp_item: crfsnp_item is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_crfsnp_item: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsnp_item: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_crfsnp_item: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsnp_item: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
 
-    cmpi_encode_uint32(comm, CRFSNP_ITEM_DFLG(crfsnp_item), out_buff, out_buff_max_len, position);
-    cmpi_encode_uint32(comm, CRFSNP_ITEM_STAT(crfsnp_item), out_buff, out_buff_max_len, position);
+    cmpi_encode_uint32(comm, CRFSNP_ITEM_DIR_FLAG(crfsnp_item), out_buff, out_buff_max_len, position);
+    cmpi_encode_uint32(comm, CRFSNP_ITEM_USED_FLAG(crfsnp_item), out_buff, out_buff_max_len, position);
     cmpi_encode_uint32(comm, CRFSNP_ITEM_KLEN(crfsnp_item), out_buff, out_buff_max_len, position);
 
     cmpi_pack(CRFSNP_ITEM_KEY(crfsnp_item), CRFSNP_ITEM_KLEN(crfsnp_item), CMPI_UCHAR, out_buff, out_buff_max_len, position, comm);
 
     cmpi_encode_uint32(comm, CRFSNP_ITEM_PARENT_POS(crfsnp_item), out_buff, out_buff_max_len, position);
 
-    if(CRFSNP_ITEM_FILE_IS_DIR == CRFSNP_ITEM_DFLG(crfsnp_item))
+    if(CRFSNP_ITEM_FILE_IS_DIR == CRFSNP_ITEM_DIR_FLAG(crfsnp_item))
     {
         cmpi_encode_uint32(comm, CRFSNP_DNODE_FILE_NUM(CRFSNP_ITEM_DNODE(crfsnp_item)), out_buff, out_buff_max_len, position);
     }
 
-    if(CRFSNP_ITEM_FILE_IS_REG == CRFSNP_ITEM_DFLG(crfsnp_item))
+    if(CRFSNP_ITEM_FILE_IS_REG == CRFSNP_ITEM_DIR_FLAG(crfsnp_item))
     {
         cmpi_encode_crfsnp_fnode(comm, CRFSNP_ITEM_FNODE(crfsnp_item), out_buff, out_buff_max_len, position);
     }
+
+    if(CRFSNP_ITEM_FILE_IS_BIG == CRFSNP_ITEM_DIR_FLAG(crfsnp_item))
+    {
+        cmpi_encode_crfsnp_bnode(comm, CRFSNP_ITEM_BNODE(crfsnp_item), out_buff, out_buff_max_len, position);
+    }    
 
     return (0);
 }
 
 UINT32 cmpi_encode_crfsnp_item_size(const UINT32 comm, const CRFSNP_ITEM *crfsnp_item, UINT32 *size)
 {
-    cmpi_encode_uint32_size(comm, CRFSNP_ITEM_DFLG(crfsnp_item), size);
-    cmpi_encode_uint32_size(comm, CRFSNP_ITEM_STAT(crfsnp_item), size);
+    cmpi_encode_uint32_size(comm, CRFSNP_ITEM_DIR_FLAG(crfsnp_item), size);
+    cmpi_encode_uint32_size(comm, CRFSNP_ITEM_USED_FLAG(crfsnp_item), size);
     cmpi_encode_uint32_size(comm, CRFSNP_ITEM_KLEN(crfsnp_item), size);
 
     cmpi_pack_size(CRFSNP_ITEM_KLEN(crfsnp_item), CMPI_UCHAR, size,  comm);
 
     cmpi_encode_uint32_size(comm, CRFSNP_ITEM_PARENT_POS(crfsnp_item), size);
 
-    if(CRFSNP_ITEM_FILE_IS_DIR == CRFSNP_ITEM_DFLG(crfsnp_item))
+    if(CRFSNP_ITEM_FILE_IS_DIR == CRFSNP_ITEM_DIR_FLAG(crfsnp_item))
     {
         cmpi_encode_uint32_size(comm, CRFSNP_DNODE_FILE_NUM(CRFSNP_ITEM_DNODE(crfsnp_item)), size);
     }
 
-    if(CRFSNP_ITEM_FILE_IS_REG == CRFSNP_ITEM_DFLG(crfsnp_item))
+    if(CRFSNP_ITEM_FILE_IS_REG == CRFSNP_ITEM_DIR_FLAG(crfsnp_item))
     {
         cmpi_encode_crfsnp_fnode_size(comm, CRFSNP_ITEM_FNODE(crfsnp_item), size);
     }
 
+    if(CRFSNP_ITEM_FILE_IS_BIG == CRFSNP_ITEM_DIR_FLAG(crfsnp_item))
+    {
+        cmpi_encode_crfsnp_bnode_size(comm, CRFSNP_ITEM_BNODE(crfsnp_item), size);
+    }
     return (0);
 }
 
@@ -6155,17 +6266,17 @@ UINT32 cmpi_decode_crfsnp_item(const UINT32 comm, const UINT8 *in_buff, const UI
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_crfsnp_item: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsnp_item: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_crfsnp_item: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsnp_item: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == crfsnp_item )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_crfsnp_item: crfsnp_item is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsnp_item: crfsnp_item is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -6174,8 +6285,8 @@ UINT32 cmpi_decode_crfsnp_item(const UINT32 comm, const UINT8 *in_buff, const UI
     cmpi_decode_uint32(comm, in_buff, in_buff_max_len, position, &(stat));
     cmpi_decode_uint32(comm, in_buff, in_buff_max_len, position, &(klen));
 
-    CRFSNP_ITEM_DFLG(crfsnp_item) = (uint32_t)(dflag);
-    CRFSNP_ITEM_STAT(crfsnp_item) = (uint32_t)(stat );
+    CRFSNP_ITEM_DIR_FLAG(crfsnp_item) = (uint32_t)(dflag);
+    CRFSNP_ITEM_USED_FLAG(crfsnp_item) = (uint32_t)(stat );
     CRFSNP_ITEM_KLEN(crfsnp_item) = (uint32_t)(klen );
 
     cmpi_unpack(in_buff, in_buff_max_len, position, CRFSNP_ITEM_KEY(crfsnp_item), CRFSNP_ITEM_KLEN(crfsnp_item), CMPI_UCHAR, comm);
@@ -6184,18 +6295,23 @@ UINT32 cmpi_decode_crfsnp_item(const UINT32 comm, const UINT8 *in_buff, const UI
 
     CRFSNP_ITEM_PARENT_POS(crfsnp_item)     = (uint32_t)(parent_pos);
 
-    if(CRFSNP_ITEM_FILE_IS_DIR == CRFSNP_ITEM_DFLG(crfsnp_item))
+    if(CRFSNP_ITEM_FILE_IS_DIR == CRFSNP_ITEM_DIR_FLAG(crfsnp_item))
     {
         UINT32 file_num;
         cmpi_decode_uint32(comm, in_buff, in_buff_max_len, position, &(file_num));
         CRFSNP_DNODE_FILE_NUM(CRFSNP_ITEM_DNODE(crfsnp_item)) = (uint32_t)(file_num);
     }
 
-    if(CRFSNP_ITEM_FILE_IS_REG == CRFSNP_ITEM_DFLG(crfsnp_item))
+    if(CRFSNP_ITEM_FILE_IS_REG == CRFSNP_ITEM_DIR_FLAG(crfsnp_item))
     {
         cmpi_decode_crfsnp_fnode(comm, in_buff, in_buff_max_len, position, CRFSNP_ITEM_FNODE(crfsnp_item));
     }
 
+    if(CRFSNP_ITEM_FILE_IS_BIG == CRFSNP_ITEM_DIR_FLAG(crfsnp_item))
+    {
+        cmpi_decode_crfsnp_bnode(comm, in_buff, in_buff_max_len, position, CRFSNP_ITEM_BNODE(crfsnp_item));
+    }
+    
     return (0);
 }
 
@@ -6204,17 +6320,17 @@ UINT32 cmpi_encode_chfsnp_inode(const UINT32 comm, const CHFSNP_INODE *chfsnp_in
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == chfsnp_inode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_chfsnp_inode: chfsnp_inode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_chfsnp_inode: chfsnp_inode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_chfsnp_inode: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_chfsnp_inode: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_chfsnp_inode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_chfsnp_inode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -6240,17 +6356,17 @@ UINT32 cmpi_decode_chfsnp_inode(const UINT32 comm, const UINT8 *in_buff, const U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_chfsnp_inode: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_chfsnp_inode: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_chfsnp_inode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_chfsnp_inode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == chfsnp_inode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_chfsnp_inode: chfsnp_inode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_chfsnp_inode: chfsnp_inode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -6270,17 +6386,17 @@ UINT32 cmpi_encode_chfsnp_fnode(const UINT32 comm, const CHFSNP_FNODE *chfsnp_fn
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == chfsnp_fnode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_chfsnp_fnode: chfsnp_fnode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_chfsnp_fnode: chfsnp_fnode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_chfsnp_fnode: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_chfsnp_fnode: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_chfsnp_fnode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_chfsnp_fnode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -6326,17 +6442,17 @@ UINT32 cmpi_decode_chfsnp_fnode(const UINT32 comm, const UINT8 *in_buff, const U
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_chfsnp_fnode: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_chfsnp_fnode: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_chfsnp_fnode: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_chfsnp_fnode: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == chfsnp_fnode )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_chfsnp_fnode: chfsnp_fnode is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_chfsnp_fnode: chfsnp_fnode is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -6346,7 +6462,7 @@ UINT32 cmpi_decode_chfsnp_fnode(const UINT32 comm, const UINT8 *in_buff, const U
 
     if(CHFSNP_FILE_REPLICA_MAX_NUM < (replica_num))
     {
-        sys_log(LOGSTDOUT, "error:cmpi_decode_chfsnp_fnode: replica num %ld overflow\n", replica_num);
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_chfsnp_fnode: replica num %ld overflow\n", replica_num);
         return ((UINT32)-1);
     }
 
@@ -6369,17 +6485,17 @@ UINT32 cmpi_encode_chfsnp_item(const UINT32 comm, const CHFSNP_ITEM *chfsnp_item
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == chfsnp_item )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_chfsnp_item: chfsnp_item is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_chfsnp_item: chfsnp_item is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == out_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_chfsnp_item: out_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_chfsnp_item: out_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_encode_chfsnp_item: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_chfsnp_item: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -6414,17 +6530,17 @@ UINT32 cmpi_decode_chfsnp_item(const UINT32 comm, const UINT8 *in_buff, const UI
 #if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
     if ( NULL_PTR == in_buff )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_chfsnp_item: in_buff is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_chfsnp_item: in_buff is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == position )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_chfsnp_item: position is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_chfsnp_item: position is null.\n");
         dbg_exit(MD_TBD, 0);
     }
     if ( NULL_PTR == chfsnp_item )
     {
-        sys_log(LOGSTDOUT,"error:cmpi_decode_chfsnp_item: chfsnp_item is null.\n");
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_chfsnp_item: chfsnp_item is null.\n");
         dbg_exit(MD_TBD, 0);
     }
 #endif /* ENCODE_DEBUG_SWITCH */
@@ -6441,6 +6557,754 @@ UINT32 cmpi_decode_chfsnp_item(const UINT32 comm, const UINT8 *in_buff, const UI
 
     return (0);
 }
+
+UINT32 cmpi_encode_cmd5_digest(const UINT32 comm, const CMD5_DIGEST *cmd5_digest, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == cmd5_digest )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cmd5_digest: cmd5_digest is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == out_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cmd5_digest: out_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cmd5_digest: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+
+    cmpi_encode_uint8_array(comm, CMD5_DIGEST_SUM(cmd5_digest), CMD5_DIGEST_LEN, out_buff, out_buff_max_len, position);
+
+    return (0);
+}
+
+UINT32 cmpi_encode_cmd5_digest_size(const UINT32 comm, const CMD5_DIGEST *cmd5_digest, UINT32 *size)
+{
+    cmpi_encode_uint8_array_size(comm, CMD5_DIGEST_SUM(cmd5_digest), CMD5_DIGEST_LEN, size);
+    return (0);
+}
+
+UINT32 cmpi_decode_cmd5_digest(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CMD5_DIGEST *cmd5_digest)
+{
+    UINT32 size;
+
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == in_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cmd5_digest: in_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cmd5_digest: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == cmd5_digest )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cmd5_digest: cmd5_digest is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+
+    cmpi_decode_uint8_array(comm, in_buff, in_buff_max_len, position, CMD5_DIGEST_SUM(cmd5_digest), &(size));
+    ASSERT(CMD5_DIGEST_LEN == size);
+
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsop(const UINT32 comm, const CRFSOP *crfsop, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == crfsop )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsop: crfsop is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == out_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsop: out_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsop: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+   
+    cmpi_encode_uint16(comm, CRFSOP_OP_TYPE(crfsop), out_buff, out_buff_max_len, position);
+    cmpi_encode_uint16(comm, CRFSOP_PATH_TYPE(crfsop), out_buff, out_buff_max_len, position);
+    cmpi_encode_uint32(comm, CRFSOP_PATH_HASH(crfsop), out_buff, out_buff_max_len, position);
+    cmpi_encode_cstring(comm, CRFSOP_PATH_NAME(crfsop), out_buff, out_buff_max_len, position);
+
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsop_size(const UINT32 comm, const CRFSOP *crfsop, UINT32 *size)
+{
+    cmpi_encode_uint16_size(comm, CRFSOP_OP_TYPE(crfsop), size);
+    cmpi_encode_uint16_size(comm, CRFSOP_PATH_TYPE(crfsop), size);
+    cmpi_encode_uint32_size(comm, CRFSOP_PATH_HASH(crfsop), size);
+    cmpi_encode_cstring_size(comm, CRFSOP_PATH_NAME(crfsop), size);
+    return (0);
+}
+
+UINT32 cmpi_decode_crfsop(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSOP *crfsop)
+{
+    UINT32 num;
+
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == in_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsop: in_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsop: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == crfsop )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsop: crfsop is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+
+    cmpi_decode_uint16(comm, in_buff, in_buff_max_len, position, &(CRFSOP_OP_TYPE(crfsop)));
+    cmpi_decode_uint16(comm, in_buff, in_buff_max_len, position, &(CRFSOP_PATH_TYPE(crfsop)));
+    cmpi_decode_uint32(comm, in_buff, in_buff_max_len, position, &(num));    
+    cmpi_decode_cstring(comm, in_buff, in_buff_max_len, position, CRFSOP_PATH_NAME(crfsop));
+
+    CRFSOP_PATH_HASH(crfsop) = (uint32_t)num;
+
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsconhash_rnode(const UINT32 comm, const CRFSCONHASH_RNODE *crfsconhash_rnode, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == crfsconhash_rnode )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash_rnode: crfsconhash_rnode is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == out_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash_rnode: out_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash_rnode: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+   
+    cmpi_encode_uint16(comm, CRFSCONHASH_RNODE_REPLICAS(crfsconhash_rnode), out_buff, out_buff_max_len, position);
+    cmpi_encode_uint32_t(comm, CRFSCONHASH_RNODE_TCID(crfsconhash_rnode), out_buff, out_buff_max_len, position);
+
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsconhash_rnode_size(const UINT32 comm, const CRFSCONHASH_RNODE *crfsconhash_rnode, UINT32 *size)
+{
+    cmpi_encode_uint16_size(comm, CRFSCONHASH_RNODE_REPLICAS(crfsconhash_rnode), size);
+    cmpi_encode_uint32_t_size(comm, CRFSCONHASH_RNODE_TCID(crfsconhash_rnode), size);
+    return (0);
+}
+
+UINT32 cmpi_decode_crfsconhash_rnode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSCONHASH_RNODE *crfsconhash_rnode)
+{
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == in_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash_rnode: in_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash_rnode: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == crfsconhash_rnode )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash_rnode: crfsconhash_rnode is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+
+    cmpi_decode_uint16(comm, in_buff, in_buff_max_len, position, &(CRFSCONHASH_RNODE_REPLICAS(crfsconhash_rnode)));
+    cmpi_decode_uint32_t(comm, in_buff, in_buff_max_len, position, &(CRFSCONHASH_RNODE_TCID(crfsconhash_rnode)));
+
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsconhash_vnode(const UINT32 comm, const CRFSCONHASH_VNODE *crfsconhash_vnode, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == crfsconhash_vnode )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash_vnode: crfsconhash_vnode is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == out_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash_vnode: out_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash_vnode: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+   
+    cmpi_encode_uint32_t(comm, CRFSCONHASH_VNODE_HASH(crfsconhash_vnode), out_buff, out_buff_max_len, position);
+    cmpi_encode_uint32_t(comm, CRFSCONHASH_VNODE_POS(crfsconhash_vnode), out_buff, out_buff_max_len, position);
+
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsconhash_vnode_size(const UINT32 comm, const CRFSCONHASH_VNODE *crfsconhash_vnode, UINT32 *size)
+{
+    cmpi_encode_uint32_t_size(comm, CRFSCONHASH_VNODE_HASH(crfsconhash_vnode), size);
+    cmpi_encode_uint32_t_size(comm, CRFSCONHASH_VNODE_POS(crfsconhash_vnode), size);
+    return (0);
+}
+
+UINT32 cmpi_decode_crfsconhash_vnode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSCONHASH_VNODE *crfsconhash_vnode)
+{
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == in_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash_vnode: in_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash_vnode: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == crfsconhash_vnode )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash_vnode: crfsconhash_vnode is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+
+    cmpi_decode_uint32_t(comm, in_buff, in_buff_max_len, position, &(CRFSCONHASH_VNODE_HASH(crfsconhash_vnode)));    
+    cmpi_decode_uint32_t(comm, in_buff, in_buff_max_len, position, &(CRFSCONHASH_VNODE_POS(crfsconhash_vnode)));    
+
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsconhash_rnode_vec(const UINT32 comm, const CVECTOR *rnode_vec, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+    UINT32 num;
+    UINT32 pos;
+    
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == rnode_vec )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash_rnode_vec: rnode_vec is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == out_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash_rnode_vec: out_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash_rnode_vec: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+   
+    num = cvector_size(rnode_vec);
+    cmpi_encode_uint32(comm, num, out_buff, out_buff_max_len, position);
+    
+    for(pos = 0; pos < num; pos ++)
+    {
+        CRFSCONHASH_RNODE *crfsconhash_rnode;
+        crfsconhash_rnode = (CRFSCONHASH_RNODE *)cvector_get(rnode_vec, pos);
+        if(NULL_PTR == crfsconhash_rnode)
+        {
+            uint32_t     tcid;
+            uint16_t     replicas;
+        
+            replicas = CRFSCONHASH_ERR_REPLICAS;
+            tcid     = (uint32_t)CMPI_ERROR_TCID;
+
+            cmpi_encode_uint16(comm, replicas, out_buff, out_buff_max_len, position);
+            cmpi_encode_uint32_t(comm, tcid, out_buff, out_buff_max_len, position);
+            
+            continue;
+        }
+
+        cmpi_encode_crfsconhash_rnode(comm, crfsconhash_rnode, out_buff, out_buff_max_len, position);
+    }
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsconhash_rnode_vec_size(const UINT32 comm, const CVECTOR *rnode_vec, UINT32 *size)
+{
+    UINT32 num;
+    UINT32 pos;
+   
+    num = cvector_size(rnode_vec);
+    cmpi_encode_uint32_size(comm, num, size);
+    
+    for(pos = 0; pos < num; pos ++)
+    {
+        CRFSCONHASH_RNODE *crfsconhash_rnode;
+        crfsconhash_rnode = (CRFSCONHASH_RNODE *)cvector_get(rnode_vec, pos);
+        if(NULL_PTR == crfsconhash_rnode)
+        {
+            uint32_t     tcid;
+            uint16_t     replicas;
+        
+            replicas = CRFSCONHASH_ERR_REPLICAS;
+            tcid     = (uint32_t)CMPI_ERROR_TCID;
+
+            cmpi_encode_uint16_size(comm, replicas, size);
+            cmpi_encode_uint32_t_size(comm, tcid, size);
+            
+            continue;
+        }
+
+        cmpi_encode_crfsconhash_rnode_size(comm, crfsconhash_rnode, size);
+    }
+    return (0);
+}
+
+UINT32 cmpi_decode_crfsconhash_rnode_vec(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CVECTOR *rnode_vec)
+{
+    UINT32 num;
+    UINT32 pos;
+    
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == in_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash_rnode_vec: in_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash_rnode_vec: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == rnode_vec )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash_rnode_vec: rnode_vec is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+
+    cmpi_decode_uint32(comm, in_buff, in_buff_max_len, position, &(num));
+
+    for(pos = 0; pos < num; pos ++)
+    {
+        CRFSCONHASH_RNODE *crfsconhash_rnode;
+
+        crfsconhash_rnode = crfsconhash_rnode_new();
+        if(NULL_PTR == crfsconhash_rnode)
+        {
+            dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_crfsconhash_rnode_vec: new rnode %u# failed\n", pos);
+            return ((UINT32)-1);
+        }
+        
+        if(EC_FALSE == cmpi_decode_crfsconhash_rnode(comm, in_buff, in_buff_max_len, position, crfsconhash_rnode))
+        {
+            dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT, "error:cmpi_decode_crfsconhash_rnode_vec: decode rnode %u# failed\n", pos);
+            crfsconhash_rnode_free(crfsconhash_rnode);
+            return ((UINT32)-1);
+        }
+        
+        if(CRFSCONHASH_ERR_REPLICAS == CRFSCONHASH_RNODE_REPLICAS(crfsconhash_rnode)
+        && ((uint32_t)CMPI_ERROR_TCID) == CRFSCONHASH_RNODE_TCID(crfsconhash_rnode))
+        {
+            cvector_push(rnode_vec, NULL_PTR);
+            crfsconhash_rnode_free(crfsconhash_rnode);
+            continue;
+        }
+
+        cvector_push(rnode_vec, crfsconhash_rnode);
+    }
+
+    return (0);
+}
+
+static UINT32 __cmpi_encode_crfsconhash_vnode_tree_inorder(const UINT32 comm, const CRB_TREE *vnode_tree, const CRB_NODE *node, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{    
+   CRFSCONHASH_VNODE *crfsconhash_vnode;
+    if(NULL_PTR == node)
+    {
+        return (0);
+    }
+    
+    if(NULL_PTR != CRB_NODE_LEFT(node))
+    {
+        if(0 != __cmpi_encode_crfsconhash_vnode_tree_inorder(comm, vnode_tree, CRB_NODE_LEFT(node), out_buff, out_buff_max_len, position))
+        {
+            dbg_log(SEC_0144_CRFSCONHASH, 0)(LOGSTDOUT, "error:__crfsconhash_flush_vnodes_inorder: encode left subtree %p failed\n", CRB_NODE_LEFT(node));
+            return ((UINT32)-1);
+        }
+    }
+
+    crfsconhash_vnode = (CRFSCONHASH_VNODE *)CRB_NODE_DATA(node);
+    if(NULL_PTR == crfsconhash_vnode)
+    {
+        dbg_log(SEC_0144_CRFSCONHASH, 0)(LOGSTDOUT, "error:__crfsconhash_flush_vnodes_inorder: data of crb node %p is null\n", node);
+        return ((UINT32)-1);
+    }
+    
+    if(0 != cmpi_encode_crfsconhash_vnode(comm, crfsconhash_vnode, out_buff, out_buff_max_len, position))
+    {
+        dbg_log(SEC_0144_CRFSCONHASH, 0)(LOGSTDOUT, "error:__crfsconhash_flush_vnodes_inorder: encode vnode %p failed\n", crfsconhash_vnode);
+        return ((UINT32)-1);
+    }
+
+    if(NULL_PTR != CRB_NODE_RIGHT(node))
+    {
+        if(0 != __cmpi_encode_crfsconhash_vnode_tree_inorder(comm, vnode_tree, CRB_NODE_RIGHT(node), out_buff, out_buff_max_len, position))
+        {
+            dbg_log(SEC_0144_CRFSCONHASH, 0)(LOGSTDOUT, "error:__crfsconhash_flush_vnodes_inorder: encode right subtree %p failed\n", CRB_NODE_RIGHT(node));
+            return ((UINT32)-1);
+        }
+    }    
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsconhash_vnode_tree(const UINT32 comm, const CRB_TREE *vnode_tree, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+    uint32_t num;
+    
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == vnode_tree )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash_vnode_tree: vnode_tree is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == out_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash_vnode_tree: out_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash_vnode_tree: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+   
+    num = crb_tree_node_num(vnode_tree);
+    cmpi_encode_uint32_t(comm, num, out_buff, out_buff_max_len, position);
+
+    __cmpi_encode_crfsconhash_vnode_tree_inorder(comm, vnode_tree, CRB_TREE_ROOT(vnode_tree), out_buff, out_buff_max_len, position);
+
+    return (0);
+}
+
+static UINT32 __cmpi_encode_crfsconhash_vnode_tree_size_inorder(const UINT32 comm, const CRB_TREE *vnode_tree, const CRB_NODE *node, UINT32 *size)
+{    
+   CRFSCONHASH_VNODE *crfsconhash_vnode;
+    if(NULL_PTR == node)
+    {
+        return (0);
+    }
+    
+    if(NULL_PTR != CRB_NODE_LEFT(node))
+    {
+        if(0 != __cmpi_encode_crfsconhash_vnode_tree_size_inorder(comm, vnode_tree, CRB_NODE_LEFT(node), size))
+        {
+            dbg_log(SEC_0144_CRFSCONHASH, 0)(LOGSTDOUT, "error:__cmpi_encode_crfsconhash_vnode_tree_size_inorder: encode left subtree %p failed\n", CRB_NODE_LEFT(node));
+            return ((UINT32)-1);
+        }
+    }
+
+    crfsconhash_vnode = (CRFSCONHASH_VNODE *)CRB_NODE_DATA(node);
+    if(NULL_PTR == crfsconhash_vnode)
+    {
+        dbg_log(SEC_0144_CRFSCONHASH, 0)(LOGSTDOUT, "error:__cmpi_encode_crfsconhash_vnode_tree_size_inorder: data of crb node %p is null\n", node);
+        return ((UINT32)-1);
+    }
+    
+    if(0 != cmpi_encode_crfsconhash_vnode_size(comm, crfsconhash_vnode, size))
+    {
+        dbg_log(SEC_0144_CRFSCONHASH, 0)(LOGSTDOUT, "error:__cmpi_encode_crfsconhash_vnode_tree_size_inorder: encode vnode %p failed\n", crfsconhash_vnode);
+        return ((UINT32)-1);
+    }
+
+    if(NULL_PTR != CRB_NODE_RIGHT(node))
+    {
+        if(0 != __cmpi_encode_crfsconhash_vnode_tree_size_inorder(comm, vnode_tree, CRB_NODE_RIGHT(node), size))
+        {
+            dbg_log(SEC_0144_CRFSCONHASH, 0)(LOGSTDOUT, "error:__cmpi_encode_crfsconhash_vnode_tree_size_inorder: encode right subtree %p failed\n", CRB_NODE_RIGHT(node));
+            return ((UINT32)-1);
+        }
+    }    
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsconhash_vnode_tree_size(const UINT32 comm, const CRB_TREE *vnode_tree, UINT32 *size)
+{
+    uint32_t num;
+   
+    num = crb_tree_node_num(vnode_tree);
+    cmpi_encode_uint32_t_size(comm, num, size);
+
+    __cmpi_encode_crfsconhash_vnode_tree_size_inorder(comm, vnode_tree, CRB_TREE_ROOT(vnode_tree), size);
+  
+    return (0);
+}
+
+UINT32 cmpi_decode_crfsconhash_vnode_tree(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRB_TREE *vnode_tree)
+{
+    uint32_t num;
+    uint32_t pos;
+    
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == in_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash_vnode_tree: in_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash_vnode_tree: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == vnode_tree )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash_vnode_tree: vnode_tree is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+
+    cmpi_decode_uint32_t(comm, in_buff, in_buff_max_len, position, &(num));
+
+    for(pos = 0; pos < num; pos ++)
+    {
+        CRFSCONHASH_VNODE *crfsconhash_vnode;
+
+        crfsconhash_vnode = crfsconhash_vnode_new();
+        if(NULL_PTR == crfsconhash_vnode)
+        {
+            dbg_log(SEC_0144_CRFSCONHASH, 0)(LOGSTDOUT, "error:cmpi_decode_crfsconhash_vnode_tree: new vnode %u# failed\n", pos);
+            return ((UINT32)-1);
+        }
+        
+        if(0 != cmpi_decode_crfsconhash_vnode(comm, in_buff, in_buff_max_len, position, crfsconhash_vnode))
+        {
+            dbg_log(SEC_0144_CRFSCONHASH, 0)(LOGSTDOUT, "error:cmpi_decode_crfsconhash_vnode_tree: decode vnode %u# failed\n", pos);
+            crfsconhash_vnode_free(crfsconhash_vnode);
+            return ((UINT32)-1);
+        }        
+
+        if(NULL_PTR == crb_tree_insert_data(vnode_tree, (void *)crfsconhash_vnode))
+        {
+            dbg_log(SEC_0144_CRFSCONHASH, 0)(LOGSTDOUT, "error:cmpi_decode_crfsconhash_vnode_tree: insert vnode %u# at failed\n", pos);
+            crfsconhash_vnode_free(crfsconhash_vnode);
+            return ((UINT32)-1);
+        }
+    }
+
+    return (0);
+}
+
+
+UINT32 cmpi_encode_crfsconhash(const UINT32 comm, const CRFSCONHASH *crfsconhash, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == crfsconhash )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash: crfsconhash is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == out_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash: out_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsconhash: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+   
+    cmpi_encode_uint32(comm, CRFSCONHASH_HASH_ID(crfsconhash), out_buff, out_buff_max_len, position);
+    cmpi_encode_crfsconhash_rnode_vec(comm, CRFSCONHASH_RNODE_VEC(crfsconhash), out_buff, out_buff_max_len, position);
+    cmpi_encode_crfsconhash_vnode_tree(comm, CRFSCONHASH_VNODE_TREE(crfsconhash), out_buff, out_buff_max_len, position);
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsconhash_size(const UINT32 comm, const CRFSCONHASH *crfsconhash, UINT32 *size)
+{
+    cmpi_encode_uint32_size(comm, CRFSCONHASH_HASH_ID(crfsconhash), size);
+    cmpi_encode_crfsconhash_rnode_vec_size(comm, CRFSCONHASH_RNODE_VEC(crfsconhash), size);
+    cmpi_encode_crfsconhash_vnode_tree_size(comm, CRFSCONHASH_VNODE_TREE(crfsconhash), size);
+    return (0);
+}
+
+UINT32 cmpi_decode_crfsconhash(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSCONHASH *crfsconhash)
+{
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == in_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash: in_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == crfsconhash )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsconhash: crfsconhash is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+
+    cmpi_decode_uint32(comm, in_buff, in_buff_max_len, position, &(CRFSCONHASH_HASH_ID(crfsconhash)));
+    cmpi_decode_crfsconhash_rnode_vec(comm, in_buff, in_buff_max_len, position, CRFSCONHASH_RNODE_VEC(crfsconhash));
+    cmpi_decode_crfsconhash_vnode_tree(comm, in_buff, in_buff_max_len, position, CRFSCONHASH_VNODE_TREE(crfsconhash));
+
+    return (0);
+}
+
+
+UINT32 cmpi_encode_crfsdt_pnode(const UINT32 comm, const CRFSDT_PNODE *crfsdt_pnode, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == crfsdt_pnode )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsdt_pnode: crfsdt_pnode is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == out_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsdt_pnode: out_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_crfsdt_pnode: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+   
+    cmpi_encode_cstring(comm, CRFSDT_PNODE_PATH(crfsdt_pnode), out_buff, out_buff_max_len, position);
+    cmpi_encode_crfsconhash(comm, CRFSDT_PNODE_CONHASH(crfsdt_pnode), out_buff, out_buff_max_len, position);
+    return (0);
+}
+
+UINT32 cmpi_encode_crfsdt_pnode_size(const UINT32 comm, const CRFSDT_PNODE *crfsdt_pnode, UINT32 *size)
+{
+    cmpi_encode_cstring_size(comm, CRFSDT_PNODE_PATH(crfsdt_pnode), size);
+    cmpi_encode_crfsconhash_size(comm, CRFSDT_PNODE_CONHASH(crfsdt_pnode), size);
+    return (0);
+}
+
+UINT32 cmpi_decode_crfsdt_pnode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSDT_PNODE *crfsdt_pnode)
+{
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == in_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsdt_pnode: in_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsdt_pnode: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == crfsdt_pnode )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_crfsdt_pnode: crfsdt_pnode is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+
+    cmpi_decode_cstring(comm, in_buff, in_buff_max_len, position, CRFSDT_PNODE_PATH(crfsdt_pnode));
+    cmpi_decode_crfsconhash(comm, in_buff, in_buff_max_len, position, CRFSDT_PNODE_CONHASH(crfsdt_pnode));
+
+    return (0);
+}
+
+UINT32 cmpi_encode_cbuffer(const UINT32 comm, const CBUFFER *cbuffer, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+    uint32_t used_size;
+    
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == cbuffer )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cbuffer: cbuffer is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == out_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cbuffer: out_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_encode_cbuffer: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+   
+    used_size = CBUFFER_USED(cbuffer);
+    cmpi_pack((UINT8 *)&(used_size), 1, CMPI_U32, out_buff, out_buff_max_len, position,  comm);
+    cmpi_pack(CBUFFER_DATA(cbuffer), CBUFFER_USED(cbuffer), CMPI_UCHAR, out_buff, out_buff_max_len, position,  comm);
+    return (0);
+}
+
+UINT32 cmpi_encode_cbuffer_size(const UINT32 comm, const CBUFFER *cbuffer, UINT32 *size)
+{
+    (*size) += CBUFFER_USED(cbuffer);
+    return (0);
+}
+
+UINT32 cmpi_decode_cbuffer(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CBUFFER *cbuffer)
+{
+#if ( SWITCH_ON == ENCODE_DEBUG_SWITCH )
+    if ( NULL_PTR == in_buff )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cbuffer: in_buff is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == position )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cbuffer: position is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+    if ( NULL_PTR == cbuffer )
+    {
+        dbg_log(SEC_0035_CMPIE, 0)(LOGSTDOUT,"error:cmpi_decode_cbuffer: cbuffer is null.\n");
+        dbg_exit(MD_TBD, 0);
+    }
+#endif /* ENCODE_DEBUG_SWITCH */
+
+    uint32_t used_size;
+
+    cmpi_unpack(in_buff, in_buff_max_len, position, (UINT8 *)&used_size, 1,   CMPI_U32, comm);
+    
+    cbuffer_expand_to(cbuffer, used_size);
+    cmpi_unpack(in_buff, in_buff_max_len, position, CBUFFER_DATA(cbuffer) + CBUFFER_USED(cbuffer), used_size, CMPI_UCHAR, comm);
+    CBUFFER_USED(cbuffer) += used_size;
+
+    return (0);
+}
+
 
 #ifdef __cplusplus
 }

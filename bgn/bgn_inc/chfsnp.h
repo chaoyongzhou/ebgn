@@ -26,7 +26,7 @@ extern "C"{
 #include "log.h"
 
 #include "cvector.h"
-#include "croutine.h"
+#include "cmutex.h"
 #include "cstring.h"
 
 #include "cbloom.h"
@@ -98,7 +98,6 @@ typedef struct
     uint32_t      stat :4;
     uint32_t      k_len:8;
         
-    uint8_t       rsvd4;
     uint8_t       key[ CHFSNP_KEY_MAX_SIZE ];  /* file name or hash/digest value*/
 
     union
@@ -125,35 +124,35 @@ typedef struct
 
 /*item max num = file size / sizeof(CHFSNP_ITEM) where sizeof(CHFSNP_ITEM) = 128B = 2^7*/
 #define CHFSNP_ITEM_BIT_SIZE             (7)
-#define CHFSNP_004K_CFG_FILE_SIZE        ((uint32_t)(1 << 12))
+#define CHFSNP_004K_CFG_FILE_SIZE        ((UINT32)(UINT32_ONE << 12))
 #define CHFSNP_004K_CFG_ITEM_MAX_NUM     (CHFSNP_004K_CFG_FILE_SIZE >> CHFSNP_ITEM_BIT_SIZE)
 
-#define CHFSNP_064K_CFG_FILE_SIZE        ((uint32_t)(1 << 16))
+#define CHFSNP_064K_CFG_FILE_SIZE        ((UINT32)(UINT32_ONE << 16))
 #define CHFSNP_064K_CFG_ITEM_MAX_NUM     (CHFSNP_064K_CFG_FILE_SIZE >> CHFSNP_ITEM_BIT_SIZE)
 
-#define CHFSNP_001M_CFG_FILE_SIZE        ((uint32_t)(1 << 20))
+#define CHFSNP_001M_CFG_FILE_SIZE        ((UINT32)(UINT32_ONE << 20))
 #define CHFSNP_001M_CFG_ITEM_MAX_NUM     (CHFSNP_001M_CFG_FILE_SIZE >> CHFSNP_ITEM_BIT_SIZE)
 
-#define CHFSNP_002M_CFG_FILE_SIZE        ((uint32_t)(1 << 21))
+#define CHFSNP_002M_CFG_FILE_SIZE        ((UINT32)(UINT32_ONE << 21))
 #define CHFSNP_002M_CFG_ITEM_MAX_NUM     (CHFSNP_002M_CFG_FILE_SIZE >> CHFSNP_ITEM_BIT_SIZE)
 
-#define CHFSNP_128M_CFG_FILE_SIZE        ((uint32_t)(1 << 27))
+#define CHFSNP_128M_CFG_FILE_SIZE        ((UINT32)(UINT32_ONE << 27))
 #define CHFSNP_128M_CFG_ITEM_MAX_NUM     (CHFSNP_128M_CFG_FILE_SIZE >> CHFSNP_ITEM_BIT_SIZE)
 
-#define CHFSNP_256M_CFG_FILE_SIZE        ((uint32_t)(1 << 28))
+#define CHFSNP_256M_CFG_FILE_SIZE        ((UINT32)(UINT32_ONE << 28))
 #define CHFSNP_256M_CFG_ITEM_MAX_NUM     (CHFSNP_256M_CFG_FILE_SIZE >> CHFSNP_ITEM_BIT_SIZE)
 
-#define CHFSNP_512M_CFG_FILE_SIZE        ((uint32_t)(1 << 29))
+#define CHFSNP_512M_CFG_FILE_SIZE        ((UINT32)(UINT32_ONE << 29))
 #define CHFSNP_512M_CFG_ITEM_MAX_NUM     (CHFSNP_512M_CFG_FILE_SIZE >> CHFSNP_ITEM_BIT_SIZE)
 
-#define CHFSNP_001G_CFG_FILE_SIZE        ((uint32_t)(1 << 30))
+#define CHFSNP_001G_CFG_FILE_SIZE        ((UINT32)(UINT32_ONE << 30))
 #define CHFSNP_001G_CFG_ITEM_MAX_NUM     (CHFSNP_001G_CFG_FILE_SIZE >> CHFSNP_ITEM_BIT_SIZE)
 
-#define CHFSNP_002G_CFG_FILE_SIZE        ((uint32_t)(1 << 31))
+#define CHFSNP_002G_CFG_FILE_SIZE        ((UINT32)(UINT32_ONE << 31))
 #define CHFSNP_002G_CFG_ITEM_MAX_NUM     (CHFSNP_002G_CFG_FILE_SIZE >> CHFSNP_ITEM_BIT_SIZE)
 
 #if (64 == WORDSIZE)
-#define CHFSNP_004G_CFG_FILE_SIZE        ((uint32_t)(1 << 32))
+#define CHFSNP_004G_CFG_FILE_SIZE        ((UINT32)(UINT32_ONE << 32))
 #define CHFSNP_004G_CFG_ITEM_MAX_NUM     (CHFSNP_004G_CFG_FILE_SIZE >> CHFSNP_ITEM_BIT_SIZE)
 
 /*due to offset is defined as 32bit integer, here cannot support more than 4G file*/
@@ -162,8 +161,9 @@ typedef struct
 typedef struct
 {
     char    *mode_str;
-    uint32_t file_size;
+    UINT32   file_size;
     uint32_t item_max_num;
+    uint32_t rsvd;
 }CHFSNP_CFG;
 
 #define CHFSNP_CFG_MOD_STR(chfsnp_cfg)                ((chfsnp_cfg)->mode_str)
@@ -217,15 +217,17 @@ typedef struct
 typedef struct
 {
     int              fd;         /* hfs namespace fd  */
-    uint32_t         fsize;
+    int              rsvd1;
+    UINT32           fsize;
     
     uint8_t         *fname;
     
-    uint16_t         state;
-    uint16_t         rsvd;
+    uint8_t          state;
+    uint8_t          rsvd2;
+    uint16_t         rsvd3;
     uint32_t         reader_num; /* current reader num*/    
     
-    CROUTINE_RWLOCK  crwlock;       /* bucket crwlock*/
+    CRWLOCK          crwlock;       /* bucket crwlock*/
     CHFSNP_HEADER   *header;        /* hashdb header */
     uint32_t        *bucket_addr;
 
@@ -246,12 +248,12 @@ typedef struct
 #define CHFSNP_1ST_CHASH_ALGO(chfsnp)         ((chfsnp)->chash_algo_1st)
 #define CHFSNP_2ND_CHASH_ALGO(chfsnp)         ((chfsnp)->chash_algo_2nd)
 
-#define CHFSNP_INIT_LOCK(chfsnp, location)    (croutine_rwlock_init(CHFSNP_CRWLOCK(chfsnp), CMUTEX_PROCESS_PRIVATE, location))
-#define CHFSNP_CLEAN_LOCK(chfsnp, location)   (croutine_rwlock_clean(CHFSNP_CRWLOCK(chfsnp), location))
+#define CHFSNP_INIT_LOCK(chfsnp, location)    (crwlock_init(CHFSNP_CRWLOCK(chfsnp), CMUTEX_PROCESS_PRIVATE, location))
+#define CHFSNP_CLEAN_LOCK(chfsnp, location)   (crwlock_clean(CHFSNP_CRWLOCK(chfsnp), location))
 #if 0
-#define CHFSNP_RDLOCK(chfsnp, location)       (croutine_rwlock_rdlock(CHFSNP_CRWLOCK(chfsnp), location))
-#define CHFSNP_WRLOCK(chfsnp, location)       (croutine_rwlock_wrlock(CHFSNP_CRWLOCK(chfsnp), location))
-#define CHFSNP_UNLOCK(chfsnp, location)       (croutine_rwlock_unlock(CHFSNP_CRWLOCK(chfsnp), location))
+#define CHFSNP_RDLOCK(chfsnp, location)       (crwlock_rdlock(CHFSNP_CRWLOCK(chfsnp), location))
+#define CHFSNP_WRLOCK(chfsnp, location)       (crwlock_wrlock(CHFSNP_CRWLOCK(chfsnp), location))
+#define CHFSNP_UNLOCK(chfsnp, location)       (crwlock_unlock(CHFSNP_CRWLOCK(chfsnp), location))
 #endif
 
 #if 1/*note: lock/unlock happen in chfs.c*/
@@ -293,7 +295,7 @@ EC_BOOL chfsnp_model_str(const uint8_t chfsnp_model, char **mod_str);
 
 uint32_t chfsnp_model_get(const char *mod_str);
 
-EC_BOOL chfsnp_model_file_size(const uint8_t chfsnp_model, uint32_t *file_size);
+EC_BOOL chfsnp_model_file_size(const uint8_t chfsnp_model, UINT32 *file_size);
 
 EC_BOOL chfsnp_model_item_max_num(const uint8_t chfsnp_model, uint32_t *item_max_num);
 
@@ -380,6 +382,8 @@ EC_BOOL chfsnp_clean(CHFSNP *chfsnp);
 EC_BOOL chfsnp_free(CHFSNP *chfsnp);
 
 EC_BOOL chfsnp_is_full(const CHFSNP *chfsnp);
+
+EC_BOOL chfsnp_is_empty(const CHFSNP *chfsnp);
 
 void chfsnp_header_print(LOG *log, const CHFSNP *chfsnp);
 

@@ -79,7 +79,7 @@ EC_BOOL cdsk_shard_transfer(const UINT32 dsk_num_src, const CDSK_SHARD *cdsk_sha
 
     if(dsk_num_src > dsk_num_des)
     {
-        sys_log(LOGSTDOUT, "error:cdsk_shard_transfer src disk num %ld > des disk num %ld\n", dsk_num_src, dsk_num_des);
+        dbg_log(SEC_0032_CDSK, 0)(LOGSTDOUT, "error:cdsk_shard_transfer src disk num %ld > des disk num %ld\n", dsk_num_src, dsk_num_des);
         return (EC_FALSE);
     }
 

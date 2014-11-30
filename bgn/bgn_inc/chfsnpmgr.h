@@ -24,7 +24,7 @@ extern "C"{
 
 #include "type.h"
 #include "cvector.h"
-#include "croutine.h"
+#include "cmutex.h"
 #include "cstring.h"
 
 #include "chashalgo.h"
@@ -36,8 +36,8 @@ extern "C"{
 typedef struct
 {
     CSTRING          chfsnp_db_root_dir;           /*chfsnp database root dir*/
-    CROUTINE_RWLOCK  crwlock;
-    CROUTINE_MUTEX   cmutex;
+    CRWLOCK          crwlock;
+    CMUTEX           cmutex;
 
     uint8_t          chfsnp_model;                  /*chfsnp model, e.g, CHFSNP_001G_MODEL*/
     uint8_t          chfsnp_1st_chash_algo_id;
@@ -74,17 +74,17 @@ typedef struct
         (cvector_set_no_lock(CHFSNP_MGR_NP_VEC(chfsnp_mgr), (chfsnp_id), (__chfsnp)))
 
 #define CHFSNP_MGR_CRWLOCK(chfsnp_mgr)                          (&((chfsnp_mgr)->crwlock))
-#define CHFSNP_MGR_CRWLOCK_INIT(chfsnp_mgr, location)           (croutine_rwlock_init(CHFSNP_MGR_CRWLOCK(chfsnp_mgr), CMUTEX_PROCESS_PRIVATE, location))
-#define CHFSNP_MGR_CRWLOCK_CLEAN(chfsnp_mgr, location)          (croutine_rwlock_clean(CHFSNP_MGR_CRWLOCK(chfsnp_mgr), location))
-#define CHFSNP_MGR_CRWLOCK_RDLOCK(chfsnp_mgr, location)         (croutine_rwlock_rdlock(CHFSNP_MGR_CRWLOCK(chfsnp_mgr), location))
-#define CHFSNP_MGR_CRWLOCK_WRLOCK(chfsnp_mgr, location)         (croutine_rwlock_wrlock(CHFSNP_MGR_CRWLOCK(chfsnp_mgr), location))
-#define CHFSNP_MGR_CRWLOCK_UNLOCK(chfsnp_mgr, location)         (croutine_rwlock_unlock(CHFSNP_MGR_CRWLOCK(chfsnp_mgr), location))
+#define CHFSNP_MGR_CRWLOCK_INIT(chfsnp_mgr, location)           (crwlock_init(CHFSNP_MGR_CRWLOCK(chfsnp_mgr), CMUTEX_PROCESS_PRIVATE, location))
+#define CHFSNP_MGR_CRWLOCK_CLEAN(chfsnp_mgr, location)          (crwlock_clean(CHFSNP_MGR_CRWLOCK(chfsnp_mgr), location))
+#define CHFSNP_MGR_CRWLOCK_RDLOCK(chfsnp_mgr, location)         (crwlock_rdlock(CHFSNP_MGR_CRWLOCK(chfsnp_mgr), location))
+#define CHFSNP_MGR_CRWLOCK_WRLOCK(chfsnp_mgr, location)         (crwlock_wrlock(CHFSNP_MGR_CRWLOCK(chfsnp_mgr), location))
+#define CHFSNP_MGR_CRWLOCK_UNLOCK(chfsnp_mgr, location)         (crwlock_unlock(CHFSNP_MGR_CRWLOCK(chfsnp_mgr), location))
 
 #define CHFSNP_MGR_CMUTEX(chfsnp_mgr)                          (&((chfsnp_mgr)->cmutex))
-#define CHFSNP_MGR_CMUTEX_INIT(chfsnp_mgr, location)           (croutine_mutex_init(CHFSNP_MGR_CMUTEX(chfsnp_mgr), CMUTEX_PROCESS_PRIVATE, location))
-#define CHFSNP_MGR_CMUTEX_CLEAN(chfsnp_mgr, location)          (croutine_mutex_clean(CHFSNP_MGR_CMUTEX(chfsnp_mgr), location))
-#define CHFSNP_MGR_CMUTEX_LOCK(chfsnp_mgr, location)           (croutine_mutex_lock(CHFSNP_MGR_CMUTEX(chfsnp_mgr), location))
-#define CHFSNP_MGR_CMUTEX_UNLOCK(chfsnp_mgr, location)         (croutine_mutex_unlock(CHFSNP_MGR_CMUTEX(chfsnp_mgr), location))
+#define CHFSNP_MGR_CMUTEX_INIT(chfsnp_mgr, location)           (cmutex_init(CHFSNP_MGR_CMUTEX(chfsnp_mgr), CMUTEX_PROCESS_PRIVATE, location))
+#define CHFSNP_MGR_CMUTEX_CLEAN(chfsnp_mgr, location)          (cmutex_clean(CHFSNP_MGR_CMUTEX(chfsnp_mgr), location))
+#define CHFSNP_MGR_CMUTEX_LOCK(chfsnp_mgr, location)           (cmutex_lock(CHFSNP_MGR_CMUTEX(chfsnp_mgr), location))
+#define CHFSNP_MGR_CMUTEX_UNLOCK(chfsnp_mgr, location)         (cmutex_unlock(CHFSNP_MGR_CMUTEX(chfsnp_mgr), location))
 
 
 CHFSNP_MGR *chfsnp_mgr_new();

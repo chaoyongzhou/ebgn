@@ -267,14 +267,14 @@ UINT8 *api_cmd_greedy_word(const UINT8 *pbeg, const UINT8 *pend, UINT8 *word, UI
 CMD_TREE *api_cmd_tree_new()
 {
     CMD_TREE *cmd_tree;
-    alloc_static_mem(MD_TASK, 0, MM_CLIST, &cmd_tree, LOC_API_0047);
+    alloc_static_mem(MD_TASK, 0, MM_CLIST, &cmd_tree, LOC_API_0471);
     api_cmd_tree_init(cmd_tree);
     return (cmd_tree);
 }
 
 EC_BOOL api_cmd_tree_init(CMD_TREE *cmd_tree)
 {
-    clist_init(CMD_TREE_SEG_LIST(cmd_tree), MM_IGNORE, LOC_API_0048);
+    clist_init(CMD_TREE_SEG_LIST(cmd_tree), MM_IGNORE, LOC_API_0472);
     return (EC_TRUE);
 }
 
@@ -287,7 +287,7 @@ EC_BOOL api_cmd_tree_clean(CMD_TREE *cmd_tree)
 EC_BOOL api_cmd_tree_free(CMD_TREE *cmd_tree)
 {
     api_cmd_tree_clean(cmd_tree);
-    free_static_mem(MD_TASK, 0, MM_CLIST, cmd_tree, LOC_API_0049);
+    free_static_mem(MD_TASK, 0, MM_CLIST, cmd_tree, LOC_API_0473);
     return (EC_TRUE);
 }
 
@@ -307,7 +307,7 @@ CMD_SEG *api_cmd_tree_add(CMD_TREE *cmd_tree, const CMD_SEG *cmd_seg)
 
         if(CMD_SEG_TYPE_KEYWORD != CMD_SEG_TYPE(cmd_seg) && CMD_SEG_TYPE_KEYWORD != CMD_SEG_TYPE(cur_cmd_seg))
         {
-            sys_log(LOGSTDOUT, "error:api_cmd_tree_add: non submemu word %s has already defined in this level\n",
+            dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_tree_add: non submemu word %s has already defined in this level\n",
                                 (char *)CMD_SEG_WORD(cur_cmd_seg));
             return (NULL_PTR);
         }
@@ -353,7 +353,7 @@ EC_BOOL api_cmd_tree_define(CMD_TREE *cmd_tree, CMD_HANDLER cmd_handler, const U
 
         if(NULL_PTR == CMD_SEG_SUB_TREE(cmd_seg_ret))
         {
-            sys_log(LOGSTDOUT, "error:api_cmd_tree_define:subtree is null\n");
+            dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_tree_define:subtree is null\n");
             return (EC_FALSE);
         }
 
@@ -362,7 +362,7 @@ EC_BOOL api_cmd_tree_define(CMD_TREE *cmd_tree, CMD_HANDLER cmd_handler, const U
 
     if(NULL_PTR != CMD_SEG_HANDLER(cmd_seg_ret))
     {
-        sys_log(LOGSTDOUT, "error:api_cmd_tree_define: handler was already defined\n");
+        dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_tree_define: handler was already defined\n");
         return (EC_FALSE);
     }
 
@@ -375,29 +375,29 @@ EC_BOOL api_cmd_tree_parse(const CMD_TREE *cmd_tree, const UINT8 *cmd_line, CMD_
     UINT8 word[API_CMD_SEG_WORD_SIZE];
     CLIST_DATA *clist_data;
 
-    sys_log(LOGSTDNULL, "[DEBUG] api_cmd_tree_parse => cmd_line = %s\n", (char *)cmd_line);
+    dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_tree_parse => cmd_line = %s\n", (char *)cmd_line);
     api_cmd_greedy_word(cmd_line, cmd_line + strlen((char *)cmd_line), word, API_CMD_SEG_WORD_SIZE);/*probe*/
-    sys_log(LOGSTDNULL, "[DEBUG] api_cmd_tree_parse => word = %s\n", (char *)word);
+    dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_tree_parse => word = %s\n", (char *)word);
 
     CLIST_LOOP_NEXT(CMD_TREE_SEG_LIST(cmd_tree), clist_data)
     {
         CMD_SEG *cmd_seg;
 
         cmd_seg = (CMD_SEG *)CLIST_DATA_DATA(clist_data);
-        sys_log(LOGSTDNULL, "[DEBUG] api_cmd_tree_parse => check word %s\n", (char *)CMD_SEG_WORD(cmd_seg));
+        dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_tree_parse => check word %s\n", (char *)CMD_SEG_WORD(cmd_seg));
         if(CMD_SEG_TYPE_KEYWORD != CMD_SEG_TYPE(cmd_seg))
         {
-            sys_log(LOGSTDNULL, "[DEBUG] api_cmd_tree_parse => type %ld, word %s\n", CMD_SEG_TYPE(cmd_seg), (char *)CMD_SEG_WORD(cmd_seg));
+            dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_tree_parse => type %ld, word %s\n", CMD_SEG_TYPE(cmd_seg), (char *)CMD_SEG_WORD(cmd_seg));
             return api_cmd_seg_parse(cmd_seg, cmd_line, cmd_para_vec);
         }
 
         if(0 == strncasecmp((char *)CMD_SEG_WORD(cmd_seg), (char *)word, API_CMD_SEG_WORD_SIZE))
         {
-            sys_log(LOGSTDNULL, "[DEBUG] api_cmd_tree_parse => keyword\n");
+            dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_tree_parse => keyword\n");
             return api_cmd_seg_parse(cmd_seg, cmd_line, cmd_para_vec);
         }
     }
-    sys_log(LOGCONSOLE, "invalid syntax: %s\n", (char *)cmd_line);
+    dbg_log(SEC_0010_API, 0)(LOGCONSOLE, "invalid syntax: %s\n", (char *)cmd_line);
     return (EC_FALSE);
 }
 
@@ -420,7 +420,7 @@ CMD_SEG *api_cmd_seg_new()
 {
     CMD_SEG *cmd_seg;
 
-    alloc_static_mem(MD_TASK, 0, MM_CMD_SEG, &cmd_seg, LOC_API_0050);
+    alloc_static_mem(MD_TASK, 0, MM_CMD_SEG, &cmd_seg, LOC_API_0474);
     api_cmd_seg_init(cmd_seg);
     return (cmd_seg);
 }
@@ -462,7 +462,7 @@ EC_BOOL api_cmd_seg_clean(CMD_SEG *cmd_seg)
 EC_BOOL api_cmd_seg_free(CMD_SEG *cmd_seg)
 {
     api_cmd_seg_clean(cmd_seg);
-    free_static_mem(MD_TASK, 0, MM_CMD_SEG, cmd_seg, LOC_API_0051);
+    free_static_mem(MD_TASK, 0, MM_CMD_SEG, cmd_seg, LOC_API_0475);
     return (EC_TRUE);
 }
 
@@ -591,7 +591,7 @@ EC_BOOL api_cmd_seg_fetch(CMD_SEG *cmd_seg, const UINT8 *cmd_fmt, UINT8 **next_c
 
     CMD_SEG_TYPE(cmd_seg)  = CMD_SEG_TYPE_NULL;
     CMD_SEG_ELEM(cmd_seg)  = NULL_PTR;
-    sys_log(LOGSTDOUT, "error:api_cmd_seg_fetch: unknow token %s\n", (char *)token);
+    dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_seg_fetch: unknow token %s\n", (char *)token);
     return (EC_FALSE);
 }
 
@@ -603,10 +603,10 @@ EC_BOOL api_cmd_seg_handle(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PA
 
     if(NULL_PTR == cmd_line)
     {
-        sys_log(LOGSTDNULL, "[DEBUG] api_cmd_seg_handle => cmd_line is null\n");
+        dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_seg_handle => cmd_line is null\n");
         if(NULL_PTR == CMD_SEG_HANDLER(cmd_seg))
         {
-            sys_log(LOGSTDOUT, "error:api_cmd_seg_handle: no handler defined\n");
+            dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_seg_handle: no handler defined\n");
             return (EC_FALSE);
         }
 
@@ -620,10 +620,10 @@ EC_BOOL api_cmd_seg_handle(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PA
     pcur = api_cmd_greedy_space(pcur, pend);
     if(NULL_PTR == pcur)
     {
-        sys_log(LOGSTDNULL, "[DEBUG] api_cmd_seg_handle => pcur is null, cmd_line = %s\n", (char *)cmd_line);
+        dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_seg_handle => pcur is null, cmd_line = %s\n", (char *)cmd_line);
         if(NULL_PTR == CMD_SEG_HANDLER(cmd_seg))
         {
-            sys_log(LOGSTDOUT, "error:api_cmd_seg_handle: no handler defined\n");
+            dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_seg_handle: no handler defined\n");
             return (EC_FALSE);
         }
 
@@ -632,11 +632,11 @@ EC_BOOL api_cmd_seg_handle(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PA
 
     if(NULL_PTR == CMD_SEG_SUB_TREE(cmd_seg))
     {
-        sys_log(LOGSTDOUT, "error:api_cmd_seg_handle: no parser for %s\n", (char *)pcur);
+        dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_seg_handle: no parser for %s\n", (char *)pcur);
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDNULL, "[DEBUG] api_cmd_seg_handle => subtree\n");
+    dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_seg_handle => subtree\n");
     return api_cmd_tree_parse(CMD_SEG_SUB_TREE(cmd_seg), pcur, cmd_para_vec);
 }
 
@@ -655,7 +655,7 @@ EC_BOOL api_cmd_seg_parse(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PAR
         case CMD_SEG_TYPE_KEYWORD :
         {
             pcur += strlen((char *)CMD_SEG_WORD(cmd_seg));
-            sys_log(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => keyword, word %s, left %s\n", (char *)CMD_SEG_WORD(cmd_seg), (char *)pcur);
+            dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => keyword, word %s, left %s\n", (char *)CMD_SEG_WORD(cmd_seg), (char *)pcur);
             return api_cmd_seg_handle(cmd_seg, pcur, cmd_para_vec);
         }
         case CMD_SEG_TYPE_INTEGER :
@@ -669,7 +669,7 @@ EC_BOOL api_cmd_seg_parse(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PAR
             api_cmd_para_set_uint32(cmd_para, value);
             api_cmd_para_vec_add(cmd_para_vec, cmd_para);
 
-            sys_log(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => integer, left %s\n", (char *)pcur);
+            dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => integer, left %s\n", (char *)pcur);
             return api_cmd_seg_handle(cmd_seg, pcur, cmd_para_vec);
         }
         case CMD_SEG_TYPE_UINT64    :
@@ -683,7 +683,7 @@ EC_BOOL api_cmd_seg_parse(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PAR
             api_cmd_para_set_uint64(cmd_para, value);
             api_cmd_para_vec_add(cmd_para_vec, cmd_para);
 
-            sys_log(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => uint64_t, left %s\n", (char *)pcur);
+            dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => uint64_t, left %s\n", (char *)pcur);
             return api_cmd_seg_handle(cmd_seg, pcur, cmd_para_vec);
         }         
         case CMD_SEG_TYPE_REAL    :
@@ -697,7 +697,7 @@ EC_BOOL api_cmd_seg_parse(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PAR
             api_cmd_para_set_real(cmd_para, &value);
             api_cmd_para_vec_add(cmd_para_vec, cmd_para);
 
-            sys_log(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => real, left %s\n", (char *)pcur);
+            dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => real, left %s\n", (char *)pcur);
 
             return api_cmd_seg_handle(cmd_seg, pcur, cmd_para_vec);
         }
@@ -706,14 +706,14 @@ EC_BOOL api_cmd_seg_parse(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PAR
             CMD_PARA *cmd_para;
             CSTRING *cstring;
 
-            cstring = cstring_new(NULL_PTR, LOC_API_0052);
+            cstring = cstring_new(NULL_PTR, LOC_API_0476);
             pcur = api_cmd_greedy_cstring(pcur, pend, cstring);
 
             cmd_para = api_cmd_para_new();
             api_cmd_para_set_cstring(cmd_para, cstring);
             api_cmd_para_vec_add(cmd_para_vec, cmd_para);
 
-            sys_log(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => cstring, left %s\n", (char *)pcur);
+            dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => cstring, left %s\n", (char *)pcur);
 
             api_cmd_para_vec_print(LOGSTDNULL, cmd_para_vec);
 
@@ -730,7 +730,7 @@ EC_BOOL api_cmd_seg_parse(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PAR
             api_cmd_para_set_uint32(cmd_para, tcid);
             api_cmd_para_vec_add(cmd_para_vec, cmd_para);
 
-            sys_log(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => tcid, left %s\n", (char *)pcur);
+            dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => tcid, left %s\n", (char *)pcur);
             return api_cmd_seg_handle(cmd_seg, pcur, cmd_para_vec);
         }
         case CMD_SEG_TYPE_MASK    :
@@ -744,7 +744,7 @@ EC_BOOL api_cmd_seg_parse(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PAR
             api_cmd_para_set_uint32(cmd_para, mask);
             api_cmd_para_vec_add(cmd_para_vec, cmd_para);
 
-            sys_log(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => mask, left %s\n", (char *)pcur);
+            dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => mask, left %s\n", (char *)pcur);
             return api_cmd_seg_handle(cmd_seg, pcur, cmd_para_vec);
         }
         case CMD_SEG_TYPE_IPADDR    :
@@ -758,7 +758,7 @@ EC_BOOL api_cmd_seg_parse(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PAR
             api_cmd_para_set_uint32(cmd_para, ipaddr);
             api_cmd_para_vec_add(cmd_para_vec, cmd_para);
 
-            sys_log(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => ipaddr, left %s\n", (char *)pcur);
+            dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => ipaddr, left %s\n", (char *)pcur);
             return api_cmd_seg_handle(cmd_seg, pcur, cmd_para_vec);
         }      
         case CMD_SEG_TYPE_LIST:
@@ -767,7 +767,7 @@ EC_BOOL api_cmd_seg_parse(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PAR
             CSTRING *cstring;
             UINT32 value;
 
-            cstring = cstring_new(NULL_PTR, LOC_API_0053);
+            cstring = cstring_new(NULL_PTR, LOC_API_0477);
             pcur = api_cmd_greedy_cstring(pcur, pend, cstring);
 
             api_cmd_elem_find_list_item(CMD_SEG_ELEM(cmd_seg), (char *)cstring_get_str(cstring), &value);
@@ -777,13 +777,13 @@ EC_BOOL api_cmd_seg_parse(const CMD_SEG *cmd_seg, const UINT8 *cmd_line, CMD_PAR
             api_cmd_para_set_uint32(cmd_para, value);
             api_cmd_para_vec_add(cmd_para_vec, cmd_para);
 
-            sys_log(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => list, left %s\n", (char *)pcur);
+            dbg_log(SEC_0010_API, 9)(LOGSTDNULL, "[DEBUG] api_cmd_seg_parse => list, left %s\n", (char *)pcur);
             api_cmd_para_vec_print(LOGSTDNULL, cmd_para_vec);
 
             return api_cmd_seg_handle(cmd_seg, pcur, cmd_para_vec);
         }
     }
-    sys_log(LOGSTDOUT, "error:api_cmd_seg_parse: not support seg type %ld\n", CMD_SEG_TYPE(cmd_seg));
+    dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_seg_parse: not support seg type %ld\n", CMD_SEG_TYPE(cmd_seg));
     return (EC_FALSE);
 }
 
@@ -791,7 +791,7 @@ CMD_PARA *api_cmd_para_new()
 {
     CMD_PARA *cmd_para;
 
-    alloc_static_mem(MD_TASK, 0, MM_CMD_PARA, &cmd_para, LOC_API_0054);
+    alloc_static_mem(MD_TASK, 0, MM_CMD_PARA, &cmd_para, LOC_API_0478);
     api_cmd_para_init(cmd_para);
     return (cmd_para);
 }
@@ -827,7 +827,7 @@ EC_BOOL api_cmd_para_clean(CMD_PARA *cmd_para)
 EC_BOOL api_cmd_para_free(CMD_PARA *cmd_para)
 {
     api_cmd_para_clean(cmd_para);
-    free_static_mem(MD_TASK, 0, MM_CMD_PARA, cmd_para, LOC_API_0055);
+    free_static_mem(MD_TASK, 0, MM_CMD_PARA, cmd_para, LOC_API_0479);
     return (EC_TRUE);
 }
 
@@ -954,27 +954,27 @@ EC_BOOL api_cmd_para_get_cstring(const CMD_PARA *cmd_para, CSTRING **cstring)
 CMD_PARA_VEC *api_cmd_para_vec_new()
 {
     CMD_PARA_VEC *cmd_para_vec;
-    alloc_static_mem(MD_TASK, 0, MM_CVECTOR, &cmd_para_vec, LOC_API_0056);
+    alloc_static_mem(MD_TASK, 0, MM_CVECTOR, &cmd_para_vec, LOC_API_0480);
     api_cmd_para_vec_init(cmd_para_vec);
     return (cmd_para_vec);
 }
 
 EC_BOOL api_cmd_para_vec_init(CMD_PARA_VEC *cmd_para_vec)
 {
-    cvector_init(CMD_PARA_VAL_LIST(cmd_para_vec), 0, MM_CMD_PARA, CVECTOR_LOCK_ENABLE, LOC_API_0057);
+    cvector_init(CMD_PARA_VAL_LIST(cmd_para_vec), 0, MM_CMD_PARA, CVECTOR_LOCK_ENABLE, LOC_API_0481);
     return (EC_TRUE);
 }
 
 EC_BOOL api_cmd_para_vec_clean(CMD_PARA_VEC *cmd_para_vec)
 {
-    cvector_clean(CMD_PARA_VAL_LIST(cmd_para_vec), (CLIST_DATA_DATA_CLEANER)api_cmd_para_free, LOC_API_0058);
+    cvector_clean(CMD_PARA_VAL_LIST(cmd_para_vec), (CLIST_DATA_DATA_CLEANER)api_cmd_para_free, LOC_API_0482);
     return (EC_TRUE);
 }
 
 EC_BOOL api_cmd_para_vec_free(CMD_PARA_VEC *cmd_para_vec)
 {
     api_cmd_para_vec_clean(cmd_para_vec);
-    free_static_mem(MD_TASK, 0, MM_CVECTOR, cmd_para_vec, LOC_API_0059);
+    free_static_mem(MD_TASK, 0, MM_CVECTOR, cmd_para_vec, LOC_API_0483);
     return (EC_TRUE);
 }
 
@@ -985,7 +985,7 @@ EC_BOOL api_cmd_para_vec_get_uint32(const CMD_PARA_VEC *cmd_para_vec, const UINT
     cmd_para = (CMD_PARA *)cvector_get(CMD_PARA_VAL_LIST(cmd_para_vec), pos);
     if(NULL_PTR == cmd_para)
     {
-        sys_log(LOGSTDOUT, "error:api_cmd_para_vec_get_uint32: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
+        dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_para_vec_get_uint32: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
         return (EC_FALSE);
     }
 
@@ -999,7 +999,7 @@ EC_BOOL api_cmd_para_vec_get_uint64(const CMD_PARA_VEC *cmd_para_vec, const UINT
     cmd_para = (CMD_PARA *)cvector_get(CMD_PARA_VAL_LIST(cmd_para_vec), pos);
     if(NULL_PTR == cmd_para)
     {
-        sys_log(LOGSTDOUT, "error:api_cmd_para_vec_get_uint64: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
+        dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_para_vec_get_uint64: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
         return (EC_FALSE);
     }
 
@@ -1013,7 +1013,7 @@ EC_BOOL api_cmd_para_vec_get_tcid(const CMD_PARA_VEC *cmd_para_vec, const UINT32
     cmd_para = (CMD_PARA *)cvector_get(CMD_PARA_VAL_LIST(cmd_para_vec), pos);
     if(NULL_PTR == cmd_para)
     {
-        sys_log(LOGSTDOUT, "error:api_cmd_para_vec_get_tcid: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
+        dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_para_vec_get_tcid: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
         return (EC_FALSE);
     }
 
@@ -1027,7 +1027,7 @@ EC_BOOL api_cmd_para_vec_get_mask(const CMD_PARA_VEC *cmd_para_vec, const UINT32
     cmd_para = (CMD_PARA *)cvector_get(CMD_PARA_VAL_LIST(cmd_para_vec), pos);
     if(NULL_PTR == cmd_para)
     {
-        sys_log(LOGSTDOUT, "error:api_cmd_para_vec_get_mask: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
+        dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_para_vec_get_mask: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
         return (EC_FALSE);
     }
 
@@ -1041,7 +1041,7 @@ EC_BOOL api_cmd_para_vec_get_ipaddr(const CMD_PARA_VEC *cmd_para_vec, const UINT
     cmd_para = (CMD_PARA *)cvector_get(CMD_PARA_VAL_LIST(cmd_para_vec), pos);
     if(NULL_PTR == cmd_para)
     {
-        sys_log(LOGSTDOUT, "error:api_cmd_para_vec_get_ipaddr: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
+        dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_para_vec_get_ipaddr: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
         return (EC_FALSE);
     }
 
@@ -1055,7 +1055,7 @@ EC_BOOL api_cmd_para_vec_get_real(const CMD_PARA_VEC *cmd_para_vec, const UINT32
     cmd_para = (CMD_PARA *)cvector_get(CMD_PARA_VAL_LIST(cmd_para_vec), pos);
     if(NULL_PTR == cmd_para)
     {
-        sys_log(LOGSTDOUT, "error:api_cmd_para_vec_get_real: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
+        dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_para_vec_get_real: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
         return (EC_FALSE);
     }
 
@@ -1069,7 +1069,7 @@ EC_BOOL api_cmd_para_vec_get_cstring(const CMD_PARA_VEC *cmd_para_vec, const UIN
     cmd_para = (CMD_PARA *)cvector_get(CMD_PARA_VAL_LIST(cmd_para_vec), pos);
     if(NULL_PTR == cmd_para)
     {
-        sys_log(LOGSTDOUT, "error:api_cmd_para_vec_get_cstring: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
+        dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:api_cmd_para_vec_get_cstring: CMD_PARA_VAL_LIST is null at pos %ld\n", pos);
         return (EC_FALSE);
     }
 
@@ -1091,7 +1091,7 @@ void api_cmd_para_vec_print(LOG *log, const CMD_PARA_VEC *cmd_para_vec)
 CMD_HELP *api_cmd_help_new()
 {
     CMD_HELP *cmd_help;
-    alloc_static_mem(MD_TASK, 0, MM_CMD_HELP, &cmd_help, LOC_API_0060);
+    alloc_static_mem(MD_TASK, 0, MM_CMD_HELP, &cmd_help, LOC_API_0484);
     api_cmd_help_init(cmd_help);
     return (cmd_help);
 }
@@ -1113,7 +1113,7 @@ EC_BOOL api_cmd_help_clean(CMD_HELP *cmd_help)
 EC_BOOL api_cmd_help_free(CMD_HELP *cmd_help)
 {
     api_cmd_help_clean(cmd_help);
-    free_static_mem(MD_TASK, 0, MM_CMD_HELP, cmd_help, LOC_API_0061);
+    free_static_mem(MD_TASK, 0, MM_CMD_HELP, cmd_help, LOC_API_0485);
     return (EC_TRUE);
 }
 
@@ -1148,27 +1148,27 @@ void api_cmd_help_print(LOG *log, const CMD_HELP *cmd_help)
 CMD_HELP_VEC *api_cmd_help_vec_new()
 {
     CMD_HELP_VEC *cmd_help_vec;
-    alloc_static_mem(MD_TASK, 0, MM_CVECTOR, &cmd_help_vec, LOC_API_0062);
+    alloc_static_mem(MD_TASK, 0, MM_CVECTOR, &cmd_help_vec, LOC_API_0486);
     api_cmd_help_vec_init(cmd_help_vec);
     return (cmd_help_vec);
 }
 
 EC_BOOL api_cmd_help_vec_init(CMD_HELP_VEC *cmd_help_vec)
 {
-    cvector_init(CMD_HELP_NODE_VEC(cmd_help_vec), 0, MM_CMD_HELP, CVECTOR_LOCK_ENABLE, LOC_API_0063);
+    cvector_init(CMD_HELP_NODE_VEC(cmd_help_vec), 0, MM_CMD_HELP, CVECTOR_LOCK_ENABLE, LOC_API_0487);
     return (EC_TRUE);
 }
 
 EC_BOOL api_cmd_help_vec_clean(CMD_HELP_VEC *cmd_help_vec)
 {
-    cvector_clean(CMD_HELP_NODE_VEC(cmd_help_vec), (CLIST_DATA_DATA_CLEANER)api_cmd_help_free, LOC_API_0064);
+    cvector_clean(CMD_HELP_NODE_VEC(cmd_help_vec), (CLIST_DATA_DATA_CLEANER)api_cmd_help_free, LOC_API_0488);
     return (EC_TRUE);
 }
 
 EC_BOOL api_cmd_help_vec_free(CMD_HELP_VEC *cmd_help_vec)
 {
     api_cmd_help_vec_clean(cmd_help_vec);
-    free_static_mem(MD_TASK, 0, MM_CVECTOR, cmd_help_vec, LOC_API_0065);
+    free_static_mem(MD_TASK, 0, MM_CVECTOR, cmd_help_vec, LOC_API_0489);
     return (EC_TRUE);
 }
 
@@ -1222,7 +1222,7 @@ CMD_ELEM *api_cmd_elem_new()
 {
     CMD_ELEM *cmd_elem;
 
-    alloc_static_mem(MD_TASK, 0, MM_CMD_ELEM, &cmd_elem, LOC_API_0066);
+    alloc_static_mem(MD_TASK, 0, MM_CMD_ELEM, &cmd_elem, LOC_API_0490);
     api_cmd_elem_init(cmd_elem);
     return (cmd_elem);
 }
@@ -1260,8 +1260,8 @@ EC_BOOL api_cmd_elem_clean(CMD_ELEM *cmd_elem)
         case CMD_PARA_TYPE_LIST:
             if(NULL_PTR != CMD_ELEM_VEC(cmd_elem))
             {
-                cvector_clean(CMD_ELEM_VEC(cmd_elem), (CVECTOR_DATA_CLEANER)api_cmd_elem_free, LOC_API_0067);
-                cvector_free(CMD_ELEM_VEC(cmd_elem), LOC_API_0068);
+                cvector_clean(CMD_ELEM_VEC(cmd_elem), (CVECTOR_DATA_CLEANER)api_cmd_elem_free, LOC_API_0491);
+                cvector_free(CMD_ELEM_VEC(cmd_elem), LOC_API_0492);
                 CMD_ELEM_VEC(cmd_elem) = NULL_PTR;
             }
             break;
@@ -1277,7 +1277,7 @@ EC_BOOL api_cmd_elem_clean(CMD_ELEM *cmd_elem)
 EC_BOOL api_cmd_elem_free(CMD_ELEM *cmd_elem)
 {
     api_cmd_elem_clean(cmd_elem);
-    free_static_mem(MD_TASK, 0, MM_CMD_ELEM, cmd_elem, LOC_API_0069);
+    free_static_mem(MD_TASK, 0, MM_CMD_ELEM, cmd_elem, LOC_API_0493);
     return (EC_TRUE);
 }
 
@@ -1397,7 +1397,7 @@ CMD_ELEM *api_cmd_elem_create_list(const char *word)
 
     cmd_elem = api_cmd_elem_new();
     CMD_ELEM_TYPE(cmd_elem) = CMD_PARA_TYPE_LIST;
-    CMD_ELEM_VEC(cmd_elem)  = cvector_new(0, MM_CMD_ELEM, LOC_API_0070);
+    CMD_ELEM_VEC(cmd_elem)  = cvector_new(0, MM_CMD_ELEM, LOC_API_0494);
 
     for(pos = 0; pos + 1 < API_CMD_SEG_WORD_SIZE && pos < strlen(word); pos ++)
     {
@@ -1450,27 +1450,27 @@ EC_BOOL api_cmd_elem_find_list_item(CMD_ELEM *cmd_elem_list, const char *word, U
 CMD_ELEM_VEC *api_cmd_elem_vec_new()
 {
     CMD_ELEM_VEC *cmd_elem_vec;
-    alloc_static_mem(MD_TASK, 0, MM_CVECTOR, &cmd_elem_vec, LOC_API_0071);
+    alloc_static_mem(MD_TASK, 0, MM_CVECTOR, &cmd_elem_vec, LOC_API_0495);
     api_cmd_elem_vec_init(cmd_elem_vec);
     return (cmd_elem_vec);
 }
 
 EC_BOOL api_cmd_elem_vec_init(CMD_ELEM_VEC *cmd_elem_vec)
 {
-    cvector_init(CMD_ELEM_NODE_VEC(cmd_elem_vec), 0, MM_CMD_ELEM, CVECTOR_LOCK_ENABLE, LOC_API_0072);
+    cvector_init(CMD_ELEM_NODE_VEC(cmd_elem_vec), 0, MM_CMD_ELEM, CVECTOR_LOCK_ENABLE, LOC_API_0496);
     return (EC_TRUE);
 }
 
 EC_BOOL api_cmd_elem_vec_clean(CMD_ELEM_VEC *cmd_elem_vec)
 {
-    cvector_clean(CMD_ELEM_NODE_VEC(cmd_elem_vec), (CLIST_DATA_DATA_CLEANER)api_cmd_elem_free, LOC_API_0073);
+    cvector_clean(CMD_ELEM_NODE_VEC(cmd_elem_vec), (CLIST_DATA_DATA_CLEANER)api_cmd_elem_free, LOC_API_0497);
     return (EC_TRUE);
 }
 
 EC_BOOL api_cmd_elem_vec_free(CMD_ELEM_VEC *cmd_elem_vec)
 {
     api_cmd_elem_vec_clean(cmd_elem_vec);
-    free_static_mem(MD_TASK, 0, MM_CVECTOR, cmd_elem_vec, LOC_API_0074);
+    free_static_mem(MD_TASK, 0, MM_CVECTOR, cmd_elem_vec, LOC_API_0498);
     return (EC_TRUE);
 }
 
@@ -1505,7 +1505,7 @@ EC_BOOL api_cmd_comm_parse(const CMD_TREE *cmd_tree, const UINT8 *cmd_line, CMD_
 {
     if(EC_FALSE == api_cmd_tree_parse(cmd_tree, cmd_line, cmd_para_vec))
     {
-        sys_log(LOGCONSOLE, "invalid syntax: %s\n", (char *)cmd_line);
+        dbg_log(SEC_0010_API, 0)(LOGCONSOLE, "invalid syntax: %s\n", (char *)cmd_line);
         return (EC_FALSE);
     }
     return (EC_TRUE);

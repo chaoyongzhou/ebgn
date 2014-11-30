@@ -55,6 +55,8 @@ EC_BOOL cparacfg_free(CPARACFG *cparacfg);
 
 EC_BOOL cparacfg_init(CPARACFG *cparacfg, const UINT32 this_tcid, const UINT32 this_rank);
 
+EC_BOOL cparacfg_clone(const CPARACFG *cparacfg_src, CPARACFG *cparacfg_des);
+
 EC_BOOL cparacfg_validity_check(const CPARACFG *cparacfg);
 
 EC_BOOL cparacfg_cmp(const CPARACFG *cparacfg_1st, const CPARACFG *cparacfg_2nd);

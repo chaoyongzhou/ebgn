@@ -55,8 +55,6 @@ extern "C"{
 #include "demo_hsrfs.h"
 
 
-EC_BOOL csocket_accept(const int srv_sockfd, int *conn_sockfd, UINT32 *client_ipaddr);
-
 EC_BOOL csocket_start_udp_mcast_sender( const UINT32 mcast_ipaddr, const UINT32 srv_port, int *srv_sockfd );
 
 EC_BOOL csocket_stop_udp_mcast_sender( const int sockfd, const UINT32 mcast_ipaddr );
@@ -83,7 +81,7 @@ int main_exec(int argc, char **argv)
     task_brd_default_init(argc, argv);
     if(EC_FALSE == task_brd_default_check_validity())
     {
-        sys_log(LOGSTDOUT, "error:main_exec: validity checking failed\n");
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:main_exec: validity checking failed\n");
         task_brd_default_abort();
         return (-1);
     }
@@ -105,9 +103,9 @@ int main_exec(int argc, char **argv)
 
         //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
 
-        sys_log(LOGSTDOUT, "======================================================================\n");
-        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
-        sys_log(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
         mod_mgr_print(LOGSTDOUT, mod_mgr_def);
 
         mod_mgr_free(mod_mgr_def);
@@ -118,10 +116,10 @@ int main_exec(int argc, char **argv)
     /*fwd rank entrance*/
     else if (CMPI_FWD_RANK == this_rank)
     {
-        sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
-        sys_log(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
 
         do_slave_wait_default();
     }
@@ -144,7 +142,7 @@ int main_cextsrv(int argc, char **argv)
     task_brd_default_init(argc, argv);
     if(EC_FALSE == task_brd_default_check_validity())
     {
-        sys_log(LOGSTDOUT, "error:main_cextsrv: validity checking failed\n");
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:main_cextsrv: validity checking failed\n");
         task_brd_default_abort();
         return (-1);
     }
@@ -166,9 +164,9 @@ int main_cextsrv(int argc, char **argv)
 
         //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
 
-        sys_log(LOGSTDOUT, "======================================================================\n");
-        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
-        sys_log(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
         mod_mgr_print(LOGSTDOUT, mod_mgr_def);
 
         mod_mgr_free(mod_mgr_def);
@@ -185,17 +183,17 @@ int main_cextsrv(int argc, char **argv)
         cextsrv_port = 69001;
         thread_num   = 3;
 
-        task_brd_default_start_cextsrv(cextsrv_port, thread_num);
+        task_brd_default_start_cextsrv(task_brd_default_get_srv_ipaddr(), cextsrv_port, thread_num);
 
         do_slave_wait_default();
     }
 
     else if (CMPI_FWD_RANK == this_rank)
     {
-        sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
-        sys_log(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
 
         do_slave_wait_default();
     }
@@ -218,7 +216,7 @@ int main_csrv(int argc, char **argv)
     task_brd_default_init(argc, argv);
     if(EC_FALSE == task_brd_default_check_validity())
     {
-        sys_log(LOGSTDOUT, "error:main_csrv: validity checking failed\n");
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:main_csrv: validity checking failed\n");
         task_brd_default_abort();
         return (-1);
     }
@@ -240,9 +238,9 @@ int main_csrv(int argc, char **argv)
 
         //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
 
-        sys_log(LOGSTDOUT, "======================================================================\n");
-        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
-        sys_log(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
         mod_mgr_print(LOGSTDOUT, mod_mgr_def);
 
         mod_mgr_free(mod_mgr_def);
@@ -260,10 +258,10 @@ int main_csrv(int argc, char **argv)
 
     else if (CMPI_FWD_RANK == this_rank)
     {
-        sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
-        sys_log(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
 
         do_slave_wait_default();
     }
@@ -286,7 +284,7 @@ int main_trans(int argc, char **argv)
     task_brd_default_init(argc, argv);
     if(EC_FALSE == task_brd_default_check_validity())
     {
-        sys_log(LOGSTDOUT, "error:main_trans: validity checking failed\n");
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:main_trans: validity checking failed\n");
         task_brd_default_abort();
         return (-1);
     }
@@ -308,9 +306,9 @@ int main_trans(int argc, char **argv)
 
         //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
 
-        sys_log(LOGSTDOUT, "======================================================================\n");
-        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
-        sys_log(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
         mod_mgr_print(LOGSTDOUT, mod_mgr_def);
 
         mod_mgr_free(mod_mgr_def);
@@ -336,10 +334,10 @@ int main_trans(int argc, char **argv)
 
     else if (CMPI_FWD_RANK == this_rank)
     {
-        sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
-        sys_log(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
 
         do_slave_wait_default();
     }
@@ -362,7 +360,7 @@ int main_udp(int argc, char **argv)
     task_brd_default_init(argc, argv);
     if(EC_FALSE == task_brd_default_check_validity())
     {
-        sys_log(LOGSTDOUT, "error:main_trans: validity checking failed\n");
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:main_trans: validity checking failed\n");
         task_brd_default_abort();
         return (-1);
     }
@@ -384,9 +382,9 @@ int main_udp(int argc, char **argv)
 
         //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
 
-        sys_log(LOGSTDOUT, "======================================================================\n");
-        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
-        sys_log(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
         mod_mgr_print(LOGSTDOUT, mod_mgr_def);
 
         mod_mgr_free(mod_mgr_def);
@@ -406,17 +404,17 @@ int main_udp(int argc, char **argv)
 
         if(EC_FALSE == csocket_start_udp_mcast_recver(mcast_ipaddr, mcast_port, &sockfd))
         {
-            sys_log(LOGCONSOLE, "error:start udp server %s:%ld failed\n", mcast_ipaddr_str, mcast_port);
+            dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "error:start udp server %s:%ld failed\n", mcast_ipaddr_str, mcast_port);
         }
         else
         {
             UINT8 data[256];
             UINT32 dlen;
 
-            sys_log(LOGCONSOLE, "start udp server %s:%ld\n", mcast_ipaddr_str, mcast_port);
+            dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "start udp server %s:%ld\n", mcast_ipaddr_str, mcast_port);
             for(;EC_TRUE == csocket_udp_mcast_recvfrom(sockfd, mcast_ipaddr, mcast_port, data, sizeof(data)/sizeof(data[0]), &dlen);)
             {
-                sys_log(LOGCONSOLE, "[DEBUG] recv udp data: %.*s\n", dlen, (char *)data);
+                dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] recv udp data: %.*s\n", dlen, (char *)data);
             }
             csocket_stop_udp_mcast_recver(sockfd, mcast_ipaddr);
         }
@@ -445,11 +443,11 @@ int main_udp(int argc, char **argv)
             //dlen = sizeof(data)/sizeof(data[0]);
             if(EC_FALSE == csocket_udp_mcast_sendto(sockfd, mcast_ipaddr, mcast_port, data, dlen))
             {
-                sys_log(LOGSTDOUT, "error:send udp data to %s:%ld failed\n", mcast_ipaddr_str, mcast_port);
+                dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:send udp data to %s:%ld failed\n", mcast_ipaddr_str, mcast_port);
                 break;
             }
-            sys_log(LOGCONSOLE, "send udp data: %.*s\n", dlen, (char *)data);
-            c_sleep(5);
+            dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "send udp data: %.*s\n", dlen, (char *)data);
+            c_sleep(5, LOC_DEMO_0001);
         }
         csocket_stop_udp_mcast_sender(sockfd, c_ipv4_to_word(mcast_ipaddr_str));
 
@@ -458,10 +456,10 @@ int main_udp(int argc, char **argv)
 
     else if (CMPI_FWD_RANK == this_rank)
     {
-        sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
-        sys_log(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
 
         do_slave_wait_default();
     }

@@ -50,7 +50,7 @@ int main_csession(int argc, char **argv)
     task_brd_default_init(argc, argv);
     if(EC_FALSE == task_brd_default_check_validity())
     {
-        sys_log(LOGSTDOUT, "error:main_csession: validity checking failed\n");
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:main_csession: validity checking failed\n");
         task_brd_default_abort();
         return (-1);
     }
@@ -72,9 +72,9 @@ int main_csession(int argc, char **argv)
 
         //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
 
-        sys_log(LOGSTDOUT, "======================================================================\n");
-        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
-        sys_log(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
         mod_mgr_print(LOGSTDOUT, mod_mgr_def);
 
         mod_mgr_free(mod_mgr_def);
@@ -86,13 +86,13 @@ int main_csession(int argc, char **argv)
     else if (CMPI_FWD_RANK == this_rank)
     {
         UINT32 csession_md_id;
-        sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
-        sys_log(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
 
         csession_md_id = csession_start();
-        sys_log(LOGSTDOUT, "[DEBUG] main_csession: csession_md_id = %ld\n", csession_md_id);
+        dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] main_csession: csession_md_id = %ld\n", csession_md_id);
 
         do_slave_wait_default();
     }

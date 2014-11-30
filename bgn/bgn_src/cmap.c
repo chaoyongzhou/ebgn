@@ -156,7 +156,7 @@ EC_BOOL cmap_add(CMAP *cmap, void *key, void *val, const UINT32 location)
     cmap_node = cmap_node_new(key, val, location);
     if(NULL_PTR == cmap_node)
     {
-        sys_log(LOGSTDOUT, "error:cmap_add: new cmap_node failed\n");
+        dbg_log(SEC_0020_CMAP, 0)(LOGSTDOUT, "error:cmap_add: new cmap_node failed\n");
         return (EC_FALSE);
     }
     clist_push_back(CMAP_NODES(cmap), (void *)cmap_node);

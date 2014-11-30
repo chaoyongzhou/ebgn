@@ -37,7 +37,7 @@ extern "C"{
 #if 1
 #define PRINT_BUFF(info, buff, len) do{\
     UINT32 __pos__;\
-    sys_log(LOGSTDOUT, "%s: ", info);\
+    dbg_log(SEC_0085_CPROC, 5)(LOGSTDOUT, "%s: ", info);\
     for(__pos__ = 0; __pos__ < len; __pos__ ++)\
     {\
         sys_print(LOGSTDOUT, "%x,", ((UINT8 *)buff)[ __pos__ ]);\
@@ -346,13 +346,13 @@ EC_BOOL cproc_isend(CPROC *cproc, const UINT32 recv_rank, const UINT32 msg_tag, 
     /*check validity*/
     if(recv_rank >= CPROC_SIZE(cproc))
     {
-        sys_log(LOGSTDOUT, "error:cproc_isend: invalid recv rank %ld where communicator size is %ld\n", recv_rank, CPROC_SIZE(cproc));
+        dbg_log(SEC_0085_CPROC, 0)(LOGSTDOUT, "error:cproc_isend: invalid recv rank %ld where communicator size is %ld\n", recv_rank, CPROC_SIZE(cproc));
         return (EC_FALSE);
     }
 
     cproc_item = CPROC_ITEM(cproc, CMPI_LOCAL_RANK, recv_rank);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cproc_isend: to send task_node %lx (pos %ld, len %ld) on cproc_item %lx (row %ld, col %ld) while send_rank = %ld, recv_rank = %ld\n",
+    dbg_log(SEC_0085_CPROC, 9)(LOGSTDOUT, "[DEBUG] cproc_isend: to send task_node %lx (pos %ld, len %ld) on cproc_item %lx (row %ld, col %ld) while send_rank = %ld, recv_rank = %ld\n",
                         task_node, TASK_NODE_BUFF_POS(task_node), TASK_NODE_BUFF_LEN(task_node),
                         cproc_item, CPROC_ITEM_ROW_RANK(cproc_item), CPROC_ITEM_COL_RANK(cproc_item), CMPI_LOCAL_RANK, recv_rank);
 #endif
@@ -389,7 +389,7 @@ TASK_NODE *cproc_fetch_task_node(CPROC *cproc, CPROC_ITEM *cproc_item)
             return (NULL_PTR);
         }
 
-        //sys_log(LOGSTDOUT, "[DEBUG] cproc_fetch_task_node: [rank: %ld => %ld] out_size = %ld\n", CPROC_ITEM_ROW_RANK(cproc_item), CPROC_ITEM_COL_RANK(cproc_item),out_size);
+        //dbg_log(SEC_0085_CPROC, 9)(LOGSTDOUT, "[DEBUG] cproc_fetch_task_node: [rank: %ld => %ld] out_size = %ld\n", CPROC_ITEM_ROW_RANK(cproc_item), CPROC_ITEM_COL_RANK(cproc_item),out_size);
         //PRINT_BUFF("[DEBUG] cproc_fetch_task_node: ", out_buff, out_size);
 
         task_brd = task_brd_default_get();
@@ -398,12 +398,12 @@ TASK_NODE *cproc_fetch_task_node(CPROC *cproc, CPROC_ITEM *cproc_item)
         cmpi_decode_uint32(TASK_BRD_COMM(task_brd), out_buff, out_size, &pos, &len);
         cmpi_decode_uint32(TASK_BRD_COMM(task_brd), out_buff, out_size, &pos, &tag);
 
-        //sys_log(LOGSTDOUT, "[DEBUG] cproc_fetch_task_node: len = %ld, tag = %ld\n", len, tag);
+        //dbg_log(SEC_0085_CPROC, 9)(LOGSTDOUT, "[DEBUG] cproc_fetch_task_node: len = %ld, tag = %ld\n", len, tag);
 
         task_node = task_node_new(len, LOC_CPROC_0002);
         if(NULL_PTR == task_node)
         {
-            sys_log(LOGSTDOUT, "error:cproc_fetch_task_node: new task_node with %ld bytes failed\n", len);
+            dbg_log(SEC_0085_CPROC, 0)(LOGSTDOUT, "error:cproc_fetch_task_node: new task_node with %ld bytes failed\n", len);
             return (NULL_PTR);
         }
 
@@ -442,8 +442,6 @@ EC_BOOL cproc_irecv_node(CPROC *cproc, CPROC_ITEM *cproc_item, CLIST *save_to_li
     task_node = CPROC_ITEM_INCOMING_TASK_NODE(cproc_item);
     if(NULL_PTR != task_node)
     {
-        TASK_BRD_DEFAULT_ACTIVE_COUNTER_INC(LOC_CPROC_0003);
-
         if(EC_FALSE == cproc_fix_task_node(cproc, cproc_item, task_node))
         {
             return (EC_TRUE);
@@ -461,18 +459,16 @@ EC_BOOL cproc_irecv_node(CPROC *cproc, CPROC_ITEM *cproc_item, CLIST *save_to_li
             break;
         }
 
-        TASK_BRD_DEFAULT_ACTIVE_COUNTER_INC(LOC_CPROC_0004);
-
         if(TASK_NODE_BUFF_POS(task_node) == TASK_NODE_BUFF_LEN(task_node))
         {
             clist_push_back(save_to_list, (void *)task_node); /*here task node not decoded yet*/
             TASK_NODE_COMP(task_node) = TASK_WAS_RECV;
-            //sys_log(LOGSTDOUT, "[DEBUG] cproc_irecv_node: save incomded task_node\n");
+            //dbg_log(SEC_0085_CPROC, 9)(LOGSTDOUT, "[DEBUG] cproc_irecv_node: save incomded task_node\n");
         }
         else
         {
             CPROC_ITEM_INCOMING_TASK_NODE(cproc_item) = task_node;
-            //sys_log(LOGSTDOUT, "[DEBUG] cproc_irecv_node: save incoming task_node\n");
+            //dbg_log(SEC_0085_CPROC, 9)(LOGSTDOUT, "[DEBUG] cproc_irecv_node: save incoming task_node\n");
             /*terminate this loop*/
             break;
         }
@@ -488,8 +484,6 @@ EC_BOOL cproc_isend_on_item(CPROC *cproc, CPROC_ITEM *cproc_item)
     sending_queue = CPROC_ITEM_SENDING_QUEUE(cproc_item);
     while(NULL_PTR != (task_node = (TASK_NODE *)clist_first_data(sending_queue)))
     {
-        TASK_BRD_DEFAULT_ACTIVE_COUNTER_INC(LOC_CPROC_0005);
-
         //task_node_dbg(LOGSTDOUT, "cproc isend node:", task_node);
         cproc_send(cproc, cproc_item, TASK_NODE_BUFF(task_node), TASK_NODE_BUFF_LEN(task_node), &(TASK_NODE_BUFF_POS(task_node)));
         if(TASK_NODE_BUFF_POS(task_node) == TASK_NODE_BUFF_LEN(task_node))
@@ -523,7 +517,7 @@ EC_BOOL cproc_sending_handle(CPROC *cproc)
 
         cproc_item = CPROC_ITEM(cproc, send_rank, recv_rank);
 #if 0
-        sys_log(LOGSTDNULL, "[DEBUG] cproc_sending_handle: check cproc_item %lx: send_rank %ld, recv_rank %ld, while row %ld, col %ld\n",
+        dbg_log(SEC_0085_CPROC, 9)(LOGSTDNULL, "[DEBUG] cproc_sending_handle: check cproc_item %lx: send_rank %ld, recv_rank %ld, while row %ld, col %ld\n",
                             cproc_item, send_rank, recv_rank, CPROC_ITEM_ROW_RANK(cproc_item), CPROC_ITEM_COL_RANK(cproc_item));
 #endif
         cproc_isend_on_item(cproc, cproc_item);
@@ -536,7 +530,7 @@ EC_BOOL cproc_recving_handle(CPROC *cproc, CLIST *save_to_list)
     UINT32 send_rank;
     UINT32 recv_rank;
 
-    //sys_log(LOGSTDOUT, "cproc_recving_handle: pid %d cproc %lx\n", getpid(), cproc);
+    //dbg_log(SEC_0085_CPROC, 5)(LOGSTDOUT, "cproc_recving_handle: pid %d cproc %lx\n", getpid(), cproc);
 
     recv_rank = TASK_BRD_RANK(task_brd_default_get());
     for(send_rank = 0; send_rank < CPROC_SIZE(cproc); send_rank ++)

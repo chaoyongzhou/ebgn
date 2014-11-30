@@ -1,0 +1,9 @@
+hsrfs md5sum bigfile /h1/centos_2of2_4.iso seg 0 on tcid 10.10.10.1 at console
+hsrfs md5sum bigfile /h1/centos_2of2_4.iso seg 1 on tcid 10.10.10.1 at console
+hsrfs md5sum bigfile /h1/centos_2of2_4.iso seg 2 on tcid 10.10.10.1 at console
+hsrfs md5sum bigfile /h1/centos_2of2_4.iso seg 3 on tcid 10.10.10.1 at console
+hsrfs md5sum bigfile /h1/centos_2of2_4.iso seg 4 on tcid 10.10.10.1 at console
+hsrfs md5sum bigfile /h1/centos_2of2_4.iso seg 5 on tcid 10.10.10.1 at console
+hsrfs md5sum bigfile /h1/centos_2of2_4.iso seg 6 on tcid 10.10.10.1 at console
+hsrfs md5sum bigfile /h1/centos_2of2_4.iso seg 7 on tcid 10.10.10.1 at console
+hsrfs md5sum bigfile /h1/centos_2of2_4.iso seg 8 on tcid 10.10.10.1 at console

@@ -23,6 +23,7 @@ extern "C"{
 #include "mm.h"
 #include "log.h"
 #include "debug.h"
+#include "cmutex.h"
 
 #include "clist.h"
 #include "cvector.h"
@@ -149,7 +150,7 @@ UINT32 super_start()
 
     super_md->usedcounter ++;    
 
-    sys_log(LOGSTDOUT, "super_start: start SUPER module #%ld\n", super_md_id);
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_start: start SUPER module #%ld\n", super_md_id);
 
     return ( super_md_id );
 }
@@ -166,7 +167,7 @@ void super_end(const UINT32 super_md_id)
     super_md = SUPER_MD_GET(super_md_id);
     if(NULL_PTR == super_md)
     {
-        sys_log(LOGSTDOUT,"error:super_end: super_md_id = %ld not exist.\n", super_md_id);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT,"error:super_end: super_md_id = %ld not exist.\n", super_md_id);
         dbg_exit(MD_SUPER, super_md_id);
     }
     /* if the module is occupied by others,then decrease counter only */
@@ -178,7 +179,7 @@ void super_end(const UINT32 super_md_id)
 
     if ( 0 == super_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:super_end: super_md_id = %ld is not started.\n", super_md_id);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT,"error:super_end: super_md_id = %ld is not started.\n", super_md_id);
         dbg_exit(MD_SUPER, super_md_id);
     }
 
@@ -204,7 +205,7 @@ void super_end(const UINT32 super_md_id)
     //super_free_module_static_mem(super_md_id);
     super_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "super_end: stop SUPER module #%ld\n", super_md_id);
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_end: stop SUPER module #%ld\n", super_md_id);
     cbc_md_free(MD_SUPER, super_md_id);
 
     breathing_static_mem();
@@ -324,7 +325,7 @@ static EC_BOOL __super_fnode_free(SUPER_FNODE *super_fnode)
 
 static EC_BOOL __super_fnode_match_fname(const SUPER_FNODE *super_fnode, const CSTRING *fname)
 {
-    return cstring_cmp(SUPER_FNODE_FNAME(super_fnode), fname);
+    return cstring_is_equal(SUPER_FNODE_FNAME(super_fnode), fname);
 }
 
 static int __super_make_open_flags(const UINT32 open_flags)
@@ -439,7 +440,7 @@ SUPER_FNODE *super_open_fnode_by_fname(const UINT32 super_md_id, const CSTRING *
     if(NULL_PTR == super_fnode)
     {
         CLIST_UNLOCK(SUPER_MD_FNODE_LIST(super_md), LOC_SUPER_0012);
-        sys_log(LOGSTDOUT, "error:super_open_fnode_by_fname: new super fnode failed\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_open_fnode_by_fname: new super fnode failed\n");
         return (NULL_PTR);
     }
 
@@ -447,7 +448,7 @@ SUPER_FNODE *super_open_fnode_by_fname(const UINT32 super_md_id, const CSTRING *
     {
         if(EC_FALSE == c_basedir_create((char *)cstring_get_str(fname)))
         {
-            sys_log(LOGSTDOUT, "error:super_open_fnode_by_fname: create basedir of file %s failed\n",
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_open_fnode_by_fname: create basedir of file %s failed\n",
                                 (char *)cstring_get_str(fname));
             super_fnode_free(super_md_id, super_fnode);
             return (NULL_PTR);
@@ -459,7 +460,7 @@ SUPER_FNODE *super_open_fnode_by_fname(const UINT32 super_md_id, const CSTRING *
     {
         CLIST_UNLOCK(SUPER_MD_FNODE_LIST(super_md), LOC_SUPER_0013);
         super_fnode_free(super_md_id, super_fnode);
-        sys_log(LOGSTDOUT, "error:super_open_fnode_by_fname: open file %s with flag %lx failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_open_fnode_by_fname: open file %s with flag %lx failed\n",
                             (char *)cstring_get_str(fname), open_flags);
         return (NULL_PTR);
     }
@@ -525,8 +526,11 @@ UINT32 super_incl_taskc_node(const UINT32 super_md_id, const UINT32 ipaddr, cons
 
     tasks_cfg = TASK_BRD_TASKS_CFG(task_brd);
 
-    sys_log(LOGSTDOUT, "============================== super_incl_taskc_node: before ==============================\n");
-    super_show_work_client(super_md_id, LOGSTDOUT);
+    if(do_log(SEC_0117_SUPER, 5))
+    {
+        sys_log(LOGSTDOUT, "============================== super_incl_taskc_node: before ==============================\n");
+        super_show_work_client(super_md_id, LOGSTDOUT);
+    }
 
     csocket_cnode = csocket_cnode_new(taskc_id, sockfd, ipaddr, port);
     CSOCKET_CNODE_COMM(csocket_cnode) = taskc_comm;
@@ -534,8 +538,11 @@ UINT32 super_incl_taskc_node(const UINT32 super_md_id, const UINT32 ipaddr, cons
 
     tasks_work_add_csocket_cnode(TASKS_CFG_WORK(tasks_cfg), csocket_cnode);
 
-    sys_log(LOGSTDOUT, "============================== super_incl_taskc_node: after ==============================\n");
-    super_show_work_client(super_md_id, LOGSTDOUT);
+    if(do_log(SEC_0117_SUPER, 5))
+    {
+        sys_log(LOGSTDOUT, "============================== super_incl_taskc_node: after ==============================\n");
+        super_show_work_client(super_md_id, LOGSTDOUT);
+    }
 
     return (0);
 }
@@ -567,9 +574,12 @@ UINT32 super_excl_taskc_node(const UINT32 super_md_id, const UINT32 tcid, const 
     tasks_cfg = TASK_BRD_TASKS_CFG(task_brd);
     tasks_node_work = TASKS_CFG_WORK(tasks_cfg);
 
-    sys_log(LOGSTDOUT, "============================== super_excl_taskc_node: before ==============================\n");
-    //cvector_print(LOGSTDOUT, TASKS_WORK_CLIENTS(tasks_cfg), (CVECTOR_DATA_PRINT)csocket_cnode_print);
-    super_show_work_client(super_md_id, LOGSTDOUT);
+    if(do_log(SEC_0117_SUPER, 5))
+    {
+        sys_log(LOGSTDOUT, "============================== super_excl_taskc_node: before ==============================\n");
+        //cvector_print(LOGSTDOUT, TASKS_WORK_CLIENTS(tasks_cfg), (CVECTOR_DATA_PRINT)csocket_cnode_print);
+        super_show_work_client(super_md_id, LOGSTDOUT);
+    }
 
     CVECTOR_LOCK(tasks_node_work, LOC_SUPER_0015);
     for(pos = 0; pos < cvector_size(tasks_node_work); /*pos ++*/)
@@ -595,8 +605,11 @@ UINT32 super_excl_taskc_node(const UINT32 super_md_id, const UINT32 tcid, const 
     }
     CVECTOR_UNLOCK(tasks_node_work, LOC_SUPER_0016);
 
-    sys_log(LOGSTDOUT, "============================== super_excl_taskc_node: after ==============================\n");
-    super_show_work_client(super_md_id, LOGSTDOUT);
+    if(do_log(SEC_0117_SUPER, 5))
+    {
+        sys_log(LOGSTDOUT, "============================== super_excl_taskc_node: after ==============================\n");
+        super_show_work_client(super_md_id, LOGSTDOUT);
+    }
 
     return (0);
 }
@@ -689,7 +702,7 @@ UINT32 super_sync_taskc_mgr(const UINT32 super_md_id, TASKC_MGR *des_taskc_mgr)
 
     if(NULL_PTR == des_taskc_mgr)
     {
-        sys_log(LOGSTDOUT, "error:super_sync_taskc_mgr: des_taskc_mgr is null ptr\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_sync_taskc_mgr: des_taskc_mgr is null ptr\n");
         dbg_exit(MD_SUPER, super_md_id);
     }
 
@@ -710,7 +723,7 @@ UINT32 super_sync_taskc_mgr(const UINT32 super_md_id, TASKC_MGR *des_taskc_mgr)
             continue;
         }
 
-        sys_log(LOGSTDOUT, "super_sync_taskc_mgr: tasks node: tcid %s, comm %ld, size %ld\n",
+        dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_sync_taskc_mgr: tasks node: tcid %s, comm %ld, size %ld\n",
                             TASKS_NODE_TCID_STR(tasks_node), TASKS_NODE_COMM(tasks_node), TASKS_NODE_SIZE(tasks_node));
 
         if(0 == TASKS_NODE_COMM(tasks_node))
@@ -757,7 +770,7 @@ UINT32 super_sync_cload_mgr0(const UINT32 super_md_id, const UINT32 type, CLOAD_
 
     if(NULL_PTR == des_cload_mgr)
     {
-        sys_log(LOGSTDOUT, "error:super_sync_cload_mgr: des_taskc_mgr is null ptr\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_sync_cload_mgr: des_taskc_mgr is null ptr\n");
         dbg_exit(MD_SUPER, super_md_id);
     }
 
@@ -778,7 +791,7 @@ UINT32 super_sync_cload_mgr0(const UINT32 super_md_id, const UINT32 type, CLOAD_
             continue;
         }
 
-        sys_log(LOGSTDOUT, "super_sync_cload_mgr: tasks node: tcid %s, comm %ld, size %ld\n",
+        dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_sync_cload_mgr: tasks node: tcid %s, comm %ld, size %ld\n",
                             TASKS_NODE_TCID_STR(tasks_node), TASKS_NODE_COMM(tasks_node), TASKS_NODE_SIZE(tasks_node));
 
         if(0 == TASKS_NODE_COMM(tasks_node))
@@ -787,8 +800,11 @@ UINT32 super_sync_cload_mgr0(const UINT32 super_md_id, const UINT32 type, CLOAD_
         }
 
         cload_node = cload_node_new(TASKS_NODE_TCID(tasks_node), TASKS_NODE_COMM(tasks_node), TASKS_NODE_SIZE(tasks_node));
-        sys_log(LOGSTDOUT, "[DEBUG] super_sync_cload_mgr: new cload_node is\n");
-        cload_node_print(LOGSTDOUT, cload_node);
+        if(do_log(SEC_0117_SUPER, 9))
+        {
+            sys_log(LOGSTDOUT, "[DEBUG] super_sync_cload_mgr: new cload_node is\n");
+            cload_node_print(LOGSTDOUT, cload_node);
+        }
 
         /*if duplicate, give up pushing to list*/
         if(NULL_PTR != clist_search_front(des_cload_mgr, (void *)cload_node, (CLIST_DATA_DATA_CMP)cload_node_cmp_tcid))
@@ -802,9 +818,11 @@ UINT32 super_sync_cload_mgr0(const UINT32 super_md_id, const UINT32 type, CLOAD_
     }
     CVECTOR_UNLOCK(tasks_node_work, LOC_SUPER_0020);
 
-    sys_log(LOGSTDOUT, "[DEBUG] super_sync_cload_mgr: des_cload_mgr is\n");
-    cload_mgr_print(LOGSTDOUT, des_cload_mgr);
-
+    if(do_log(SEC_0117_SUPER, 9))
+    {
+        sys_log(LOGSTDOUT, "[DEBUG] super_sync_cload_mgr: des_cload_mgr is\n");
+        cload_mgr_print(LOGSTDOUT, des_cload_mgr);
+    }
     return (0);
 }
 
@@ -829,7 +847,7 @@ UINT32 super_sync_cload_mgr(const UINT32 super_md_id, const CVECTOR *tcid_vec, C
 
     if(NULL_PTR == des_cload_mgr)
     {
-        sys_log(LOGSTDOUT, "error:super_sync_cload_mgr: des_taskc_mgr is null ptr\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_sync_cload_mgr: des_taskc_mgr is null ptr\n");
         dbg_exit(MD_SUPER, super_md_id);
     }
 
@@ -863,11 +881,11 @@ UINT32 super_sync_cload_mgr(const UINT32 super_md_id, const CVECTOR *tcid_vec, C
             continue;
         }
         
-        sys_log(LOGSTDOUT, "super_sync_cload_mgr: tasks node: tcid %s, comm %ld, size %ld\n",
+        dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_sync_cload_mgr: tasks node: tcid %s, comm %ld, size %ld\n",
                             TASKS_NODE_TCID_STR(tasks_node), TASKS_NODE_COMM(tasks_node), TASKS_NODE_SIZE(tasks_node));
         
         cload_node = cload_node_new(TASKS_NODE_TCID(tasks_node), TASKS_NODE_COMM(tasks_node), TASKS_NODE_SIZE(tasks_node));
-        //sys_log(LOGSTDOUT, "[DEBUG] super_sync_cload_mgr: new cload_node is\n");
+        //dbg_log(SEC_0117_SUPER, 9)(LOGSTDOUT, "[DEBUG] super_sync_cload_mgr: new cload_node is\n");
         //cload_node_print(LOGSTDOUT, cload_node);
 
         /*if duplicate, give up pushing to list*/
@@ -891,7 +909,7 @@ UINT32 super_sync_cload_mgr(const UINT32 super_md_id, const CVECTOR *tcid_vec, C
 
     task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
 
-    //sys_log(LOGSTDOUT, "[DEBUG] super_sync_cload_mgr: des_cload_mgr is\n");
+    //dbg_log(SEC_0117_SUPER, 9)(LOGSTDOUT, "[DEBUG] super_sync_cload_mgr: des_cload_mgr is\n");
     //cload_mgr_print(LOGSTDOUT, des_cload_mgr);
 
     return (0);
@@ -899,13 +917,13 @@ UINT32 super_sync_cload_mgr(const UINT32 super_md_id, const CVECTOR *tcid_vec, C
 
 EC_BOOL super_register_hsbgt_cluster(const UINT32 super_md_id)
 {
-    sys_log(LOGSTDOUT, "error:super_register_hsbgt_cluster: obsoleted!\n");
+    dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_register_hsbgt_cluster: obsoleted!\n");
     return (EC_FALSE);
 }
 
 EC_BOOL super_register_hsdfs_cluster(const UINT32 super_md_id)
 {
-    sys_log(LOGSTDOUT, "error:super_register_hsdfs_cluster: obsoleted!\n");
+    dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_register_hsdfs_cluster: obsoleted!\n");
     return (EC_FALSE);
 }
 
@@ -1005,9 +1023,18 @@ void super_activate_sys_cfg(const UINT32 super_md_id)
 
     task_brd = task_brd_default_get();
 
-    sys_log(LOGSTDOUT, "super_activate_sys_cfg: activate sysconfig from %s\n", (char *)task_brd_default_sys_cfg_xml());
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_activate_sys_cfg: activate sysconfig from %s\n", (char *)task_brd_default_sys_cfg_xml());
+    dbg_log(SEC_0117_SUPER, 9)(LOGSTDOUT, "[DEBUG] super_activate_sys_cfg: load sys cfg ---------------------------------------------------\n");
     sys_cfg_load(TASK_BRD_SYS_CFG(task_brd), (char *)task_brd_default_sys_cfg_xml());
-    task_brd_register_cluster(task_brd);
+
+    dbg_log(SEC_0117_SUPER, 9)(LOGSTDOUT, "[DEBUG] super_activate_sys_cfg: import cparacfg ---------------------------------------------------\n");
+    log_level_import(CPARACFG_LOG_LEVEL_TAB(TASK_BRD_CPARACFG(task_brd)), SEC_NONE_END);
+    //log_level_print(LOGSTDOUT);
+
+    if(CMPI_FWD_RANK == TASK_BRD_RANK(task_brd))
+    {
+        task_brd_register_cluster(task_brd);
+    }
     return;
 }
 
@@ -1053,10 +1080,10 @@ void super_show_mem(const UINT32 super_md_id, LOG *log)
     }
 #endif/*SUPER_DEBUG_SWITCH*/
 
-    //sys_log(LOGSTDOUT, "===================================== memory statistics info beg: log %lx =====================================\n", log);
+    //dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "===================================== memory statistics info beg: log %lx =====================================\n", log);
     print_static_mem_status(log);
     //print_static_mem_status(LOGSTDOUT);
-    //sys_log(LOGSTDOUT, "===================================== memory statistics info end: =====================================\n");
+    //dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "===================================== memory statistics info end: =====================================\n");
     return;
 }
 
@@ -1077,9 +1104,9 @@ void super_show_mem_of_type(const UINT32 super_md_id, const UINT32 type, LOG *lo
     }
 #endif/*SUPER_DEBUG_SWITCH*/
 
-    //sys_log(LOGSTDOUT, "===================================== memory statistics info of type %ld beg: log %lx =====================================\n", type, log);
+    //dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "===================================== memory statistics info of type %ld beg: log %lx =====================================\n", type, log);
     print_static_mem_status_of_type(log, type);
-    //sys_log(LOGSTDOUT, "===================================== memory statistics info end: =====================================\n");
+    //dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "===================================== memory statistics info end: =====================================\n");
     return;
 }
 
@@ -1101,9 +1128,9 @@ void super_diag_mem(const UINT32 super_md_id, LOG *log)
     }
 #endif/*SUPER_DEBUG_SWITCH*/
 
-    //sys_log(LOGSTDOUT, "===================================== memory diagnostic info beg: =====================================\n");
+    //dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "===================================== memory diagnostic info beg: =====================================\n");
     print_static_mem_diag_info(log);
-    //sys_log(LOGSTDOUT, "===================================== memory diagnostic info end: =====================================\n");
+    //dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "===================================== memory diagnostic info end: =====================================\n");
     return;
 }
 
@@ -1124,9 +1151,9 @@ void super_diag_mem_of_type(const UINT32 super_md_id, const UINT32 type, LOG *lo
     }
 #endif/*SUPER_DEBUG_SWITCH*/
 
-    //sys_log(LOGSTDOUT, "===================================== memory diagnostic info beg: =====================================\n");
+    //dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "===================================== memory diagnostic info beg: =====================================\n");
     print_static_mem_diag_info_of_type(log, type);
-    //sys_log(LOGSTDOUT, "===================================== memory diagnostic info end: =====================================\n");
+    //dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "===================================== memory diagnostic info end: =====================================\n");
     return;
 }
 
@@ -1174,6 +1201,68 @@ void super_breathing_mem(const UINT32 super_md_id)
     breathing_static_mem();
     return;
 }
+
+/**
+*
+* show log level info
+*
+**/
+void super_show_log_level_tab(const UINT32 super_md_id, LOG *log)
+{
+#if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
+    if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
+    {
+        sys_log(LOGSTDOUT,
+                "error:super_show_log_level_tab: super module #0x%lx not started.\n",
+                super_md_id);
+        dbg_exit(MD_SUPER, super_md_id);
+    }
+#endif/*SUPER_DEBUG_SWITCH*/
+
+    log_level_print(log);
+    return;
+}
+
+/**
+*
+* set log level
+*
+**/
+EC_BOOL super_set_log_level_tab(const UINT32 super_md_id, const UINT32 level)
+{
+#if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
+    if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
+    {
+        sys_log(LOGSTDOUT,
+                "error:super_set_log_level_tab: super module #0x%lx not started.\n",
+                super_md_id);
+        dbg_exit(MD_SUPER, super_md_id);
+    }
+#endif/*SUPER_DEBUG_SWITCH*/
+
+    return log_level_set_all(level);
+}
+
+/**
+*
+* set log level of sector
+*
+**/
+EC_BOOL super_set_log_level_sector(const UINT32 super_md_id, const UINT32 sector, const UINT32 level)
+{
+#if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
+    if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
+    {
+        sys_log(LOGSTDOUT,
+                "error:super_set_log_level_sector: super module #0x%lx not started.\n",
+                super_md_id);
+        dbg_exit(MD_SUPER, super_md_id);
+    }
+#endif/*SUPER_DEBUG_SWITCH*/
+
+    return log_level_set_sector(sector, level);
+}
+
 
 /**
 *
@@ -1264,14 +1353,14 @@ EC_BOOL super_cancel_task_req(const UINT32 super_md_id, const UINT32 seqno, cons
     task_mgr = (TASK_MGR *)clist_search_data_front(TASK_BRD_RECV_TASK_MGR_LIST(task_brd), (void *)seqno, (CLIST_DATA_DATA_CMP)task_mgr_match_seqno);
     if(NULL_PTR == task_mgr)
     {
-        sys_log(LOGSTDOUT, "error:super_cancel_task_req: not found task_mgr with seqno %lx\n", seqno);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_cancel_task_req: not found task_mgr with seqno %lx\n", seqno);
         return (EC_FALSE);
     }
 
     task_req = task_mgr_search_task_req_by_recver(task_mgr, seqno, subseqno, recv_mod_node);
     if(NULL_PTR == task_req)
     {
-        sys_log(LOGSTDOUT, "error:super_cancel_task_req: not found task_req with seqno %lx, subseqno %lx to (tcid %s,comm %ld,rank %ld,modi %ld)\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_cancel_task_req: not found task_req with seqno %lx, subseqno %lx to (tcid %s,comm %ld,rank %ld,modi %ld)\n",
                             seqno, subseqno,
                             MOD_NODE_TCID_STR(recv_mod_node), MOD_NODE_COMM(recv_mod_node), MOD_NODE_RANK(recv_mod_node), MOD_NODE_MODI(recv_mod_node));
         return (EC_FALSE);
@@ -1385,7 +1474,7 @@ static void super_sync_taskcomm_self(CVECTOR *collected_vec, TASK_MGR *task_mgr,
     if(CMPI_FWD_RANK != TASK_BRD_RANK(task_brd)
     || MOD_NODE_TCID(send_mod_node) != TASK_BRD_TCID(task_brd) || MOD_NODE_COMM(send_mod_node) != TASK_BRD_COMM(task_brd) || MOD_NODE_RANK(send_mod_node) || TASK_BRD_RANK(task_brd))
     {
-        sys_log(LOGSTDOUT, "error:super_sync_taskcomm_self: FOR LOCAL FWD RANK ONLY!\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_sync_taskcomm_self: FOR LOCAL FWD RANK ONLY!\n");
         return;
     }
 
@@ -1613,7 +1702,7 @@ void super_sync_taskcomm(const UINT32 super_md_id, const UINT32 src_tcid, const 
 
     if(CMPI_FWD_RANK != TASK_BRD_RANK(task_brd))
     {
-        sys_log(LOGSTDOUT, "error:super_sync_taskcomm: FOR FWD RANK ONLY!\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_sync_taskcomm: FOR FWD RANK ONLY!\n");
         return;
     }
 
@@ -1656,7 +1745,7 @@ void super_sync_taskcomm(const UINT32 super_md_id, const UINT32 src_tcid, const 
     local_task_cfg = sys_cfg_filter_task_cfg(TASK_BRD_SYS_CFG(task_brd), TASK_BRD_TCID(task_brd));
     if(NULL_PTR == local_task_cfg)
     {
-        sys_log(LOGSTDOUT, "error:super_sync_taskcomm: filter task cfg of tcid %s from sys cfg failed\n", TASK_BRD_TCID_STR(task_brd));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_sync_taskcomm: filter task cfg of tcid %s from sys cfg failed\n", TASK_BRD_TCID_STR(task_brd));
         return;
     }
 
@@ -1866,7 +1955,7 @@ EC_BOOL super_ping_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ipaddr_c
 
     if(EC_TRUE == cstring_is_empty(ipaddr_cstr))
     {
-        sys_log(LOGSTDOUT, "error:super_ping_ipaddr_cstr:ipaddr cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_ping_ipaddr_cstr:ipaddr cstr is empty\n");
         return (EC_FALSE);
     }
 
@@ -1960,7 +2049,7 @@ void super_handle_broken_tcid(const UINT32 super_md_id, const UINT32 broken_tcid
     }
 #endif/*SUPER_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, "============================== super_handle_broken_tcid beg: broken tcid %s ==============================\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "============================== super_handle_broken_tcid beg: broken tcid %s ==============================\n",
                         c_word_to_ipv4(broken_tcid));
     //super_show_queues(super_md_id);/*debug only!*/
 
@@ -2031,6 +2120,9 @@ void super_handle_broken_tcid(const UINT32 super_md_id, const UINT32 broken_tcid
         task_queue_discard_to(task_brd, TASK_BRD_QUEUE(task_brd, TASK_TO_SEND_QUEUE), TAG_TASK_RSP, broken_tcid);/*new add*/
         task_queue_discard_to(task_brd, TASK_BRD_QUEUE(task_brd, TASK_TO_SEND_QUEUE), TAG_TASK_FWD, broken_tcid);/*new add*/
 
+        /*reschedule all TASK_REQ to the borken taskComm*/
+        task_mgr_list_handle_broken_taskcomm(task_brd, broken_tcid);/*2014.09.14*/
+
         /*discard all contexts (end module) from the broken taskComm*/
         task_context_discard_from(task_brd, broken_tcid);
 
@@ -2093,10 +2185,18 @@ void super_handle_broken_tcid(const UINT32 super_md_id, const UINT32 broken_tcid
         task_brd_rank_load_tbl_pop_all(task_brd, broken_tcid);
     }
 
-    sys_log(LOGSTDOUT, "============================== super_handle_broken_tcid end: broken tcid %s ==============================\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "============================== super_handle_broken_tcid end: broken tcid %s ==============================\n",
                         c_word_to_ipv4(broken_tcid));
     //super_show_queues(super_md_id);/*debug only!*/
+#if 0
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "============================== super_handle_broken_tcid end: register tcid %s beg ==============================\n",
+                        c_word_to_ipv4(broken_tcid));
 
+    task_brd_register_node(task_brd, broken_tcid);
+
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "============================== super_handle_broken_tcid end: register tcid %s end ==============================\n",
+                        c_word_to_ipv4(broken_tcid));
+#endif
     return;
 }
 /**
@@ -2143,7 +2243,7 @@ void super_notify_broken_tcid(const UINT32 super_md_id, const UINT32 broken_tcid
     cvector_push_no_lock(TASK_BRD_BROKEN_TCID_TBL(task_brd), (void *)broken_tcid);
     CVECTOR_UNLOCK(TASK_BRD_BROKEN_TCID_TBL(task_brd), LOC_SUPER_0043);
 
-    sys_log(LOGSTDOUT, "============================== super_notify_broken_tcid beg: broken tcid %s ==============================\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "============================== super_notify_broken_tcid beg: broken tcid %s ==============================\n",
                         c_word_to_ipv4(broken_tcid));
 
     mod_mgr = mod_mgr_new(super_md_id, LOAD_BALANCING_LOOP);
@@ -2156,9 +2256,12 @@ void super_notify_broken_tcid(const UINT32 super_md_id, const UINT32 broken_tcid
     rank_set_free(rank_set);
 
 #if 1
-    //sys_log(LOGSTDOUT, "------------------------------------ super_notify_broken_tcid beg ----------------------------------\n");
-    mod_mgr_print(LOGSTDOUT, mod_mgr);
-    //sys_log(LOGSTDOUT, "------------------------------------ super_notify_broken_tcid end ----------------------------------\n");
+    if(do_log(SEC_0117_SUPER, 5))
+    {
+        sys_log(LOGSTDOUT, "------------------------------------ super_notify_broken_tcid beg ----------------------------------\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr);
+        sys_log(LOGSTDOUT, "------------------------------------ super_notify_broken_tcid end ----------------------------------\n");
+    }
 #endif
 
     /*set task_mgr*/
@@ -2179,7 +2282,7 @@ void super_notify_broken_tcid(const UINT32 super_md_id, const UINT32 broken_tcid
     cvector_erase_no_lock(TASK_BRD_BROKEN_TCID_TBL(task_brd), broken_tcid_pos);
     CVECTOR_UNLOCK(TASK_BRD_BROKEN_TCID_TBL(task_brd), LOC_SUPER_0045);
 
-    sys_log(LOGSTDOUT, "============================== super_notify_broken_tcid end: broken tcid %s ==============================\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "============================== super_notify_broken_tcid end: broken tcid %s ==============================\n",
                         c_word_to_ipv4(broken_tcid));
 
     return;
@@ -2210,7 +2313,7 @@ void super_notify_broken_route(const UINT32 super_md_id, const UINT32 src_tcid, 
     }
 #endif/*SUPER_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, "============================== super_notify_broken_route beg: src tcid %s, broken tcid %s ==============================\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "============================== super_notify_broken_route beg: src tcid %s, broken tcid %s ==============================\n",
                         c_word_to_ipv4(src_tcid), c_word_to_ipv4(broken_tcid));
 
     task_brd = task_brd_default_get();
@@ -2222,9 +2325,12 @@ void super_notify_broken_route(const UINT32 super_md_id, const UINT32 src_tcid, 
     remote_mod_node_pos = mod_mgr_incl(src_tcid, CMPI_ANY_COMM, CMPI_FWD_RANK, 0, mod_mgr);
 
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ super_notify_broken_route beg ----------------------------------\n");
-    mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ super_notify_broken_route end ----------------------------------\n");
+    if(do_log(SEC_0117_SUPER, 5))
+    {
+        sys_log(LOGSTDOUT, "------------------------------------ super_notify_broken_route beg ----------------------------------\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr);
+        sys_log(LOGSTDOUT, "------------------------------------ super_notify_broken_route end ----------------------------------\n");
+    }
 #endif
 
     /*set task_mgr*/
@@ -2233,7 +2339,7 @@ void super_notify_broken_route(const UINT32 super_md_id, const UINT32 src_tcid, 
     task_pos_inc(task_mgr, remote_mod_node_pos, NULL_PTR, FI_super_notify_broken_tcid, ERR_MODULE_ID, broken_tcid);
     task_no_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
 
-    sys_log(LOGSTDOUT, "============================== super_notify_broken_route end: src tcid %s, broken tcid %s ==============================\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "============================== super_notify_broken_route end: src tcid %s, broken tcid %s ==============================\n",
                         c_word_to_ipv4(src_tcid), c_word_to_ipv4(broken_tcid));
 
     return;
@@ -2268,9 +2374,9 @@ void super_show_work_client(const UINT32 super_md_id, LOG *log)
         tasks_cfg = TASK_BRD_TASKS_CFG(task_brd);
         index     = 0;
 
-        //sys_log(LOGSTDOUT, "===================================== working clients beg: =====================================\n");
+        //dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "===================================== working clients beg: =====================================\n");
         tasks_work_print_csocket_cnode_list_in_plain(log, TASKS_CFG_WORK(tasks_cfg), &index);
-        //sys_log(LOGSTDOUT, "===================================== working clients end: =====================================\n");
+        //dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "===================================== working clients end: =====================================\n");
     }
     return;
 }
@@ -2644,13 +2750,13 @@ void super_add_connection(const UINT32 super_md_id, const UINT32 des_tcid, const
 
     if(CMPI_FWD_RANK != TASK_BRD_RANK(task_brd))
     {
-        sys_log(LOGSTDOUT, "error:super_add_connection: current rank %ld is not fwd rank\n", TASK_BRD_RANK(task_brd));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_add_connection: current rank %ld is not fwd rank\n", TASK_BRD_RANK(task_brd));
         return;
     }
 
     if(des_tcid == TASK_BRD_TCID(task_brd))
     {
-        sys_log(LOGSTDOUT, "warn:super_add_connection: giveup connect to itself\n");
+        dbg_log(SEC_0117_SUPER, 1)(LOGSTDOUT, "warn:super_add_connection: giveup connect to itself\n");
         return;
     }
 
@@ -2659,7 +2765,7 @@ void super_add_connection(const UINT32 super_md_id, const UINT32 des_tcid, const
     local_tasks_cfg = taskc_get_local_tasks_cfg(TASK_BRD_TASKC_MD_ID(task_brd));
     if(NULL_PTR == local_tasks_cfg)
     {
-        sys_log(LOGSTDOUT, "error:super_add_connection: local tasks cfg is null\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_add_connection: local tasks cfg is null\n");
         return;
     }
 
@@ -2668,7 +2774,7 @@ void super_add_connection(const UINT32 super_md_id, const UINT32 des_tcid, const
     {
         if(EC_FALSE == tasks_monitor_open(TASKS_CFG_MONITOR(local_tasks_cfg), des_tcid, des_srv_ipaddr, des_srv_port))
         {
-            sys_log(LOGSTDOUT, "error:super_add_connection: failed connect to des tcid %s, srvipaddr %s, srvport %ld\n",
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_add_connection: failed connect to des tcid %s, srvipaddr %s, srvport %ld\n",
                                 c_word_to_ipv4(des_tcid), c_word_to_ipv4(des_srv_ipaddr), des_srv_port);
             break;
         }
@@ -2697,7 +2803,7 @@ void super_run_shell(const UINT32 super_md_id, const CSTRING *cmd_line, LOG *log
     }
 #endif/*SUPER_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, "super_run_shell: execute shell command: %s\n", (char *)cstring_get_str(cmd_line));
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_run_shell: execute shell command: %s\n", (char *)cstring_get_str(cmd_line));
 
     rstream = popen((char *)cstring_get_str(cmd_line), "r");
 
@@ -2708,7 +2814,7 @@ void super_run_shell(const UINT32 super_md_id, const CSTRING *cmd_line, LOG *log
 
     pclose( rstream );
 
-    //sys_log(LOGSTDOUT, "super_run_shell: shell command output:\n %s\n", (char *)cstring_get_str(result));/*debug*/
+    //dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_run_shell: shell command output:\n %s\n", (char *)cstring_get_str(result));/*debug*/
     sys_print(log, "%s", (char *)cstring_get_str(result));
     cstring_free(result);
 
@@ -2739,7 +2845,7 @@ EC_BOOL super_exec_shell(const UINT32 super_md_id, const CSTRING *cmd_line, CBYT
     cmd_line_fix = cstring_new(cstring_get_str(cmd_line), LOC_SUPER_0051);
     cstring_append_str(cmd_line_fix, (UINT8 *)" 2>&1");/*fix*/
 
-    sys_log(LOGSTDOUT, "super_exec_shell: execute shell command: %s\n", (char *)cstring_get_str(cmd_line_fix));
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_exec_shell: execute shell command: %s\n", (char *)cstring_get_str(cmd_line_fix));
 
     rstream = popen((char *)cstring_get_str(cmd_line_fix), "r");
 
@@ -2748,11 +2854,11 @@ EC_BOOL super_exec_shell(const UINT32 super_md_id, const CSTRING *cmd_line, CBYT
 
     pclose( rstream );
 
-    sys_log(LOGSTDNULL, "super_exec_shell: execute shell command: \"%s\", output len %ld, content is\n%.*s\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDNULL, "super_exec_shell: execute shell command: \"%s\", output len %ld, content is\n%.*s\n",
                         (char *)cstring_get_str(cmd_line_fix), cbytes_len(cbytes),
                         cbytes_len(cbytes), cbytes_buf(cbytes));
 
-    sys_log(LOGSTDOUT, "super_exec_shell: execute shell command: \"%s\", output len %ld\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_exec_shell: execute shell command: \"%s\", output len %ld\n",
                         (char *)cstring_get_str(cmd_line_fix), cbytes_len(cbytes));
 
     cstring_free(cmd_line_fix);
@@ -2776,7 +2882,7 @@ EC_BOOL super_exec_shell_tcid_cstr(const UINT32 super_md_id, const CSTRING *tcid
     }
 #endif/*SUPER_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, "super_exec_shell_tcid_cstr: execute shell command on tcid %s: %s\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_exec_shell_tcid_cstr: execute shell command on tcid %s: %s\n",
                         (char *)cstring_get_str(tcid_cstr),
                         (char *)cstring_get_str(cmd_line));
 
@@ -2788,7 +2894,7 @@ EC_BOOL super_exec_shell_tcid_cstr(const UINT32 super_md_id, const CSTRING *tcid
 
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_tcid_cstr: tcid %s not connected\n", (char *)cstring_get_str(tcid_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_tcid_cstr: tcid %s not connected\n", (char *)cstring_get_str(tcid_cstr));
         return (EC_FALSE);
     }
 
@@ -2831,7 +2937,7 @@ EC_BOOL super_exec_shell_vec(const UINT32 super_md_id, const CVECTOR *tcid_vec, 
 
     if(tcid_num != cmd_line_num)
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_vec: mismatched tcid vec size %ld and cmd line vec size %ld\n", tcid_num, cmd_line_num);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_vec: mismatched tcid vec size %ld and cmd line vec size %ld\n", tcid_num, cmd_line_num);
         return (EC_FALSE);
     }
 
@@ -2850,7 +2956,7 @@ EC_BOOL super_exec_shell_vec(const UINT32 super_md_id, const CVECTOR *tcid_vec, 
         output_cbytes = cbytes_new(0);
         if(NULL_PTR == output_cbytes)
         {
-            sys_log(LOGSTDOUT, "error:super_exec_shell_vec: new output cbytes failed\n");
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_vec: new output cbytes failed\n");
             cvector_clean_with_location_no_lock(output_cbytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_SUPER_0052);
             return (EC_FALSE);
         }
@@ -2907,7 +3013,7 @@ EC_BOOL super_exec_shell_vec_tcid_cstr(const UINT32 super_md_id, const CVECTOR *
         output_cbytes = cbytes_new(0);
         if(NULL_PTR == output_cbytes)
         {
-            sys_log(LOGSTDOUT, "error:super_exec_shell_vec_tcid_cstr: new output cbytes failed\n");
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_vec_tcid_cstr: new output cbytes failed\n");
             cvector_clean_with_location_no_lock(output_cbytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_SUPER_0053);
             task_mgr_free(task_mgr);
             return (EC_FALSE);
@@ -2918,7 +3024,7 @@ EC_BOOL super_exec_shell_vec_tcid_cstr(const UINT32 super_md_id, const CVECTOR *
 
         if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
         {
-            sys_log(LOGSTDOUT, "error:super_exec_shell_vec_tcid_cstr: tcid %s not connected, skip it\n", (char *)cstring_get_str(tcid_cstr));
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_vec_tcid_cstr: tcid %s not connected, skip it\n", (char *)cstring_get_str(tcid_cstr));
             continue;
         }
 
@@ -2931,7 +3037,7 @@ EC_BOOL super_exec_shell_vec_tcid_cstr(const UINT32 super_md_id, const CVECTOR *
     }
     task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
 
-    //sys_log(LOGSTDOUT, "[DEBUG] super_exec_shell_vec_tcid_cstr: result is\n");
+    //dbg_log(SEC_0117_SUPER, 9)(LOGSTDOUT, "[DEBUG] super_exec_shell_vec_tcid_cstr: result is\n");
     //cvector_print(LOGSTDOUT, output_cbytes_vec, (CVECTOR_DATA_PRINT)cbytes_print_str);
 
     return (EC_TRUE);
@@ -2956,17 +3062,17 @@ EC_BOOL super_exec_shell_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ip
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(ipaddr_cstr))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr:ipaddr cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr:ipaddr cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(cmd_line))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr:cmd_line is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr:cmd_line is empty\n");
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "super_exec_shell_ipaddr_cstr: execute shell command on ipaddr %s: %s\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_exec_shell_ipaddr_cstr: execute shell command on ipaddr %s: %s\n",
                         (char *)cstring_get_str(ipaddr_cstr),
                         (char *)cstring_get_str(cmd_line));
 
@@ -2974,7 +3080,7 @@ EC_BOOL super_exec_shell_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ip
     tcid = task_brd_get_tcid_by_ipaddr(task_brd_default_get(), ipaddr);
     if(CMPI_ERROR_TCID == tcid)
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr: no tcid for ipaddr %s failed\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr: no tcid for ipaddr %s failed\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -2985,7 +3091,7 @@ EC_BOOL super_exec_shell_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ip
 
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -3020,7 +3126,7 @@ EC_BOOL super_exec_shell_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(cmd_line))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_vec_ipaddr_cstr:cmd_line is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_vec_ipaddr_cstr:cmd_line is empty\n");
         return (EC_FALSE);
     }
 
@@ -3043,7 +3149,7 @@ EC_BOOL super_exec_shell_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR
         output_cbytes = cbytes_new(0);
         if(NULL_PTR == output_cbytes)
         {
-            sys_log(LOGSTDOUT, "error:super_exec_shell_vec_ipaddr_cstr: new output cbytes failed\n");
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_vec_ipaddr_cstr: new output cbytes failed\n");
             cvector_clean_with_location_no_lock(output_cbytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_SUPER_0054);
             task_mgr_free(task_mgr);
             return (EC_FALSE);
@@ -3054,12 +3160,12 @@ EC_BOOL super_exec_shell_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR
 
         if(CMPI_ERROR_TCID == tcid)
         {
-            sys_log(LOGSTDOUT, "error:super_exec_shell_vec_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_vec_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
         }
 
         if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
         {
-            sys_log(LOGSTDOUT, "error:super_exec_shell_vec_ipaddr_cstr: ipaddr %s not connected, skip it\n", (char *)cstring_get_str(ipaddr_cstr));
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_vec_ipaddr_cstr: ipaddr %s not connected, skip it\n", (char *)cstring_get_str(ipaddr_cstr));
             continue;
         }
 
@@ -3073,7 +3179,7 @@ EC_BOOL super_exec_shell_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR
     }
     task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
 
-    //sys_log(LOGSTDOUT, "[DEBUG] super_exec_shell_vec_ipaddr_cstr: result is\n");
+    //dbg_log(SEC_0117_SUPER, 9)(LOGSTDOUT, "[DEBUG] super_exec_shell_vec_ipaddr_cstr: result is\n");
     //cvector_print(LOGSTDOUT, output_cbytes_vec, (CVECTOR_DATA_PRINT)cbytes_print_str);
 
     return (EC_TRUE);
@@ -3102,13 +3208,13 @@ EC_BOOL super_exec_shell_cbtimer_reset(const UINT32 super_md_id, const CSTRING *
 
     if(EC_TRUE == cstring_is_empty(cbtimer_name))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_cbtimer_reset:cbtimer_name is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_cbtimer_reset:cbtimer_name is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(cmd_line))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_cbtimer_reset:cmd_line is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_cbtimer_reset:cmd_line is empty\n");
         return (EC_FALSE);
     }
 
@@ -3118,20 +3224,20 @@ EC_BOOL super_exec_shell_cbtimer_reset(const UINT32 super_md_id, const CSTRING *
     mod_type = (timeout_func_id >> (WORDSIZE / 2));
     if( MD_END <= mod_type )
     {
-        sys_log(LOGSTDERR, "error:super_exec_shell_cbtimer_reset: invalid timeout_func_id %lx\n", timeout_func_id);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDERR, "error:super_exec_shell_cbtimer_reset: invalid timeout_func_id %lx\n", timeout_func_id);
         return (EC_FALSE);
     }
 
     if(0 != dbg_fetch_func_addr_node_by_index(timeout_func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_cbtimer_reset: failed to fetch func addr node by func id %lx\n", timeout_func_id);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_cbtimer_reset: failed to fetch func addr node by func id %lx\n", timeout_func_id);
         return (EC_FALSE);
     }
 
     cbtimer_node = cbtimer_search_by_name(TASK_BRD_CBTIMER_LIST(task_brd), cbtimer_name);
     if(NULL_PTR == cbtimer_node)
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_cbtimer_reset: undefined cbtimer with name %s\n", (char *)cstring_get_str(cbtimer_name));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_cbtimer_reset: undefined cbtimer with name %s\n", (char *)cstring_get_str(cbtimer_name));
         return (EC_FALSE);
     }
 
@@ -3207,13 +3313,13 @@ EC_BOOL super_exec_shell_cbtimer_set(const UINT32 super_md_id, const CSTRING *cb
 
     if(EC_TRUE == cstring_is_empty(cbtimer_name))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_cbtimer_set:cbtimer_name is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_cbtimer_set:cbtimer_name is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(cmd_line))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_cbtimer_set:cmd_line is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_cbtimer_set:cmd_line is empty\n");
         return (EC_FALSE);
     }
 
@@ -3222,7 +3328,7 @@ EC_BOOL super_exec_shell_cbtimer_set(const UINT32 super_md_id, const CSTRING *cb
     cbtimer_node = cbtimer_search_by_name(TASK_BRD_CBTIMER_LIST(task_brd), cbtimer_name);
     if(NULL_PTR != cbtimer_node)
     {
-        sys_log(LOGSTDOUT, "super_exec_shell_cbtimer_set: found cbtimer with name %s, try to reset it\n", (char *)cstring_get_str(cbtimer_name));
+        dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_exec_shell_cbtimer_set: found cbtimer with name %s, try to reset it\n", (char *)cstring_get_str(cbtimer_name));
         return super_exec_shell_cbtimer_reset(super_md_id, cbtimer_name, cmd_line, timeout);
     }
 
@@ -3230,20 +3336,20 @@ EC_BOOL super_exec_shell_cbtimer_set(const UINT32 super_md_id, const CSTRING *cb
     mod_type = (timeout_func_id >> (WORDSIZE / 2));
     if( MD_END <= mod_type )
     {
-        sys_log(LOGSTDERR, "error:super_exec_shell_cbtimer_set: invalid timeout_func_id %lx\n", timeout_func_id);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDERR, "error:super_exec_shell_cbtimer_set: invalid timeout_func_id %lx\n", timeout_func_id);
         return (EC_FALSE);
     }
 
     if(0 != dbg_fetch_func_addr_node_by_index(timeout_func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_cbtimer_set: failed to fetch func addr node by func id %lx\n", timeout_func_id);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_cbtimer_set: failed to fetch func addr node by func id %lx\n", timeout_func_id);
         return (EC_FALSE);
     }
 
     cbtimer_node = cbtimer_node_new();
     if(NULL_PTR == cbtimer_node)
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_cbtimer_set: new cbtimer node failed\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_cbtimer_set: new cbtimer node failed\n");
         return (EC_FALSE);
     }
 
@@ -3297,7 +3403,7 @@ EC_BOOL super_exec_shell_cbtimer_unset(const UINT32 super_md_id, const CSTRING *
 
     if(EC_TRUE == cstring_is_empty(cbtimer_name))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_cbtimer_unset:cbtimer_name is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_cbtimer_unset:cbtimer_name is empty\n");
         return (EC_FALSE);
     }
 
@@ -3332,17 +3438,17 @@ EC_BOOL super_exec_shell_ipaddr_cstr_cbtimer_set(const UINT32 super_md_id, const
 
     if(EC_TRUE == cstring_is_empty(ipaddr_cstr))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_set:ipaddr cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_set:ipaddr cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(cmd_line))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_set:cmd_line is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_set:cmd_line is empty\n");
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "super_exec_shell_ipaddr_cstr_cbtimer_set: execute shell command on ipaddr %s: %s with name %s and timeout %ld\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_exec_shell_ipaddr_cstr_cbtimer_set: execute shell command on ipaddr %s: %s with name %s and timeout %ld\n",
                         (char *)cstring_get_str(ipaddr_cstr),
                         (char *)cstring_get_str(cmd_line),
                         (char *)cstring_get_str(cbtimer_name),
@@ -3353,7 +3459,7 @@ EC_BOOL super_exec_shell_ipaddr_cstr_cbtimer_set(const UINT32 super_md_id, const
     tcid = task_brd_get_tcid_by_ipaddr(task_brd_default_get(), ipaddr);
     if(CMPI_ERROR_TCID == tcid)
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_set: no tcid for ipaddr %s failed\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_set: no tcid for ipaddr %s failed\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -3364,7 +3470,7 @@ EC_BOOL super_exec_shell_ipaddr_cstr_cbtimer_set(const UINT32 super_md_id, const
 
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_set: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_set: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -3399,11 +3505,11 @@ EC_BOOL super_exec_shell_ipaddr_cstr_cbtimer_unset(const UINT32 super_md_id, con
 
     if(EC_TRUE == cstring_is_empty(ipaddr_cstr))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_unset:ipaddr cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_unset:ipaddr cstr is empty\n");
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "super_exec_shell_ipaddr_cstr_cbtimer_set: cancel cbtimer %s on ipaddr %s\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_exec_shell_ipaddr_cstr_cbtimer_set: cancel cbtimer %s on ipaddr %s\n",
                         (char *)cstring_get_str(cbtimer_name),
                         (char *)cstring_get_str(ipaddr_cstr)
                         );
@@ -3412,7 +3518,7 @@ EC_BOOL super_exec_shell_ipaddr_cstr_cbtimer_unset(const UINT32 super_md_id, con
     tcid = task_brd_get_tcid_by_ipaddr(task_brd_default_get(), ipaddr);
     if(CMPI_ERROR_TCID == tcid)
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_unset: no tcid for ipaddr %s failed\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_unset: no tcid for ipaddr %s failed\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -3423,7 +3529,7 @@ EC_BOOL super_exec_shell_ipaddr_cstr_cbtimer_unset(const UINT32 super_md_id, con
 
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
     {
-        sys_log(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_unset: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_exec_shell_ipaddr_cstr_cbtimer_unset: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -3489,9 +3595,12 @@ void super_sync_rank_load(const UINT32 super_md_id, const UINT32 tcid, const UIN
     mod_mgr_incl(tcid, CMPI_ANY_COMM, rank, 0, mod_mgr);
 
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ super_sync_rank_load beg ----------------------------------\n");
-    mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ super_sync_rank_load end ----------------------------------\n");
+    if(do_log(SEC_0117_SUPER, 5))
+    {
+        sys_log(LOGSTDOUT, "------------------------------------ super_sync_rank_load beg ----------------------------------\n");
+        mod_mgr_print(LOGSTDOUT, mod_mgr);
+        sys_log(LOGSTDOUT, "------------------------------------ super_sync_rank_load end ----------------------------------\n");
+    }
 #endif
 
     MOD_NODE_TCID(&recv_mod_node) = tcid;
@@ -3818,7 +3927,7 @@ EC_BOOL super_download(const UINT32 super_md_id, const CSTRING *fname, CBYTES *c
 
     if(0 != access((char *)cstring_get_str(fname), F_OK | R_OK))
     {
-        sys_log(LOGSTDOUT, "error:super_download: inaccessable file %s, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download: inaccessable file %s, errno = %d, errstr = %s\n",
                             (char *)cstring_get_str(fname), errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -3826,7 +3935,7 @@ EC_BOOL super_download(const UINT32 super_md_id, const CSTRING *fname, CBYTES *c
     fd = c_file_open((char *)cstring_get_str(fname), O_RDONLY, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT, "error:super_download: open file %s to read failed, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download: open file %s to read failed, errno = %d, errstr = %s\n",
                             (char *)cstring_get_str(fname), errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -3834,7 +3943,7 @@ EC_BOOL super_download(const UINT32 super_md_id, const CSTRING *fname, CBYTES *c
     fsize = lseek(fd, 0, SEEK_END);
     if(ERR_FD == fsize)
     {
-        sys_log(LOGSTDOUT, "error:super_download: seek and get file size of %s failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download: seek and get file size of %s failed\n",
                            (char *)cstring_get_str(fname));
         c_file_close(fd);
         return (EC_FALSE);
@@ -3843,7 +3952,7 @@ EC_BOOL super_download(const UINT32 super_md_id, const CSTRING *fname, CBYTES *c
     fbuf = (UINT8 *)SAFE_MALLOC(fsize, LOC_SUPER_0060);
     if(NULL_PTR == fbuf)
     {
-        sys_log(LOGSTDOUT, "error:super_download: alloc %ld bytes for file %s buffer failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download: alloc %ld bytes for file %s buffer failed\n",
                             fsize, (char *)cstring_get_str(fname));
         c_file_close(fd);
         return (EC_FALSE);
@@ -3852,7 +3961,7 @@ EC_BOOL super_download(const UINT32 super_md_id, const CSTRING *fname, CBYTES *c
     offset = 0;
     if(EC_FALSE == c_file_load(fd, &offset, fsize, fbuf))
     {
-        sys_log(LOGSTDOUT, "error:super_download: load %ld bytes from file %s to buffer failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download: load %ld bytes from file %s to buffer failed\n",
                             fsize, (char *)cstring_get_str(fname));
         SAFE_FREE(fbuf, LOC_SUPER_0061);
         c_file_close(fd);
@@ -3882,7 +3991,7 @@ EC_BOOL super_download_tcid_cstr(const UINT32 super_md_id, const CSTRING *tcid_c
     }
 #endif/*SUPER_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, "super_download_tcid_cstr: execute download file %s on tcid %s\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_download_tcid_cstr: execute download file %s on tcid %s\n",
                         (char *)cstring_get_str(fname),
                         (char *)cstring_get_str(tcid_cstr));
 
@@ -3894,7 +4003,7 @@ EC_BOOL super_download_tcid_cstr(const UINT32 super_md_id, const CSTRING *tcid_c
 
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
     {
-        sys_log(LOGSTDOUT, "error:super_download_tcid_cstr: tcid %s not connected\n", (char *)cstring_get_str(tcid_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download_tcid_cstr: tcid %s not connected\n", (char *)cstring_get_str(tcid_cstr));
         return (EC_FALSE);
     }
 
@@ -3946,7 +4055,7 @@ EC_BOOL super_download_vec_tcid_cstr(const UINT32 super_md_id, const CVECTOR *tc
         output_cbytes = cbytes_new(0);
         if(NULL_PTR == output_cbytes)
         {
-            sys_log(LOGSTDOUT, "error:super_download_vec_tcid_cstr: new output cbytes failed\n");
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download_vec_tcid_cstr: new output cbytes failed\n");
             cvector_clean_with_location_no_lock(output_cbytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_SUPER_0062);
             task_mgr_free(task_mgr);
             return (EC_FALSE);
@@ -3957,7 +4066,7 @@ EC_BOOL super_download_vec_tcid_cstr(const UINT32 super_md_id, const CVECTOR *tc
 
         if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
         {
-            sys_log(LOGSTDOUT, "error:super_download_vec_tcid_cstr: tcid %s not connected, skip it\n", (char *)cstring_get_str(tcid_cstr));
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download_vec_tcid_cstr: tcid %s not connected, skip it\n", (char *)cstring_get_str(tcid_cstr));
             continue;
         }
 
@@ -3971,7 +4080,7 @@ EC_BOOL super_download_vec_tcid_cstr(const UINT32 super_md_id, const CVECTOR *tc
     }
     task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
 
-    //sys_log(LOGSTDOUT, "[DEBUG] super_download_vec_tcid_cstr: result is\n");
+    //dbg_log(SEC_0117_SUPER, 9)(LOGSTDOUT, "[DEBUG] super_download_vec_tcid_cstr: result is\n");
     //cvector_print(LOGSTDOUT, output_cbytes_vec, (CVECTOR_DATA_PRINT)cbytes_print_str);
 
     return (EC_TRUE);
@@ -3997,17 +4106,17 @@ EC_BOOL super_download_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ipad
 
     if(EC_TRUE == cstring_is_empty(ipaddr_cstr))
     {
-        sys_log(LOGSTDOUT, "error:super_download_ipaddr_cstr:ipaddr cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download_ipaddr_cstr:ipaddr cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_download_ipaddr_cstr:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download_ipaddr_cstr:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "super_download_ipaddr_cstr: execute download file %s on ipaddr %s\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_download_ipaddr_cstr: execute download file %s on ipaddr %s\n",
                         (char *)cstring_get_str(fname),
                         (char *)cstring_get_str(ipaddr_cstr));
 
@@ -4017,7 +4126,7 @@ EC_BOOL super_download_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ipad
     tcid   = task_brd_get_tcid_by_ipaddr(task_brd, ipaddr);
     if(CMPI_ERROR_TCID == tcid)
     {
-        sys_log(LOGSTDOUT, "error:super_download_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -4028,7 +4137,7 @@ EC_BOOL super_download_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ipad
 
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd, tcid))
     {
-        sys_log(LOGSTDOUT, "error:super_download_ipaddr_cstr: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download_ipaddr_cstr: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -4062,7 +4171,7 @@ EC_BOOL super_download_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR *
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_download_vec_ipaddr_cstr:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download_vec_ipaddr_cstr:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
@@ -4085,7 +4194,7 @@ EC_BOOL super_download_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR *
         output_cbytes = cbytes_new(0);
         if(NULL_PTR == output_cbytes)
         {
-            sys_log(LOGSTDOUT, "error:super_download_vec_ipaddr_cstr: new output cbytes failed\n");
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download_vec_ipaddr_cstr: new output cbytes failed\n");
             cvector_clean_with_location_no_lock(output_cbytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_SUPER_0063);
             task_mgr_free(task_mgr);
             return (EC_FALSE);
@@ -4096,13 +4205,13 @@ EC_BOOL super_download_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR *
 
         if(CMPI_ERROR_TCID == tcid)
         {
-            sys_log(LOGSTDOUT, "error:super_download_vec_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download_vec_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
             continue;
         }
 
         if(EC_FALSE == task_brd_check_tcid_connected(task_brd, tcid))
         {
-            sys_log(LOGSTDOUT, "error:super_download_vec_ipaddr_cstr: ipaddr %s not connected, skip it\n", (char *)cstring_get_str(ipaddr_cstr));
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_download_vec_ipaddr_cstr: ipaddr %s not connected, skip it\n", (char *)cstring_get_str(ipaddr_cstr));
             continue;
         }
 
@@ -4116,7 +4225,7 @@ EC_BOOL super_download_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR *
     }
     task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
 
-    //sys_log(LOGSTDOUT, "[DEBUG] super_download_vec_ipaddr_cstr: result is\n");
+    //dbg_log(SEC_0117_SUPER, 9)(LOGSTDOUT, "[DEBUG] super_download_vec_ipaddr_cstr: result is\n");
     //cvector_print(LOGSTDOUT, output_cbytes_vec, (CVECTOR_DATA_PRINT)cbytes_print_str);
 
     return (EC_TRUE);
@@ -4135,7 +4244,7 @@ EC_BOOL super_backup(const UINT32 super_md_id, const CSTRING *fname)
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_backup:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_backup:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
@@ -4146,7 +4255,7 @@ EC_BOOL super_backup(const UINT32 super_md_id, const CSTRING *fname)
         cmd_line = cstring_new(NULL_PTR, LOC_SUPER_0064);
         if(NULL_PTR == cmd_line)
         {
-            sys_log(LOGSTDOUT, "error:super_backup: new cmd line failed\n");
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_backup: new cmd line failed\n");
             return (EC_FALSE);
         }
 
@@ -4154,7 +4263,7 @@ EC_BOOL super_backup(const UINT32 super_md_id, const CSTRING *fname)
                         (char *)cstring_get_str(fname), (char *)cstring_get_str(fname));
         if(EC_FALSE == exec_shell((char *)cstring_get_str(cmd_line), NULL_PTR, 0))
         {
-            sys_log(LOGSTDOUT, "error:super_backup: exec cmd %s failed\n", (char *)cstring_get_str(cmd_line));
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_backup: exec cmd %s failed\n", (char *)cstring_get_str(cmd_line));
             cstring_free(cmd_line);
             return (EC_FALSE);
         }
@@ -4187,7 +4296,7 @@ EC_BOOL super_upload(const UINT32 super_md_id, const CSTRING *fname, const CBYTE
 #endif/*( SWITCH_ON == SUPER_DEBUG_SWITCH )*/
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_upload:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
@@ -4195,41 +4304,41 @@ EC_BOOL super_upload(const UINT32 super_md_id, const CSTRING *fname, const CBYTE
     {
         if(EC_FALSE == super_backup(super_md_id, fname))
         {
-            sys_log(LOGSTDOUT, "error:super_upload: backup file %s failed\n", (char *)cstring_get_str(fname));
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload: backup file %s failed\n", (char *)cstring_get_str(fname));
             return (EC_FALSE);
         }
     }
 
     if(EC_FALSE == super_rmv_file(super_md_id, fname))
     {
-        sys_log(LOGSTDOUT, "error:super_upload: rmv file %s failed\n", (char *)cstring_get_str(fname));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload: rmv file %s failed\n", (char *)cstring_get_str(fname));
         return (EC_FALSE);
     }
 
     fsize = cbytes_len(cbytes);
     if(0 == fsize)
     {
-        sys_log(LOGSTDOUT, "error:super_upload: fsize is zero\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload: fsize is zero\n");
         return (EC_FALSE);
     }
 
     fbuf = cbytes_buf(cbytes);
     if(NULL_PTR == fbuf)
     {
-        sys_log(LOGSTDOUT, "error:super_upload: buf is null\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload: buf is null\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == c_basedir_create((char *)cstring_get_str(fname)))
     {
-        sys_log(LOGSTDOUT, "error:super_upload: create basedir of file %s failed\n", (char *)cstring_get_str(fname));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload: create basedir of file %s failed\n", (char *)cstring_get_str(fname));
         return (EC_FALSE);
     }
 
     fd = c_file_open((char *)cstring_get_str(fname), O_WRONLY | O_CREAT, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT, "error:super_upload: open file %s to write failed, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload: open file %s to write failed, errno = %d, errstr = %s\n",
                             (char *)cstring_get_str(fname), errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -4237,7 +4346,7 @@ EC_BOOL super_upload(const UINT32 super_md_id, const CSTRING *fname, const CBYTE
     offset = 0;
     if(EC_FALSE == c_file_flush(fd, &offset, fsize, fbuf))
     {
-        sys_log(LOGSTDOUT, "error:super_upload: flush %ld bytes to file %s failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload: flush %ld bytes to file %s failed\n",
                             fsize, (char *)cstring_get_str(fname));
         c_file_close(fd);
         super_rmv_file(super_md_id, fname);/*remove it*/
@@ -4265,7 +4374,7 @@ EC_BOOL super_upload_tcid_cstr(const UINT32 super_md_id, const CSTRING *tcid_cst
     }
 #endif/*SUPER_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, "super_upload_tcid_cstr: execute upload command on tcid %s: %s\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_upload_tcid_cstr: execute upload command on tcid %s: %s\n",
                         (char *)cstring_get_str(tcid_cstr),
                         (char *)cstring_get_str(fname));
 
@@ -4277,7 +4386,7 @@ EC_BOOL super_upload_tcid_cstr(const UINT32 super_md_id, const CSTRING *tcid_cst
 
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
     {
-        sys_log(LOGSTDOUT, "error:super_upload_tcid_cstr: tcid %s not connected\n", (char *)cstring_get_str(tcid_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload_tcid_cstr: tcid %s not connected\n", (char *)cstring_get_str(tcid_cstr));
         return (EC_FALSE);
     }
 
@@ -4333,7 +4442,7 @@ EC_BOOL super_upload_vec_tcid_cstr(const UINT32 super_md_id, const CVECTOR *tcid
         ret = (UINT32 *)cvector_get_addr_no_lock(ret_vec, tcid_pos);
         if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
         {
-            sys_log(LOGSTDOUT, "error:super_upload_vec_tcid_cstr: tcid %s not connected, skip it\n", (char *)cstring_get_str(tcid_cstr));
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload_vec_tcid_cstr: tcid %s not connected, skip it\n", (char *)cstring_get_str(tcid_cstr));
             continue;
         }
 
@@ -4369,17 +4478,17 @@ EC_BOOL super_upload_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ipaddr
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(ipaddr_cstr))
     {
-        sys_log(LOGSTDOUT, "error:super_upload_ipaddr_cstr:ipaddr cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload_ipaddr_cstr:ipaddr cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_upload_ipaddr_cstr:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload_ipaddr_cstr:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "super_upload_ipaddr_cstr: execute upload command on ipaddr %s: %s\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_upload_ipaddr_cstr: execute upload command on ipaddr %s: %s\n",
                         (char *)cstring_get_str(ipaddr_cstr),
                         (char *)cstring_get_str(fname));
 
@@ -4390,7 +4499,7 @@ EC_BOOL super_upload_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ipaddr
 
     if(CMPI_ERROR_TCID == tcid)
     {
-        sys_log(LOGSTDOUT, "error:super_upload_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -4401,7 +4510,7 @@ EC_BOOL super_upload_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *ipaddr
 
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd, tcid))
     {
-        sys_log(LOGSTDOUT, "error:super_upload_ipaddr_cstr: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload_ipaddr_cstr: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -4435,7 +4544,7 @@ EC_BOOL super_upload_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR *ip
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_upload_vec_ipaddr_cstr:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload_vec_ipaddr_cstr:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
@@ -4466,17 +4575,17 @@ EC_BOOL super_upload_vec_ipaddr_cstr(const UINT32 super_md_id, const CVECTOR *ip
         tcid        = task_brd_get_tcid_by_ipaddr(task_brd, ipaddr);
 
         ret = (UINT32 *)cvector_get_addr_no_lock(ret_vec, ipaddr_pos);
-        //sys_log(LOGSTDOUT, "[DEBUG] super_upload_vec_ipaddr_cstr: ret = %ld (%lx) <== %lx\n", (*ret), (*ret), ret);
+        //dbg_log(SEC_0117_SUPER, 9)(LOGSTDOUT, "[DEBUG] super_upload_vec_ipaddr_cstr: ret = %ld (%lx) <== %lx\n", (*ret), (*ret), ret);
 
         if(CMPI_ERROR_TCID == tcid)
         {
-            sys_log(LOGSTDOUT, "error:super_upload_vec_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload_vec_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
             continue;
         }
 
         if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
         {
-            sys_log(LOGSTDOUT, "error:super_upload_vec_ipaddr_cstr: ipaddr %s not connected, skip it\n", (char *)cstring_get_str(ipaddr_cstr));
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_upload_vec_ipaddr_cstr: ipaddr %s not connected, skip it\n", (char *)cstring_get_str(ipaddr_cstr));
             continue;
         }
 
@@ -4513,7 +4622,7 @@ EC_BOOL super_collect_vec_ipaddr_cstr(const UINT32 super_md_id, CVECTOR *ipaddr_
     ipaddr_vec = cvector_new(0, MM_UINT32, LOC_SUPER_0065);
     if(NULL_PTR == ipaddr_vec)
     {
-        sys_log(LOGSTDOUT, "error:super_collect_vec_ipaddr_cstr: new cvector failed\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_collect_vec_ipaddr_cstr: new cvector failed\n");
         return (EC_FALSE);
     }
 
@@ -4528,7 +4637,7 @@ EC_BOOL super_collect_vec_ipaddr_cstr(const UINT32 super_md_id, CVECTOR *ipaddr_
         ipaddr_cstr = (CSTRING *)cstring_new((UINT8 *)c_word_to_ipv4(ipaddr), LOC_SUPER_0066);
         if(NULL_PTR == ipaddr_cstr)
         {
-            sys_log(LOGSTDOUT, "error:super_collect_vec_ipaddr_cstr: new cstring failed\n");
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_collect_vec_ipaddr_cstr: new cstring failed\n");
             cvector_free(ipaddr_vec, LOC_SUPER_0067);
             return (EC_FALSE);
         }
@@ -4555,7 +4664,7 @@ EC_BOOL super_write_fdata(const UINT32 super_md_id, const CSTRING *fname, const 
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_write_fdata:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_write_fdata:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
@@ -4567,7 +4676,7 @@ EC_BOOL super_write_fdata(const UINT32 super_md_id, const CSTRING *fname, const 
 
     if(NULL_PTR == super_fnode)
     {
-        sys_log(LOGSTDOUT, "error:super_write_fdata: open file %s failed\n", (char *)cstring_get_str(fname));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_write_fdata: open file %s failed\n", (char *)cstring_get_str(fname));
         return (EC_FALSE);
     }
 
@@ -4575,7 +4684,7 @@ EC_BOOL super_write_fdata(const UINT32 super_md_id, const CSTRING *fname, const 
 
     if(EC_FALSE == c_file_size(SUPER_FNODE_FD(super_fnode), &cur_fsize))
     {
-        sys_log(LOGSTDOUT, "error:super_write_fdata: get size of file %s failed\n", (char *)cstring_get_str(fname));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_write_fdata: get size of file %s failed\n", (char *)cstring_get_str(fname));
         SUPER_FNODE_CMUTEX_UNLOCK(super_fnode, LOC_SUPER_0070);
         return (EC_FALSE);
     }
@@ -4583,7 +4692,7 @@ EC_BOOL super_write_fdata(const UINT32 super_md_id, const CSTRING *fname, const 
     /*warning:not support disordered data writting!*/
     if(cur_fsize != offset && EC_FALSE == c_file_truncate(SUPER_FNODE_FD(super_fnode), offset))
     {
-        sys_log(LOGSTDOUT, "error:super_write_fdata: truncate file %s to %ld bytes failed\n", (char *)cstring_get_str(fname), offset);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_write_fdata: truncate file %s to %ld bytes failed\n", (char *)cstring_get_str(fname), offset);
         SUPER_FNODE_CMUTEX_UNLOCK(super_fnode, LOC_SUPER_0071);
         return (EC_FALSE);
     }
@@ -4591,7 +4700,7 @@ EC_BOOL super_write_fdata(const UINT32 super_md_id, const CSTRING *fname, const 
     write_offset = offset;
     if(EC_FALSE == c_file_flush(SUPER_FNODE_FD(super_fnode), &write_offset, cbytes_len(cbytes), cbytes_buf(cbytes)))
     {
-        sys_log(LOGSTDOUT, "error:super_write_fdata: flush %ld bytes at offset %ld of file %s failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_write_fdata: flush %ld bytes at offset %ld of file %s failed\n",
                             cbytes_len(cbytes), write_offset, (char *)cstring_get_str(fname));
         SUPER_FNODE_CMUTEX_UNLOCK(super_fnode, LOC_SUPER_0072);
         return (EC_FALSE);
@@ -4618,7 +4727,7 @@ EC_BOOL super_read_fdata(const UINT32 super_md_id, const CSTRING *fname, const U
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_read_fdata:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_read_fdata:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
@@ -4630,13 +4739,13 @@ EC_BOOL super_read_fdata(const UINT32 super_md_id, const CSTRING *fname, const U
 
     if(NULL_PTR == super_fnode)
     {
-        sys_log(LOGSTDOUT, "error:super_read_fdata: open file %s failed\n", (char *)cstring_get_str(fname));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_read_fdata: open file %s failed\n", (char *)cstring_get_str(fname));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cbytes_resize(cbytes, max_len))
     {
-        sys_log(LOGSTDOUT, "error:super_read_fdata: cbytes resize to len %ld failed\n", max_len);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_read_fdata: cbytes resize to len %ld failed\n", max_len);
         return (EC_FALSE);
     }
 
@@ -4644,7 +4753,7 @@ EC_BOOL super_read_fdata(const UINT32 super_md_id, const CSTRING *fname, const U
     SUPER_FNODE_CMUTEX_LOCK(super_fnode, LOC_SUPER_0074);
     if(EC_FALSE == c_file_load(SUPER_FNODE_FD(super_fnode), &read_offset, max_len, cbytes_buf(cbytes)))
     {
-        sys_log(LOGSTDOUT, "error:super_read_fdata: load %ld bytes at offset %ld of file %s failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_read_fdata: load %ld bytes at offset %ld of file %s failed\n",
                             max_len, read_offset, (char *)cstring_get_str(fname));
         SUPER_FNODE_CMUTEX_UNLOCK(super_fnode, LOC_SUPER_0075);
         return (EC_FALSE);
@@ -4670,14 +4779,14 @@ EC_BOOL super_set_progress(const UINT32 super_md_id, const CSTRING *fname, const
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_set_progress:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_set_progress:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
     super_fnode = super_search_fnode_by_fname(super_md_id, fname);
     if(NULL_PTR == super_fnode)
     {
-        sys_log(LOGSTDOUT, "error:super_set_progress: not searched file %s\n", (char *)cstring_get_str(fname));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_set_progress: not searched file %s\n", (char *)cstring_get_str(fname));
         return (EC_FALSE);
     }
     SUPER_FNODE_PROGRESS(super_fnode) = (*progress);
@@ -4699,14 +4808,14 @@ EC_BOOL super_get_progress(const UINT32 super_md_id, const CSTRING *fname, REAL 
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_get_progress:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_progress:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
     super_fnode = super_search_fnode_by_fname(super_md_id, fname);
     if(NULL_PTR == super_fnode)
     {
-        sys_log(LOGSTDOUT, "error:super_get_progress: not searched file %s\n", (char *)cstring_get_str(fname));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_progress: not searched file %s\n", (char *)cstring_get_str(fname));
         /*when the file was not on transfering, regard its progress is 100% */
         (*progress) = 1.0;
         return (EC_FALSE);
@@ -4731,7 +4840,7 @@ EC_BOOL super_size_file(const UINT32 super_md_id, const CSTRING *fname, UINT32 *
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_size_file:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_size_file:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
@@ -4758,13 +4867,13 @@ EC_BOOL super_open_file(const UINT32 super_md_id, const CSTRING *fname, const UI
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_open_file:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_open_file:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(NULL_PTR == super_open_fnode_by_fname(super_md_id, fname, open_flags))
     {
-        sys_log(LOGSTDOUT, "error:super_open_file:open file %s with flags %lx failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_open_file:open file %s with flags %lx failed\n",
                             (char *)cstring_get_str(fname), open_flags);
         return (EC_FALSE);
     }
@@ -4784,13 +4893,13 @@ EC_BOOL super_close_file(const UINT32 super_md_id, const CSTRING *fname)
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_close_file:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_close_file:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == super_close_fnode_by_fname(super_md_id, fname))
     {
-        sys_log(LOGSTDOUT, "error:super_close_file:c_file_close file %s failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_close_file:c_file_close file %s failed\n",
                             (char *)cstring_get_str(fname));
         return (EC_FALSE);
     }
@@ -4811,31 +4920,31 @@ EC_BOOL super_rmv_file(const UINT32 super_md_id, const CSTRING *fname)
 
     if(EC_TRUE == cstring_is_empty(fname))
     {
-        sys_log(LOGSTDOUT, "error:super_rmv_file:fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_rmv_file:fname cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(0 != access((char *)cstring_get_str(fname), F_OK))
     {
-        sys_log(LOGSTDOUT, "[DEBUG] super_rmv_file: not exist file %s\n", (char *)cstring_get_str(fname));
+        dbg_log(SEC_0117_SUPER, 9)(LOGSTDOUT, "[DEBUG] super_rmv_file: not exist file %s\n", (char *)cstring_get_str(fname));
         return (EC_TRUE);
     }
 
     if(0 != access((char *)cstring_get_str(fname), R_OK))
     {
-        sys_log(LOGSTDOUT, "error:super_rmv_file: not readable file %s, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_rmv_file: not readable file %s, errno = %d, errstr = %s\n",
                             (char *)cstring_get_str(fname), errno, strerror(errno));
         return (EC_FALSE);
     }
 
     if(0 != unlink((char *)cstring_get_str(fname)))
     {
-        sys_log(LOGSTDOUT, "error:super_rmv_file: unlink file %s failed, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_rmv_file: unlink file %s failed, errno = %d, errstr = %s\n",
                             (char *)cstring_get_str(fname), errno, strerror(errno));
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] super_rmv_file: removed file %s\n", (char *)cstring_get_str(fname));
+    dbg_log(SEC_0117_SUPER, 9)(LOGSTDOUT, "[DEBUG] super_rmv_file: removed file %s\n", (char *)cstring_get_str(fname));
     return (EC_TRUE);
 }
 
@@ -4855,19 +4964,19 @@ EC_BOOL super_transfer_start(const UINT32 super_md_id, const CSTRING *src_fname,
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(src_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_start:src_fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_start:src_fname cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(des_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_start:des_fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_start:des_fname cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == super_open_file(super_md_id, src_fname, SUPER_O_RDONLY))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_start: open src file %s failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_start: open src file %s failed\n",
                            (char *)cstring_get_str(src_fname));
         return (EC_FALSE);
     }
@@ -4883,7 +4992,7 @@ EC_BOOL super_transfer_start(const UINT32 super_md_id, const CSTRING *src_fname,
                     &ret, FI_super_open_file, ERR_MODULE_ID, des_fname, SUPER_O_WRONLY | SUPER_O_CREAT);
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_start: open des file %s failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_start: open des file %s failed\n",
                            (char *)cstring_get_str(des_fname));
         super_close_file(super_md_id, src_fname);
         return (EC_FALSE);
@@ -4909,13 +5018,13 @@ EC_BOOL super_transfer_stop(const UINT32 super_md_id, const CSTRING *src_fname, 
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(src_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_stop:src_fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_stop:src_fname cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(des_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_stop:des_fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_stop:des_fname cstr is empty\n");
         return (EC_FALSE);
     }
 
@@ -4923,7 +5032,7 @@ EC_BOOL super_transfer_stop(const UINT32 super_md_id, const CSTRING *src_fname, 
     if(EC_FALSE == super_close_file(super_md_id, src_fname))
     {
         ret_src = EC_FALSE;
-        sys_log(LOGSTDOUT, "error:super_transfer_stop: c_file_close src file %s failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_stop: c_file_close src file %s failed\n",
                            (char *)cstring_get_str(src_fname));
     }
 
@@ -4938,7 +5047,7 @@ EC_BOOL super_transfer_stop(const UINT32 super_md_id, const CSTRING *src_fname, 
                     &ret_des, FI_super_close_file, ERR_MODULE_ID, des_fname);
     if(EC_FALSE == ret_des)
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_stop: c_file_close des file %s failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_stop: c_file_close des file %s failed\n",
                            (char *)cstring_get_str(des_fname));
     }
 
@@ -4968,31 +5077,31 @@ EC_BOOL super_transfer(const UINT32 super_md_id, const CSTRING *src_fname, const
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(src_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer:src_fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer:src_fname cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(des_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer:des_fname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer:des_fname cstr is empty\n");
         return (EC_FALSE);
     }
 
     /*when transfer file on current host to the same same, ignore it*/
-    if(CMPI_LOCAL_TCID == des_tcid && EC_TRUE == cstring_cmp(src_fname, des_fname))
+    if(CMPI_LOCAL_TCID == des_tcid && EC_TRUE == cstring_is_equal(src_fname, des_fname))
     {
         return (EC_TRUE);
     }
 
     if(EC_FALSE == super_transfer_start(super_md_id, src_fname, des_tcid, des_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer: start transfer failed\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer: start transfer failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == super_size_file(super_md_id, src_fname, &rsize))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer: get size of file %s failed\n", (char *)cstring_get_str(src_fname));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer: get size of file %s failed\n", (char *)cstring_get_str(src_fname));
         super_transfer_stop(super_md_id, src_fname, des_tcid, des_fname);
         return (EC_FALSE);
     }
@@ -5016,14 +5125,14 @@ EC_BOOL super_transfer(const UINT32 super_md_id, const CSTRING *src_fname, const
         cbytes = cbytes_new(osize);
         if(NULL_PTR == cbytes)
         {
-            sys_log(LOGSTDOUT, "error:super_transfer: new cbytes with len %ld failed\n", osize);
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer: new cbytes with len %ld failed\n", osize);
             super_transfer_stop(super_md_id, src_fname, des_tcid, des_fname);
             return (EC_FALSE);
         }
 
         if(EC_FALSE == super_read_fdata(super_md_id, src_fname, csize, osize, cbytes))
         {
-            sys_log(LOGSTDOUT, "error:super_transfer: read %ld bytes at offset %ld of src file %s failed\n",
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer: read %ld bytes at offset %ld of src file %s failed\n",
                                 osize, csize, (char *)cstring_get_str(src_fname));
             cbytes_free(cbytes, LOC_SUPER_0077);
             super_transfer_stop(super_md_id, src_fname, des_tcid, des_fname);
@@ -5036,7 +5145,7 @@ EC_BOOL super_transfer(const UINT32 super_md_id, const CSTRING *src_fname, const
                         &ret, FI_super_write_fdata, ERR_MODULE_ID, des_fname, csize, cbytes);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:super_write_fdata: write %ld bytes at offset %ld of des file %s failed\n",
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_write_fdata: write %ld bytes at offset %ld of des file %s failed\n",
                                osize, csize, (char *)cstring_get_str(des_fname));
             cbytes_free(cbytes, LOC_SUPER_0078);
             super_transfer_stop(super_md_id, src_fname, des_tcid, des_fname);
@@ -5051,7 +5160,7 @@ EC_BOOL super_transfer(const UINT32 super_md_id, const CSTRING *src_fname, const
 
     if(EC_FALSE == super_transfer_stop(super_md_id, src_fname, des_tcid, des_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer: stop transfer failed\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer: stop transfer failed\n");
         return (EC_FALSE);
     }
 
@@ -5076,19 +5185,19 @@ EC_BOOL super_transfer_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *src_
 
     if(EC_TRUE == cstring_is_empty(src_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_ipaddr_cstr:src_fname is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_ipaddr_cstr:src_fname is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(des_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_ipaddr_cstr:des_fname is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_ipaddr_cstr:des_fname is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(ipaddr_cstr))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_ipaddr_cstr:ipaddr cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_ipaddr_cstr:ipaddr cstr is empty\n");
         return (EC_FALSE);
     }
 
@@ -5099,7 +5208,7 @@ EC_BOOL super_transfer_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *src_
 
     if(CMPI_ERROR_TCID == tcid)
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -5124,19 +5233,19 @@ EC_BOOL super_transfer_vec_start(const UINT32 super_md_id, const CSTRING *src_fn
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(src_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec_start:src_fname is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec_start:src_fname is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(des_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec_start:des_fname is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec_start:des_fname is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == super_open_file(super_md_id, src_fname, SUPER_O_RDONLY))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec_start: open src file %s failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec_start: open src file %s failed\n",
                            (char *)cstring_get_str(src_fname));
         return (EC_FALSE);
     }
@@ -5149,7 +5258,7 @@ EC_BOOL super_transfer_vec_start(const UINT32 super_md_id, const CSTRING *src_fn
 
         des_tcid = (UINT32)cvector_get_no_lock(des_tcid_vec, des_tcid_pos);
         /*when transfer file on current host to the same same, ignore it*/
-        if(CMPI_LOCAL_TCID == des_tcid && EC_TRUE == cstring_cmp(src_fname, des_fname))
+        if(CMPI_LOCAL_TCID == des_tcid && EC_TRUE == cstring_is_equal(src_fname, des_fname))
         {
             continue;
         }
@@ -5188,13 +5297,13 @@ EC_BOOL super_transfer_vec_stop(const UINT32 super_md_id, const CSTRING *src_fna
 
     if(EC_TRUE == cstring_is_empty(src_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec_stop:src_fname is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec_stop:src_fname is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(des_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec_stop:des_fname is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec_stop:des_fname is empty\n");
         return (EC_FALSE);
     }
 
@@ -5206,7 +5315,7 @@ EC_BOOL super_transfer_vec_stop(const UINT32 super_md_id, const CSTRING *src_fna
 
         des_tcid = (UINT32)cvector_get_no_lock(des_tcid_vec, des_tcid_pos);
         /*when transfer file on current host to the same same, ignore it*/
-        if(CMPI_LOCAL_TCID == des_tcid && EC_TRUE == cstring_cmp(src_fname, des_fname))
+        if(CMPI_LOCAL_TCID == des_tcid && EC_TRUE == cstring_is_equal(src_fname, des_fname))
         {
             continue;
         }
@@ -5226,7 +5335,7 @@ EC_BOOL super_transfer_vec_stop(const UINT32 super_md_id, const CSTRING *src_fna
 
     if(EC_FALSE == super_close_file(super_md_id, src_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec_stop: c_file_close src file %s failed\n",
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec_stop: c_file_close src file %s failed\n",
                            (char *)cstring_get_str(src_fname));
         return (EC_FALSE);
     }
@@ -5246,7 +5355,7 @@ static EC_BOOL __super_transfer_prepare(const CVECTOR *des_tcid_vec, CVECTOR *re
         /*check connectivity*/
         if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), des_tcid))
         {
-            sys_log(LOGSTDOUT, "warn:__super_transfer_prepare: tcid %s not connected, skip it\n", c_word_to_ipv4(des_tcid));
+            dbg_log(SEC_0117_SUPER, 1)(LOGSTDOUT, "warn:__super_transfer_prepare: tcid %s not connected, skip it\n", c_word_to_ipv4(des_tcid));
             cvector_set_no_lock(ret_vec, pos, (void *)EC_FALSE);
         }
         else
@@ -5275,7 +5384,7 @@ static EC_BOOL __super_transfer_prepare(const CVECTOR *des_tcid_vec, CVECTOR *re
         /*check connectivity*/
         if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), des_tcid))
         {
-            sys_log(LOGSTDOUT, "warn:__super_transfer_prepare: tcid %s not connected, skip it\n", c_word_to_ipv4(des_tcid));
+            dbg_log(SEC_0117_SUPER, 1)(LOGSTDOUT, "warn:__super_transfer_prepare: tcid %s not connected, skip it\n", c_word_to_ipv4(des_tcid));
             cvector_push_no_lock(ret_vec, (void *)EC_FALSE);
         }
         else
@@ -5315,13 +5424,13 @@ EC_BOOL super_transfer_vec(const UINT32 super_md_id, const CSTRING *src_fname, c
 
     if(EC_TRUE == cstring_is_empty(src_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec:src_fname is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec:src_fname is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(des_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec:des_fname is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec:des_fname is empty\n");
         return (EC_FALSE);
     }
 
@@ -5329,13 +5438,13 @@ EC_BOOL super_transfer_vec(const UINT32 super_md_id, const CSTRING *src_fname, c
 
     if(EC_FALSE == super_transfer_vec_start(super_md_id, src_fname, des_tcid_vec, des_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec: start transfer failed\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec: start transfer failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == super_size_file(super_md_id, src_fname, &rsize))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec: get size of file %s failed\n", (char *)cstring_get_str(src_fname));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec: get size of file %s failed\n", (char *)cstring_get_str(src_fname));
         super_transfer_vec_stop(super_md_id, src_fname, des_tcid_vec, des_fname);
         return (EC_FALSE);
     }
@@ -5354,14 +5463,14 @@ EC_BOOL super_transfer_vec(const UINT32 super_md_id, const CSTRING *src_fname, c
         cbytes = cbytes_new(osize);
         if(NULL_PTR == cbytes)
         {
-            sys_log(LOGSTDOUT, "error:super_transfer_vec: new cbytes with len %ld failed\n", osize);
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec: new cbytes with len %ld failed\n", osize);
             super_transfer_vec_stop(super_md_id, src_fname, des_tcid_vec, des_fname);
             return (EC_FALSE);
         }
 
         if(EC_FALSE == super_read_fdata(super_md_id, src_fname, csize, osize, cbytes))
         {
-            sys_log(LOGSTDOUT, "error:super_transfer_vec: read %ld bytes at offset %ld of src file %s failed\n",
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec: read %ld bytes at offset %ld of src file %s failed\n",
                                 osize, csize, (char *)cstring_get_str(src_fname));
             cbytes_free(cbytes, LOC_SUPER_0080);
             super_transfer_vec_stop(super_md_id, src_fname, des_tcid_vec, des_fname);
@@ -5383,7 +5492,7 @@ EC_BOOL super_transfer_vec(const UINT32 super_md_id, const CSTRING *src_fname, c
 
             des_tcid = (UINT32)cvector_get_no_lock(des_tcid_vec, des_tcid_pos);
             /*when transfer file on current host to the same same, ignore it*/
-            if(CMPI_LOCAL_TCID == des_tcid && EC_TRUE == cstring_cmp(src_fname, des_fname))
+            if(CMPI_LOCAL_TCID == des_tcid && EC_TRUE == cstring_is_equal(src_fname, des_fname))
             {
                 continue;
             }
@@ -5404,7 +5513,7 @@ EC_BOOL super_transfer_vec(const UINT32 super_md_id, const CSTRING *src_fname, c
 
     if(EC_FALSE == super_transfer_vec_stop(super_md_id, src_fname, des_tcid_vec, des_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec: stop transfer failed\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec: stop transfer failed\n");
         return (EC_FALSE);
     }
 
@@ -5429,13 +5538,13 @@ EC_BOOL super_transfer_vec_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
 #endif/*SUPER_DEBUG_SWITCH*/
     if(EC_TRUE == cstring_is_empty(src_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec_ipaddr_cstr:src_fname is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec_ipaddr_cstr:src_fname is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(des_fname))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec_ipaddr_cstr:des_fname is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec_ipaddr_cstr:des_fname is empty\n");
         return (EC_FALSE);
     }
 
@@ -5444,7 +5553,7 @@ EC_BOOL super_transfer_vec_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
     tcid_vec = cvector_new(0, MM_UINT32, LOC_SUPER_0082);
     if(NULL_PTR == tcid_vec)
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec_ipaddr_cstr: new tcid vec failed\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec_ipaddr_cstr: new tcid vec failed\n");
         return (EC_FALSE);
     }
 
@@ -5465,7 +5574,7 @@ EC_BOOL super_transfer_vec_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
 
         if(CMPI_ERROR_TCID == tcid)
         {
-            sys_log(LOGSTDOUT, "error:super_transfer_vec_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec_ipaddr_cstr: no tcid for ipaddr %s\n", (char *)cstring_get_str(ipaddr_cstr));
             continue;
         }
 
@@ -5474,7 +5583,7 @@ EC_BOOL super_transfer_vec_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
 
     if(EC_FALSE == super_transfer_vec(super_md_id, src_fname, tcid_vec, des_fname, ret_vec))
     {
-        sys_log(LOGSTDOUT, "error:super_transfer_vec_ipaddr_cstr: transfer to tcid vec failed\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_transfer_vec_ipaddr_cstr: transfer to tcid vec failed\n");
         cvector_free(tcid_vec, LOC_SUPER_0083);
         return (EC_FALSE);
     }
@@ -5500,7 +5609,7 @@ EC_BOOL super_start_mcast_udp_server(const UINT32 super_md_id)
 
     if(EC_FALSE == task_brd_is_mcast_udp_server(task_brd))
     {
-        sys_log(LOGSTDOUT, "error:super_start_mcast_udp_server: I am not mcast udp server\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_start_mcast_udp_server: I am not mcast udp server\n");
         return (EC_FALSE);
     }
 
@@ -5509,7 +5618,7 @@ EC_BOOL super_start_mcast_udp_server(const UINT32 super_md_id)
     {
         if(EC_FALSE == task_brd_start_mcast_udp_server(task_brd))
         {
-            sys_log(LOGSTDOUT, "error:super_start_mcast_udp_server: start mcast udp server failed\n");
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_start_mcast_udp_server: start mcast udp server failed\n");
             return (EC_FALSE);
         }
     }
@@ -5538,13 +5647,13 @@ EC_BOOL super_stop_mcast_udp_server(const UINT32 super_md_id)
 
     if(EC_FALSE == task_brd_is_mcast_udp_server(task_brd))
     {
-        sys_log(LOGSTDOUT, "error:super_stop_mcast_udp_server: I am not mcast udp server\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_stop_mcast_udp_server: I am not mcast udp server\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == task_brd_stop_mcast_udp_server(task_brd))
     {
-        sys_log(LOGSTDOUT, "error:super_stop_mcast_udp_server: start mcast udp server failed\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_stop_mcast_udp_server: start mcast udp server failed\n");
         return (EC_FALSE);
     }
 
@@ -5569,7 +5678,7 @@ EC_BOOL super_status_mcast_udp_server(const UINT32 super_md_id)
 
     if(EC_FALSE == task_brd_is_mcast_udp_server(task_brd))
     {
-        sys_log(LOGSTDOUT, "error:super_status_mcast_udp_server: I am not mcast udp server\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_status_mcast_udp_server: I am not mcast udp server\n");
         return (EC_FALSE);
     }
 
@@ -5594,17 +5703,17 @@ EC_BOOL super_set_hostname(const UINT32 super_md_id, const CSTRING *hostname_cst
 
     if(EC_TRUE == cstring_is_empty(hostname_cstr))
     {
-        sys_log(LOGSTDOUT, "error:super_set_hostname: hostname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_set_hostname: hostname cstr is empty\n");
         return (EC_FALSE);
     }
 
     snprintf(set_hostname_cmd, SUPER_CMD_BUFF_MAX_SIZE, "hostname %s", (char *)cstring_get_str(hostname_cstr));
     if(EC_FALSE == exec_shell(set_hostname_cmd, NULL_PTR, 0))
     {
-        sys_log(LOGSTDOUT, "error:super_set_hostname: exec shell %s failed\n", set_hostname_cmd);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_set_hostname: exec shell %s failed\n", set_hostname_cmd);
         return (EC_FALSE);
     }
-    sys_log(LOGSTDOUT, "super_set_hostname: exec shell %s\n", set_hostname_cmd);
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_set_hostname: exec shell %s\n", set_hostname_cmd);
 
     if(0 == access(network_fname, F_OK | W_OK))
     {
@@ -5612,14 +5721,14 @@ EC_BOOL super_set_hostname(const UINT32 super_md_id, const CSTRING *hostname_cst
                  (char *)cstring_get_str(hostname_cstr), network_fname);
         if(EC_FALSE == exec_shell(set_hostname_cmd, NULL_PTR, 0))
         {
-            sys_log(LOGSTDOUT, "error:super_set_hostname: exec shell %s failed\n", set_hostname_cmd);
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_set_hostname: exec shell %s failed\n", set_hostname_cmd);
             return (EC_FALSE);
         }
-        sys_log(LOGSTDOUT, "super_set_hostname: exec shell %s\n", set_hostname_cmd);
+        dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_set_hostname: exec shell %s\n", set_hostname_cmd);
     }
     else
     {
-        sys_log(LOGSTDOUT, "warn:super_set_hostname: %s not accessiable\n", network_fname);
+        dbg_log(SEC_0117_SUPER, 1)(LOGSTDOUT, "warn:super_set_hostname: %s not accessiable\n", network_fname);
     }
 
     if(0 == access(gmond_cfg_fname, F_OK | W_OK))
@@ -5628,19 +5737,19 @@ EC_BOOL super_set_hostname(const UINT32 super_md_id, const CSTRING *hostname_cst
                 (char *)cstring_get_str(hostname_cstr), gmond_cfg_fname);
         if(EC_FALSE == exec_shell(set_hostname_cmd, NULL_PTR, 0))
         {
-            sys_log(LOGSTDOUT, "error:super_set_hostname: exec shell %s failed\n", set_hostname_cmd);
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_set_hostname: exec shell %s failed\n", set_hostname_cmd);
             return (EC_FALSE);
         }
-        sys_log(LOGSTDOUT, "super_set_hostname: exec shell %s\n", set_hostname_cmd);
+        dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_set_hostname: exec shell %s\n", set_hostname_cmd);
     }
     else
     {
-        sys_log(LOGSTDOUT, "warn:super_set_hostname: %s not accessiable\n", gmond_cfg_fname);
+        dbg_log(SEC_0117_SUPER, 1)(LOGSTDOUT, "warn:super_set_hostname: %s not accessiable\n", gmond_cfg_fname);
     }
 
     if(0 != sethostname((char *)cstring_get_str(hostname_cstr), cstring_get_len(hostname_cstr)))
     {
-        sys_log(LOGSTDOUT, "error:super_set_hostname: sethostname %s failed\n", (char *)cstring_get_str(hostname_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_set_hostname: sethostname %s failed\n", (char *)cstring_get_str(hostname_cstr));
         return (EC_FALSE);
     }
 
@@ -5664,7 +5773,7 @@ EC_BOOL super_get_hostname(const UINT32 super_md_id, CSTRING *hostname_cstr)
 
     if(NULL_PTR == hostname_cstr)
     {
-        sys_log(LOGSTDOUT, "error:super_get_hostname: hostname cstr is null\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_hostname: hostname cstr is null\n");
         return (EC_FALSE);
     }
 
@@ -5672,7 +5781,7 @@ EC_BOOL super_get_hostname(const UINT32 super_md_id, CSTRING *hostname_cstr)
 #if 0
     if(EC_FALSE == exec_shell(get_hostname_cmd, hostname, SUPER_CMD_BUFF_MAX_SIZE))
     {
-        sys_log(LOGSTDOUT, "error:super_get_hostname: exec shell %s failed\n", get_hostname_cmd);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_hostname: exec shell %s failed\n", get_hostname_cmd);
         return (EC_FALSE);
     }
 
@@ -5681,7 +5790,7 @@ EC_BOOL super_get_hostname(const UINT32 super_md_id, CSTRING *hostname_cstr)
 
     if(0 != gethostname(hostname, SUPER_CMD_BUFF_MAX_SIZE))
     {
-        sys_log(LOGSTDOUT, "error:super_get_hostname: gethostname failed\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_hostname: gethostname failed\n");
         return (EC_FALSE);
     }
 
@@ -5710,17 +5819,17 @@ EC_BOOL super_set_hostname_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
 
     if(EC_TRUE == cstring_is_empty(ipaddr_cstr))
     {
-        sys_log(LOGSTDOUT, "error:super_set_hostname_ipaddr_cstr:ipaddr cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_set_hostname_ipaddr_cstr:ipaddr cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cstring_is_empty(hostname_cstr))
     {
-        sys_log(LOGSTDOUT, "error:super_set_hostname_ipaddr_cstr:hostname cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_set_hostname_ipaddr_cstr:hostname cstr is empty\n");
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "super_set_hostname_ipaddr_cstr: set hostname on ipaddr %s: %s\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_set_hostname_ipaddr_cstr: set hostname on ipaddr %s: %s\n",
                         (char *)cstring_get_str(ipaddr_cstr),
                         (char *)cstring_get_str(hostname_cstr));
 
@@ -5728,7 +5837,7 @@ EC_BOOL super_set_hostname_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
     tcid = task_brd_get_tcid_by_ipaddr(task_brd_default_get(), ipaddr);
     if(CMPI_ERROR_TCID == tcid)
     {
-        sys_log(LOGSTDOUT, "error:super_set_hostname_ipaddr_cstr: no tcid for ipaddr %s failed\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_set_hostname_ipaddr_cstr: no tcid for ipaddr %s failed\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -5739,7 +5848,7 @@ EC_BOOL super_set_hostname_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
 
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
     {
-        sys_log(LOGSTDOUT, "error:super_set_hostname_ipaddr_cstr: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_set_hostname_ipaddr_cstr: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -5774,24 +5883,24 @@ EC_BOOL super_get_hostname_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
 
     if(EC_TRUE == cstring_is_empty(ipaddr_cstr))
     {
-        sys_log(LOGSTDOUT, "error:super_get_hostname_ipaddr_cstr:ipaddr cstr is empty\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_hostname_ipaddr_cstr:ipaddr cstr is empty\n");
         return (EC_FALSE);
     }
 
     if(NULL_PTR == hostname_cstr)
     {
-        sys_log(LOGSTDOUT, "error:super_get_hostname_ipaddr_cstr:hostname cstr is null\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_hostname_ipaddr_cstr:hostname cstr is null\n");
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "super_get_hostname_ipaddr_cstr: get hostname on ipaddr %s\n",
+    dbg_log(SEC_0117_SUPER, 5)(LOGSTDOUT, "super_get_hostname_ipaddr_cstr: get hostname on ipaddr %s\n",
                         (char *)cstring_get_str(ipaddr_cstr));
 
     ipaddr = c_ipv4_to_word((char *)cstring_get_str(ipaddr_cstr));
     tcid = task_brd_get_tcid_by_ipaddr(task_brd_default_get(), ipaddr);
     if(CMPI_ERROR_TCID == tcid)
     {
-        sys_log(LOGSTDOUT, "error:super_get_hostname_ipaddr_cstr: no tcid for ipaddr %s failed\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_hostname_ipaddr_cstr: no tcid for ipaddr %s failed\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -5802,7 +5911,7 @@ EC_BOOL super_get_hostname_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
 
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd_default_get(), tcid))
     {
-        sys_log(LOGSTDOUT, "error:super_get_hostname_ipaddr_cstr: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_hostname_ipaddr_cstr: ipaddr %s not connected\n", (char *)cstring_get_str(ipaddr_cstr));
         return (EC_FALSE);
     }
 
@@ -5816,6 +5925,190 @@ EC_BOOL super_get_hostname_ipaddr_cstr(const UINT32 super_md_id, const CSTRING *
                 &ret, FI_super_get_hostname, ERR_MODULE_ID, hostname_cstr);
 
     return (ret);
+}
+
+EC_BOOL super_say_hello(const UINT32 super_md_id, const UINT32 des_tcid, const UINT32 des_rank, CSTRING *cstring)
+{
+    MOD_NODE recv_mod_node;
+    EC_BOOL ret;
+        
+#if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
+    if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
+    {
+        sys_log(LOGSTDOUT,
+                "error:super_say_hello: super module #0x%lx not started.\n",
+                super_md_id);
+        dbg_exit(MD_SUPER, super_md_id);
+    }
+#endif/*SUPER_DEBUG_SWITCH*/
+
+    if(CMPI_LOCAL_TCID == des_tcid && CMPI_LOCAL_RANK == des_rank)
+    {
+        cstring_format(cstring, "[%s] say hello!", c_word_to_ipv4(des_tcid));
+        return (EC_TRUE);
+    }
+
+    MOD_NODE_TCID(&recv_mod_node) = des_tcid;
+    MOD_NODE_COMM(&recv_mod_node) = CMPI_ANY_COMM;
+    MOD_NODE_RANK(&recv_mod_node) = des_rank;
+    MOD_NODE_MODI(&recv_mod_node) = 0;    
+
+    ret = EC_FALSE;
+    task_p2p(super_md_id, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP,
+            &recv_mod_node,
+            &ret, FI_super_say_hello, ERR_MODULE_ID, des_tcid, des_rank, cstring);
+    return (ret);
+}
+
+EC_BOOL super_say_hello_batch(const UINT32 super_md_id, const UINT32 num, const UINT32 des_tcid, const UINT32 des_rank)
+{
+    TASK_MGR *task_mgr;
+    MOD_NODE  recv_mod_node;    
+    UINT32    idx;
+
+    CVECTOR  *report_vec;
+    CVECTOR  *cstring_vec;
+    EC_BOOL   result;
+        
+#if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
+    if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
+    {
+        sys_log(LOGSTDOUT,
+                "error:super_say_hello_batch: super module #0x%lx not started.\n",
+                super_md_id);
+        dbg_exit(MD_SUPER, super_md_id);
+    }
+#endif/*SUPER_DEBUG_SWITCH*/
+
+    MOD_NODE_TCID(&recv_mod_node) = des_tcid;
+    MOD_NODE_COMM(&recv_mod_node) = CMPI_ANY_COMM;
+    MOD_NODE_RANK(&recv_mod_node) = des_rank;
+    MOD_NODE_MODI(&recv_mod_node) = 0;  
+
+    report_vec  = cvector_new(0, MM_UINT32, LOC_SUPER_0085);
+    cstring_vec = cvector_new(0, MM_CSTRING, LOC_SUPER_0086);
+
+    task_mgr = task_new(NULL_PTR, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
+    for(idx = 0; idx < num; idx ++)
+    {
+        UINT32 *ret;
+        CSTRING *cstring;
+
+        alloc_static_mem(MD_TASK, CMPI_ANY_MODI, MM_UINT32, &ret, LOC_SUPER_0087);
+        cvector_push(report_vec, (void *)ret);
+
+        cstring = cstring_new(NULL_PTR, LOC_SUPER_0088);
+        cvector_push(cstring_vec, (void *)cstring);
+        
+        (*ret) = EC_FALSE;
+        task_p2p_inc(task_mgr, super_md_id, &recv_mod_node, 
+                     ret, FI_super_say_hello, ERR_MODULE_ID, des_tcid, des_rank, cstring);
+    }
+    task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
+
+    result = EC_TRUE;
+    for(idx = 0; idx < num; idx ++)
+    {
+        UINT32 *ret;
+        CSTRING *cstring;
+        
+        ret = (UINT32 *)cvector_get(report_vec, idx);
+        cstring = (CSTRING *)cvector_get(cstring_vec, idx);
+
+        if(EC_FALSE == (*ret))
+        {
+            result = EC_FALSE;
+        }
+
+        cvector_set(report_vec, idx, NULL_PTR);
+        free_static_mem(MD_TASK, CMPI_ANY_MODI, MM_UINT32, ret, LOC_SUPER_0089);
+
+        cvector_set(cstring_vec, idx, NULL_PTR);
+        cstring_free(cstring);
+    }    
+
+    cvector_free(report_vec, LOC_SUPER_0090);
+    cvector_free(cstring_vec, LOC_SUPER_0091);
+
+    return (result);
+}
+
+EC_BOOL super_say_hello_loop(const UINT32 super_md_id, const UINT32 loops, const UINT32 des_tcid, const UINT32 des_rank)
+{
+    UINT32   count;
+    UINT32   step;
+        
+#if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
+    if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
+    {
+        sys_log(LOGSTDOUT,
+                "error:super_say_hello_loop: super module #0x%lx not started.\n",
+                super_md_id);
+        dbg_exit(MD_SUPER, super_md_id);
+    }
+#endif/*SUPER_DEBUG_SWITCH*/
+
+    for(count = 0, step = 1000; count + step < loops; count += step)
+    {
+        if(EC_FALSE == super_say_hello_batch(super_md_id, step, des_tcid, des_rank))
+        {
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_say_hello_loop: say hello failed where count = %ld, step = %ld, loop = %ld\n", count, step, loops);
+            return (EC_FALSE);
+        }
+
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "[DEBUG] super_say_hello_loop: %ld - %ld done\n", count, count + step);
+    }
+
+    if(count < loops)
+    {
+        step = loops - count;
+        if(EC_FALSE == super_say_hello_batch(super_md_id, step, des_tcid, des_rank))
+        {
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_say_hello_loop: say hello failed where count = %ld, step = %ld, loop = %ld\n", count, step, loops);
+            return (EC_FALSE);
+        }
+
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "[DEBUG] super_say_hello_loop: %ld - %ld done\n", count, count + step);    
+    }
+    return (EC_TRUE);
+}
+
+EC_BOOL super_say_hello_loop0(const UINT32 super_md_id, const UINT32 loops, const UINT32 des_tcid, const UINT32 des_rank)
+{
+    UINT32   count;
+        
+#if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
+    if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
+    {
+        sys_log(LOGSTDOUT,
+                "error:super_say_hello_loop: super module #0x%lx not started.\n",
+                super_md_id);
+        dbg_exit(MD_SUPER, super_md_id);
+    }
+#endif/*SUPER_DEBUG_SWITCH*/
+
+    for(count = 0; count < loops; count ++)
+    {
+        EC_BOOL  ret;
+        CSTRING *cstring;
+
+        cstring = cstring_new(NULL_PTR, LOC_SUPER_0092);
+        ASSERT(NULL_PTR != cstring);
+        ret = super_say_hello(super_md_id, des_tcid, des_rank, cstring);
+        cstring_free(cstring);
+
+        if(EC_FALSE == ret)
+        {
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_say_hello_loop: say hello failed where count = %ld, loop = %ld\n", count, loops);
+            return (EC_FALSE);
+        }
+
+        if(0 == ((count + 1) % 1000))
+        {
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "[DEBUG] super_say_hello_loop: %ld - %ld done\n", count - 999, count);
+        }
+    }
+    return (EC_TRUE);
 }
 
 /*------------------------------------------------------ test for ict -----------------------------------------------------------------------*/
@@ -5880,10 +6173,10 @@ EC_BOOL super_load_data(const UINT32 super_md_id)
     task_brd = task_brd_default_get();
     obj_zone_id = __GET_ZONE_ID_FROM_TCID(TASK_BRD_TCID(task_brd));
 
-    SUPER_MD_OBJ_ZONE(super_md) = cvector_new(obj_zone_size, MM_CVECTOR, LOC_SUPER_0085);
+    SUPER_MD_OBJ_ZONE(super_md) = cvector_new(obj_zone_size, MM_CVECTOR, LOC_SUPER_0093);
     if(NULL_PTR == SUPER_MD_OBJ_ZONE(super_md))
     {
-        sys_log(LOGSTDOUT, "error:super_load_data: new obj zone with size %ld failed\n", obj_zone_size);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_load_data: new obj zone with size %ld failed\n", obj_zone_size);
         return (EC_FALSE);
     }
 
@@ -5896,12 +6189,12 @@ EC_BOOL super_load_data(const UINT32 super_md_id)
         
         obj_data_num = /*50*/5;
         
-        obj_vec = cvector_new(obj_data_num, MM_UINT32, LOC_SUPER_0086);
+        obj_vec = cvector_new(obj_data_num, MM_UINT32, LOC_SUPER_0094);
         if(NULL_PTR == obj_vec)
         {
             EC_BOOL ret;
             
-            sys_log(LOGSTDOUT, "error:super_load_data: new obj vec with size %ld failed\n", obj_data_num);
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_load_data: new obj vec with size %ld failed\n", obj_data_num);
             
             cvector_loop(SUPER_MD_OBJ_ZONE(super_md), 
                         (void *)&ret, 
@@ -5910,8 +6203,8 @@ EC_BOOL super_load_data(const UINT32 super_md_id)
                         0, 
                         (UINT32)cvector_free,
                         NULL_PTR, 
-                        LOC_SUPER_0087);
-            cvector_free(SUPER_MD_OBJ_ZONE(super_md), LOC_SUPER_0088);            
+                        LOC_SUPER_0095);
+            cvector_free(SUPER_MD_OBJ_ZONE(super_md), LOC_SUPER_0096);            
             return (EC_FALSE);
         }
 
@@ -5993,7 +6286,7 @@ EC_BOOL super_get_data(const UINT32 super_md_id, const UINT32 obj_id, CVECTOR *o
     /*check*/
     if(__GET_ZONE_ID_FROM_OBJ_ID(obj_id, SUPER_MD_OBJ_ZONE_SIZE(super_md)) !=  __GET_ZONE_ID_FROM_TCID(TASK_BRD_TCID(task_brd)))
     {
-        //sys_log(LOGSTDOUT, "error:super_get_data:mismatched obj_zone_id %lx and obj_id %lx\n", obj_zone_id, obj_id);
+        //dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_data:mismatched obj_zone_id %lx and obj_id %lx\n", obj_zone_id, obj_id);
         //return (EC_FALSE);
 
         EC_BOOL ret;
@@ -6014,26 +6307,26 @@ EC_BOOL super_get_data(const UINT32 super_md_id, const UINT32 obj_id, CVECTOR *o
 
     if(NULL_PTR == SUPER_MD_OBJ_ZONE(super_md))
     {
-        sys_log(LOGSTDOUT, "error:super_get_data:obj zone is null\n");
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_data:obj zone is null\n");
         return (EC_FALSE);
     }
 
-    //sys_log(LOGCONSOLE, "[DEBUG] super_get_data: obj_data %lx, mm type %ld\n", obj_data, obj_data->data_mm_type);
+    //dbg_log(SEC_0117_SUPER, 0)(LOGCONSOLE, "[DEBUG] super_get_data: obj_data %lx, mm type %ld\n", obj_data, obj_data->data_mm_type);
 
     obj_idx = __GET_OBJ_IDX_FROM_OBJ_ID(obj_id, SUPER_MD_OBJ_ZONE_SIZE(super_md));
 
     obj_vec = (CVECTOR *)cvector_get_no_lock(SUPER_MD_OBJ_ZONE(super_md), obj_idx);
     if(NULL_PTR == obj_vec)
     {
-        sys_log(LOGSTDOUT, "error:super_get_data: obj vec of obj id %ld or obj idx %ld is null\n", obj_id, obj_idx);
+        dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_data: obj vec of obj id %ld or obj idx %ld is null\n", obj_id, obj_idx);
         return (EC_FALSE);
     }
 
     cvector_clone_no_lock(obj_vec, obj_data, NULL_PTR, NULL_PTR);
 
-    //sys_log(LOGCONSOLE, "[DEBUG] super_get_data: obj_vec %lx, mm type %ld\n", obj_vec, obj_vec->data_mm_type);
+    //dbg_log(SEC_0117_SUPER, 0)(LOGCONSOLE, "[DEBUG] super_get_data: obj_vec %lx, mm type %ld\n", obj_vec, obj_vec->data_mm_type);
     //super_print_obj_vec(super_md_id, obj_vec, LOGCONSOLE);
-    //sys_log(LOGCONSOLE, "[DEBUG] super_get_data: obj_data %lx, mm type %ld\n", obj_data, obj_data->data_mm_type);
+    //dbg_log(SEC_0117_SUPER, 0)(LOGCONSOLE, "[DEBUG] super_get_data: obj_data %lx, mm type %ld\n", obj_data, obj_data->data_mm_type);
     //super_print_obj_vec(super_md_id, obj_data, LOGCONSOLE);
 
     return (EC_TRUE);
@@ -6072,10 +6365,10 @@ EC_BOOL super_get_data_vec(const UINT32 super_md_id, const CVECTOR *obj_id_vec, 
         
         MOD_NODE recv_mod_node;
 
-        obj_data = cvector_new(0, MM_UINT32, LOC_SUPER_0089);
+        obj_data = cvector_new(0, MM_UINT32, LOC_SUPER_0097);
         if(NULL_PTR == obj_data)
         {
-            sys_log(LOGSTDOUT, "error:super_get_data_vec: new obj_data failed\n");
+            dbg_log(SEC_0117_SUPER, 0)(LOGSTDOUT, "error:super_get_data_vec: new obj_data failed\n");
             task_mgr_free(task_mgr);
 
             cvector_loop_no_lock(obj_data_vec, 
@@ -6085,8 +6378,8 @@ EC_BOOL super_get_data_vec(const UINT32 super_md_id, const CVECTOR *obj_id_vec, 
                         0, 
                         (UINT32)cvector_free_no_lock,
                         NULL_PTR, 
-                        LOC_SUPER_0090);
-            cvector_clean_no_lock(obj_data_vec, NULL_PTR, LOC_SUPER_0091);
+                        LOC_SUPER_0098);
+            cvector_clean_no_lock(obj_data_vec, NULL_PTR, LOC_SUPER_0099);
             return (EC_FALSE);
         }
 
@@ -6197,23 +6490,6 @@ EC_BOOL super_print_data_all(const UINT32 super_md_id, const UINT32 obj_zone_num
         task_p2p_inc(task_mgr, super_md_id, &recv_mod_node, &ret, FI_super_print_data, ERR_MODULE_ID, log);
     }
     task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
-
-    return (EC_TRUE);
-}
-
-EC_BOOL super_print_cmutex_stat(const UINT32 super_md_id, LOG *log)
-{
-#if ( SWITCH_ON == SUPER_DEBUG_SWITCH )
-    if ( SUPER_MD_ID_CHECK_INVALID(super_md_id) )
-    {
-        sys_log(LOGSTDOUT,
-                "error:super_print_cmutex_stat: super module #0x%lx not started.\n",
-                super_md_id);
-        dbg_exit(MD_SUPER, super_md_id);
-    }
-#endif/*SUPER_DEBUG_SWITCH*/
-
-    cmutex_dbg_stat_print(log);
 
     return (EC_TRUE);
 }

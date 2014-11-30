@@ -26,7 +26,7 @@ extern "C"{
 #include "cbytes.h"
 #include "chashalgo.h"
 
-#include "croutine.h"
+#include "cmutex.h"
 
 #define CSCORE_MD_DEFAULT_CHASH_ALGO_ID      (CHASH_CRC_ALGO_ID)
 
@@ -58,7 +58,7 @@ extern "C"{
 
 typedef struct
 {
-    CROUTINE_MUTEX      cmutex;
+    CMUTEX      cmutex;
     UINT32      beg_row_no;
     UINT32      end_row_no;
     UINT32      cur_row_no;
@@ -69,10 +69,10 @@ typedef struct
 #define CSCORE_ROW_NO_POOL_END(cscore_row_no_pool)           ((cscore_row_no_pool)->end_row_no)
 #define CSCORE_ROW_NO_POOL_CUR(cscore_row_no_pool)           ((cscore_row_no_pool)->cur_row_no)
 
-#define CSCORE_ROW_NO_POOL_INIT_CMUTEX(cscore_row_no_pool, location)     (croutine_mutex_init(CSCORE_ROW_NO_POOL_CMUTEX(cscore_row_no_pool), CMUTEX_PROCESS_PRIVATE, location))
-#define CSCORE_ROW_NO_POOL_CLEAN_CMUTEX(cscore_row_no_pool, location)    (croutine_mutex_clean(CSCORE_ROW_NO_POOL_CMUTEX(cscore_row_no_pool), location))
-#define CSCORE_ROW_NO_POOL_CMUTEX_LOCK(cscore_row_no_pool, location)     (croutine_mutex_lock(CSCORE_ROW_NO_POOL_CMUTEX(cscore_row_no_pool), location))
-#define CSCORE_ROW_NO_POOL_CMUTEX_UNLOCK(cscore_row_no_pool, location)   (croutine_mutex_unlock(CSCORE_ROW_NO_POOL_CMUTEX(cscore_row_no_pool), location))
+#define CSCORE_ROW_NO_POOL_INIT_CMUTEX(cscore_row_no_pool, location)     (cmutex_init(CSCORE_ROW_NO_POOL_CMUTEX(cscore_row_no_pool), CMUTEX_PROCESS_PRIVATE, location))
+#define CSCORE_ROW_NO_POOL_CLEAN_CMUTEX(cscore_row_no_pool, location)    (cmutex_clean(CSCORE_ROW_NO_POOL_CMUTEX(cscore_row_no_pool), location))
+#define CSCORE_ROW_NO_POOL_CMUTEX_LOCK(cscore_row_no_pool, location)     (cmutex_lock(CSCORE_ROW_NO_POOL_CMUTEX(cscore_row_no_pool), location))
+#define CSCORE_ROW_NO_POOL_CMUTEX_UNLOCK(cscore_row_no_pool, location)   (cmutex_unlock(CSCORE_ROW_NO_POOL_CMUTEX(cscore_row_no_pool), location))
 
 
 typedef struct

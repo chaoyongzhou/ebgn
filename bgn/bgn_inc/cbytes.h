@@ -34,7 +34,7 @@ EC_BOOL cbytes_clean_0(const UINT32 md_id, CBYTES *cbytes);
 
 EC_BOOL cbytes_free_0(const UINT32 md_id, CBYTES *cbytes);
 
-EC_BOOL cbytes_set(CBYTES *cbytes, const UINT32 len, const UINT8 *buf);
+EC_BOOL cbytes_set(CBYTES *cbytes, const UINT8 *buf, const UINT32 len);
 
 EC_BOOL cbytes_set_word(CBYTES *cbytes, const UINT32 num);
 
@@ -68,11 +68,15 @@ UINT32  cbytes_len(const CBYTES *cbytes);
 
 UINT8 * cbytes_buf(const CBYTES *cbytes);
 
+EC_BOOL cbytes_is_empty(const CBYTES *cbytes);
+
 EC_BOOL cbytes_expand(CBYTES *cbytes, const UINT32 location);
 
 EC_BOOL cbytes_expand_to(CBYTES *cbytes, const UINT32 size);
 
 EC_BOOL cbytes_resize(CBYTES *cbytes, const UINT32 size);
+
+EC_BOOL cbytes_find_byte(const CBYTES *cbytes, const UINT8 ch, UINT32 *pos);
 
 EC_BOOL cbytes_fread(CBYTES *cbytes, FILE *fp);
 

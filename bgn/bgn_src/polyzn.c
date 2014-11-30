@@ -209,7 +209,7 @@ void poly_zn_end(const UINT32 polyzn_md_id)
 
     if ( MAX_NUM_OF_POLYZN_MD < polyzn_md_id )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_end: polyzn_md_id = %ld is overflow.\n",polyzn_md_id);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_end: polyzn_md_id = %ld is overflow.\n",polyzn_md_id);
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 
@@ -224,7 +224,7 @@ void poly_zn_end(const UINT32 polyzn_md_id)
 
     if ( 0 == polyzn_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_end: polyzn_md_id = %ld is not started.\n",polyzn_md_id);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_end: polyzn_md_id = %ld is not started.\n",polyzn_md_id);
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 
@@ -265,12 +265,12 @@ UINT32 poly_zn_alloc_bgn(const UINT32 polyz_md_type, const UINT32 polyzn_md_id,c
 {
     if ( MD_POLYZN != polyz_md_type )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_alloc_bgn: invalid polyz_md_type = %ld\n",polyz_md_type);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_alloc_bgn: invalid polyz_md_type = %ld\n",polyz_md_type);
         exit(0);
     }
     if ( MM_BIGINT != type )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_alloc_bgn: invalid type = %ld\n",type);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_alloc_bgn: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -283,12 +283,12 @@ UINT32 poly_zn_alloc_item(const UINT32 polyz_md_type, const UINT32 polyzn_md_id,
 
     if ( MD_POLYZN != polyz_md_type )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_alloc_item: invalid polyz_md_type = %ld\n",polyz_md_type);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_alloc_item: invalid polyz_md_type = %ld\n",polyz_md_type);
         exit(0);
     }
     if ( MM_POLY_ITEM != type )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_alloc_item: invalid type = %ld\n",type);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_alloc_item: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -303,12 +303,12 @@ UINT32 poly_zn_alloc_poly(const UINT32 polyz_md_type, const UINT32 polyzn_md_id,
 {
     if ( MD_POLYZN != polyz_md_type )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_alloc_poly: invalid polyz_md_type = %ld\n",polyz_md_type);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_alloc_poly: invalid polyz_md_type = %ld\n",polyz_md_type);
         exit(0);
     }
     if ( MM_POLY != type )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_alloc_poly: invalid type = %ld\n",type);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_alloc_poly: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -319,12 +319,12 @@ UINT32 poly_zn_free_bgn(const UINT32 polyz_md_type, const UINT32 polyzn_md_id,co
 {
     if ( MD_POLYZN != polyz_md_type )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_free_bgn: invalid polyz_md_type = %ld\n",polyz_md_type);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_free_bgn: invalid polyz_md_type = %ld\n",polyz_md_type);
         exit(0);
     }
     if ( MM_BIGINT != type )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_free_bgn: invalid type = %ld\n",type);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_free_bgn: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -335,12 +335,12 @@ UINT32 poly_zn_free_item(const UINT32 polyz_md_type, const UINT32 polyzn_md_id,c
 {
     if ( MD_POLYZN != polyz_md_type )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_free_item: invalid polyz_md_type = %ld\n",polyz_md_type);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_free_item: invalid polyz_md_type = %ld\n",polyz_md_type);
         exit(0);
     }
     if ( MM_POLY_ITEM != type )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_free_item: invalid type = %ld\n",type);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_free_item: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -351,12 +351,12 @@ UINT32 poly_zn_free_poly(const UINT32 polyz_md_type, const UINT32 polyzn_md_id,c
 {
     if ( MD_POLYZN != polyz_md_type )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_free_poly: invalid polyz_md_type = %ld\n",polyz_md_type);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_free_poly: invalid polyz_md_type = %ld\n",polyz_md_type);
         exit(0);
     }
     if ( MM_POLY != type )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_free_poly: invalid type = %ld\n",type);
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_free_poly: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -377,7 +377,7 @@ UINT32 poly_zn_item_destory(const UINT32 polyzn_md_id, POLY_ITEM *item)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_destory: item is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_destory: item is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -419,7 +419,7 @@ UINT32 poly_zn_poly_clean(const UINT32 polyzn_md_id, POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_clean: poly is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_clean: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -459,7 +459,7 @@ UINT32 poly_zn_poly_destory(const UINT32 polyzn_md_id, POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_destory: poly is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_destory: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -487,12 +487,12 @@ UINT32 poly_zn_poly_clone(const UINT32 polyzn_md_id,const POLY *poly_a, POLY *po
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_clone: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_clone: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_clone: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_clone: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -539,12 +539,12 @@ UINT32 poly_zn_item_clone(const UINT32 polyzn_md_id,const POLY_ITEM *item_a, POL
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_clone: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_clone: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_clone: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_clone: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -604,7 +604,7 @@ UINT32 poly_zn_set_zero(const UINT32 polyzn_md_id,POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_set_zero: poly is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_set_zero: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -642,7 +642,7 @@ UINT32 poly_zn_set_one(const UINT32 polyzn_md_id,POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_set_one: poly is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_set_one: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -699,12 +699,12 @@ UINT32 poly_zn_set_n(const UINT32 polyzn_md_id,const BIGINT *n, POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == n )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_set_n: n is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_set_n: n is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_set_n: poly is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_set_n: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -754,12 +754,12 @@ EC_BOOL poly_zn_item_cmp(const UINT32 polyzn_md_id,const POLY_ITEM *item_a, cons
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_cmp: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_cmp: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == item_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_cmp: item_b is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_cmp: item_b is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -811,12 +811,12 @@ EC_BOOL poly_zn_poly_cmp(const UINT32 polyzn_md_id,const POLY *poly_a, const POL
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_cmp: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_cmp: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_cmp: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_cmp: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -891,12 +891,12 @@ static UINT32 poly_zn_adc_n(const UINT32 polyzn_md_id,const BIGINT *n, POLY *pol
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == n )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_adc_n: n is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_adc_n: n is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_adc_n: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_adc_n: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -986,17 +986,17 @@ UINT32 poly_zn_add_n(const UINT32 polyzn_md_id,const POLY *poly_a, const BIGINT 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_add_n: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_add_n: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == n )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_add_n: n is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_add_n: n is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_add_n: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_add_n: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -1066,7 +1066,7 @@ static UINT32 poly_zn_double_poly(const UINT32 polyzn_md_id, POLY *poly_c)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_double_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_double_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -1224,12 +1224,12 @@ UINT32 poly_zn_adc_poly(const UINT32 polyzn_md_id,const POLY *poly_a, POLY *poly
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_adc_poly: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_adc_poly: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_adc_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_adc_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -1532,17 +1532,17 @@ UINT32 poly_zn_add_poly(const UINT32 polyzn_md_id,const POLY *poly_a, const POLY
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_add_poly: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_add_poly: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_add_poly: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_add_poly: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_add_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_add_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -1854,17 +1854,17 @@ UINT32 poly_zn_sub_poly_bgn(const UINT32 polyzn_md_id,const POLY *poly_a, const 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sub_poly_bgn: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sub_poly_bgn: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == bgn_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sub_poly_bgn: bgn_b is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sub_poly_bgn: bgn_b is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sub_poly_bgn: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sub_poly_bgn: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2009,17 +2009,17 @@ UINT32 poly_zn_sub_bgn_poly(const UINT32 polyzn_md_id,const BIGINT *bgn_a, const
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == bgn_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sub_bgn_poly: bgn_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sub_bgn_poly: bgn_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sub_bgn_poly: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sub_bgn_poly: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sub_bgn_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sub_bgn_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2060,7 +2060,7 @@ static UINT32 poly_zn_item_self_neg(const UINT32 polyzn_md_id, POLY_ITEM *item_c
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_self_neg: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_self_neg: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2129,12 +2129,12 @@ UINT32 poly_zn_item_neg(const UINT32 polyzn_md_id, const POLY_ITEM *item_a,POLY_
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_neg: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_neg: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_neg: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_neg: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2221,7 +2221,7 @@ static UINT32 poly_zn_poly_self_neg(const UINT32 polyzn_md_id, POLY *poly_c)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_self_neg: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_self_neg: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2276,12 +2276,12 @@ UINT32 poly_zn_poly_neg(const UINT32 polyzn_md_id, const POLY *poly_a, POLY *pol
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_neg: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_neg: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_neg: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_neg: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2422,12 +2422,12 @@ static UINT32 poly_zn_sbb_c_a(const UINT32 polyzn_md_id, const POLY *poly_a, POL
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sbb_c_a: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sbb_c_a: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sbb_c_a: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sbb_c_a: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2724,12 +2724,12 @@ static UINT32 poly_zn_sbb_a_c(const UINT32 polyzn_md_id, const POLY *poly_a, POL
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sbb_a_c: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sbb_a_c: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sbb_a_c: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sbb_a_c: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -3056,17 +3056,17 @@ UINT32 poly_zn_sub_poly(const UINT32 polyzn_md_id, const POLY *poly_a, const POL
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sub_poly: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sub_poly: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sub_poly: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sub_poly: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sub_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sub_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -3348,7 +3348,7 @@ UINT32 poly_zn_poly_output(const UINT32 polyzn_md_id,const POLY *poly, const UIN
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_output: poly is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_output: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -3364,12 +3364,12 @@ UINT32 poly_zn_poly_output(const UINT32 polyzn_md_id,const POLY *poly, const UIN
 
     if ( NULL_PTR != info )
     {
-        sys_log(LOGSTDOUT,"%s: ",info);
+        dbg_log(SEC_0021_POLYZN, 5)(LOGSTDOUT,"%s: ",info);
     }
 
     if ( depth >= 32 )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_output: depth = %ld overflow\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_output: depth = %ld overflow\n");
         return ((UINT32)(-1));
     }
 
@@ -3383,17 +3383,17 @@ UINT32 poly_zn_poly_output(const UINT32 polyzn_md_id,const POLY *poly, const UIN
 
     while( item != POLY_NULL_ITEM(poly) )
     {
-        sys_log(LOGSTDOUT,"%s deg: ", space_str);
+        dbg_log(SEC_0021_POLYZN, 5)(LOGSTDOUT,"%s deg: ", space_str);
         print_deg_dec(LOGSTDOUT, POLY_ITEM_DEG(item));
 
         if ( EC_TRUE == POLY_ITEM_BGN_COE_FLAG(item) )
         {
-            sys_log(LOGSTDOUT,"%s coe: ", space_str);
+            dbg_log(SEC_0021_POLYZN, 5)(LOGSTDOUT,"%s coe: ", space_str);
             print_bigint_dec(LOGSTDOUT, POLY_ITEM_BGN_COE(item));
         }
         else
         {
-            sys_log(LOGSTDOUT,"%s coe: \n", space_str);
+            dbg_log(SEC_0021_POLYZN, 5)(LOGSTDOUT,"%s coe: \n", space_str);
             poly_zn_poly_output(polyzn_md_id, POLY_ITEM_POLY_COE(item), depth + 1, NULL_PTR);
         }
 
@@ -3436,12 +3436,12 @@ UINT32 poly_zn_item_move(const UINT32 polyzn_md_id, POLY_ITEM *item_a, POLY_ITEM
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_move: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_move: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_move: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_move: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -3501,12 +3501,12 @@ UINT32 poly_zn_poly_move(const UINT32 polyzn_md_id, POLY *poly_a, POLY *poly_c)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_move: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_move: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_poly_move: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_poly_move: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -3646,12 +3646,12 @@ static UINT32 poly_zn_item_insert(const UINT32 polyzn_md_id, POLY_ITEM *item_a, 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_insert: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_insert: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_insert: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_insert: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -3949,17 +3949,17 @@ static UINT32 poly_zn_item_mul(const UINT32 polyzn_md_id, const POLY_ITEM *item_
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_mul: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_mul: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == item_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_mul: item_b is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_mul: item_b is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_mul: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_mul: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4012,7 +4012,7 @@ static UINT32 poly_zn_item_mul(const UINT32 polyzn_md_id, const POLY_ITEM *item_
     carry = POLY_ITEM_DEG_ADD(bgnz_md_id, POLY_ITEM_DEG(item_a), POLY_ITEM_DEG(item_b), POLY_ITEM_DEG(item_c));
     if ( 0 < carry )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_mul: degree overflow.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_mul: degree overflow.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 
@@ -4207,12 +4207,12 @@ static UINT32 poly_zn_item_mul_self(const UINT32 polyzn_md_id, const POLY_ITEM *
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_mul_self: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_mul_self: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_mul_self: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_mul_self: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4259,7 +4259,7 @@ static UINT32 poly_zn_item_squ_self(const UINT32 polyzn_md_id, POLY_ITEM *item_c
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_item_squ_self: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_item_squ_self: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4325,12 +4325,12 @@ static UINT32 poly_zn_mul_self_bgn(const UINT32 polyzn_md_id,const BIGINT *bgn_a
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == bgn_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_mul_self_bgn: bgn_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_mul_self_bgn: bgn_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_mul_self_bgn: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_mul_self_bgn: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4449,17 +4449,17 @@ static UINT32 poly_zn_mul_bgn(const UINT32 polyzn_md_id,const POLY *poly_a,const
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_mul_bgn: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_mul_bgn: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == bgn_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_mul_bgn: bgn_b is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_mul_bgn: bgn_b is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_mul_bgn: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_mul_bgn: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4605,12 +4605,12 @@ static UINT32 poly_zn_mul_word(const UINT32 polyzn_md_id,const POLY *poly_a,cons
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_mul_word: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_mul_word: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_mul_word: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_mul_word: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4660,12 +4660,12 @@ static UINT32 poly_zn_mul_self(const UINT32 polyzn_md_id,const POLY *poly_a, POL
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_mul_self: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_mul_self: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_mul_self: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_mul_self: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4747,17 +4747,17 @@ UINT32 poly_zn_mul_poly(const UINT32 polyzn_md_id,const POLY *poly_a,const POLY 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_mul_poly: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_mul_poly: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_mul_poly: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_mul_poly: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_mul_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_mul_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4864,12 +4864,12 @@ UINT32 poly_zn_squ_poly(const UINT32 polyzn_md_id,const POLY *poly_a,POLY *poly_
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_squ_poly: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_squ_poly: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_squ_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_squ_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4933,12 +4933,12 @@ UINT32 poly_zn_sexp(const UINT32 polyzn_md_id,const POLY *poly_a,const UINT32 e,
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sexp: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sexp: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_sexp: c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_sexp: c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -4952,9 +4952,9 @@ UINT32 poly_zn_sexp(const UINT32 polyzn_md_id,const POLY *poly_a,const UINT32 e,
     }
 #endif/*POLY_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT,"poly_zn_sexp: poly_a :\n");
+    dbg_log(SEC_0021_POLYZN, 5)(LOGSTDOUT,"poly_zn_sexp: poly_a :\n");
     print_poly_dec(LOGSTDOUT, poly_a);
-    sys_log(LOGSTDOUT,"poly_zn_sexp: e = %ld\n", e);
+    dbg_log(SEC_0021_POLYZN, 5)(LOGSTDOUT,"poly_zn_sexp: e = %ld\n", e);
 
 
     if ( EC_TRUE == POLY_IS_EMPTY(poly_a) )
@@ -4978,12 +4978,12 @@ UINT32 poly_zn_sexp(const UINT32 polyzn_md_id,const POLY *poly_a,const UINT32 e,
         poly_zn_poly_clone(polyzn_md_id, poly_a, poly_ta);
     }
 
-    sys_log(LOGSTDOUT,"poly_zn_sexp: 1\n");
+    dbg_log(SEC_0021_POLYZN, 5)(LOGSTDOUT,"poly_zn_sexp: 1\n");
 
     /*before set one, poly_zn_set_one will clean up the items of poly_c*/
     poly_zn_set_one(polyzn_md_id, poly_c);
 
-    sys_log(LOGSTDOUT,"poly_zn_sexp: 2\n");
+    dbg_log(SEC_0021_POLYZN, 5)(LOGSTDOUT,"poly_zn_sexp: 2\n");
 
     te = e;
     while ( 1 )
@@ -4993,7 +4993,7 @@ UINT32 poly_zn_sexp(const UINT32 polyzn_md_id,const POLY *poly_a,const UINT32 e,
             poly_zn_mul_self(polyzn_md_id, poly_ta, poly_c);
         }
         te >>= 1;
-    	sys_log(LOGSTDOUT,"poly_zn_sexp: 3\n");
+    	dbg_log(SEC_0021_POLYZN, 5)(LOGSTDOUT,"poly_zn_sexp: 3\n");
 
         if ( 0 == te )
         {
@@ -5001,10 +5001,10 @@ UINT32 poly_zn_sexp(const UINT32 polyzn_md_id,const POLY *poly_a,const UINT32 e,
         }
 
         poly_zn_squ_poly(polyzn_md_id, poly_ta, poly_ta);
-    	sys_log(LOGSTDOUT,"poly_zn_sexp: 4\n");
+    	dbg_log(SEC_0021_POLYZN, 5)(LOGSTDOUT,"poly_zn_sexp: 4\n");
     }
 
-    sys_log(LOGSTDOUT,"poly_zn_sexp: poly_c :\n");
+    dbg_log(SEC_0021_POLYZN, 5)(LOGSTDOUT,"poly_zn_sexp: poly_c :\n");
     print_poly_dec(LOGSTDOUT, poly_c);
 
     poly_zn_poly_destory(polyzn_md_id, poly_ta);
@@ -5054,17 +5054,17 @@ UINT32 poly_zn_exp(const UINT32 polyzn_md_id,const POLY *poly_a,const BIGINT *e,
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_exp: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_exp: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == e )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_exp: e is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_exp: e is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_exp: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_exp: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5178,7 +5178,7 @@ static UINT32 poly_zn_dx_self(const UINT32 polyzn_md_id, POLY *poly_c )
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_dx_self: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_dx_self: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5377,12 +5377,12 @@ UINT32 poly_zn_dx(const UINT32 polyzn_md_id,const POLY *poly_a, POLY *poly_c )
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_dx: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_dx: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_dx: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_dx: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5576,7 +5576,7 @@ static UINT32 poly_zn_Dx_self(const UINT32 polyzn_md_id,const UINT32 depth_of_x,
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_Dx_self: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_Dx_self: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5712,12 +5712,12 @@ UINT32 poly_zn_Dx(const UINT32 polyzn_md_id,const POLY *poly_a, const UINT32 dep
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_Dx: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_Dx: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_zn_Dx: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0021_POLYZN, 0)(LOGSTDOUT,"error:poly_zn_Dx: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYZN, polyzn_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/

@@ -36,7 +36,7 @@ static EC_BOOL rank_cmp(const void * src_rank, const void * des_rank)
 
 static void rank_print(void * rank)
 {
-    sys_log(LOGSTDOUT, "rank: %ld\n", (UINT32)rank);
+    dbg_log(SEC_0095_RANK, 5)(LOGSTDOUT, "rank: %ld\n", (UINT32)rank);
 }
 
 EC_BOOL rank_set_new(CSET **rank_set)

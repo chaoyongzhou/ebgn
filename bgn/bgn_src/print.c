@@ -1913,12 +1913,12 @@ void print_ebgn(LOG *log, const EBGN *ebgn)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == log )
     {
-        sys_log(LOGSTDOUT,"error:print_ebgn: log is NULL_PTR.\n");
+        dbg_log(SEC_0078_PRINT, 0)(LOGSTDOUT,"error:print_ebgn: log is NULL_PTR.\n");
         return;
     }
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:print_ebgn: ebgn is NULL_PTR.\n");
+        dbg_log(SEC_0078_PRINT, 0)(LOGSTDOUT,"error:print_ebgn: ebgn is NULL_PTR.\n");
         return ;
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1951,12 +1951,12 @@ void print_ebgn_info(LOG *log, const EBGN *ebgn, const char *info)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == log )
     {
-        sys_log(LOGSTDOUT,"error:print_ebgn_info: log is NULL_PTR.\n");
+        dbg_log(SEC_0078_PRINT, 0)(LOGSTDOUT,"error:print_ebgn_info: log is NULL_PTR.\n");
         return;
     }
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:print_ebgn_info: ebgn is NULL_PTR.\n");
+        dbg_log(SEC_0078_PRINT, 0)(LOGSTDOUT,"error:print_ebgn_info: ebgn is NULL_PTR.\n");
         return ;
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1973,12 +1973,12 @@ void print_ebgn_dec_info(LOG *log, const EBGN *ebgn, const char *info)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == log )
     {
-        sys_log(LOGSTDOUT,"error:print_ebgn_dec_info: log is NULL_PTR.\n");
+        dbg_log(SEC_0078_PRINT, 0)(LOGSTDOUT,"error:print_ebgn_dec_info: log is NULL_PTR.\n");
         return;
     }
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:print_ebgn_dec_info: ebgn is NULL_PTR.\n");
+        dbg_log(SEC_0078_PRINT, 0)(LOGSTDOUT,"error:print_ebgn_dec_info: ebgn is NULL_PTR.\n");
         return ;
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1996,12 +1996,12 @@ void print_ebgn_hex_info(LOG *log, const EBGN *ebgn, const char *info)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == log )
     {
-        sys_log(LOGSTDOUT,"error:print_ebgn_hex_info: log is NULL_PTR.\n");
+        dbg_log(SEC_0078_PRINT, 0)(LOGSTDOUT,"error:print_ebgn_hex_info: log is NULL_PTR.\n");
         return;
     }
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:print_ebgn_hex_info: ebgn is NULL_PTR.\n");
+        dbg_log(SEC_0078_PRINT, 0)(LOGSTDOUT,"error:print_ebgn_hex_info: ebgn is NULL_PTR.\n");
         return ;
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -2019,12 +2019,12 @@ void print_ebgn_bin_info(LOG *log, const EBGN *ebgn, const char *info)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == log )
     {
-        sys_log(LOGSTDOUT,"error:print_ebgn_bin_info: log is NULL_PTR.\n");
+        dbg_log(SEC_0078_PRINT, 0)(LOGSTDOUT,"error:print_ebgn_bin_info: log is NULL_PTR.\n");
         return;
     }
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:print_ebgn_bin_info: ebgn is NULL_PTR.\n");
+        dbg_log(SEC_0078_PRINT, 0)(LOGSTDOUT,"error:print_ebgn_bin_info: ebgn is NULL_PTR.\n");
         return ;
     }
 #endif/*EBGN_DEBUG_SWITCH*/

@@ -42,7 +42,7 @@ CNETCARD * cnetcard_new()
     cnetcard = (CNETCARD *)SAFE_MALLOC(sizeof(CNETCARD), LOC_CDEVICE_0001);
     if(NULL_PTR == cnetcard)
     {
-        sys_log(LOGSTDOUT, "error:cnetcard_new: failed to malloc CNETCARD\n");
+        dbg_log(SEC_0011_CDEVICE, 0)(LOGSTDOUT, "error:cnetcard_new: failed to malloc CNETCARD\n");
         return (NULL_PTR);
     }
     cnetcard_init(cnetcard);
@@ -81,7 +81,7 @@ UINT32 cnetcard_free(CNETCARD *cnetcard)
 
 EC_BOOL cnetcard_cmp_name(const CNETCARD *cnetcard_1st, const CNETCARD *cnetcard_2nd)
 {
-    if(EC_FALSE == cstring_cmp(CNETCARD_NAME(cnetcard_1st), CNETCARD_NAME(cnetcard_2nd)))
+    if(EC_FALSE == cstring_is_equal(CNETCARD_NAME(cnetcard_1st), CNETCARD_NAME(cnetcard_2nd)))
     {
         return (EC_FALSE);
     }
@@ -90,7 +90,7 @@ EC_BOOL cnetcard_cmp_name(const CNETCARD *cnetcard_1st, const CNETCARD *cnetcard
 
 EC_BOOL cnetcard_cmp_ipv4str(const CNETCARD *cnetcard_1st, const CNETCARD *cnetcard_2nd)
 {
-    if(EC_FALSE == cstring_cmp(CNETCARD_IPV4STR(cnetcard_1st), CNETCARD_IPV4STR(cnetcard_2nd)))
+    if(EC_FALSE == cstring_is_equal(CNETCARD_IPV4STR(cnetcard_1st), CNETCARD_IPV4STR(cnetcard_2nd)))
     {
         return (EC_FALSE);
     }
@@ -108,7 +108,7 @@ EC_BOOL cnetcard_cmp_ipv4val(const CNETCARD *cnetcard_1st, const CNETCARD *cnetc
 
 EC_BOOL cnetcard_cmp_macstr(const CNETCARD *cnetcard_1st, const CNETCARD *cnetcard_2nd)
 {
-    if(EC_FALSE == cstring_cmp(CNETCARD_MACSTR(cnetcard_1st), CNETCARD_MACSTR(cnetcard_2nd)))
+    if(EC_FALSE == cstring_is_equal(CNETCARD_MACSTR(cnetcard_1st), CNETCARD_MACSTR(cnetcard_2nd)))
     {
         return (EC_FALSE);
     }
@@ -126,15 +126,15 @@ EC_BOOL cnetcard_cmp_state(const CNETCARD *cnetcard_1st, const CNETCARD *cnetcar
 
 EC_BOOL cnetcard_cmp(const CNETCARD *cnetcard_1st, const CNETCARD *cnetcard_2nd)
 {
-    if(EC_FALSE == cstring_cmp(CNETCARD_NAME(cnetcard_1st), CNETCARD_NAME(cnetcard_2nd)))
+    if(EC_FALSE == cstring_is_equal(CNETCARD_NAME(cnetcard_1st), CNETCARD_NAME(cnetcard_2nd)))
     {
         return (EC_FALSE);
     }
-    if(EC_FALSE == cstring_cmp(CNETCARD_IPV4STR(cnetcard_1st), CNETCARD_IPV4STR(cnetcard_2nd)))
+    if(EC_FALSE == cstring_is_equal(CNETCARD_IPV4STR(cnetcard_1st), CNETCARD_IPV4STR(cnetcard_2nd)))
     {
         return (EC_FALSE);
     }
-    if(EC_FALSE == cstring_cmp(CNETCARD_MACSTR(cnetcard_1st), CNETCARD_MACSTR(cnetcard_2nd)))
+    if(EC_FALSE == cstring_is_equal(CNETCARD_MACSTR(cnetcard_1st), CNETCARD_MACSTR(cnetcard_2nd)))
     {
         return (EC_FALSE);
     }
@@ -152,7 +152,7 @@ EC_BOOL cnetcard_cmp(const CNETCARD *cnetcard_1st, const CNETCARD *cnetcard_2nd)
 
 EC_BOOL cnetcard_match_name(const CNETCARD *cnetcard_1st, const CSTRING *name)
 {
-    if(EC_FALSE == cstring_cmp(CNETCARD_NAME(cnetcard_1st), name))
+    if(EC_FALSE == cstring_is_equal(CNETCARD_NAME(cnetcard_1st), name))
     {
         return (EC_FALSE);
     }
@@ -161,7 +161,7 @@ EC_BOOL cnetcard_match_name(const CNETCARD *cnetcard_1st, const CSTRING *name)
 
 EC_BOOL cnetcard_match_ipv4str(const CNETCARD *cnetcard_1st, const CSTRING *ipv4str)
 {
-    if(EC_FALSE == cstring_cmp(CNETCARD_IPV4STR(cnetcard_1st), ipv4str))
+    if(EC_FALSE == cstring_is_equal(CNETCARD_IPV4STR(cnetcard_1st), ipv4str))
     {
         return (EC_FALSE);
     }
@@ -217,15 +217,15 @@ UINT32 cnetcard_collect(CSET *cnetcard_set, const UINT32 max_cnetcard_num)
     fd = csocket_open(AF_INET, SOCK_DGRAM, 0);
     if(0 > fd)
     {
-        sys_log(LOGSTDOUT, "error:cnetcard_collect: failed to create a socket\n");
+        dbg_log(SEC_0011_CDEVICE, 0)(LOGSTDOUT, "error:cnetcard_collect: failed to create a socket\n");
         return ((UINT32)-1);
     }
 
     ifreq_tbl = (struct ifreq *)SAFE_MALLOC(sizeof(struct ifreq) * max_cnetcard_num, LOC_CDEVICE_0003);
     if(NULL_PTR == ifreq_tbl)
     {
-        sys_log(LOGSTDOUT, "error:cnetcard_collect: failed to malloc %ld struct ifreq\n", max_cnetcard_num);
-        close(fd);
+        dbg_log(SEC_0011_CDEVICE, 0)(LOGSTDOUT, "error:cnetcard_collect: failed to malloc %ld struct ifreq\n", max_cnetcard_num);
+        csocket_close_force(fd);
         return ((UINT32)-1);
     }
 
@@ -234,14 +234,14 @@ UINT32 cnetcard_collect(CSET *cnetcard_set, const UINT32 max_cnetcard_num)
 
     if (0 != ioctl(fd, SIOCGIFCONF, (char *) &ifc))
     {
-        sys_log(LOGSTDOUT, "error:cnetcard_collect: failed to fetch %ld IF CONFIG\n", max_cnetcard_num);
-        close(fd);
+        dbg_log(SEC_0011_CDEVICE, 0)(LOGSTDOUT, "error:cnetcard_collect: failed to fetch %ld IF CONFIG\n", max_cnetcard_num);
+        csocket_close_force(fd);
         SAFE_FREE(ifreq_tbl, LOC_CDEVICE_0004);
         return ((UINT32)-1);
     }
 
     cnetcard_num = ifc.ifc_len / sizeof(struct ifreq);/*actual device number*/
-    //sys_log(LOGSTDOUT, "cnetcard_num = %ld\n", cnetcard_num);
+    //dbg_log(SEC_0011_CDEVICE, 5)(LOGSTDOUT, "cnetcard_num = %ld\n", cnetcard_num);
 
     for(cnetcard_pos = 0; cnetcard_pos < cnetcard_num; cnetcard_pos ++)
     {
@@ -249,13 +249,13 @@ UINT32 cnetcard_collect(CSET *cnetcard_set, const UINT32 max_cnetcard_num)
         struct ifreq *ifreq_item;
 
         ifreq_item = (ifreq_tbl + cnetcard_pos);
-        //sys_log(LOGSTDOUT, "ifreq_tbl %lx, cnetcard_pos %lx => ifreq_item %lx\n", ifreq_tbl, cnetcard_pos, ifreq_item);
+        //dbg_log(SEC_0011_CDEVICE, 5)(LOGSTDOUT, "ifreq_tbl %lx, cnetcard_pos %lx => ifreq_item %lx\n", ifreq_tbl, cnetcard_pos, ifreq_item);
 
         cnetcard = cnetcard_new();
         if(NULL_PTR == cnetcard)
         {
-            sys_log(LOGSTDOUT, "error:cnetcard_collect: failed to new CNETCARD when handle # %ld device\n", cnetcard_pos);
-            close(fd);
+            dbg_log(SEC_0011_CDEVICE, 0)(LOGSTDOUT, "error:cnetcard_collect: failed to new CNETCARD when handle # %ld device\n", cnetcard_pos);
+            csocket_close_force(fd);
             SAFE_FREE(ifreq_tbl, LOC_CDEVICE_0005);
             return ((UINT32)-1);
         }
@@ -266,7 +266,7 @@ UINT32 cnetcard_collect(CSET *cnetcard_set, const UINT32 max_cnetcard_num)
         /*judge whether the net card status is up */
         if(0 != ioctl(fd, SIOCGIFFLAGS, (char *)ifreq_item))
         {
-            sys_log(LOGSTDOUT, "error:cnetcard_collect: failed to fetch # %ld device IF FLAGS\n", cnetcard_pos);
+            dbg_log(SEC_0011_CDEVICE, 0)(LOGSTDOUT, "error:cnetcard_collect: failed to fetch # %ld device IF FLAGS\n", cnetcard_pos);
             cnetcard_free(cnetcard);
             continue;
         }
@@ -282,7 +282,7 @@ UINT32 cnetcard_collect(CSET *cnetcard_set, const UINT32 max_cnetcard_num)
         /*get IP of the net card */
         if (0 != ioctl(fd, SIOCGIFADDR, (char *)ifreq_item))
         {
-            sys_log(LOGSTDOUT, "error:cnetcard_collect: failed to fetch # %ld device IF ADDR\n", cnetcard_pos);
+            dbg_log(SEC_0011_CDEVICE, 0)(LOGSTDOUT, "error:cnetcard_collect: failed to fetch # %ld device IF ADDR\n", cnetcard_pos);
             cnetcard_free(cnetcard);
             continue;
         }
@@ -292,7 +292,7 @@ UINT32 cnetcard_collect(CSET *cnetcard_set, const UINT32 max_cnetcard_num)
         /*get HW ADDRESS of the net card */
         if(0 != ioctl(fd, SIOCGIFHWADDR, (char *)ifreq_item))
         {
-            sys_log(LOGSTDOUT, "error:cnetcard_collect: failed to fetch # %ld device IF HW ADDR\n", cnetcard_pos);
+            dbg_log(SEC_0011_CDEVICE, 0)(LOGSTDOUT, "error:cnetcard_collect: failed to fetch # %ld device IF HW ADDR\n", cnetcard_pos);
             cnetcard_free(cnetcard);
             continue;
         }
@@ -312,10 +312,10 @@ UINT32 cnetcard_collect(CSET *cnetcard_set, const UINT32 max_cnetcard_num)
         }
     }
 
-    close(fd);
+    csocket_close_force(fd);
     SAFE_FREE(ifreq_tbl, LOC_CDEVICE_0006);
 
-    //sys_log(LOGSTDOUT, "info:cnetcard_collect: device list:\n");
+    //dbg_log(SEC_0011_CDEVICE, 3)(LOGSTDOUT, "info:cnetcard_collect: device list:\n");
     //cset_print(LOGSTDOUT, cnetcard_set, (CSET_DATA_PRINT)cnetcard_print);
 
     return (0);

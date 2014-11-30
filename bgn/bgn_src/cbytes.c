@@ -23,7 +23,7 @@ CBYTES *cbytes_new(const UINT32 len)
     alloc_static_mem(MD_TBD, CMPI_ANY_MODI, MM_CBYTES, &cbytes, LOC_CBYTES_0001);
     if(NULL_PTR == cbytes)
     {
-        sys_log(LOGSTDOUT, "error:cbytes_new: alloc memory failed\n");
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_new: alloc memory failed\n");
         return (NULL_PTR);
     }
 
@@ -34,7 +34,7 @@ CBYTES *cbytes_new(const UINT32 len)
         CBYTES_BUF(cbytes) = (UINT8 *)SAFE_MALLOC(len, LOC_CBYTES_0002);
         if(NULL_PTR == CBYTES_BUF(cbytes))
         {
-            sys_log(LOGSTDOUT, "error:cbytes_new: alloc %ld bytes failed\n", len);
+            dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_new: alloc %ld bytes failed\n", len);
             free_static_mem(MD_TBD, CMPI_ANY_MODI, MM_CBYTES, cbytes, LOC_CBYTES_0003);
             return (NULL_PTR);
         }
@@ -90,7 +90,7 @@ EC_BOOL cbytes_free_0(const UINT32 md_id, CBYTES *cbytes)
     return cbytes_free(cbytes, LOC_CBYTES_0005);
 }
 
-EC_BOOL cbytes_set(CBYTES *cbytes, const UINT32 len, const UINT8 *buf)
+EC_BOOL cbytes_set(CBYTES *cbytes, const UINT8 *buf, const UINT32 len)
 {
     UINT8 *des;
 
@@ -104,7 +104,7 @@ EC_BOOL cbytes_set(CBYTES *cbytes, const UINT32 len, const UINT8 *buf)
     des = (UINT8 *)SAFE_MALLOC(len, LOC_CBYTES_0006);
     if(NULL_PTR == des)
     {
-        sys_log(LOGSTDOUT, "error:cbytes_set: alloc %ld bytes failed\n", len);
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_set: alloc %ld bytes failed\n", len);
         return (EC_FALSE);
     }
 
@@ -119,7 +119,7 @@ EC_BOOL cbytes_set_word(CBYTES *cbytes, const UINT32 num)
     char *str;
 
     str = c_word_to_str(num);
-    return cbytes_set(cbytes, strlen((char *)str), (UINT8 *)str);
+    return cbytes_set(cbytes, (UINT8 *)str, strlen((char *)str));
 }
 
 EC_BOOL cbytes_get_word(CBYTES *cbytes, UINT32 *num)
@@ -136,14 +136,14 @@ CBYTES *cbytes_make_by_word(const UINT32 num)
     cbytes = cbytes_new(0);
     if(NULL_PTR == cbytes)
     {
-        sys_log(LOGSTDOUT, "error:cbytes_make_by_word: new cbytes failed\n");
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_make_by_word: new cbytes failed\n");
         return (NULL_PTR);
     }
 
     str = c_word_to_str(num);
-    if(EC_FALSE == cbytes_set(cbytes, strlen((char *)str), (UINT8 *)str))
+    if(EC_FALSE == cbytes_set(cbytes, (UINT8 *)str, strlen((char *)str)))
     {
-        sys_log(LOGSTDOUT, "error:cbytes_make_by_word: set %s to cbytes failed\n", str);
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_make_by_word: set %s to cbytes failed\n", str);
         cbytes_free(cbytes, LOC_CBYTES_0007);
         return (NULL_PTR);
     }
@@ -158,13 +158,13 @@ CBYTES *cbytes_make_by_str(const UINT8 *str)
     cbytes = cbytes_new(0);
     if(NULL_PTR == cbytes)
     {
-        sys_log(LOGSTDOUT, "error:cbytes_make_by_str: new cbytes failed\n");
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_make_by_str: new cbytes failed\n");
         return (NULL_PTR);
     }
 
-    if(EC_FALSE == cbytes_set(cbytes, strlen((char *)str), (UINT8 *)str))
+    if(EC_FALSE == cbytes_set(cbytes, (UINT8 *)str, strlen((char *)str)))
     {
-        sys_log(LOGSTDOUT, "error:cbytes_make_by_str: set str %s to cbytes failed\n", str);
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_make_by_str: set str %s to cbytes failed\n", str);
         cbytes_free(cbytes, LOC_CBYTES_0008);
         return (NULL_PTR);
     }
@@ -179,13 +179,13 @@ CBYTES *cbytes_make_by_cstr(const CSTRING *cstr)
     cbytes = cbytes_new(0);
     if(NULL_PTR == cbytes)
     {
-        sys_log(LOGSTDOUT, "error:cbytes_make_by_cstr: new cbytes failed\n");
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_make_by_cstr: new cbytes failed\n");
         return (NULL_PTR);
     }
 
-    if(EC_FALSE == cbytes_set(cbytes, cstring_get_len(cstr), cstring_get_str(cstr)))
+    if(EC_FALSE == cbytes_set(cbytes, cstring_get_str(cstr), cstring_get_len(cstr)))
     {
-        sys_log(LOGSTDOUT, "error:cbytes_make_by_cstr: set cstr %.*s to cbytes failed\n", 
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_make_by_cstr: set cstr %.*s to cbytes failed\n", 
                             cstring_get_len(cstr), cstring_get_str(cstr));
         cbytes_free(cbytes, LOC_CBYTES_0009);
         return (NULL_PTR);
@@ -212,13 +212,13 @@ CBYTES *cbytes_make_by_bytes(const UINT32 len, const UINT8 *bytes)
     cbytes = cbytes_new(0);
     if(NULL_PTR == cbytes)
     {
-        sys_log(LOGSTDOUT, "error:cbytes_make_by_bytes: new cbytes failed\n");
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_make_by_bytes: new cbytes failed\n");
         return (NULL_PTR);
     }
 
-    if(EC_FALSE == cbytes_set(cbytes, len, bytes))
+    if(EC_FALSE == cbytes_set(cbytes, bytes, len))
     {
-        sys_log(LOGSTDOUT, "error:cbytes_make_by_bytes: set %ld bytes to cbytes failed\n", len);
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_make_by_bytes: set %ld bytes to cbytes failed\n", len);
         cbytes_free(cbytes, LOC_CBYTES_0010);
         return (NULL_PTR);
     }
@@ -233,13 +233,13 @@ CBYTES *cbytes_dup(const CBYTES *cbytes_src)
     cbytes_des = cbytes_new(0);
     if(NULL_PTR == cbytes_des)
     {
-        sys_log(LOGSTDOUT, "error:cbytes_dup: new cbytes failed\n");
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_dup: new cbytes failed\n");
         return (NULL_PTR);
     }
 
     if(EC_FALSE == cbytes_clone(cbytes_src, cbytes_des))
     {
-        sys_log(LOGSTDOUT, "error:cbytes_dup: clone cbytes failed\n");
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_dup: clone cbytes failed\n");
         cbytes_free(cbytes_des, LOC_CBYTES_0011);
         return (NULL_PTR);
     }
@@ -256,7 +256,7 @@ EC_BOOL cbytes_clone(const CBYTES *cbytes_src, CBYTES *cbytes_des)
     buf = (UINT8 *)SAFE_MALLOC(data_len, LOC_CBYTES_0012);
     if(NULL_PTR == buf)
     {
-        sys_log(LOGSTDOUT, "error:cbytes_clone: alloc %ld bytes failed\n", data_len);
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_clone: alloc %ld bytes failed\n", data_len);
         return (EC_FALSE);
     }
 
@@ -291,7 +291,7 @@ EC_BOOL cbytes_cat(const CBYTES *cbytes_src_1st, const CBYTES *cbytes_src_2nd, C
     buf = (UINT8 *)SAFE_MALLOC(data_len, LOC_CBYTES_0013);
     if(NULL_PTR == buf)
     {
-        sys_log(LOGSTDOUT, "error:cbytes_cat: alloc %ld bytes failed\n", data_len);
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_cat: alloc %ld bytes failed\n", data_len);
         return (EC_FALSE);
     }
 
@@ -366,6 +366,15 @@ UINT8 * cbytes_buf(const CBYTES *cbytes)
     return (UINT8 *)CBYTES_BUF(cbytes);
 }
 
+EC_BOOL cbytes_is_empty(const CBYTES *cbytes)
+{
+    if(0 == CBYTES_LEN(cbytes))
+    {
+        return (EC_TRUE);
+    }
+    return (EC_FALSE);
+}
+
 EC_BOOL cbytes_expand(CBYTES *cbytes, const UINT32 location)
 {
     UINT8 *buf;
@@ -392,7 +401,7 @@ EC_BOOL cbytes_expand(CBYTES *cbytes, const UINT32 location)
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "error:cbytes_expand: failed to expand cbytes with len %ld\n", cbytes->len);
+    dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_expand: failed to expand cbytes with len %ld\n", cbytes->len);
 
     return (EC_FALSE);
 }
@@ -429,7 +438,7 @@ EC_BOOL cbytes_expand_to(CBYTES *cbytes, const UINT32 size)
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "error:cbytes_expand_to: failed to expand cbytes with len %ld to len %ld\n",
+    dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_expand_to: failed to expand cbytes with len %ld to len %ld\n",
                         cbytes->len, len);
 
     return (EC_FALSE);
@@ -464,11 +473,28 @@ EC_BOOL cbytes_resize(CBYTES *cbytes, const UINT32 size)
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "error:cbytes_resize: failed to resize cbytes with len %ld to size %ld\n",
+    dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_resize: failed to resize cbytes with len %ld to size %ld\n",
                         cbytes->len, size);
     return (EC_FALSE);
 }
 
+EC_BOOL cbytes_find_byte(const CBYTES *cbytes, const UINT8 ch, UINT32 *pos)
+{
+    UINT32 pos_t;
+    const UINT8 *buf;
+
+    buf = CBYTES_BUF(cbytes);
+
+    for(pos_t = 0; pos_t < CBYTES_LEN(cbytes); pos_t ++)
+    {
+        if(ch == buf[ pos_t ])
+        {
+            (*pos) = pos_t;
+            return (EC_TRUE);
+        }
+    }
+    return (EC_FALSE);
+}
 
 /*note: no chance to get file length when fp is pipe*/
 EC_BOOL cbytes_fread3(CBYTES *cbytes, FILE *fp)
@@ -483,7 +509,7 @@ EC_BOOL cbytes_fread3(CBYTES *cbytes, FILE *fp)
             /*expand cbytes to accept left bytes in file*/
             if(EC_FALSE == cbytes_expand(cbytes, LOC_CBYTES_0018))
             {
-                sys_log(LOGSTDOUT, "error:cbytes_fread: failed to expand cbytes with len %ld\n", cbytes->len);
+                dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_fread: failed to expand cbytes with len %ld\n", cbytes->len);
                 return (EC_FALSE);
             }
         }
@@ -513,7 +539,7 @@ EC_BOOL cbytes_fread(CBYTES *cbytes, FILE *fp)
             /*expand cbytes to accept left bytes in file*/
             if(EC_FALSE == cbytes_expand(cbytes, LOC_CBYTES_0019))
             {
-                sys_log(LOGSTDOUT, "error:cbytes_fread: failed to expand cbytes with len %ld\n", cbytes->len);
+                dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_fread: failed to expand cbytes with len %ld\n", cbytes->len);
                 return (EC_FALSE);
             }
         }
@@ -539,7 +565,7 @@ EC_BOOL cbytes_fread0(CBYTES *cbytes, FILE *fp)
     flen = fseek(fp, 0, SEEK_END);
     fseek(fp, fcur, SEEK_SET);
 
-    sys_log(LOGSTDOUT, "[DEBUG] cbytes_fread: fcur = %ld, flen %ld\n", fcur, flen);
+    dbg_log(SEC_0101_CBYTES, 9)(LOGSTDOUT, "[DEBUG] cbytes_fread: fcur = %ld, flen %ld\n", fcur, flen);
 
     rsize = flen - fcur;
 
@@ -555,7 +581,7 @@ EC_BOOL cbytes_fread0(CBYTES *cbytes, FILE *fp)
 
     if(0 == feof(fp))/*not reach end of file*/
     {
-        sys_log(LOGSTDOUT, "error:cbytes_fread: read %ld bytes from file at offset %ld failed\n", rsize, fcur);
+        dbg_log(SEC_0101_CBYTES, 0)(LOGSTDOUT, "error:cbytes_fread: read %ld bytes from file at offset %ld failed\n", rsize, fcur);
         return (EC_FALSE);
     }
     return (EC_TRUE);

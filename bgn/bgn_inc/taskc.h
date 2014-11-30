@@ -21,8 +21,6 @@ extern "C"{
 #include "taskcfg.h"
 #include "csocket.h"
 
-#include "cmutex.h"
-
 typedef struct
 {
     /* used counter >= 0 */

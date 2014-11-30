@@ -148,7 +148,7 @@ TYPE_CONV_ITEM * dbg_query_type_conv_item_by_mm(const UINT32 var_mm_type)
     type_conv_vec = creg_type_conv_vec_fetch();
     if(NULL_PTR == type_conv_vec)
     {
-        sys_log(LOGSTDOUT, "error:dbg_query_type_conv_item_by_mm: fetch type conv vec failed\n");
+        dbg_log(SEC_0047_DEBUG, 0)(LOGSTDOUT, "error:dbg_query_type_conv_item_by_mm: fetch type conv vec failed\n");
         return (NULL_PTR);
     }
     
@@ -255,12 +255,12 @@ UINT32 dbg_tiny_caller(const UINT32 func_para_num, const UINT32 func_addr, ...)
         return (0);
     }
 
-    //sys_log(LOGSTDOUT, "dbg_tiny_caller: func_addr = %lx, func_para_num = %d\n", func_addr, func_para_num);
+    //dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT, "dbg_tiny_caller: func_addr = %lx, func_para_num = %d\n", func_addr, func_para_num);
     va_start(ap, func_addr);
     for( index = 0; index < func_para_num; index ++ )
     {
         func_para_value[ index ] = va_arg(ap, UINT32);
-        //sys_log(LOGSTDOUT, "dbg_tiny_caller: func para no %d: %lx\n", index, func_para_value[ index ]);
+        //dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT, "dbg_tiny_caller: func para no %d: %lx\n", index, func_para_value[ index ]);
     }
     va_end(ap);
 
@@ -344,7 +344,7 @@ UINT32 dbg_tiny_caller(const UINT32 func_para_num, const UINT32 func_addr, ...)
             func_ret_value = FUNC_CALL(16, func_addr, func_para_value);
             break;
         default:
-            sys_log(LOGSTDOUT, "error:dbg_tiny_caller: func para num = %d overflow\n", func_para_num);
+            dbg_log(SEC_0047_DEBUG, 0)(LOGSTDOUT, "error:dbg_tiny_caller: func para num = %d overflow\n", func_para_num);
             return ((UINT32)(-1));
     }
 
@@ -458,7 +458,7 @@ EC_BOOL dbg_caller(const UINT32 func_addr, const UINT32 func_para_num, UINT32 *f
             func_ret_value = FUNC_CALL(16, func_addr, func_para_value);
             break;
         default:
-            sys_log(LOGSTDOUT, "error:dbg_caller: func para num = %d overflow\n", func_para_num);
+            dbg_log(SEC_0047_DEBUG, 0)(LOGSTDOUT, "error:dbg_caller: func para num = %d overflow\n", func_para_num);
             return (EC_FALSE);
     }
 
@@ -506,7 +506,7 @@ UINT32 dbg_fetch_func_addr_node_by_index(UINT32 func_index, FUNC_ADDR_NODE **fun
     func_addr_mgr = dbg_fetch_func_addr_mgr_by_md_type(func_index >> (WORDSIZE/2));
     if(NULL_PTR == func_addr_mgr)
     {
-        sys_log(LOGSTDOUT, "error:dbg_fetch_func_addr_node_by_index: func index %lx out of range\n", func_index);
+        dbg_log(SEC_0047_DEBUG, 0)(LOGSTDOUT, "error:dbg_fetch_func_addr_node_by_index: func index %lx out of range\n", func_index);
         return ((UINT32)(-1));
     }
 
@@ -583,7 +583,7 @@ EC_BOOL dbg_print_func_paras( const FUNC_ADDR_BLOCK *func_addr_block )
     func_paras_log = fopen( func_paras_log_name, "w");
     if( NULL_PTR ==func_paras_log )
     {
-        sys_log(LOGSTDERR,"dbg_print_func_paras: failed to open %s to write\n",
+        dbg_log(SEC_0047_DEBUG, 0)(LOGSTDERR,"dbg_print_func_paras: failed to open %s to write\n",
                 func_paras_log_name);
 
         return ( EC_FALSE );
@@ -641,7 +641,7 @@ EC_BOOL dbg_fetch_func_addr( const UINT8 * srv_host, const UINT8 * srv_port, FUN
     ret = client_do( srv_host, srv_port, func_addr_block );
     if( EC_FALSE == ret )
     {
-        sys_log(LOGSTDERR,"dbg_fetch_func_addr: client_do failed\n");
+        dbg_log(SEC_0047_DEBUG, 0)(LOGSTDERR,"dbg_fetch_func_addr: client_do failed\n");
 
     return ( EC_FALSE );
     }
@@ -649,7 +649,7 @@ EC_BOOL dbg_fetch_func_addr( const UINT8 * srv_host, const UINT8 * srv_port, FUN
     ret = sqlf_do_all_by_name( NULL_PTR, func_addr_block );
     if( EC_FALSE == ret )
     {
-        sys_log(LOGSTDERR,"dbg_fetch_func_addr: sqlf_do_all_by_name failed\n");
+        dbg_log(SEC_0047_DEBUG, 0)(LOGSTDERR,"dbg_fetch_func_addr: sqlf_do_all_by_name failed\n");
 
     return ( EC_FALSE );
     }
@@ -700,7 +700,7 @@ UINT32 dbg_get_func_by_code_addr(const UINT32 code_addr, FUNC_ADDR_NODE *func_ad
 
     if( EC_FALSE == sqlf_do_one_by_code_addr( mysql_acc, code_addr, func_addr_node ) )
     {
-        sys_log(LOGSTDERR,"dbg_get_func_by_code_addr: sqlf_do_one_by_code_addr failed where code_addr = %lx\n",
+        dbg_log(SEC_0047_DEBUG, 0)(LOGSTDERR,"dbg_get_func_by_code_addr: sqlf_do_one_by_code_addr failed where code_addr = %lx\n",
                 code_addr);
         return ((UINT32)(-1));
     }
@@ -1278,10 +1278,10 @@ UINT32 dbg_x_ray(const UINT32 entry_addr, const UINT32 func_reg_ebp, UINT32 *top
 
         if ( 0 != ret )
         {
-            sys_log(LOGSTDOUT,"func: <unknown>\n");
-            sys_log(LOGSTDOUT,"para: <unknown>\n");
-            sys_log(LOGSTDOUT,"/*ret eip   */  %lx\n",N_GET_RET_CODE_ADDRESS(cur_reg_ebp));
-            sys_log(LOGSTDOUT,"\n");
+            dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"func: <unknown>\n");
+            dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"para: <unknown>\n");
+            dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"/*ret eip   */  %lx\n",N_GET_RET_CODE_ADDRESS(cur_reg_ebp));
+            dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"\n");
 
             continue;
         }
@@ -1324,7 +1324,7 @@ UINT32 dbg_x_ray(const UINT32 entry_addr, const UINT32 func_reg_ebp, UINT32 *top
             top_md_id   = cur_mod_id;
         }
 
-        sys_log(LOGSTDOUT,"/*func name */  %s\n", func_addr_node->func_name);
+        dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"/*func name */  %s\n", func_addr_node->func_name);
         for ( cur_func_para_indx = 0; cur_func_para_indx < cur_func_para_num; cur_func_para_indx ++ )
         {
             cur_func_para_type = func_addr_node->func_para_type[ cur_func_para_indx ];
@@ -1337,23 +1337,23 @@ UINT32 dbg_x_ray(const UINT32 entry_addr, const UINT32 func_reg_ebp, UINT32 *top
                 if ( e_dbg_BIGINT_ptr != cur_func_para_type && EC_TRUE == dbg_type_is_stru_type(cur_func_para_type))
                 {
                     /* output the parameter with this type*/
-                    sys_log(LOGSTDOUT,"/*para #%ld: */  \n",cur_func_para_indx + 1);
+                    dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"/*para #%ld: */  \n",cur_func_para_indx + 1);
                     dbg_print_func_para_dec(LOGSTDOUT,cur_func_para_type, val_in_func_para_stack_pos);
                 }
                 else
                 {
-                    sys_log(LOGSTDOUT,"/*para #%ld: */  ",cur_func_para_indx + 1);
+                    dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"/*para #%ld: */  ",cur_func_para_indx + 1);
                     dbg_print_func_para_dec(LOGSTDOUT,cur_func_para_type, val_in_func_para_stack_pos);
                 }
             }
             else
             {
                 /* output the parameter with this type*/
-                sys_log(LOGSTDOUT,"/*para #%ld: */  N/A\n",cur_func_para_indx + 1);
+                dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"/*para #%ld: */  N/A\n",cur_func_para_indx + 1);
             }
         }
-        sys_log(LOGSTDOUT,"/*ret eip   */  %lx\n",N_GET_RET_CODE_ADDRESS(cur_reg_ebp));
-        sys_log(LOGSTDOUT,"\n");
+        dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"/*ret eip   */  %lx\n",N_GET_RET_CODE_ADDRESS(cur_reg_ebp));
+        dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"\n");
     }
 
     /**
@@ -1409,7 +1409,7 @@ UINT32 dbg_free_static_mem_from_top_module( UINT32 top_module_prio,UINT32 top_mo
             ecc_fp_free_module_static_mem(top_module_id);
             break;
         case PRIO_MD_POLYZ:
-            sys_log(LOGSTDOUT,"error:dbg_free_static_mem_from_top_module: incompleted top module priority = %ld, top module id = %ld\n",
+            dbg_log(SEC_0047_DEBUG, 0)(LOGSTDOUT,"error:dbg_free_static_mem_from_top_module: incompleted top module priority = %ld, top module id = %ld\n",
                             top_module_prio,
                             top_module_id);
             break;
@@ -1429,7 +1429,7 @@ UINT32 dbg_free_static_mem_from_top_module( UINT32 top_module_prio,UINT32 top_mo
             sea_fp_free_module_static_mem(top_module_id);
             break;
         default:
-            sys_log(LOGSTDOUT,"error:dbg_free_static_mem_from_top_module: unknown top module priority = %ld, top module id = %ld\n",
+            dbg_log(SEC_0047_DEBUG, 0)(LOGSTDOUT,"error:dbg_free_static_mem_from_top_module: unknown top module priority = %ld, top module id = %ld\n",
                             top_module_prio,
                             top_module_id);
     }
@@ -1476,20 +1476,20 @@ void dbg_exit( UINT32  mod_type,UINT32  mod_id)
     UINT32 top_module_id;
 
 #if ( SWITCH_ON == STATIC_MEM_STATS_INFO_PRINT_SWITCH )
-    sys_log(LOGSTDOUT,"\n");
-    sys_log(LOGSTDOUT,"dbg_exit: when enter dbg_exit:\n");
+    dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"\n");
+    dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"dbg_exit: when enter dbg_exit:\n");
     print_static_mem_status(LOGSTDOUT);
 #endif/*STATIC_MEM_STATS_INFO_PRINT_SWITCH*/
 
     if ( EC_FALSE == g_dbg_func_addr_list_init_flag )
     {
-        sys_log(LOGSTDOUT,"error:dbg_exit: debug module was not started. pls call dbg_start in main function at firt.\n");
+        dbg_log(SEC_0047_DEBUG, 0)(LOGSTDOUT,"error:dbg_exit: debug module was not started. pls call dbg_start in main function at firt.\n");
         exit( 0 );
     }
 
     //if( EC_FALSE == dbg_fetch_func_addr( g_dbg_func_addr_dbsrv_ip, g_dbg_func_addr_dbsrv_port, &g_dbg_func_addr_block ) )
     //{
-        //sys_log(LOGSTDERR,"dbg_exit: dbg_fetch_func_addr failed\n");
+        //dbg_log(SEC_0047_DEBUG, 0)(LOGSTDERR,"dbg_exit: dbg_fetch_func_addr failed\n");
     //}
 #if (32 == WORDSIZE)
     __asm__
@@ -1516,7 +1516,7 @@ void dbg_exit( UINT32  mod_type,UINT32  mod_id)
     dbg_x_ray(g_dbg_entry_func_addr_node.func_beg_addr, func_reg_ebp, &top_func_reg_ebp, &top_module_prio,&top_module_id);
 
 #if 0
-    sys_log(LOGSTDOUT,"dbg_exit: x-ray scan result: top module priority = 0x%lx, top module id = %ld\n",
+    dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"dbg_exit: x-ray scan result: top module priority = 0x%lx, top module id = %ld\n",
                     top_module_prio,
                     top_module_id);
 #endif
@@ -1524,8 +1524,8 @@ void dbg_exit( UINT32  mod_type,UINT32  mod_id)
     dbg_free_static_mem_from_top_module( top_module_prio, top_module_id );
 
 #if ( SWITCH_ON == STATIC_MEM_STATS_INFO_PRINT_SWITCH )
-    sys_log(LOGSTDOUT,"\n");
-    sys_log(LOGSTDOUT,"dbg_exit: before roll back to top func:\n");
+    dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"\n");
+    dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"dbg_exit: before roll back to top func:\n");
     print_static_mem_status(LOGSTDOUT);
     print_static_mem_diag_info(LOGSTDOUT);
 #endif/*STATIC_MEM_STATS_INFO_PRINT_SWITCH*/
@@ -1601,14 +1601,14 @@ EC_BOOL dbg_value_cmp(LOG *log,UINT32 type, UINT32 db_naked_value,UINT32 ret_nak
     conv_md_id = conv_start();
     if( ERR_MODULE_ID == conv_md_id )
     {
-        sys_log(LOGSTDOUT,"dbg_value_cmp: conv start failed\n");
+        dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"dbg_value_cmp: conv start failed\n");
         return ( EC_FALSE );
     }
 
     type_conv_item = dbg_query_type_conv_item_by_type(type);
     if( NULL_PTR == type_conv_item )
     {
-        sys_log(LOGSTDOUT,"dbg_value_cmp: type %ld is not defined\n", type);
+        dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT,"dbg_value_cmp: type %ld is not defined\n", type);
         return ( EC_FALSE );
     }
 
@@ -1624,7 +1624,7 @@ EC_BOOL dbg_value_cmp(LOG *log,UINT32 type, UINT32 db_naked_value,UINT32 ret_nak
             &used_len);
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:dbg_value_cmp: conv type %d to str failed\n", type);
+        dbg_log(SEC_0047_DEBUG, 0)(LOGSTDERR,"error:dbg_value_cmp: conv type %d to str failed\n", type);
         free_static_mem(MD_TBD, ERR_MODULE_ID, type, db_naked_str, LOC_DEBUG_0003);
         free_static_mem(MD_TBD, ERR_MODULE_ID, type, ret_naked_str, LOC_DEBUG_0004);
         return ( EC_FALSE );
@@ -1640,7 +1640,7 @@ EC_BOOL dbg_value_cmp(LOG *log,UINT32 type, UINT32 db_naked_value,UINT32 ret_nak
             &used_len);
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:dbg_value_cmp: conv type %d to str failed\n", type);
+        dbg_log(SEC_0047_DEBUG, 0)(LOGSTDERR,"error:dbg_value_cmp: conv type %d to str failed\n", type);
         free_static_mem(MD_TBD, ERR_MODULE_ID, type, db_naked_str, LOC_DEBUG_0005);
         free_static_mem(MD_TBD, ERR_MODULE_ID, type, ret_naked_str, LOC_DEBUG_0006);
         return ( EC_FALSE );
@@ -1683,7 +1683,7 @@ void dbg_exit( UINT32  module_type,UINT32  module_id)
     
     if(CTHREAD_GET_TID() == CTHREAD_FETCH_TID(TASK_BRD_DO_ROUTINE_CTHREAD_ID(task_brd), CTHREAD_TID_OFFSET))
     {
-        sys_log(LOGSTDOUT, "dbg_exit: cancel coroutine\n");
+        dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT, "dbg_exit: cancel coroutine\n");
         coroutine_cancel();
     }
     else
@@ -1691,7 +1691,7 @@ void dbg_exit( UINT32  module_type,UINT32  module_id)
         CTHREAD_ID cthread_id;
 
         cthread_id = pthread_self();
-        sys_log(LOGSTDOUT, "dbg_exit: cancel thread %u\n", cthread_id);
+        dbg_log(SEC_0047_DEBUG, 5)(LOGSTDOUT, "dbg_exit: cancel thread %u\n", cthread_id);
 
         /*kill thread self*/
         cthread_cancel(cthread_id);    
@@ -1817,7 +1817,7 @@ UINT32 dbg_get_one_str_from_file(FILE *log, UINT8 *desstr, UINT32 maxlen,UINT32 
 
     if ( index >= maxlen )
     {
-        sys_log(LOGSTDOUT,"error:dbg_get_one_str_from_file: buffer is not enough (index = %ld).\n",
+        dbg_log(SEC_0047_DEBUG, 0)(LOGSTDOUT,"error:dbg_get_one_str_from_file: buffer is not enough (index = %ld).\n",
                 index);
         return ((UINT32)( -1 ));
     }

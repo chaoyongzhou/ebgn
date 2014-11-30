@@ -126,8 +126,8 @@ UINT32 vmm_start( )
 
     vmm_md->usedcounter = 1;
 
-    sys_log(LOGSTDOUT, "vmm_start: start VMM module #%ld\n", vmm_md_id);
-    //sys_log(LOGSTDOUT, "========================= vmm_start: VMM_ table info:\n");
+    dbg_log(SEC_0003_VMM, 5)(LOGSTDOUT, "vmm_start: start VMM module #%ld\n", vmm_md_id);
+    //dbg_log(SEC_0003_VMM, 3)(LOGSTDOUT, "========================= vmm_start: VMM_ table info:\n");
     //vmm_print_module_status(vmm_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -146,7 +146,7 @@ void vmm_end(const UINT32 vmm_md_id)
     vmm_md = VMM_MD_GET(vmm_md_id);
     if(NULL_PTR == vmm_md)
     {
-        sys_log(LOGSTDOUT,"error:vmm_end: vmm_md_id = %ld not exist.\n", vmm_md_id);
+        dbg_log(SEC_0003_VMM, 0)(LOGSTDOUT,"error:vmm_end: vmm_md_id = %ld not exist.\n", vmm_md_id);
         dbg_exit(MD_VMM, vmm_md_id);
     }
 
@@ -159,7 +159,7 @@ void vmm_end(const UINT32 vmm_md_id)
 
     if ( 0 == vmm_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:vmm_end: vmm_md_id = %ld is not started.\n", vmm_md_id);
+        dbg_log(SEC_0003_VMM, 0)(LOGSTDOUT,"error:vmm_end: vmm_md_id = %ld is not started.\n", vmm_md_id);
         dbg_exit(MD_VMM, vmm_md_id);
     }
 
@@ -172,12 +172,12 @@ void vmm_end(const UINT32 vmm_md_id)
 
     vmm_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "vmm_end: stop VMM module #%ld\n", vmm_md_id);
+    dbg_log(SEC_0003_VMM, 5)(LOGSTDOUT, "vmm_end: stop VMM module #%ld\n", vmm_md_id);
     cbc_md_free(MD_VMM, vmm_md_id);
 
     breathing_static_mem();
 
-    //sys_log(LOGSTDOUT, "========================= vmm_end: VMM_ table info:\n");
+    //dbg_log(SEC_0003_VMM, 3)(LOGSTDOUT, "========================= vmm_end: VMM_ table info:\n");
     //vmm_print_module_status(vmm_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -209,7 +209,7 @@ UINT32 vmm_set_mod_mgr(const UINT32 vmm_md_id, const MOD_MGR * src_mod_mgr)
     vmm_md = VMM_MD_GET(vmm_md_id);
     des_mod_mgr = vmm_md->mod_mgr;
 
-    sys_log(LOGSTDOUT, "vmm_set_mod_mgr: md_id %d, des_mod_mgr %lx\n", vmm_md_id, des_mod_mgr);
+    dbg_log(SEC_0003_VMM, 5)(LOGSTDOUT, "vmm_set_mod_mgr: md_id %d, des_mod_mgr %lx\n", vmm_md_id, des_mod_mgr);
 
     mod_mgr_limited_clone(vmm_md_id, src_mod_mgr, des_mod_mgr);
     return (0);

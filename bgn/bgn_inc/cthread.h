@@ -24,6 +24,7 @@ extern "C"{
 #include "cvector.h"
 
 #define ERR_CTHREAD_ID         ((UINT32) -1)
+#define ERR_PID                ((pid_t)  -1)
 
 #define CTHREAD_DETACHABLE     ((UINT32) 0x0001)
 #define CTHREAD_JOINABLE       ((UINT32) 0x0010)
@@ -58,7 +59,8 @@ extern "C"{
 #define CTHREAD_GET_TID()             (syscall(__NR_gettid)) 
 
 #if (64 == WORDSIZE)
-#define CTHREAD_TID_OFFSET            ((UINT32)720)/*on Centos 6.0 x86_64*/
+#define CTHREAD_TID_OFFSET            ((UINT32)144)/*on Centos 6.0 x86_64*/
+//#define CTHREAD_TID_OFFSET            ((UINT32)720)/*on Centos 6.3 x86_64*/
 #endif
 
 #if (32 == WORDSIZE)

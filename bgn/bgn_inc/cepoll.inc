@@ -22,6 +22,9 @@ extern "C"{
 
 #include "type.h"
 #include "csocket.inc"
+#include "clist.h"
+#include "crb.h"
+#include "cmutex.h"
 
 #define CEPOLL_IN        ((uint32_t)0x00000001)
 #define CEPOLL_PRI       ((uint32_t)0x00000002)
@@ -34,6 +37,11 @@ extern "C"{
 #define CEPOLL_ERR       ((uint32_t)0x00000008)
 #define CEPOLL_HUP       ((uint32_t)0x00000010)
 
+#if 0
+#define CEPOLL_TIMEOUT   ((uint32_t)0x00010000)/*extension*/
+#define CEPOLL_SHUTDOWN  ((uint32_t)0x00020000)/*extension*/
+#endif
+
 #define CEPOLL_ET        ((uint32_t)0x80000000)
 #define CEPOLL_ONESHOT   ((uint32_t)0x40000000)
 
@@ -41,8 +49,14 @@ extern "C"{
 #define CEPOLL_CTL_DEL  ((int)2)
 #define CEPOLL_CTL_MOD  ((int)3)
 
-#define CEPOLL_RD_EVENT (CEPOLL_IN)
-#define CEPOLL_WR_EVENT (CEPOLL_OUT)
+#define CEPOLL_RD_EVENT   (CEPOLL_IN)
+#define CEPOLL_WR_EVENT   (CEPOLL_OUT)
+#define CEPOLL_ERR_EVENT  (CEPOLL_ERR)
+#define CEPOLL_HUP_EVENT  (CEPOLL_HUP)
+#if 0
+#define CEPOLL_TO_EVENT   (CEPOLL_TIMEOUT)
+#define CEPOLL_SD_EVENT   (CEPOLL_SHUTDOWN)
+#endif
 
 #if 0
 typedef union epoll_data
@@ -80,42 +94,106 @@ typedef struct
 #define CEPOLL_EVENT_TYPE(cepoll_event)      ((cepoll_event)->events)
 #define CEPOLL_EVENT_FD(cepoll_event)        ((cepoll_event)->data.fd)
 
-#define CEPOLL_MAX_FD_NUM  (4096)
+#define CEPOLL_MAX_FD_NUM  (819200)
+//#define CEPOLL_MAX_FD_NUM  (344800)
+//#define CEPOLL_MAX_FD_NUM  (2048)
 
 #define CEPOLL_DIR_RD      ((UINT32) 0)
 #define CEPOLL_DIR_WR      ((UINT32) 1)
 #define CEPOLL_DIR_END     ((UINT32) 2)
 
-#define CEPOLL_NODE_IS_UNDEF   ((uint32_t) 0)
-#define CEPOLL_NODE_IS_SERVER  ((uint32_t) 1)
-#define CEPOLL_NODE_IS_CLIENT  ((uint32_t) 2)
+#define CEPOLL_NODE_NOT_USED_FLAG      ((uint16_t) 0)
+#define CEPOLL_NODE_IS_USED_FLAG       ((uint16_t) 1)
+
+
+typedef EC_BOOL (*CEPOLL_EVENT_HANDLER)(void *);
+typedef EC_BOOL (*CEPOLL_LOOP_HANDLER)(void *);
 
 typedef struct
 {
-    uint32_t        type;
-    uint32_t        rsvd;
-    CSOCKET_CNODE  *arg[ CEPOLL_DIR_END ];
+    uint32_t   events;
+    uint32_t   timeout;/*in second*/
+    int        sockfd;
+    uint16_t   used_flag;
+    uint16_t   counter;/*counter to distinguish cepoll_node which are inserted at same time*/ 
+    
+    CTIMET     atime;  /*last access in second*/
+
+    CRB_NODE  *crb_node;
+        
+    void      *rd_arg;
+    void      *wr_arg;
+    void      *timeout_arg;
+    void      *shutdown_arg;
+
+    CEPOLL_EVENT_HANDLER rd_handler;
+    CEPOLL_EVENT_HANDLER wr_handler;
+    CEPOLL_EVENT_HANDLER timeout_handler;
+    CEPOLL_EVENT_HANDLER shutdown_handler;
 }CEPOLL_NODE;
 
-#define CEPOLL_NODE_TYPE(cepoll_node)          ((cepoll_node)->type)
-#define CEPOLL_NODE_RD_ARG(cepoll_node)        ((cepoll_node)->arg[ CEPOLL_DIR_RD ])
-#define CEPOLL_NODE_WR_ARG(cepoll_node)        ((cepoll_node)->arg[ CEPOLL_DIR_WR ])
+#define CEPOLL_NODE_SOCKFD(cepoll_node)              ((cepoll_node)->sockfd)
+#define CEPOLL_NODE_USED_FLAG(cepoll_node)           ((cepoll_node)->used_flag)
+#define CEPOLL_NODE_EVENTS(cepoll_node)              ((cepoll_node)->events)
+#define CEPOLL_NODE_ATIME_TS(cepoll_node)            ((cepoll_node)->atime)
+#define CEPOLL_NODE_TIMEOUT_NSEC(cepoll_node)        ((cepoll_node)->timeout)
+#define CEPOLL_NODE_CRB_NODE(cepoll_node)            ((cepoll_node)->crb_node)
+#define CEPOLL_NODE_COUNTER(cepoll_node)             ((cepoll_node)->counter)
+#define CEPOLL_NODE_RD_ARG(cepoll_node)              ((cepoll_node)->rd_arg)
+#define CEPOLL_NODE_WR_ARG(cepoll_node)              ((cepoll_node)->wr_arg)
+#define CEPOLL_NODE_TIMEOUT_ARG(cepoll_node)         ((cepoll_node)->timeout_arg)
+#define CEPOLL_NODE_SHUTDOWN_ARG(cepoll_node)        ((cepoll_node)->shutdown_arg)
+#define CEPOLL_NODE_RD_HANDLER(cepoll_node)          ((cepoll_node)->rd_handler)
+#define CEPOLL_NODE_WR_HANDLER(cepoll_node)          ((cepoll_node)->wr_handler)
+#define CEPOLL_NODE_TIMEOUT_HANDLER(cepoll_node)     ((cepoll_node)->timeout_handler)
+#define CEPOLL_NODE_SHUTDOWN_HANDLER(cepoll_node)    ((cepoll_node)->shutdown_handler)
+
 
 typedef struct
 {
-    int               epoll_fd;
-    int               epoll_event_num;/*max epoll event num*/
-    CEPOLL_EVENT     *epoll_event_tab;/*used by epoll*/
-    CEPOLL_NODE      *epoll_node_tab;
+    int                  epoll_fd;
+    int                  epoll_event_num;/*max epoll event num*/    
+    CEPOLL_EVENT        *epoll_event_tab;/*used by epoll*/
+    CEPOLL_NODE         *epoll_node_tab; /*nodes table in array*/
+
+    CEPOLL_LOOP_HANDLER  epoll_loop_handler;
+    void                *epoll_loop_arg;
+
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)  
+    CMUTEX               cmutex;/*for epoll_timeout_tree*/
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/  
+
+    uint16_t             counter;/*counter to distinguish cepoll_node which are inserted at same time*/ 
+    uint8_t              rsvd[3];
+    CRB_TREE             epoll_timeout_tree;/*timeout in order*/
 }CEPOLL;
 
 #define CEPOLL_FD(cepoll)                   ((cepoll)->epoll_fd)
 #define CEPOLL_EVENT_NUM(cepoll)            ((cepoll)->epoll_event_num)
 #define CEPOLL_EVENT_TAB(cepoll)            ((cepoll)->epoll_event_tab)
 #define CEPOLL_NODE_TAB(cepoll)             ((cepoll)->epoll_node_tab)
+#define CEPOLL_LOOP_HANDLER(cepoll)         ((cepoll)->epoll_loop_handler)
+#define CEPOLL_LOOP_ARG(cepoll)             ((cepoll)->epoll_loop_arg)
+#define CEPOLL_CMUTEX(cepoll)               (&((cepoll)->cmutex))
+#define CEPOLL_COUNTER(cepoll)              ((cepoll)->counter)
+#define CEPOLL_TIMEOUT_TREE(cepoll)         (&((cepoll)->epoll_timeout_tree))
 
-#define CEPOLL_FETCH_EVENT(cepoll, pos)     ((cepoll)->epoll_event_tab + (pos))
-#define CEPOLL_FETCH_NODE(cepoll, fd)       ((cepoll)->epoll_node_tab + (fd))
+#define CEPOLL_FETCH_EVENT(cepoll, pos)     (&((cepoll)->epoll_event_tab[ pos ]))
+#define CEPOLL_FETCH_NODE(cepoll, fd)       (&((cepoll)->epoll_node_tab[ fd ]))
+
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)  
+#define CEPOLL_INIT_LOCK(cepoll, location)  (cmutex_init(CEPOLL_CMUTEX(cepoll), CMUTEX_PROCESS_PRIVATE, location))
+#define CEPOLL_CLEAN_LOCK(cepoll, location) (cmutex_clean(CEPOLL_CMUTEX(cepoll), location))
+#define CEPOLL_LOCK(cepoll, location)       (cmutex_lock(CEPOLL_CMUTEX(cepoll), location))
+#define CEPOLL_UNLOCK(cepoll, location)     (cmutex_unlock(CEPOLL_CMUTEX(cepoll), location))
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/  
+
+#if (SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)    
+#define CEPOLL_INIT_LOCK(cepoll, location)  do{}while(0)
+#define CEPOLL_CLEAN_LOCK(cepoll, location) do{}while(0)
+#define CEPOLL_LOCK(cepoll, location)       do{}while(0)
+#define CEPOLL_UNLOCK(cepoll, location)     do{}while(0)
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)*/  
 
 
 #endif/*_CEPOLL_INC*/

@@ -273,7 +273,7 @@ static EC_BOOL taskcfgchk_route_test(LOG *log, const TASK_CFG *task_cfg, TASKS_C
         {
             TASKS_CFG *rt_tasks_cfg;
 
-            sys_log(LOGSTDNULL, "[TASKCFGCHK] %s & %s == %s & %s\n",
+            dbg_log(SEC_0057_TASKCFGCHK, 5)(LOGSTDNULL, "[TASKCFGCHK] %s & %s == %s & %s\n",
                             c_word_to_ipv4(des_tcid), c_word_to_ipv4(taskr_cfg_mask),
                             TASKR_CFG_DES_TCID_STR(taskr_cfg), c_word_to_ipv4(taskr_cfg_mask)
                             );
@@ -295,7 +295,7 @@ static EC_BOOL taskcfgchk_route_test(LOG *log, const TASK_CFG *task_cfg, TASKS_C
         }
         else
         {
-            sys_log(LOGSTDNULL, "[TASKCFGCHK] %s & %s != %s & %s\n",
+            dbg_log(SEC_0057_TASKCFGCHK, 5)(LOGSTDNULL, "[TASKCFGCHK] %s & %s != %s & %s\n",
                             c_word_to_ipv4(des_tcid), c_word_to_ipv4(taskr_cfg_mask),
                             TASKR_CFG_DES_TCID_STR(taskr_cfg), c_word_to_ipv4(taskr_cfg_mask)
                             );

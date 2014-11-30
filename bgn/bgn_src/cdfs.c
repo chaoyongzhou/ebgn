@@ -126,7 +126,7 @@ UINT32 cdfs_start(const UINT32 cdfsnp_min_num)
     /*check rank validity*/
     if(CMPI_CDFS_RANK != TASK_BRD_RANK(task_brd))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_start: current rank is %ld but hsdfs should deploy on rank %ld\n", 
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_start: current rank is %ld but hsdfs should deploy on rank %ld\n", 
                             TASK_BRD_RANK(task_brd), CMPI_CDFS_RANK);
         return (ERR_MODULE_ID);
     }
@@ -154,8 +154,8 @@ UINT32 cdfs_start(const UINT32 cdfsnp_min_num)
 
     cdfs_md->usedcounter = 1;
 
-    sys_log(LOGSTDOUT, "cdfs_start: start CDFS module #%ld\n", cdfs_md_id);
-    //sys_log(LOGSTDOUT, "========================= cdfs_start: CDFS table info:\n");
+    dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "cdfs_start: start CDFS module #%ld\n", cdfs_md_id);
+    //dbg_log(SEC_0056_CDFS, 3)(LOGSTDOUT, "========================= cdfs_start: CDFS table info:\n");
     //cdfs_print_module_status(cdfs_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -174,7 +174,7 @@ void cdfs_end(const UINT32 cdfs_md_id)
     cdfs_md = CDFS_MD_GET(cdfs_md_id);
     if(NULL_PTR == cdfs_md)
     {
-        sys_log(LOGSTDOUT,"error:cdfs_end: cdfs_md_id = %ld not exist.\n", cdfs_md_id);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT,"error:cdfs_end: cdfs_md_id = %ld not exist.\n", cdfs_md_id);
         dbg_exit(MD_CDFS, cdfs_md_id);
     }
     /* if the module is occupied by others,then decrease counter only */
@@ -186,7 +186,7 @@ void cdfs_end(const UINT32 cdfs_md_id)
 
     if ( 0 == cdfs_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:cdfs_end: cdfs_md_id = %ld is not started.\n", cdfs_md_id);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT,"error:cdfs_end: cdfs_md_id = %ld is not started.\n", cdfs_md_id);
         dbg_exit(MD_CDFS, cdfs_md_id);
     }
 
@@ -220,12 +220,12 @@ void cdfs_end(const UINT32 cdfs_md_id)
 
     cdfs_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "cdfs_end: stop CDFS module #%ld\n", cdfs_md_id);
+    dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "cdfs_end: stop CDFS module #%ld\n", cdfs_md_id);
     cbc_md_free(MD_CDFS, cdfs_md_id);
 
     breathing_static_mem();
 
-    //sys_log(LOGSTDOUT, "========================= cdfs_end: CDFS table info:\n");
+    //dbg_log(SEC_0056_CDFS, 3)(LOGSTDOUT, "========================= cdfs_end: CDFS table info:\n");
     //cdfs_print_module_status(cdfs_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -285,7 +285,7 @@ static EC_BOOL cdfs_collect_fnode_all_tcid(const CDFSNP_FNODE *cdfsnp_fnode, con
 {
     UINT32 cdfsnp_inode_pos;
 
-    sys_log(LOGSTDNULL, "[DEBUG] cdfs_collect_fnode_all_tcid: cdfsnp_inode_num = %ld\n", cdfsnp_inode_num);
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_collect_fnode_all_tcid: cdfsnp_inode_num = %ld\n", cdfsnp_inode_num);
 
     for(cdfsnp_inode_pos = 0;
         cdfsnp_inode_pos < CDFSNP_FNODE_REPNUM(cdfsnp_fnode) && cdfsnp_inode_pos < cdfsnp_inode_num && cdfsnp_inode_pos < CDFSNP_FILE_REPLICA_MAX_NUM;
@@ -293,7 +293,7 @@ static EC_BOOL cdfs_collect_fnode_all_tcid(const CDFSNP_FNODE *cdfsnp_fnode, con
         )
     {
         cvector_push(tcid_vec, (void *)CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos));
-        sys_log(LOGSTDNULL, "[DEBUG] cdfs_collect_fnode_all_tcid: replica num %ld, inode num %ld, inode pos %ld, push tcid = %s\n",
+        dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_collect_fnode_all_tcid: replica num %ld, inode num %ld, inode pos %ld, push tcid = %s\n",
                             CDFSNP_FNODE_REPNUM(cdfsnp_fnode), cdfsnp_inode_num,
                             cdfsnp_inode_pos,
                             c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos))
@@ -498,17 +498,17 @@ static MOD_MGR *cdfs_new_dn_mod_mgr_to_write(const UINT32 cdfs_md_id)
     mod_mgr_src = CDFS_MD_DN_MOD_MGR(cdfs_md);
     if(NULL_PTR == mod_mgr_src)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_new_dn_mod_mgr: dn mod mgr is null\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_new_dn_mod_mgr: dn mod mgr is null\n");
         return (NULL_PTR);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_new_dn_mod_mgr: mod_mgr src is\n");
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_new_dn_mod_mgr: mod_mgr src is\n");
     //mod_mgr_print(LOGSTDOUT, mod_mgr_src);
 
     mod_mgr_des = mod_mgr_new(cdfs_md_id, MOD_MGR_LDB_CHOICE(mod_mgr_src));
     if(NULL_PTR == mod_mgr_des)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_new_dn_mod_mgr:  new mod mgr failed\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_new_dn_mod_mgr:  new mod mgr failed\n");
         return (NULL_PTR);
     }
 
@@ -545,7 +545,7 @@ static MOD_MGR *cdfs_new_dn_mod_mgr_to_write(const UINT32 cdfs_md_id)
 
     MOD_MGR_LOCAL_MOD_POS(mod_mgr_des) = cvector_search_front(MOD_MGR_REMOTE_LIST(mod_mgr_des), MOD_MGR_LOCAL_MOD(mod_mgr_des), (CVECTOR_DATA_CMP)mod_node_cmp);
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_new_dn_mod_mgr: mod_mgr des is\n");
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_new_dn_mod_mgr: mod_mgr des is\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr_des);
 
     return (mod_mgr_des);
@@ -579,7 +579,7 @@ EC_BOOL cdfs_disable_write_access_dn(const UINT32 cdfs_md_id, const UINT32 cdfsd
     mod_mgr = CDFS_MD_DN_MOD_MGR(cdfs_md);
     if(NULL_PTR == mod_mgr)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_disable_write_access_dn: dn mod mgr is null\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_disable_write_access_dn: dn mod mgr is null\n");
         return (EC_FALSE);
     }
 
@@ -628,15 +628,15 @@ UINT32 cdfs_set_npp_mod_mgr(const UINT32 cdfs_md_id, const MOD_MGR * src_mod_mgr
     cdfs_md = CDFS_MD_GET(cdfs_md_id);
     des_mod_mgr = CDFS_MD_NPP_MOD_MGR(cdfs_md);
 
-    sys_log(LOGSTDOUT, "cdfs_set_npp_mod_mgr: md_id %d, input src_mod_mgr %lx\n", cdfs_md_id, src_mod_mgr);
+    dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "cdfs_set_npp_mod_mgr: md_id %d, input src_mod_mgr %lx\n", cdfs_md_id, src_mod_mgr);
     mod_mgr_print(LOGSTDOUT, src_mod_mgr);
 
     /*figure out mod_nodes with tcid belong to set of cdfsnp_tcid_vec and cdfsnp_tcid_vec*/
     mod_mgr_limited_clone(cdfs_md_id, src_mod_mgr, des_mod_mgr);
 
-    sys_log(LOGSTDOUT, "====================================cdfs_set_npp_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
+    dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "====================================cdfs_set_npp_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
     mod_mgr_print(LOGSTDOUT, des_mod_mgr);
-    sys_log(LOGSTDOUT, "====================================cdfs_set_npp_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
+    dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "====================================cdfs_set_npp_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
 
     return (0);
 }
@@ -660,15 +660,15 @@ UINT32 cdfs_set_dn_mod_mgr(const UINT32 cdfs_md_id, const MOD_MGR * src_mod_mgr)
     cdfs_md = CDFS_MD_GET(cdfs_md_id);
     des_mod_mgr = CDFS_MD_DN_MOD_MGR(cdfs_md);
 
-    sys_log(LOGSTDOUT, "cdfs_set_dn_mod_mgr: md_id %d, input src_mod_mgr %lx\n", cdfs_md_id, src_mod_mgr);
+    dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "cdfs_set_dn_mod_mgr: md_id %d, input src_mod_mgr %lx\n", cdfs_md_id, src_mod_mgr);
     mod_mgr_print(LOGSTDOUT, src_mod_mgr);
 
     /*figure out mod_nodes with tcid belong to set of cdfsnp_tcid_vec and cdfsnp_tcid_vec*/
     mod_mgr_limited_clone(cdfs_md_id, src_mod_mgr, des_mod_mgr);
 
-    sys_log(LOGSTDOUT, "====================================cdfs_set_dn_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
+    dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "====================================cdfs_set_dn_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
     mod_mgr_print(LOGSTDOUT, des_mod_mgr);
-    sys_log(LOGSTDOUT, "====================================cdfs_set_dn_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
+    dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "====================================cdfs_set_dn_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
 
     return (0);
 }
@@ -747,14 +747,14 @@ EC_BOOL cdfs_open_npp(const UINT32 cdfs_md_id, const CSTRING *cdfsnp_db_root_dir
 
     if(NULL_PTR != CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_open_npp: someone name node pool was open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_open_npp: someone name node pool was open\n");
         return (EC_FALSE);
     }
 
     CDFS_MD_NPP(cdfs_md) = cdfsnp_mgr_open(cdfsnp_db_root_dir, cdfsnp_cached_max_num);
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_open_npp: open name node pool from root dir %s failed\n", (char *)cstring_get_str(cdfsnp_db_root_dir));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_open_npp: open name node pool from root dir %s failed\n", (char *)cstring_get_str(cdfsnp_db_root_dir));
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -783,7 +783,7 @@ EC_BOOL cdfs_close_npp(const UINT32 cdfs_md_id)
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_close_npp: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_close_npp: name node pool was not open\n");
         return (EC_FALSE);
     }
 
@@ -815,7 +815,7 @@ EC_BOOL cdfs_close_with_flush_npp(const UINT32 cdfs_md_id)
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_close_with_flush_npp: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_close_with_flush_npp: name node pool was not open\n");
         return (EC_FALSE);
     }
 
@@ -962,7 +962,7 @@ EC_BOOL cdfs_add_npp(const UINT32 cdfs_md_id, const UINT32 cdfsnpp_tcid)
 #if 1
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd, cdfsnpp_tcid))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_add_npp: cdfsnpp_tcid %s not connected\n", c_word_to_ipv4(cdfsnpp_tcid));
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_add_npp: cdfsnpp_tcid %s not connected\n", c_word_to_ipv4(cdfsnpp_tcid));
         return (EC_FALSE);
     }
 #endif
@@ -994,7 +994,7 @@ EC_BOOL cdfs_add_dn(const UINT32 cdfs_md_id, const UINT32 cdfsdn_tcid)
 #if 1
     if(EC_FALSE == task_brd_check_tcid_connected(task_brd, cdfsdn_tcid))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_add_dn: cdfsdn_tcid %s not connected\n", c_word_to_ipv4(cdfsdn_tcid));
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_add_dn: cdfsdn_tcid %s not connected\n", c_word_to_ipv4(cdfsdn_tcid));
         return (EC_FALSE);
     }
 #endif
@@ -1022,14 +1022,14 @@ EC_BOOL cdfs_add_dn_vec(const UINT32 cdfs_md_id)
     cdfsdn_tcid_vec = cvector_new(0, MM_UINT32, LOC_CDFS_0008);
     if(NULL_PTR == cdfsdn_tcid_vec)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_add_dn_vec: new dn tcid vec failed\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_add_dn_vec: new dn tcid vec failed\n");
         return (EC_FALSE);
     }
 
     cdfs_collect_dn_tcid_vec(cdfs_md_id, cdfsdn_tcid_vec);
     if(EC_FALSE == cdfs_collect_dn_tcid_vec(cdfs_md_id, cdfsdn_tcid_vec))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_add_dn_vec: collect dn tcid vec failed\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_add_dn_vec: collect dn tcid vec failed\n");
         cvector_free(cdfsdn_tcid_vec, LOC_CDFS_0009);
         return (EC_FALSE);
     }
@@ -1038,7 +1038,7 @@ EC_BOOL cdfs_add_dn_vec(const UINT32 cdfs_md_id)
         UINT32 cdfsdn_tcid;
 
         cdfsdn_tcid = (UINT32)cvector_get(cdfsdn_tcid_vec, cdfsdn_tcid_pos);
-        sys_log(LOGSTDOUT, "[DEBUG] cdfs_add_dn_vec: add dn %s\n", c_word_to_ipv4(cdfsdn_tcid));
+        dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_add_dn_vec: add dn %s\n", c_word_to_ipv4(cdfsdn_tcid));
         cdfs_add_dn(cdfs_md_id, cdfsdn_tcid);
     }
 
@@ -1066,13 +1066,13 @@ EC_BOOL cdfs_add_npp_vec(const UINT32 cdfs_md_id)
     cdfsnp_tcid_vec = cvector_new(0, MM_UINT32, LOC_CDFS_0012);
     if(NULL_PTR == cdfsnp_tcid_vec)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_add_npp_vec: new cdfsnp tcid vec failed\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_add_npp_vec: new cdfsnp tcid vec failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cdfs_collect_npp_tcid_vec(cdfs_md_id, cdfsnp_tcid_vec))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_add_npp_vec: collect npp tcid vec failed\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_add_npp_vec: collect npp tcid vec failed\n");
         cvector_free(cdfsnp_tcid_vec, LOC_CDFS_0013);
         return (EC_FALSE);
     }
@@ -1082,7 +1082,7 @@ EC_BOOL cdfs_add_npp_vec(const UINT32 cdfs_md_id)
         UINT32 cdfsnp_tcid;
 
         cdfsnp_tcid = (UINT32)cvector_get(cdfsnp_tcid_vec, cdfsnp_tcid_pos);
-        sys_log(LOGSTDOUT, "[DEBUG] cdfs_add_npp_vec: add np %s\n", c_word_to_ipv4(cdfsnp_tcid));
+        dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_add_npp_vec: add np %s\n", c_word_to_ipv4(cdfsnp_tcid));
         cdfs_add_npp(cdfs_md_id, cdfsnp_tcid);
     }
 
@@ -1126,7 +1126,7 @@ EC_BOOL cdfs_reg_npp(const UINT32 cdfs_md_id, const UINT32 cdfsnpp_tcid)
     MOD_NODE_RANK(&recv_mod_node) = CMPI_CDFS_RANK;
     MOD_NODE_MODI(&recv_mod_node) = 0;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_reg_npp: register as np to %s\n", c_word_to_ipv4(cdfsnpp_tcid));
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_reg_npp: register as np to %s\n", c_word_to_ipv4(cdfsnpp_tcid));
     task_super_mono(CDFS_MD_NPP_MOD_MGR(cdfs_md), TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP,
                     &recv_mod_node,
                     &ret, FI_cdfs_add_npp, ERR_MODULE_ID, TASK_BRD_TCID(task_brd));
@@ -1167,7 +1167,7 @@ EC_BOOL cdfs_reg_dn(const UINT32 cdfs_md_id, const UINT32 cdfsdn_tcid)
     MOD_NODE_RANK(&recv_mod_node) = CMPI_CDFS_RANK;
     MOD_NODE_MODI(&recv_mod_node) = 0;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_reg_dn: register as dn to %s\n", c_word_to_ipv4(cdfsdn_tcid));
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_reg_dn: register as dn to %s\n", c_word_to_ipv4(cdfsdn_tcid));
     task_super_mono(CDFS_MD_DN_MOD_MGR(cdfs_md), TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP,
                     &recv_mod_node,
                     &ret, FI_cdfs_add_dn, ERR_MODULE_ID, TASK_BRD_TCID(task_brd));
@@ -1205,7 +1205,7 @@ EC_BOOL cdfs_reg_dn_vec(const UINT32 cdfs_md_id)
     cdfs_cluster_tcid_vec = cvector_new(0, MM_UINT32, LOC_CDFS_0016);
     if(NULL_PTR == cdfs_cluster_tcid_vec)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_reg_dn_vec: new cdfs cluster tcid vec failed\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_reg_dn_vec: new cdfs cluster tcid vec failed\n");
         return (EC_FALSE);
     }
 
@@ -1234,7 +1234,7 @@ EC_BOOL cdfs_reg_dn_vec(const UINT32 cdfs_md_id)
         MOD_NODE_RANK(&recv_mod_node) = CMPI_CDFS_RANK;
         MOD_NODE_MODI(&recv_mod_node) = 0;
 
-        sys_log(LOGSTDOUT, "[DEBUG] cdfs_reg_dn_vec: register as dn to %s\n", c_word_to_ipv4(cdfsdn_tcid));
+        dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_reg_dn_vec: register as dn to %s\n", c_word_to_ipv4(cdfsdn_tcid));
         task_super_inc(task_mgr, &send_mod_node, &recv_mod_node, &ret, FI_cdfs_add_dn, ERR_MODULE_ID, TASK_BRD_TCID(task_brd));
     }
 
@@ -1277,7 +1277,7 @@ EC_BOOL cdfs_reg_npp_vec(const UINT32 cdfs_md_id)
     cdfs_cluster_tcid_vec = cvector_new(0, MM_UINT32, LOC_CDFS_0019);
     if(NULL_PTR == cdfs_cluster_tcid_vec)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_reg_npp_vec: new cdfs cluster tcid vec failed\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_reg_npp_vec: new cdfs cluster tcid vec failed\n");
         return (EC_FALSE);
     }
 
@@ -1306,7 +1306,7 @@ EC_BOOL cdfs_reg_npp_vec(const UINT32 cdfs_md_id)
         MOD_NODE_RANK(&recv_mod_node) = CMPI_CDFS_RANK;
         MOD_NODE_MODI(&recv_mod_node) = 0;
 
-        sys_log(LOGSTDOUT, "[DEBUG] cdfs_reg_npp_vec: register as np to %s\n", TASK_BRD_TCID_STR(task_brd));
+        dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_reg_npp_vec: register as np to %s\n", TASK_BRD_TCID_STR(task_brd));
         task_super_inc(task_mgr, &send_mod_node, &recv_mod_node, &ret, FI_cdfs_add_npp, ERR_MODULE_ID, TASK_BRD_TCID(task_brd));
     }
 
@@ -1341,7 +1341,7 @@ EC_BOOL cdfs_find_dir(const UINT32 cdfs_md_id, const CSTRING *dir_path)
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_find_dir: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_find_dir: name node pool was not open\n");
         return (EC_FALSE);
     }
 
@@ -1371,7 +1371,7 @@ EC_BOOL cdfs_find_file(const UINT32 cdfs_md_id, const CSTRING *file_path)
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_find_file: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_find_file: name node pool was not open\n");
         return (EC_FALSE);
     }
 
@@ -1401,7 +1401,7 @@ EC_BOOL cdfs_find(const UINT32 cdfs_md_id, const CSTRING *path)
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_find: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_find: name node pool was not open\n");
         return (EC_FALSE);
     }
 
@@ -1448,7 +1448,7 @@ EC_BOOL cdfs_exists_npp(const UINT32 cdfs_md_id, const CSTRING *path)
 
     if(NULL_PTR == CDFS_MD_NPP_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_exists_npp: npp mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_exists_npp: npp mod mgr was null\n");
         return (EC_FALSE);
     }
 
@@ -1520,22 +1520,22 @@ EC_BOOL cdfs_truncate(const UINT32 cdfs_md_id, const CSTRING *file_path, const U
     }
 #endif/*CDFS_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate: trunc %s to size %ld and replica %ld\n",
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate: trunc %s to size %ld and replica %ld\n",
                         (char *)cstring_get_str(file_path), fsize, replica_num);
 
     cdfsnp_fnode_init(&cdfsnp_fnode);
     if(EC_FALSE == cdfs_truncate_dn_p(cdfs_md_id, fsize, replica_num, &cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_truncate: truncate %ld bytes to data node failed\n", fsize);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_truncate: truncate %ld bytes to data node failed\n", fsize);
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate: cdfsnp_fnode of %s is\n", (char *)cstring_get_str(file_path));
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate: cdfsnp_fnode of %s is\n", (char *)cstring_get_str(file_path));
     cdfsnp_fnode_print(LOGSTDOUT, &cdfsnp_fnode);
 
     if(EC_FALSE == cdfs_write_npp_p(cdfs_md_id, file_path, replica_num, &cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_truncate: truncate file %s to npp failed\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_truncate: truncate file %s to npp failed\n", (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
 
@@ -1564,13 +1564,13 @@ EC_BOOL cdfs_write(const UINT32 cdfs_md_id, const CSTRING *file_path, const CBYT
 
     if(EC_FALSE == cdfs_write_dn_p(cdfs_md_id, cbytes, replica_num, &cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_write: write to data node failed\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write: write to data node failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cdfs_write_npp_p(cdfs_md_id, file_path, replica_num, &cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_write: write file %s to npp failed\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write: write file %s to npp failed\n", (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
 
@@ -1598,11 +1598,11 @@ EC_BOOL cdfs_read(const UINT32 cdfs_md_id, const CSTRING *file_path, CBYTES *cby
 
     if(EC_FALSE == cdfs_read_npp_p(cdfs_md_id, file_path, &cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_read: read file %s from npp failed\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_read: read file %s from npp failed\n", (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_read: cdfsnp_fnode of %s is\n", (char *)cstring_get_str(file_path));
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_read: cdfsnp_fnode of %s is\n", (char *)cstring_get_str(file_path));
     cdfsnp_fnode_print(LOGSTDOUT, &cdfsnp_fnode);
 
     if(CDFSNP_FNODE_IS_TRUNCATED == CDFSNP_FNODE_TRUNCF(&cdfsnp_fnode))
@@ -1614,7 +1614,7 @@ EC_BOOL cdfs_read(const UINT32 cdfs_md_id, const CSTRING *file_path, CBYTES *cby
 
     if(EC_FALSE == cdfs_read_dn_p(cdfs_md_id, &cdfsnp_fnode, cbytes))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_read: read file %s from data node failed where fnode is\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_read: read file %s from data node failed where fnode is\n", (char *)cstring_get_str(file_path));
         cdfsnp_fnode_print(LOGSTDOUT, &cdfsnp_fnode);
         return (EC_FALSE);
     }
@@ -1641,21 +1641,21 @@ EC_BOOL cdfs_update(const UINT32 cdfs_md_id, const CSTRING *file_path, const CBY
     }
 #endif/*CDFS_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_update: update %s with size %ld\n",
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_update: update %s with size %ld\n",
                         (char *)cstring_get_str(file_path), cbytes_len(cbytes));
 
     if(EC_FALSE == cdfs_read_npp_p(cdfs_md_id, file_path, &cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_update: read file %s from npp failed\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update: read file %s from npp failed\n", (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_update: cdfsnp_fnode of %s is\n", (char *)cstring_get_str(file_path));
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_update: cdfsnp_fnode of %s is\n", (char *)cstring_get_str(file_path));
     cdfsnp_fnode_print(LOGSTDOUT, &cdfsnp_fnode);
 
     if(EC_FALSE == cdfs_update_dn_p(cdfs_md_id, cbytes, &cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_update: read file %s from data node failed where fnode is\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update: read file %s from data node failed where fnode is\n", (char *)cstring_get_str(file_path));
         cdfsnp_fnode_print(LOGSTDOUT, &cdfsnp_fnode);
         return (EC_FALSE);
     }
@@ -1665,7 +1665,7 @@ EC_BOOL cdfs_update(const UINT32 cdfs_md_id, const CSTRING *file_path, const CBY
         CDFSNP_FNODE_ACTFSZ(&cdfsnp_fnode) = cbytes_len(cbytes);/*update actual file size*/
         if(EC_FALSE == cdfs_update_npp_p(cdfs_md_id, file_path, &cdfsnp_fnode))
         {
-            sys_log(LOGSTDOUT, "error:cdfs_update: update npp of file %s failed where fnode is \n", (char *)cstring_get_str(file_path));
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update: update npp of file %s failed where fnode is \n", (char *)cstring_get_str(file_path));
             cdfsnp_fnode_print(LOGSTDOUT, &cdfsnp_fnode);
             return (EC_FALSE);
         }
@@ -1787,23 +1787,23 @@ EC_BOOL cdfs_open_dn(const UINT32 cdfs_md_id, const CSTRING *root_dir)
         dbg_exit(MD_CDFS, cdfs_md_id);
     }
 #endif/*CDFS_DEBUG_SWITCH*/
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_open_dn: try to open dn %s  ...\n", (char *)cstring_get_str(root_dir));
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_open_dn: try to open dn %s  ...\n", (char *)cstring_get_str(root_dir));
 
     cdfs_md = CDFS_MD_GET(cdfs_md_id);
 
     if(NULL_PTR != CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_open_dn: someone data node was open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_open_dn: someone data node was open\n");
         return (EC_FALSE);
     }
 
     CDFS_MD_DN(cdfs_md) = cdfsdn_open((char *)cstring_get_str(root_dir));
     if(NULL_PTR == CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_open_dn: open data node with root dir %s failed\n", (char *)cstring_get_str(root_dir));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_open_dn: open data node with root dir %s failed\n", (char *)cstring_get_str(root_dir));
         return (EC_FALSE);
     }
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_open_dn: open dn %s\n", (char *)cstring_get_str(root_dir));
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_open_dn: open dn %s\n", (char *)cstring_get_str(root_dir));
     return (EC_TRUE);
 }
 
@@ -1830,11 +1830,11 @@ EC_BOOL cdfs_close_dn(const UINT32 cdfs_md_id)
 
     if(NULL_PTR == CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_close_dn: no data node was open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_close_dn: no data node was open\n");
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_close_dn was called\n");
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_close_dn was called\n");
     cdfsdn_close(CDFS_MD_DN(cdfs_md));
     CDFS_MD_DN(cdfs_md) = NULL_PTR;
 
@@ -1864,7 +1864,7 @@ EC_BOOL cdfs_close_with_flush_dn(const UINT32 cdfs_md_id)
 
     if(NULL_PTR == CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_close_with_flush_dn: no data node was open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_close_with_flush_dn: no data node was open\n");
         return (EC_FALSE);
     }
 
@@ -1902,29 +1902,29 @@ EC_BOOL cdfs_truncate_dn_ppl(const UINT32 cdfs_md_id, const UINT32 fsize, const 
 
     if(NULL_PTR == CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_truncate_dn_ppl: no data node was open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_truncate_dn_ppl: no data node was open\n");
         return (EC_FALSE);
     }
 
     if(CDFSNP_FILE_REPLICA_MAX_NUM <= cdfsnp_inode_pos)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_truncate_dn_ppl: cdfsnp_inode_pos %ld overflow\n", cdfsnp_inode_pos);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_truncate_dn_ppl: cdfsnp_inode_pos %ld overflow\n", cdfsnp_inode_pos);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: input cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: input cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
 
     if(1)/*debug*/
     {
         if(0 == fsize)
         {
-            sys_log(LOGSTDOUT, "error:cdfs_truncate_dn_ppl: fsize is zero\n");
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_truncate_dn_ppl: fsize is zero\n");
             return (EC_FALSE);
         }
 
         if(CDFSDN_BLOCK_DATA_MAX_SIZE <= fsize)
         {
-            sys_log(LOGSTDOUT, "error:cdfs_truncate_dn_ppl: fsize %ld overflow\n", fsize);
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_truncate_dn_ppl: fsize %ld overflow\n", fsize);
             return (EC_FALSE);
         }
     }
@@ -1932,13 +1932,13 @@ EC_BOOL cdfs_truncate_dn_ppl(const UINT32 cdfs_md_id, const UINT32 fsize, const 
     ret = cdfsdn_truncate(CDFS_MD_DN(cdfs_md), fsize, &path_layout, &partition_beg);
     if(EC_TRUE == ret)
     {
-        //sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl[x]: cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
+        //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl[x]: cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
 
         CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos) = CMPI_LOCAL_TCID;
         CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos) = (path_layout & CDFSNP_32BIT_MASK);
         CDFSNP_FNODE_INODE_FOFF(cdfsnp_fnode, cdfsnp_inode_pos) = (partition_beg & CDFSNP_32BIT_MASK);
 
-        sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [SUCC] truncate %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
+        dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [SUCC] truncate %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
                             fsize, cdfsnp_inode_pos,
                             c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos)),
                             CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos) & CDFSNP_32BIT_MASK,
@@ -1947,13 +1947,13 @@ EC_BOOL cdfs_truncate_dn_ppl(const UINT32 cdfs_md_id, const UINT32 fsize, const 
     }
     else
     {
-        //sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl[y]: cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
+        //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl[y]: cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
 
         CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos) = CMPI_LOCAL_TCID;
         CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos) = CDFSNP_ERR_PATH;
         CDFSNP_FNODE_INODE_FOFF(cdfsnp_fnode, cdfsnp_inode_pos) = CDFSNP_ERR_FOFF;
 
-        sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [FAIL] truncate %ld bytes to %ld# (tcid %s)\n",
+        dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [FAIL] truncate %ld bytes to %ld# (tcid %s)\n",
                             fsize, cdfsnp_inode_pos,
                             c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos))
                             );
@@ -1995,14 +1995,14 @@ EC_BOOL cdfs_truncate_dn_ppl(const UINT32 cdfs_md_id, const UINT32 fsize, const 
         cdfs_collect_fnode_all_tcid(cdfsnp_fnode, cdfsnp_inode_pos + 1, tcid_vec);
         cdfs_collect_dn_mod_mgr_disable_tcid(CDFS_MD_DN_MOD_MGR(cdfs_md), tcid_vec);
 
-        //sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [1] tcid vec:\n");
+        //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [1] tcid vec:\n");
         //cvector_print(LOGSTDOUT, tcid_vec, (CVECTOR_DATA_PRINT)cdfs_print_tcid);
 
         mod_mgr = mod_mgr_new(cdfs_md_id, LOAD_BALANCING_QUE);
         mod_mgr_limited_clone_with_tcid_excl_filter(cdfs_md_id, CDFS_MD_DN_MOD_MGR(cdfs_md), tcid_vec, mod_mgr);
         cvector_free(tcid_vec, LOC_CDFS_0027);
 
-        //sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [1] mod mgr:\n");
+        //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [1] mod mgr:\n");
         //mod_mgr_print(LOGSTDOUT, mod_mgr);
 
         if(0 == MOD_MGR_REMOTE_NUM(mod_mgr))
@@ -2027,7 +2027,7 @@ EC_BOOL cdfs_truncate_dn_ppl(const UINT32 cdfs_md_id, const UINT32 fsize, const 
 
         if(EC_TRUE == ret)
         {
-            sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [SUCC] remote truncate %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
+            dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [SUCC] remote truncate %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
                                 fsize, cdfsnp_inode_pos + 1,
                                 c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1)),
                                 CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos + 1) & CDFSNP_32BIT_MASK,
@@ -2036,7 +2036,7 @@ EC_BOOL cdfs_truncate_dn_ppl(const UINT32 cdfs_md_id, const UINT32 fsize, const 
         }
         else
         {
-            sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [FAIL] remote truncate %ld bytes to %ld# (tcid %s)\n",
+            dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_ppl: [FAIL] remote truncate %ld bytes to %ld# (tcid %s)\n",
                                 fsize, cdfsnp_inode_pos + 1,
                                 c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1))
                                 );
@@ -2074,19 +2074,19 @@ EC_BOOL cdfs_truncate_dn_p(const UINT32 cdfs_md_id, const UINT32 fsize, const UI
 
     if(NULL_PTR == CDFS_MD_DN_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_truncate_dn_p: dn mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_truncate_dn_p: dn mod mgr was null\n");
         return (EC_FALSE);
     }
 
     if(CDFSNP_FILE_REPLICA_MAX_NUM < replica_num)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_truncate_dn_p: replica num %ld overflow\n", replica_num);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_truncate_dn_p: replica num %ld overflow\n", replica_num);
         return (EC_FALSE);
     }
 
     if(CDFSDN_BLOCK_MAX_SIZE <= fsize)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_truncate_dn_p: file size %ld overflow\n", fsize);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_truncate_dn_p: file size %ld overflow\n", fsize);
         return (EC_FALSE);
     }
 
@@ -2109,7 +2109,7 @@ EC_BOOL cdfs_truncate_dn_p(const UINT32 cdfs_md_id, const UINT32 fsize, const UI
         mod_mgr = cdfs_new_dn_mod_mgr_to_write(cdfs_md_id);/*exclude all truncate-access-disabled dn*/
         if(0 == MOD_MGR_REMOTE_NUM(mod_mgr))
         {
-            sys_log(LOGSTDOUT, "error:cdfs_truncate_dn_p: no data node available or accessible\n");
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_truncate_dn_p: no data node available or accessible\n");
             mod_mgr_free(mod_mgr);
             return (EC_FALSE);
         }
@@ -2129,23 +2129,23 @@ EC_BOOL cdfs_truncate_dn_p(const UINT32 cdfs_md_id, const UINT32 fsize, const UI
 
         if(CDFSDN_STAT_IS_FULL == CDFSDN_STAT_FULL(&remote_cdfsdn_stat))
         {
-            sys_log(LOGSTDOUT, "warn:cdfs_truncate_dn_p: cdfsdn %s is full\n", c_word_to_ipv4(CDFSDN_STAT_TCID(&remote_cdfsdn_stat)));
+            dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_truncate_dn_p: cdfsdn %s is full\n", c_word_to_ipv4(CDFSDN_STAT_TCID(&remote_cdfsdn_stat)));
             cdfs_disable_write_access_dn(cdfs_md_id, CDFSDN_STAT_TCID(&remote_cdfsdn_stat));
         }
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_p: [1] cdfsnp_fnode ");
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_p: [1] cdfsnp_fnode ");
     cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
 
     /*discard invalid inodes and adjust actual replica num*/
     cdfsnp_fnode_import(cdfsnp_fnode, cdfsnp_fnode);
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_p: [2] cdfsnp_fnode ");
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_truncate_dn_p: [2] cdfsnp_fnode ");
     cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
 
     if(EC_FALSE == ret && 0 == CDFSNP_FNODE_REPNUM(cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_truncate_dn_p: no data node accept %ld bytes\n", fsize);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_truncate_dn_p: no data node accept %ld bytes\n", fsize);
         return (EC_FALSE);
     }
 
@@ -2173,7 +2173,7 @@ EC_BOOL cdfs_update_dn_p(const UINT32 cdfs_md_id, const CBYTES *cbytes, const CD
 
     if(CDFSDN_BLOCK_MAX_SIZE <= CBYTES_LEN(cbytes))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_update_dn_p: buff len (or file size) %ld overflow\n", CBYTES_LEN(cbytes));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_dn_p: buff len (or file size) %ld overflow\n", CBYTES_LEN(cbytes));
         return (EC_FALSE);
     }
 
@@ -2202,7 +2202,7 @@ EC_BOOL cdfs_update_dn_p(const UINT32 cdfs_md_id, const CBYTES *cbytes, const CD
 
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_update_dn_p: update %ld bytes to someone data node failed\n", CBYTES_LEN(cbytes));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_dn_p: update %ld bytes to someone data node failed\n", CBYTES_LEN(cbytes));
         return (EC_FALSE);
     }
 
@@ -2237,35 +2237,35 @@ EC_BOOL cdfs_update_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const 
 
     if(NULL_PTR == CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_update_dn_ppl: no data node was open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_dn_ppl: no data node was open\n");
         return (EC_FALSE);
     }
 
     if(CDFSNP_FILE_REPLICA_MAX_NUM <= cdfsnp_inode_pos)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_update_dn_ppl: cdfsnp_inode_pos %ld overflow\n", cdfsnp_inode_pos);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_dn_ppl: cdfsnp_inode_pos %ld overflow\n", cdfsnp_inode_pos);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_update_dn_ppl: input cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_update_dn_ppl: input cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
 
     if(1)/*debug*/
     {
         if(NULL_PTR == cbytes)
         {
-            sys_log(LOGSTDOUT, "error:cdfs_update_dn_ppl: cdfs buff is null\n");
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_dn_ppl: cdfs buff is null\n");
             return (EC_FALSE);
         }
 
         if(NULL_PTR == CBYTES_BUF(cbytes))
         {
-            sys_log(LOGSTDOUT, "error:cdfs_update_dn_ppl: cdfs buff data area is null\n");
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_dn_ppl: cdfs buff data area is null\n");
             return (EC_FALSE);
         }
 
         if(0 == CBYTES_LEN(cbytes))
         {
-            sys_log(LOGSTDOUT, "error:cdfs_update_dn_ppl: cdfs buff data len is zero\n");
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_dn_ppl: cdfs buff data len is zero\n");
             return (EC_FALSE);
         }
     }
@@ -2277,7 +2277,7 @@ EC_BOOL cdfs_update_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const 
     if(EC_TRUE == ret)
     {
 
-        sys_log(LOGSTDNULL, "[DEBUG] cdfs_update_dn_ppl: [SUCC] update %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
+        dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_update_dn_ppl: [SUCC] update %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
                             CBYTES_LEN(cbytes), cdfsnp_inode_pos,
                             c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos)),
                             CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos) & CDFSNP_32BIT_MASK,
@@ -2286,7 +2286,7 @@ EC_BOOL cdfs_update_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const 
     }
     else
     {
-        sys_log(LOGSTDNULL, "[DEBUG] cdfs_update_dn_ppl: [FAIL] update %ld bytes to %ld# (tcid %s)\n",
+        dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_update_dn_ppl: [FAIL] update %ld bytes to %ld# (tcid %s)\n",
                             CBYTES_LEN(cbytes), cdfsnp_inode_pos,
                             c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos))
                             );
@@ -2312,7 +2312,7 @@ EC_BOOL cdfs_update_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const 
 
         if(EC_TRUE == ret)
         {
-            sys_log(LOGSTDNULL, "[DEBUG] cdfs_update_dn_ppl: [SUCC] remote update %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
+            dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_update_dn_ppl: [SUCC] remote update %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
                                 CBYTES_LEN(cbytes), cdfsnp_inode_pos + 1,
                                 c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1)),
                                 CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos + 1),
@@ -2321,7 +2321,7 @@ EC_BOOL cdfs_update_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const 
         }
         else
         {
-            sys_log(LOGSTDNULL, "[DEBUG] cdfs_update_dn_ppl: [FAIL] remote update %ld bytes to %ld# (tcid %s)\n",
+            dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_update_dn_ppl: [FAIL] remote update %ld bytes to %ld# (tcid %s)\n",
                                 CBYTES_LEN(cbytes), cdfsnp_inode_pos + 1,
                                 c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1))
                                 );
@@ -2361,35 +2361,35 @@ EC_BOOL cdfs_write_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const U
 
     if(NULL_PTR == CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_write_dn_ppl: no data node was open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_dn_ppl: no data node was open\n");
         return (EC_FALSE);
     }
 
     if(CDFSNP_FILE_REPLICA_MAX_NUM <= cdfsnp_inode_pos)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_write_dn_ppl: cdfsnp_inode_pos %ld overflow\n", cdfsnp_inode_pos);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_dn_ppl: cdfsnp_inode_pos %ld overflow\n", cdfsnp_inode_pos);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_write_dn_ppl: input cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_write_dn_ppl: input cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
 
     if(1)/*debug*/
     {
         if(NULL_PTR == cbytes)
         {
-            sys_log(LOGSTDOUT, "error:cdfs_write_dn_ppl: cdfs buff is null\n");
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_dn_ppl: cdfs buff is null\n");
             return (EC_FALSE);
         }
 
         if(NULL_PTR == CBYTES_BUF(cbytes))
         {
-            sys_log(LOGSTDOUT, "error:cdfs_write_dn_ppl: cdfs buff data area is null\n");
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_dn_ppl: cdfs buff data area is null\n");
             return (EC_FALSE);
         }
 
         if(0 == CBYTES_LEN(cbytes))
         {
-            sys_log(LOGSTDOUT, "error:cdfs_write_dn_ppl: cdfs buff data len is zero\n");
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_dn_ppl: cdfs buff data len is zero\n");
             return (EC_FALSE);
         }
     }
@@ -2397,13 +2397,13 @@ EC_BOOL cdfs_write_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const U
     ret = cdfsdn_write(CDFS_MD_DN(cdfs_md), CBYTES_LEN(cbytes), CBYTES_BUF(cbytes), &path_layout, &partition_beg);
     if(EC_TRUE == ret)
     {
-        //sys_log(LOGSTDOUT, "[DEBUG] cdfs_write_dn_ppl[x]: cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
+        //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_write_dn_ppl[x]: cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
 
         CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos) = CMPI_LOCAL_TCID;
         CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos) = (path_layout & CDFSNP_32BIT_MASK);
         CDFSNP_FNODE_INODE_FOFF(cdfsnp_fnode, cdfsnp_inode_pos) = (partition_beg & CDFSNP_32BIT_MASK);
 
-        sys_log(LOGSTDNULL, "[DEBUG] cdfs_write_dn_ppl: [SUCC] write %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
+        dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_write_dn_ppl: [SUCC] write %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
                             CBYTES_LEN(cbytes), cdfsnp_inode_pos,
                             c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos)),
                             CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos) & CDFSNP_32BIT_MASK,
@@ -2412,13 +2412,13 @@ EC_BOOL cdfs_write_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const U
     }
     else
     {
-        //sys_log(LOGSTDOUT, "[DEBUG] cdfs_write_dn_ppl[y]: cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
+        //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_write_dn_ppl[y]: cdfsnp_inode_pos = %ld\n", cdfsnp_inode_pos);
 
         CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos) = CMPI_LOCAL_TCID;
         CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos) = CDFSNP_ERR_PATH;
         CDFSNP_FNODE_INODE_FOFF(cdfsnp_fnode, cdfsnp_inode_pos) = CDFSNP_ERR_FOFF;
 
-        sys_log(LOGSTDNULL, "[DEBUG] cdfs_write_dn_ppl: [FAIL] write %ld bytes to %ld# (tcid %s)\n",
+        dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_write_dn_ppl: [FAIL] write %ld bytes to %ld# (tcid %s)\n",
                             CBYTES_LEN(cbytes), cdfsnp_inode_pos,
                             c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos))
                             );
@@ -2460,14 +2460,14 @@ EC_BOOL cdfs_write_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const U
         cdfs_collect_fnode_all_tcid(cdfsnp_fnode, cdfsnp_inode_pos + 1, tcid_vec);
         cdfs_collect_dn_mod_mgr_disable_tcid(CDFS_MD_DN_MOD_MGR(cdfs_md), tcid_vec);
 
-        //sys_log(LOGSTDOUT, "[DEBUG] cdfs_write_dn_ppl: [1] tcid vec:\n");
+        //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_write_dn_ppl: [1] tcid vec:\n");
         //cvector_print(LOGSTDOUT, tcid_vec, (CVECTOR_DATA_PRINT)cdfs_print_tcid);
 
         mod_mgr = mod_mgr_new(cdfs_md_id, LOAD_BALANCING_QUE);
         mod_mgr_limited_clone_with_tcid_excl_filter(cdfs_md_id, CDFS_MD_DN_MOD_MGR(cdfs_md), tcid_vec, mod_mgr);
         cvector_free(tcid_vec, LOC_CDFS_0029);
 
-        //sys_log(LOGSTDOUT, "[DEBUG] cdfs_write_dn_ppl: [1] mod mgr:\n");
+        //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_write_dn_ppl: [1] mod mgr:\n");
         //mod_mgr_print(LOGSTDOUT, mod_mgr);
 
         if(0 == MOD_MGR_REMOTE_NUM(mod_mgr))
@@ -2492,7 +2492,7 @@ EC_BOOL cdfs_write_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const U
 
         if(EC_TRUE == ret)
         {
-            sys_log(LOGSTDNULL, "[DEBUG] cdfs_write_dn_ppl: [SUCC] remote write %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
+            dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_write_dn_ppl: [SUCC] remote write %ld bytes to %ld# (tcid %s, path %lx, offset %ld)\n",
                                 CBYTES_LEN(cbytes), cdfsnp_inode_pos + 1,
                                 c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1)),
                                 CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos + 1),
@@ -2501,7 +2501,7 @@ EC_BOOL cdfs_write_dn_ppl(const UINT32 cdfs_md_id, const CBYTES *cbytes, const U
         }
         else
         {
-            sys_log(LOGSTDNULL, "[DEBUG] cdfs_write_dn_ppl: [FAIL] remote write %ld bytes to %ld# (tcid %s)\n",
+            dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_write_dn_ppl: [FAIL] remote write %ld bytes to %ld# (tcid %s)\n",
                                 CBYTES_LEN(cbytes), cdfsnp_inode_pos + 1,
                                 c_word_to_ipv4(CDFSNP_FNODE_INODE_TCID(cdfsnp_fnode, cdfsnp_inode_pos + 1))
                                 );
@@ -2542,13 +2542,13 @@ EC_BOOL cdfs_read_dn_ppl(const UINT32 cdfs_md_id, const UINT32 cdfsnp_inode_pos,
     path_layout = CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos);
     offset      = CDFSNP_FNODE_INODE_FOFF(cdfsnp_fnode, cdfsnp_inode_pos);
 
-    //sys_log(LOGSTDNULL, "[DEBUG] cdfs_read_dn_ppl: file file %ld, path layout %lx, offset %ld\n", file_size, path_layout, offset);
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_read_dn_ppl: file file %ld, path layout %lx, offset %ld\n", file_size, path_layout, offset);
 
-    //sys_log(LOGSTDNULL, "[DEBUG] cdfs_read_dn_ppl: cbytes: len %ld, val %lx\n", CBYTES_LEN(cbytes), CBYTES_BUF(cbytes));
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_read_dn_ppl: cbytes: len %ld, val %lx\n", CBYTES_LEN(cbytes), CBYTES_BUF(cbytes));
 
     if(NULL_PTR == CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_read_dn_ppl: data node is null\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_read_dn_ppl: data node is null\n");
         return (EC_FALSE);
     }
 
@@ -2588,7 +2588,7 @@ EC_BOOL cdfs_read_dn_ppl(const UINT32 cdfs_md_id, const UINT32 cdfsnp_inode_pos,
         return (ret);
     }
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG] cdfs_read_dn_ppl: offset %ld, file size %ld, buff len %ld\n",
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_read_dn_ppl: offset %ld, file size %ld, buff len %ld\n",
                         offset, file_size, CBYTES_LEN(cbytes));
     cdfs_buff_print_1(cdfs_md_id, LOGSTDNULL, cbytes);
 #endif
@@ -2621,19 +2621,19 @@ EC_BOOL cdfs_write_dn_p(const UINT32 cdfs_md_id, const CBYTES *cbytes, const UIN
 
     if(NULL_PTR == CDFS_MD_DN_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_write_dn_p: dn mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_write_dn_p: dn mod mgr was null\n");
         return (EC_FALSE);
     }
 
     if(CDFSNP_FILE_REPLICA_MAX_NUM < replica_num)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_write_dn_p: replica num %ld overflow\n", replica_num);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_dn_p: replica num %ld overflow\n", replica_num);
         return (EC_FALSE);
     }
 
     if(CDFSDN_BLOCK_MAX_SIZE <= CBYTES_LEN(cbytes))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_write_dn_p: buff len (or file size) %ld overflow\n", CBYTES_LEN(cbytes));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_dn_p: buff len (or file size) %ld overflow\n", CBYTES_LEN(cbytes));
         return (EC_FALSE);
     }
 
@@ -2654,7 +2654,7 @@ EC_BOOL cdfs_write_dn_p(const UINT32 cdfs_md_id, const CBYTES *cbytes, const UIN
         mod_mgr = cdfs_new_dn_mod_mgr_to_write(cdfs_md_id);/*exclude all write-access-disabled dn*/
         if(0 == MOD_MGR_REMOTE_NUM(mod_mgr))
         {
-            sys_log(LOGSTDOUT, "error:cdfs_write_dn_p: no data node available or accessible\n");
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_dn_p: no data node available or accessible\n");
             mod_mgr_free(mod_mgr);
             return (EC_FALSE);
         }
@@ -2674,7 +2674,7 @@ EC_BOOL cdfs_write_dn_p(const UINT32 cdfs_md_id, const CBYTES *cbytes, const UIN
 
         if(CDFSDN_STAT_IS_FULL == CDFSDN_STAT_FULL(&remote_cdfsdn_stat))
         {
-            sys_log(LOGSTDOUT, "warn:cdfs_write_dn_p: cdfsdn %s is full\n", c_word_to_ipv4(CDFSDN_STAT_TCID(&remote_cdfsdn_stat)));
+            dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_write_dn_p: cdfsdn %s is full\n", c_word_to_ipv4(CDFSDN_STAT_TCID(&remote_cdfsdn_stat)));
             cdfs_disable_write_access_dn(cdfs_md_id, CDFSDN_STAT_TCID(&remote_cdfsdn_stat));
         }
     }
@@ -2684,7 +2684,7 @@ EC_BOOL cdfs_write_dn_p(const UINT32 cdfs_md_id, const CBYTES *cbytes, const UIN
 
     if(EC_FALSE == ret && 0 == CDFSNP_FNODE_REPNUM(cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_write_dn_p: no data node accept %ld bytes\n", CBYTES_LEN(cbytes));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_dn_p: no data node accept %ld bytes\n", CBYTES_LEN(cbytes));
         return (EC_FALSE);
     }
 
@@ -2720,7 +2720,7 @@ EC_BOOL cdfs_read_dn_p_with_tcid_filter(const UINT32 cdfs_md_id, const CVECTOR *
     mod_mgr = mod_mgr_new(cdfs_md_id, MOD_MGR_LDB_CHOICE(CDFS_MD_DN_MOD_MGR(cdfs_md)));
     mod_mgr_limited_clone_with_tcid_filter(cdfs_md_id, CDFS_MD_DN_MOD_MGR(cdfs_md), cdfsdn_tcid_vec, mod_mgr);
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_read_dn_p_with_tcid_filter: mod_mgr is\n");
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_read_dn_p_with_tcid_filter: mod_mgr is\n");
     //mod_mgr_print(LOGSTDOUT, mod_mgr);
 
     ret = EC_FALSE;
@@ -2809,7 +2809,7 @@ EC_BOOL cdfs_read_dn(const UINT32 cdfs_md_id, const CDFSNP_FNODE *cdfsnp_fnode, 
 
     if(cdfsnp_inode_pos >= CDFSNP_FNODE_REPNUM(cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_read_dn: local tcid %s not exist in cdfsnp_fnode %lx\n", c_word_to_ipv4(local_tcid), cdfsnp_fnode);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_read_dn: local tcid %s not exist in cdfsnp_fnode %lx\n", c_word_to_ipv4(local_tcid), cdfsnp_fnode);
         cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
         return (EC_FALSE);
     }
@@ -2818,13 +2818,13 @@ EC_BOOL cdfs_read_dn(const UINT32 cdfs_md_id, const CDFSNP_FNODE *cdfsnp_fnode, 
     path_layout = CDFSNP_FNODE_INODE_PATH(cdfsnp_fnode, cdfsnp_inode_pos);
     offset      = CDFSNP_FNODE_INODE_FOFF(cdfsnp_fnode, cdfsnp_inode_pos);
 
-    sys_log(LOGSTDNULL, "[DEBUG] cdfs_read_dn: file file %ld, path layout %lx, offset %ld\n", file_size, path_layout, offset);
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_read_dn: file file %ld, path layout %lx, offset %ld\n", file_size, path_layout, offset);
 
-    sys_log(LOGSTDNULL, "[DEBUG] cdfs_read_dn: cbytes: len %ld, val %lx\n", CBYTES_LEN(cbytes), CBYTES_BUF(cbytes));
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDNULL, "[DEBUG] cdfs_read_dn: cbytes: len %ld, val %lx\n", CBYTES_LEN(cbytes), CBYTES_BUF(cbytes));
 
     if(NULL_PTR == CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_read_dn: data node is null\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_read_dn: data node is null\n");
         return (EC_FALSE);
     }
 
@@ -2840,7 +2840,7 @@ EC_BOOL cdfs_read_dn(const UINT32 cdfs_md_id, const CDFSNP_FNODE *cdfsnp_fnode, 
 
     if(EC_FALSE == cdfsdn_read(CDFS_MD_DN(cdfs_md), path_layout, offset, file_size, CBYTES_BUF(cbytes), &(CBYTES_LEN(cbytes))))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_read_dn: read path layout %ld, offset %ld, file size %ld failed\n", path_layout, offset, file_size);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_read_dn: read path layout %ld, offset %ld, file size %ld failed\n", path_layout, offset, file_size);
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -2870,17 +2870,17 @@ EC_BOOL cdfs_write_npp_p(const UINT32 cdfs_md_id, const CSTRING *file_path, cons
 
     if(NULL_PTR == CDFS_MD_NPP_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_write_npp_p: npp mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_write_npp_p: npp mod mgr was null\n");
         return (EC_FALSE);
     }
 
     if(0 == CDFSNP_FNODE_REPNUM(cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_write_npp_p: no valid replica in fnode\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_npp_p: no valid replica in fnode\n");
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_write_npp_p: cdfsnp_fnode is\n");
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_write_npp_p: cdfsnp_fnode is\n");
     //cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
 
     succ_counter = 0;
@@ -2925,7 +2925,7 @@ EC_BOOL cdfs_write_npp_p(const UINT32 cdfs_md_id, const CSTRING *file_path, cons
             else
             {
                 /*mod mgr may be changed when connection broken happen, hence cannot ouput mod node info here*/
-                sys_log(LOGSTDOUT, "error:cdfs_write_npp_p: %ld# write file %s with replica %ld (expect %ld) to some npp failed\n",
+                dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_npp_p: %ld# write file %s with replica %ld (expect %ld) to some npp failed\n",
                                     remote_mod_node_idx, (char *)cstring_get_str(file_path),
                                     CDFSNP_FNODE_REPNUM(cdfsnp_fnode), replica_num);
             }
@@ -2960,14 +2960,14 @@ EC_BOOL cdfs_write_npp_p(const UINT32 cdfs_md_id, const CSTRING *file_path, cons
         }
         else
         {
-            sys_log(LOGSTDOUT, "[lost fnode] path %s, ", (char *)cstring_get_str(file_path));
+            dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[lost fnode] path %s, ", (char *)cstring_get_str(file_path));
             cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
         }
     }
 
     if(replica_num > CDFSNP_FNODE_REPNUM(cdfsnp_fnode))/*when dn replica not meet requirement, record it in log*/
     {
-        //sys_log(LOGSTDOUT, "[DEBUG] cdfs_write_dn_p: cdfsnp_fnode is\n");
+        //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_write_dn_p: cdfsnp_fnode is\n");
         //cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
         if(0 < MOD_MGR_REMOTE_NUM(CDFS_MD_NPP_MOD_MGR(cdfs_md)))
         {
@@ -2985,7 +2985,7 @@ EC_BOOL cdfs_write_npp_p(const UINT32 cdfs_md_id, const CSTRING *file_path, cons
         }
         else
         {
-            sys_log(LOGSTDOUT, "[lost replica] path: %s, expect %ld, ", (char *)cstring_get_str(file_path), replica_num);/*expect replica num*/
+            dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[lost replica] path: %s, expect %ld, ", (char *)cstring_get_str(file_path), replica_num);/*expect replica num*/
             cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
         }
     }
@@ -3016,11 +3016,11 @@ EC_BOOL cdfs_read_npp_p(const UINT32 cdfs_md_id, const CSTRING *file_path, CDFSN
 
     if(NULL_PTR == CDFS_MD_NPP_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_read_npp_p: npp mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_read_npp_p: npp mod mgr was null\n");
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_read_npp_p: npp mod mgr is:\n");
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_read_npp_p: npp mod mgr is:\n");
     mod_mgr_print(LOGSTDOUT, CDFS_MD_NPP_MOD_MGR(cdfs_md));
 
     ret = EC_FALSE;
@@ -3033,12 +3033,12 @@ EC_BOOL cdfs_read_npp_p(const UINT32 cdfs_md_id, const CSTRING *file_path, CDFSN
         task_wait(task_mgr, TASK_DEFAULT_LIVE, TASK_NEED_RESCHEDULE_FLAG, NULL_PTR);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_read_npp_p: cdfsnp_fnode is\n");
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_read_npp_p: cdfsnp_fnode is\n");
     //cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
 
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_read_npp_p: read file %s from npp failed\n",
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_read_npp_p: read file %s from npp failed\n",
                             (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
@@ -3070,17 +3070,17 @@ EC_BOOL cdfs_update_npp_p(const UINT32 cdfs_md_id, const CSTRING *file_path, con
 
     if(NULL_PTR == CDFS_MD_NPP_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_update_npp_p: npp mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_update_npp_p: npp mod mgr was null\n");
         return (EC_FALSE);
     }
 
     if(0 == CDFSNP_FNODE_REPNUM(cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_update_npp_p: no valid replica in fnode\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_npp_p: no valid replica in fnode\n");
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_update_npp_p: cdfsnp_fnode is\n");
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_update_npp_p: cdfsnp_fnode is\n");
     //cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
 
     succ_counter = 0;
@@ -3125,7 +3125,7 @@ EC_BOOL cdfs_update_npp_p(const UINT32 cdfs_md_id, const CSTRING *file_path, con
             else
             {
                 /*mod mgr may be changed when connection broken happen, hence cannot ouput mod node info here*/
-                sys_log(LOGSTDOUT, "error:cdfs_update_npp_p: %ld# update file %s with replica %ld to some npp failed\n",
+                dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_npp_p: %ld# update file %s with replica %ld to some npp failed\n",
                                     remote_mod_node_idx, (char *)cstring_get_str(file_path), CDFSNP_FNODE_REPNUM(cdfsnp_fnode));
             }
             cvector_set(ret_vec, remote_mod_node_idx, NULL_PTR);
@@ -3173,17 +3173,17 @@ EC_BOOL cdfs_write_npp(const UINT32 cdfs_md_id, const CSTRING *file_path, const 
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_write_npp: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_npp: name node pool was not open\n");
         return (EC_FALSE);
     }
 
     if(0 == CDFSNP_FNODE_REPNUM(cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_write_npp: no valid replica in fnode\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_npp: no valid replica in fnode\n");
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_write_npp: cdfsnp_fnode is\n");
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_write_npp: cdfsnp_fnode is\n");
     //cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
 
     if(
@@ -3191,7 +3191,7 @@ EC_BOOL cdfs_write_npp(const UINT32 cdfs_md_id, const CSTRING *file_path, const 
      && EC_FALSE == cdfsnp_mgr_write(CDFS_MD_NPP(cdfs_md), file_path, cdfsnp_fnode)/*try twice to prevent np writting at tail*/
     )
     {
-        sys_log(LOGSTDOUT, "error:cdfs_write_npp: no name node accept file %s with %ld replicas\n",
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_write_npp: no name node accept file %s with %ld replicas\n",
                             (char *)cstring_get_str(file_path), CDFSNP_FNODE_REPNUM(cdfsnp_fnode));
         return (EC_FALSE);
     }
@@ -3221,17 +3221,17 @@ EC_BOOL cdfs_read_npp(const UINT32 cdfs_md_id, const CSTRING *file_path, CDFSNP_
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_read_npp: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_read_npp: name node pool was not open\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cdfsnp_mgr_read(CDFS_MD_NPP(cdfs_md), file_path, cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_read_npp: cdfsnp mgr read %s failed\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_read_npp: cdfsnp mgr read %s failed\n", (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_read_npp: cdfsnp_fnode is\n");
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_read_npp: cdfsnp_fnode is\n");
     //cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
 
     return (EC_TRUE);
@@ -3260,22 +3260,22 @@ EC_BOOL cdfs_update_npp(const UINT32 cdfs_md_id, const CSTRING *file_path, const
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_update_npp: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_update_npp: name node pool was not open\n");
         return (EC_FALSE);
     }
 
     if(0 == CDFSNP_FNODE_REPNUM(cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_update_npp: no valid replica in fnode\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_npp: no valid replica in fnode\n");
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_update_npp: cdfsnp_fnode is\n");
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_update_npp: cdfsnp_fnode is\n");
     //cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
 
     if(EC_FALSE == cdfsnp_mgr_update_np_fnode(CDFS_MD_NPP(cdfs_md), file_path, cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_update_npp: no name node update file %s with %ld replicas\n",
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_npp: no name node update file %s with %ld replicas\n",
                             (char *)cstring_get_str(file_path), CDFSNP_FNODE_REPNUM(cdfsnp_fnode));
         return (EC_FALSE);
     }
@@ -3307,7 +3307,7 @@ EC_BOOL cdfs_update_npp_p(const UINT32 cdfs_md_id, const CSTRING *file_path, con
 
     if(NULL_PTR == CDFS_MD_NPP_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_update_npp_p: npp mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_update_npp_p: npp mod mgr was null\n");
         return (EC_FALSE);
     }
 
@@ -3337,7 +3337,7 @@ EC_BOOL cdfs_update_npp_p(const UINT32 cdfs_md_id, const CSTRING *file_path, con
         if(EC_FALSE == (*ret))
         {
             result = EC_FALSE;
-            sys_log(LOGSTDOUT, "error:cdfs_update_npp_p: %ld# write file %s with replica %ld to some npp failed\n",
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_npp_p: %ld# write file %s with replica %ld to some npp failed\n",
                                 remote_mod_node_idx, (char *)cstring_get_str(file_path), CDFSNP_FNODE_REPNUM(cdfsnp_fnode));
         }
         cvector_set_no_lock(ret_vec, remote_mod_node_idx, NULL_PTR);
@@ -3347,7 +3347,7 @@ EC_BOOL cdfs_update_npp_p(const UINT32 cdfs_md_id, const CSTRING *file_path, con
 
     if(EC_FALSE == result)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_update_npp_p: update file %s to npp failed\n",
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_update_npp_p: update file %s to npp failed\n",
                             (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
@@ -3379,17 +3379,17 @@ EC_BOOL cdfs_delete_npp(const UINT32 cdfs_md_id, const CSTRING *path, const UINT
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_delete_npp: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_delete_npp: name node pool was not open\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cdfsnp_mgr_delete(CDFS_MD_NPP(cdfs_md), path, dflag, cdfsnp_fnode_vec))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_delete_npp: delete %s, dflag %lx failed\n", (char *)cstring_get_str(path), dflag);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_delete_npp: delete %s, dflag %lx failed\n", (char *)cstring_get_str(path), dflag);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_delete_npp: cdfsnp_fnode_vec is:\n");
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_delete_npp: cdfsnp_fnode_vec is:\n");
     //cvector_print_no_lock(LOGSTDOUT, cdfsnp_fnode_vec, (CVECTOR_DATA_PRINT)cdfsnp_fnode_print);
 /*
     for(cdfsnp_fnode_pos = 0; cdfsnp_fnode_pos < cvector_size(cdfsnp_fnode_vec); cdfsnp_fnode_pos ++)
@@ -3433,11 +3433,11 @@ EC_BOOL cdfs_delete_npp_p(const UINT32 cdfs_md_id, const CSTRING *path, const UI
 
     if(NULL_PTR == CDFS_MD_NPP_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_delete_npp_p: npp mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_delete_npp_p: npp mod mgr was null\n");
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_delete_npp_p: beg: cdfsnp_fnode_vec size = %ld\n", cvector_size(cdfsnp_fnode_vec));
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_delete_npp_p: beg: cdfsnp_fnode_vec size = %ld\n", cvector_size(cdfsnp_fnode_vec));
 
     succ_counter = 0;
     if(1)/*delete from all npp*/
@@ -3484,14 +3484,14 @@ EC_BOOL cdfs_delete_npp_p(const UINT32 cdfs_md_id, const CSTRING *path, const UI
             if(EC_TRUE == (*ret))
             {
                 succ_counter ++;
-                //sys_log(LOGSTDOUT, "[DEBUG] cdfs_delete_npp_p: cdfsnp_fnode_vec_ret size = %ld\n", cvector_size(cdfsnp_fnode_vec_ret));
+                //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_delete_npp_p: cdfsnp_fnode_vec_ret size = %ld\n", cvector_size(cdfsnp_fnode_vec_ret));
                 cvector_merge_with_move(cdfsnp_fnode_vec_ret, cdfsnp_fnode_vec, (CVECTOR_DATA_CMP)cdfsnp_fnode_cmp);
-                //sys_log(LOGSTDOUT, "[DEBUG] cdfs_delete_npp_p: ==> cdfsnp_fnode_vec size = %ld\n", cvector_size(cdfsnp_fnode_vec));
+                //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_delete_npp_p: ==> cdfsnp_fnode_vec size = %ld\n", cvector_size(cdfsnp_fnode_vec));
             }
             else
             {
                 /*mod mgr may be changed when connection broken happen, hence cannot ouput mod node info here*/
-                sys_log(LOGSTDOUT, "error:cdfs_delete_npp_p: %ld# delete %s from some npp failed\n",
+                dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_delete_npp_p: %ld# delete %s from some npp failed\n",
                                     remote_mod_node_idx, (char *)cstring_get_str(path));
             }
             cvector_set_no_lock(ret_vec, remote_mod_node_idx, NULL_PTR);
@@ -3506,9 +3506,9 @@ EC_BOOL cdfs_delete_npp_p(const UINT32 cdfs_md_id, const CSTRING *path, const UI
         cvector_free_no_lock(collected_vec, LOC_CDFS_0057);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_delete_npp_p: cdfsnp_fnode_vec is:\n");
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_delete_npp_p: cdfsnp_fnode_vec is:\n");
     //cvector_print_no_lock(LOGSTDOUT, cdfsnp_fnode_vec, (CVECTOR_DATA_PRINT)cdfsnp_fnode_print);
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_delete_npp_p: end: cdfsnp_fnode_vec size = %ld\n", cvector_size(cdfsnp_fnode_vec));
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_delete_npp_p: end: cdfsnp_fnode_vec size = %ld\n", cvector_size(cdfsnp_fnode_vec));
 
     if(0 == succ_counter)
     {
@@ -3517,7 +3517,7 @@ EC_BOOL cdfs_delete_npp_p(const UINT32 cdfs_md_id, const CSTRING *path, const UI
 
     if(succ_counter < CDFS_MD_NP_MIN_NUM(cdfs_md))/*when np replica not meet requirement, record it in log*/
     {
-        sys_log(LOGSTDOUT, "[del path] %s\n", (char *)cstring_get_str(path));
+        dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[del path] %s\n", (char *)cstring_get_str(path));
 #if 0
         /*warning: do not use task_mono_no_wait due to encoding would happen before sending*/
         if(0 < MOD_MGR_REMOTE_NUM(CDFS_MD_NPP_MOD_MGR(cdfs_md)))
@@ -3528,7 +3528,7 @@ EC_BOOL cdfs_delete_npp_p(const UINT32 cdfs_md_id, const CSTRING *path, const UI
         }
         else
         {
-            sys_log(LOGSTDOUT, "[lost fnode] path %s, ", (char *)cstring_get_str(file_path));
+            dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[lost fnode] path %s, ", (char *)cstring_get_str(file_path));
             cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
         }
 #endif
@@ -3560,11 +3560,11 @@ EC_BOOL cdfs_delete_dn(const UINT32 cdfs_md_id, const UINT32 path_layout, const 
 
     if(NULL_PTR == CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_delete_dn: no data node was open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_delete_dn: no data node was open\n");
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_delete_dn: path_layout %ld, offset %ld\n", path_layout, offset);
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_delete_dn: path_layout %ld, offset %ld\n", path_layout, offset);
     return cdfsdn_remove(CDFS_MD_DN(cdfs_md), path_layout, offset);
 }
 
@@ -3594,7 +3594,7 @@ EC_BOOL cdfs_delete_dn_p(const UINT32 cdfs_md_id, const CVECTOR *cdfsnp_fnode_ve
 
     if(NULL_PTR == CDFS_MD_DN_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_delete_dn_p: dn mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_delete_dn_p: dn mod mgr was null\n");
         return (EC_FALSE);
     }
 
@@ -3613,7 +3613,7 @@ EC_BOOL cdfs_delete_dn_p(const UINT32 cdfs_md_id, const CVECTOR *cdfsnp_fnode_ve
         EC_BOOL ret[CDFSNP_FILE_REPLICA_MAX_NUM];
 
         cdfsnp_fnode = (CDFSNP_FNODE *)cvector_get_no_lock(cdfsnp_fnode_vec, cdfsnp_fnode_pos);
-        //sys_log(LOGSTDOUT, "[DEBUG] cdfs_delete_dn_p: cdfsnp_fnode_pos %ld, cdfsnp_fnode is\n", cdfsnp_fnode_pos);
+        //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_delete_dn_p: cdfsnp_fnode_pos %ld, cdfsnp_fnode is\n", cdfsnp_fnode_pos);
         //cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
 
         task_mgr = task_new(CDFS_MD_DN_MOD_MGR(cdfs_md), TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -3640,7 +3640,7 @@ EC_BOOL cdfs_delete_dn_p(const UINT32 cdfs_md_id, const CVECTOR *cdfsnp_fnode_ve
             MOD_NODE_RANK(&recv_mod_node) = CMPI_CDFS_RANK;
             MOD_NODE_MODI(&recv_mod_node) = 0;
 
-            sys_log(LOGSTDOUT, "[DEBUG] cdfs_delete_dn_p: replica_pos %ld, cdfsnp_inode is (tcid %s, path %lx, offset %ld)\n",
+            dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_delete_dn_p: replica_pos %ld, cdfsnp_inode is (tcid %s, path %lx, offset %ld)\n",
                                 replica_pos,
                                 c_word_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
                                 CDFSNP_INODE_PATH(cdfsnp_inode),
@@ -3661,7 +3661,7 @@ EC_BOOL cdfs_delete_dn_p(const UINT32 cdfs_md_id, const CVECTOR *cdfsnp_fnode_ve
 
             if(EC_FALSE == ret[replica_pos])
             {
-                sys_log(LOGSTDOUT, "error:cdfs_delete_dn_p: delete file content from dn %s, bid %ld, sid %ld failed\n",
+                dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_delete_dn_p: delete file content from dn %s, bid %ld, sid %ld failed\n",
                                 c_word_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
                                 CDFSNP_INODE_PATH(cdfsnp_inode),
                                 CDFSNP_INODE_FOFF(cdfsnp_inode)
@@ -3696,18 +3696,18 @@ EC_BOOL cdfs_delete(const UINT32 cdfs_md_id, const CSTRING *path, const UINT32 d
 
     if(EC_FALSE == cdfs_delete_npp_p(cdfs_md_id, path, dflag, cdfsnp_fnode_vec))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_delete: delete %s from some npp failed\n", (char *)cstring_get_str(path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_delete: delete %s from some npp failed\n", (char *)cstring_get_str(path));
         cvector_clean(cdfsnp_fnode_vec, (CVECTOR_DATA_CLEANER)cdfsnp_fnode_free, LOC_CDFS_0059);
         cvector_free(cdfsnp_fnode_vec, LOC_CDFS_0060);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfs_delete: cdfsnp_fnode_vec is:\n");
+    //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_delete: cdfsnp_fnode_vec is:\n");
     //cvector_print_no_lock(LOGSTDOUT, cdfsnp_fnode_vec, (CVECTOR_DATA_PRINT)cdfsnp_fnode_print);
 
     if(EC_FALSE == cdfs_delete_dn_p(cdfs_md_id, cdfsnp_fnode_vec))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_delete: delete %s from some data node failed\n", (char *)cstring_get_str(path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_delete: delete %s from some data node failed\n", (char *)cstring_get_str(path));
         cvector_clean(cdfsnp_fnode_vec, (CVECTOR_DATA_CLEANER)cdfsnp_fnode_free, LOC_CDFS_0061);
         cvector_free(cdfsnp_fnode_vec, LOC_CDFS_0062);
         return (EC_FALSE);
@@ -3741,13 +3741,13 @@ EC_BOOL cdfs_qfile(const UINT32 cdfs_md_id, const CSTRING *file_path, CDFSNP_ITE
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_qfile: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_qfile: name node pool was not open\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cdfsnp_mgr_reserve_np_to_read(CDFS_MD_NPP(cdfs_md), file_path, CDFSNP_ITEM_FILE_IS_REG, cdfsnp_item))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_qfile: query file %s from name node pool failed\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_qfile: query file %s from name node pool failed\n", (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
 
@@ -3777,13 +3777,13 @@ EC_BOOL cdfs_qdir(const UINT32 cdfs_md_id, const CSTRING *dir_path, CVECTOR  *cd
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_qdir: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_qdir: name node pool was not open\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cdfsnp_mgr_collect_items(CDFS_MD_NPP(cdfs_md), dir_path, CDFSNP_ITEM_FILE_IS_DIR, cdfsnp_item_vec))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_qfile: query dir %s from name node pool failed\n", (char *)cstring_get_str(dir_path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_qfile: query dir %s from name node pool failed\n", (char *)cstring_get_str(dir_path));
         return (EC_FALSE);
     }
 
@@ -3813,7 +3813,7 @@ EC_BOOL cdfs_qlist_path(const UINT32 cdfs_md_id, const CSTRING *file_path, CVECT
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_qlist_path: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_qlist_path: name node pool was not open\n");
         return (EC_FALSE);
     }
 
@@ -3841,7 +3841,7 @@ EC_BOOL cdfs_qlist_path_npp(const UINT32 cdfs_md_id, const CSTRING *file_path, C
 
     if(NULL_PTR == CDFS_MD_NPP_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_qlist_path_npp: npp mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_qlist_path_npp: npp mod mgr was null\n");
         return (EC_FALSE);
     }
 
@@ -3877,7 +3877,7 @@ EC_BOOL cdfs_qlist_seg(const UINT32 cdfs_md_id, const CSTRING *file_path, CVECTO
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_qlist_seg: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_qlist_seg: name node pool was not open\n");
         return (EC_FALSE);
     }
     return cdfsnp_mgr_list_seg(CDFS_MD_NPP(cdfs_md), file_path, seg_cstr_vec);
@@ -3904,7 +3904,7 @@ EC_BOOL cdfs_qlist_seg_npp(const UINT32 cdfs_md_id, const CSTRING *file_seg, CVE
 
     if(NULL_PTR == CDFS_MD_NPP_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_qlist_seg_npp: npp mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_qlist_seg_npp: npp mod mgr was null\n");
         return (EC_FALSE);
     }
 
@@ -3944,7 +3944,7 @@ EC_BOOL cdfs_flush_npp(const UINT32 cdfs_md_id, const UINT32 cdfsnpp_tcid)
     {
         if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
         {
-            sys_log(LOGSTDOUT, "error:cdfs_flush_npp: name node pool is null\n");
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_flush_npp: name node pool is null\n");
             return (EC_FALSE);
         }
 
@@ -3997,7 +3997,7 @@ EC_BOOL cdfs_flush_dn(const UINT32 cdfs_md_id, const UINT32 cdfsdn_tcid)
     {
         if(NULL_PTR == CDFS_MD_DN(cdfs_md))
         {
-            sys_log(LOGSTDOUT, "error:cdfs_flush_dn: data node is null\n");
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_flush_dn: data node is null\n");
             return (EC_FALSE);
         }
 
@@ -4045,7 +4045,7 @@ void cdfs_flush_np(const UINT32 cdfs_md_id, const UINT32 cdfsnp_path_layout)
     cdfs_md = CDFS_MD_GET(cdfs_md_id);
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_flush_np: name node pool is null\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_flush_np: name node pool is null\n");
         return;
     }
 
@@ -4232,7 +4232,7 @@ EC_BOOL cdfs_file_num(const UINT32 cdfs_md_id, const CSTRING *path_cstr, UINT32 
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_file_num: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_file_num: name node pool was not open\n");
         return (EC_FALSE);
     }
 
@@ -4262,7 +4262,7 @@ EC_BOOL cdfs_file_size(const UINT32 cdfs_md_id, const CSTRING *path_cstr, UINT32
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_file_size: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_file_size: name node pool was not open\n");
         return (EC_FALSE);
     }
 
@@ -4292,7 +4292,7 @@ EC_BOOL cdfs_mkdir(const UINT32 cdfs_md_id, const CSTRING *path_cstr)
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_mkdir: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_mkdir: name node pool was not open\n");
         return (EC_FALSE);
     }
 
@@ -4323,7 +4323,7 @@ EC_BOOL cdfs_mkdir_npp(const UINT32 cdfs_md_id, const CSTRING *path_cstr)
 
     if(NULL_PTR == CDFS_MD_NPP_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_mkdir_npp: npp mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_mkdir_npp: npp mod mgr was null\n");
         return (EC_FALSE);
     }
 
@@ -4369,7 +4369,7 @@ EC_BOOL cdfs_mkdir_npp(const UINT32 cdfs_md_id, const CSTRING *path_cstr)
             else
             {
                 /*mod mgr may be changed when connection broken happen, hence cannot ouput mod node info here*/
-                sys_log(LOGSTDOUT, "error:cdfs_mkdir_npp: %ld# mkdir %s to some npp failed\n",
+                dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_mkdir_npp: %ld# mkdir %s to some npp failed\n",
                                     remote_mod_node_idx, (char *)cstring_get_str(path_cstr));
             }
             cvector_set(ret_vec, remote_mod_node_idx, NULL_PTR);
@@ -4395,7 +4395,7 @@ EC_BOOL cdfs_mkdir_npp(const UINT32 cdfs_md_id, const CSTRING *path_cstr)
         }
         else
         {
-            sys_log(LOGSTDOUT, "[lost fnode] path %s, ", (char *)cstring_get_str(path_cstr));
+            dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[lost fnode] path %s, ", (char *)cstring_get_str(path_cstr));
             cdfsnp_fnode_print(LOGSTDOUT, cdfsnp_fnode);
         }
     }
@@ -4426,22 +4426,22 @@ EC_BOOL cdfs_transfer_out(const UINT32 cdfs_md_id, const UINT32 des_datanode_tci
     cdfs_md = CDFS_MD_GET(cdfs_md_id);
     if(NULL_PTR == CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_transfer_out: data node was not open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_transfer_out: data node was not open\n");
         return (EC_FALSE);
     }
 
     cdfsdn_block = cdfsdn_transfer_out_start(CDFS_MD_DN(cdfs_md));
     if(NULL_PTR == cdfsdn_block)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_transfer_out: no more block to transfer\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_transfer_out: no more block to transfer\n");
         return (EC_FALSE);
     }
 
     (*src_block_path_layout) = CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block);
     cdfsdn_record = CDFSDN_RECORD_MGR_NODE(CDFSDN_RECORD_MGR(CDFS_MD_DN(cdfs_md)), CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
 /*
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_transfer_out: cdfsdn_record is\n");
-    sys_log(LOGSTDOUT, "record #: cached flag %ld, updated flag %ld, write flag %ld, swapout flag %ld, reader num %ld, size %ld, room %ld, first free partition %ld, next record %ld\n",
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_transfer_out: cdfsdn_record is\n");
+    dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "record #: cached flag %ld, updated flag %ld, write flag %ld, swapout flag %ld, reader num %ld, size %ld, room %ld, first free partition %ld, next record %ld\n",
                 CDFSDN_RECORD_CACHED_FLAG(cdfsdn_record),
                 CDFSDN_RECORD_UPDATED_FLAG(cdfsdn_record),
                 CDFSDN_RECORD_WRITE_FLAG(cdfsdn_record),
@@ -4452,7 +4452,7 @@ EC_BOOL cdfs_transfer_out(const UINT32 cdfs_md_id, const UINT32 des_datanode_tci
                 CDFSDN_RECORD_FIRST_PART_IDX(cdfsdn_record),
                 CDFSDN_RECORD_NEXT(cdfsdn_record));
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_transfer_out: cdfsdn_block is\n");
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_transfer_out: cdfsdn_block is\n");
     cdfsdn_block_print(LOGSTDOUT, cdfsdn_block);
 */
     ret = EC_FALSE;
@@ -4462,7 +4462,7 @@ EC_BOOL cdfs_transfer_out(const UINT32 cdfs_md_id, const UINT32 des_datanode_tci
 
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_transfer_out: transfer block %ld to data node %s failed\n",
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_transfer_out: transfer block %ld to data node %s failed\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), c_word_to_ipv4(des_datanode_tcid));
         return (EC_FALSE);
     }
@@ -4489,12 +4489,12 @@ EC_BOOL cdfs_transfer_in(const UINT32 cdfs_md_id, const CDFSDN_RECORD *cdfsdn_re
     cdfs_md = CDFS_MD_GET(cdfs_md_id);
     if(NULL_PTR == CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_transfer_in: data node was not open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_transfer_in: data node was not open\n");
         return (EC_FALSE);
     }
 /*
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_transfer_in: cdfsdn_record is\n");
-    sys_log(LOGSTDOUT, "record #: cached flag %ld, updated flag %ld, write flag %ld, swapout flag %ld, reader num %ld, size %ld, room %ld, first free partition %ld, next record %ld\n",
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_transfer_in: cdfsdn_record is\n");
+    dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "record #: cached flag %ld, updated flag %ld, write flag %ld, swapout flag %ld, reader num %ld, size %ld, room %ld, first free partition %ld, next record %ld\n",
                 CDFSDN_RECORD_CACHED_FLAG(cdfsdn_record),
                 CDFSDN_RECORD_UPDATED_FLAG(cdfsdn_record),
                 CDFSDN_RECORD_WRITE_FLAG(cdfsdn_record),
@@ -4505,7 +4505,7 @@ EC_BOOL cdfs_transfer_in(const UINT32 cdfs_md_id, const CDFSDN_RECORD *cdfsdn_re
                 CDFSDN_RECORD_FIRST_PART_IDX(cdfsdn_record),
                 CDFSDN_RECORD_NEXT(cdfsdn_record));
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_transfer_in: cdfsdn_block is\n");
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_transfer_in: cdfsdn_block is\n");
     cdfsdn_block_print(LOGSTDOUT, cdfsdn_block);
 */
     return cdfsdn_transfer_in_do(CDFS_MD_DN(cdfs_md), CDFSDN_RECORD_SIZE(cdfsdn_record), CDFSDN_RECORD_FIRST_PART_IDX(cdfsdn_record), cdfsdn_block, des_block_path_layout);
@@ -4532,19 +4532,19 @@ EC_BOOL cdfs_transfer(const UINT32 cdfs_md_id, const UINT32 src_datanode_tcid, c
     cdfs_md = CDFS_MD_GET(cdfs_md_id);
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_transfer: name node was not open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_transfer: name node was not open\n");
         return (EC_FALSE);
     }
 
     if(NULL_PTR == CDFS_MD_DN_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_transfer: dn mod mgr is null\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_transfer: dn mod mgr is null\n");
         return (EC_FALSE);
     }
 
     if(NULL_PTR == CDFS_MD_NPP_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_transfer: npp mod mgr is null\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_transfer: npp mod mgr is null\n");
         return (EC_FALSE);
     }
 
@@ -4561,11 +4561,11 @@ EC_BOOL cdfs_transfer(const UINT32 cdfs_md_id, const UINT32 src_datanode_tcid, c
                     &ret, FI_cdfs_transfer_out, ERR_MODULE_ID, des_datanode_tcid, &src_block_path_layout, &des_block_path_layout);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cdfs_transfer: transfer out of dn %s failed\n", c_word_to_ipv4(src_datanode_tcid));
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_transfer: transfer out of dn %s failed\n", c_word_to_ipv4(src_datanode_tcid));
             return (EC_FALSE);
         }
 
-        sys_log(LOGSTDOUT, "[DEBUG] cdfs_transfer: data was transfered from tcid %s block %ld to tcid %s block %ld\n",
+        dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_transfer: data was transfered from tcid %s block %ld to tcid %s block %ld\n",
                             c_word_to_ipv4(src_datanode_tcid), src_block_path_layout,
                             c_word_to_ipv4(des_datanode_tcid), des_block_path_layout);
         /*update all np*/
@@ -4593,7 +4593,7 @@ EC_BOOL cdfs_transfer_update(const UINT32 cdfs_md_id, const UINT32 src_datanode_
     cdfs_md = CDFS_MD_GET(cdfs_md_id);
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_transfer_update: name node was not open\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_transfer_update: name node was not open\n");
         return (EC_FALSE);
     }
 
@@ -4631,7 +4631,7 @@ EC_BOOL cdfs_snapshot_dn(const UINT32 cdfs_md_id)
     local_tcid = CMPI_LOCAL_TCID;
     if(EC_FALSE == cdfs_flush_dn(cdfs_md_id, local_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_snapshot_dn: flush dn %s failed\n", c_word_to_ipv4(local_tcid));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_snapshot_dn: flush dn %s failed\n", c_word_to_ipv4(local_tcid));
         return (EC_FALSE);
     }
 
@@ -4645,12 +4645,12 @@ EC_BOOL cdfs_snapshot_dn(const UINT32 cdfs_md_id)
 
     if(EC_FALSE == c_dir_create((char *)cstring_get_str(cmd_cstr)))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_snapshot_npp: create dir %s failed\n", (char *)cstring_get_str(cmd_cstr));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_snapshot_npp: create dir %s failed\n", (char *)cstring_get_str(cmd_cstr));
         cstring_free(cmd_cstr);
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_snapshot_dn: create dir %s\n", (char *)cstring_get_str(cmd_cstr));
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_snapshot_dn: create dir %s\n", (char *)cstring_get_str(cmd_cstr));
 
     cur_time = c_localtime_r(NULL_PTR);
 
@@ -4658,20 +4658,15 @@ EC_BOOL cdfs_snapshot_dn(const UINT32 cdfs_md_id)
     cstring_format(cmd_cstr, "cd %s && tar zcvf snapshot/dn_%s_snapshot_%4d%02d%02d_%02d%02d%02d.tar.gz records.dat",
                             db_root_dir,
                             c_word_to_ipv4(local_tcid),
-                            cur_time->tm_year + 1900,
-                            cur_time->tm_mon + 1,
-                            cur_time->tm_mday,
-                            cur_time->tm_hour,
-                            cur_time->tm_min,
-                            cur_time->tm_sec
+                            TIME_IN_YMDHMS(cur_time)
                             );
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_snapshot_dn: cmd line is: %s\n", (char *)cstring_get_str(cmd_cstr));
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_snapshot_dn: cmd line is: %s\n", (char *)cstring_get_str(cmd_cstr));
 
     /*make data node snapshot*/
     if(EC_FALSE == cdfs_snapshot_make(cmd_cstr))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_snapshot_dn: dn %s make snapshot failed\n", c_word_to_ipv4(local_tcid));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_snapshot_dn: dn %s make snapshot failed\n", c_word_to_ipv4(local_tcid));
         cstring_free(cmd_cstr);
         return (EC_FALSE);
     }
@@ -4706,7 +4701,7 @@ EC_BOOL cdfs_snapshot_npp(const UINT32 cdfs_md_id)
     local_tcid = CMPI_LOCAL_TCID;
     if(EC_FALSE == cdfs_flush_npp(cdfs_md_id, local_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_snapshot_npp: flush npp %s failed\n", c_word_to_ipv4(local_tcid));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_snapshot_npp: flush npp %s failed\n", c_word_to_ipv4(local_tcid));
         return (EC_FALSE);
     }
 
@@ -4720,12 +4715,12 @@ EC_BOOL cdfs_snapshot_npp(const UINT32 cdfs_md_id)
 
     if(EC_FALSE == c_dir_create((char *)cstring_get_str(cmd_cstr)))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_snapshot_npp: create dir %s failed\n", (char *)cstring_get_str(cmd_cstr));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_snapshot_npp: create dir %s failed\n", (char *)cstring_get_str(cmd_cstr));
         cstring_free(cmd_cstr);
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_snapshot_npp: create dir %s\n", (char *)cstring_get_str(cmd_cstr));
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_snapshot_npp: create dir %s\n", (char *)cstring_get_str(cmd_cstr));
 
     cur_time = c_localtime_r(NULL_PTR);
 
@@ -4733,20 +4728,14 @@ EC_BOOL cdfs_snapshot_npp(const UINT32 cdfs_md_id)
     cstring_format(cmd_cstr, "cd %s && tar zcvf snapshot/npp_%s_snapshot_%4d%02d%02d_%02d%02d%02d.tar.gz *.db dsk*",
                             db_root_dir,
                             c_word_to_ipv4(local_tcid),
-                            cur_time->tm_year + 1900,
-                            cur_time->tm_mon + 1,
-                            cur_time->tm_mday,
-                            cur_time->tm_hour,
-                            cur_time->tm_min,
-                            cur_time->tm_sec
-                            );
+                            TIME_IN_YMDHMS(cur_time));
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfs_snapshot_npp: cmd line is: %s\n", (char *)cstring_get_str(cmd_cstr));
+    dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_snapshot_npp: cmd line is: %s\n", (char *)cstring_get_str(cmd_cstr));
 
     /*make name node snapshot*/
     if(EC_FALSE == cdfs_snapshot_make(cmd_cstr))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_snapshot_npp: npp %s make snapshot failed\n", c_word_to_ipv4(local_tcid));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_snapshot_npp: npp %s make snapshot failed\n", c_word_to_ipv4(local_tcid));
         cstring_free(cmd_cstr);
         return (EC_FALSE);
     }
@@ -4777,7 +4766,7 @@ EC_BOOL cdfs_snapshot(const UINT32 cdfs_md_id)
         return cdfs_snapshot_npp(cdfs_md_id);
     }
 
-    sys_log(LOGSTDOUT, "error:cdfs_snapshot: current node was neither data node nor name node\n");
+    dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_snapshot: current node was neither data node nor name node\n");
     return (EC_FALSE);
 }
 
@@ -4830,7 +4819,7 @@ EC_BOOL cdfs_check_replicas(const UINT32 cdfs_md_id, const CSTRING *file_path, c
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_check_replicas: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_check_replicas: name node pool was not open\n");
         return (EC_FALSE);
     }
 
@@ -4868,27 +4857,27 @@ EC_BOOL cdfs_check_file_content(const UINT32 cdfs_md_id, const UINT32 path_layou
 
     if(NULL_PTR == CDFS_MD_DN(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_check_file_content: data node is null\n");
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_check_file_content: data node is null\n");
         return (EC_FALSE);
     }
 
     cbytes = cbytes_new(file_size);
     if(NULL_PTR == cbytes)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_check_file_content: new cdfs buff with len %ld failed\n", file_size);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_check_file_content: new cdfs buff with len %ld failed\n", file_size);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cdfsdn_read(CDFS_MD_DN(cdfs_md), path_layout, offset, file_size, CBYTES_BUF(cbytes), &(CBYTES_LEN(cbytes))))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_check_file_content: read path layout %ld, offset %ld, file size %ld failed\n", path_layout, offset, file_size);
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_check_file_content: read path layout %ld, offset %ld, file size %ld failed\n", path_layout, offset, file_size);
         cbytes_free(cbytes, LOC_CDFS_0071);
         return (EC_FALSE);
     }
 
     if(CBYTES_LEN(cbytes) < cstring_get_len(file_content_cstr))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_check_file_content: read path layout %ld, offset %ld, file size %ld to buff len %ld less than cstring len %ld to compare\n",
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_check_file_content: read path layout %ld, offset %ld, file size %ld to buff len %ld less than cstring len %ld to compare\n",
                             path_layout, offset, file_size, CBYTES_LEN(cbytes), cstring_get_len(file_content_cstr));
         cbytes_free(cbytes, LOC_CDFS_0072);
         return (EC_FALSE);
@@ -4903,7 +4892,7 @@ EC_BOOL cdfs_check_file_content(const UINT32 cdfs_md_id, const UINT32 path_layou
     {
         if(buff[ pos ] != str[ pos ])
         {
-            sys_log(LOGSTDOUT, "error:cdfs_check_file_content: char at pos %ld not matched\n", pos);
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_check_file_content: char at pos %ld not matched\n", pos);
             sys_print(LOGSTDOUT, "read buff: %.*s\n", len, buff);
             sys_print(LOGSTDOUT, "expected : %.*s\n", len, str);
 
@@ -4941,19 +4930,19 @@ EC_BOOL cdfs_check_replica_files_content(const UINT32 cdfs_md_id, const CSTRING 
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_check_replica_files_content: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_check_replica_files_content: name node pool was not open\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cdfsnp_mgr_reserve_np_to_read(CDFS_MD_NPP(cdfs_md), file_path, CDFSNP_ITEM_FILE_IS_REG, &cdfsnp_item))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_check_replica_files_content: query file %s from name node pool failed\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_check_replica_files_content: query file %s from name node pool failed\n", (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
 
     if(CDFSNP_ITEM_FILE_IS_REG != CDFSNP_ITEM_DFLG(&cdfsnp_item))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_check_replica_files_content: file path %s is not regular file\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_check_replica_files_content: file path %s is not regular file\n", (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
 
@@ -4961,7 +4950,7 @@ EC_BOOL cdfs_check_replica_files_content(const UINT32 cdfs_md_id, const CSTRING 
 
     if(file_size != CDFSNP_FNODE_FILESZ(cdfsnp_fnode))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_check_replica_files_content: file path %s has file size %ld but expected is %ld\n",
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_check_replica_files_content: file path %s has file size %ld but expected is %ld\n",
                             (char *)cstring_get_str(file_path), CDFSNP_FNODE_FILESZ(cdfsnp_fnode), file_size);
         return (EC_FALSE);
     }
@@ -5002,7 +4991,7 @@ EC_BOOL cdfs_check_replica_files_content(const UINT32 cdfs_md_id, const CSTRING 
                 CDFSNP_INODE *cdfsnp_inode;
 
                 cdfsnp_inode = CDFSNP_FNODE_INODE(cdfsnp_fnode, cdfsnp_inode_pos);
-                sys_log(LOGSTDOUT, "error:cdfs_check_replica_files_content: file %s on tcid %s with path layout %ld, foff %ld not matched\n",
+                dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_check_replica_files_content: file %s on tcid %s with path layout %ld, foff %ld not matched\n",
                                     (char *)cstring_get_str(file_path), c_word_to_ipv4(CDFSNP_INODE_TCID(cdfsnp_inode)),
                                     CDFSNP_INODE_PATH(cdfsnp_inode), CDFSNP_INODE_FOFF(cdfsnp_inode)
                         );
@@ -5036,7 +5025,7 @@ EC_BOOL cdfs_figure_out_block(const UINT32 cdfs_md_id, const UINT32 tcid, const 
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_figure_out_block: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_figure_out_block: name node pool was not open\n");
         return (EC_FALSE);
     }
 
@@ -5190,7 +5179,7 @@ EC_BOOL cdfs_import_lost_fnode_from_file(const UINT32 cdfs_md_id, const CSTRING 
     lost_fnode_fp = fopen((char *)cstring_get_str(file_name), "r");
     if(NULL_PTR == lost_fnode_fp)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_import_lost_fnode_from_file: open lost fnode log file %s failed\n",
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_import_lost_fnode_from_file: open lost fnode log file %s failed\n",
                             (char *)cstring_get_str(file_name));
         return (EC_FALSE);
     }
@@ -5200,7 +5189,7 @@ EC_BOOL cdfs_import_lost_fnode_from_file(const UINT32 cdfs_md_id, const CSTRING 
     fgets(str_line, CDFS_LOST_FNODE_LINE_MAX_SIZE, lost_fnode_fp);/*skip the first line*/
     if((char *)0 == strcasestr(str_line, "my pid ="))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_import_lost_fnode_from_file: fnode log file %s has invalid first line %s\n",
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_import_lost_fnode_from_file: fnode log file %s has invalid first line %s\n",
                             (char *)cstring_get_str(file_name), (char *)str_line);
         fclose(lost_fnode_fp);
         return (EC_FALSE);
@@ -5225,7 +5214,7 @@ EC_BOOL cdfs_import_lost_fnode_from_file(const UINT32 cdfs_md_id, const CSTRING 
         field_num = c_str_split(str_line, " ,()\t\r\n", fields, sizeof(fields)/sizeof(fields[ 0 ]));
         if(8 > field_num)
         {
-            sys_log(LOGSTDOUT, "[import fnode error] line # %ld\n", line_no ++);
+            dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[import fnode error] line # %ld\n", line_no ++);
             continue;/*skip invalid line*/
         }
 
@@ -5262,7 +5251,7 @@ EC_BOOL cdfs_import_lost_fnode_from_file(const UINT32 cdfs_md_id, const CSTRING 
         CDFSNP_FNODE_INODE_PATH(&cdfsnp_fnode, 2) = c_str_to_word(fields[ 23 ]);
         CDFSNP_FNODE_INODE_FOFF(&cdfsnp_fnode, 2) = c_str_to_word(fields[ 25 ]);
 #endif
-        //sys_log(LOGSTDOUT, "path: %s\n", (char *)cstring_get_str(path));
+        //dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "path: %s\n", (char *)cstring_get_str(path));
         //cdfsnp_fnode_print(LOGSTDOUT, &cdfsnp_fnode);
 
         if(des_tcid == CMPI_LOCAL_TCID)
@@ -5279,11 +5268,11 @@ EC_BOOL cdfs_import_lost_fnode_from_file(const UINT32 cdfs_md_id, const CSTRING 
 
         if(EC_TRUE == ret)
         {
-            sys_log(LOGSTDOUT, "[import fnode succ] line # %ld\n", line_no ++);
+            dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[import fnode succ] line # %ld\n", line_no ++);
         }
         else
         {
-            sys_log(LOGSTDOUT, "[import fnode fail] line # %ld\n", line_no ++);
+            dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[import fnode fail] line # %ld\n", line_no ++);
         }
 
         cstring_free(path);
@@ -5325,7 +5314,7 @@ EC_BOOL cdfs_import_lost_replica_from_file(const UINT32 cdfs_md_id, const CSTRIN
     lost_replica_fp = fopen((char *)cstring_get_str(file_name), "r");
     if(NULL_PTR == lost_replica_fp)
     {
-        sys_log(LOGSTDOUT, "error:cdfs_import_lost_replica_from_file: open lost replica log file %s failed\n",
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_import_lost_replica_from_file: open lost replica log file %s failed\n",
                             (char *)cstring_get_str(file_name));
         return (EC_FALSE);
     }
@@ -5335,7 +5324,7 @@ EC_BOOL cdfs_import_lost_replica_from_file(const UINT32 cdfs_md_id, const CSTRIN
     fgets(str_line, CDFS_LOST_REPLICA_LINE_MAX_SIZE, lost_replica_fp);/*skip the first line*/
     if((char *)0 == strcasestr(str_line, "my pid ="))
     {
-        sys_log(LOGSTDOUT, "error:cdfs_import_lost_replica_from_file: replica log file %s has invalid first line %s\n",
+        dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_import_lost_replica_from_file: replica log file %s has invalid first line %s\n",
                             (char *)cstring_get_str(file_name), (char *)str_line);
         fclose(lost_replica_fp);
         return (EC_FALSE);
@@ -5360,12 +5349,12 @@ EC_BOOL cdfs_import_lost_replica_from_file(const UINT32 cdfs_md_id, const CSTRIN
 
         CSTRING *path;
 
-        sys_log(LOGSTDOUT, "%s", str_line);
+        dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "%s", str_line);
         field_num = c_str_split(str_line, " ,()\t\r\n", fields, sizeof(fields)/sizeof(fields[ 0 ]));
 
         if(8 > field_num)
         {
-            sys_log(LOGSTDOUT, "[import replica error] line # %ld\n", line_no ++);
+            dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[import replica error] line # %ld\n", line_no ++);
             continue;/*skip invalid line*/
         }
 
@@ -5390,14 +5379,14 @@ EC_BOOL cdfs_import_lost_replica_from_file(const UINT32 cdfs_md_id, const CSTRIN
             CDFSNP_FNODE_INODE_FOFF(&cdfsnp_fnode, replica_pos) =  c_str_to_word(fields[ field_pos + 4 ]);
         }
 
-        //sys_log(LOGSTDOUT, "[DEBUG] path: %s, expect: %ld\n", (char *)cstring_get_str(path), expect_replica_num);
+        //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] path: %s, expect: %ld\n", (char *)cstring_get_str(path), expect_replica_num);
         //cdfsnp_fnode_print(LOGSTDOUT, &cdfsnp_fnode);
 
         cbytes = cbytes_new(0);
         if(EC_FALSE == cdfs_read_dn_p(cdfs_md_id, &cdfsnp_fnode, cbytes))
         {
-            sys_log(LOGSTDOUT, "error:cdfs_import_lost_replica_from_file: read dn failed\n");
-            sys_log(LOGSTDOUT, "[import replica fail] line # %ld\n", line_no ++);
+            dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_import_lost_replica_from_file: read dn failed\n");
+            dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[import replica fail] line # %ld\n", line_no ++);
 
             cbytes_free(cbytes, LOC_CDFS_0077);
             continue;
@@ -5419,19 +5408,19 @@ EC_BOOL cdfs_import_lost_replica_from_file(const UINT32 cdfs_md_id, const CSTRIN
             cdfs_collect_fnode_all_tcid(&cdfsnp_fnode, cdfsnp_inode_pos, cdfsdn_excl_tcid_vec);
             cdfs_collect_dn_mod_mgr_disable_tcid(CDFS_MD_DN_MOD_MGR(cdfs_md), cdfsdn_excl_tcid_vec);
 
-            //sys_log(LOGSTDOUT, "[DEBUG] cdfs_import_lost_replica_from_file: [1] excluded tcid vec:\n");
+            //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_import_lost_replica_from_file: [1] excluded tcid vec:\n");
             //cvector_print(LOGSTDOUT, cdfsdn_excl_tcid_vec, (CVECTOR_DATA_PRINT)cdfs_print_tcid);
 
             mod_mgr = mod_mgr_new(cdfs_md_id, LOAD_BALANCING_QUE);
             mod_mgr_limited_clone_with_tcid_excl_filter(cdfs_md_id, CDFS_MD_DN_MOD_MGR(cdfs_md), cdfsdn_excl_tcid_vec, mod_mgr);
             cvector_free(cdfsdn_excl_tcid_vec, LOC_CDFS_0079);
 
-            //sys_log(LOGSTDOUT, "[DEBUG] cdfs_import_lost_replica_from_file: [1] mod mgr:\n");
+            //dbg_log(SEC_0056_CDFS, 9)(LOGSTDOUT, "[DEBUG] cdfs_import_lost_replica_from_file: [1] mod mgr:\n");
             //mod_mgr_print(LOGSTDOUT, mod_mgr);
 
             if(0 == MOD_MGR_REMOTE_NUM(mod_mgr))
             {
-                sys_log(LOGSTDOUT, "[import replica fail] line # %ld\n", line_no ++);
+                dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[import replica fail] line # %ld\n", line_no ++);
                 mod_mgr_free(mod_mgr);
                 cbytes_free(cbytes, LOC_CDFS_0080);
 
@@ -5455,18 +5444,18 @@ EC_BOOL cdfs_import_lost_replica_from_file(const UINT32 cdfs_md_id, const CSTRIN
 
             if(EC_TRUE == ret)
             {
-                sys_log(LOGSTDOUT, "[import replica succ] line # %ld\n", line_no ++);
+                dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[import replica succ] line # %ld\n", line_no ++);
 
                 /*when dn replica meet requirement, update np*/
                 /*note: due to only update, we have to import lost fnode at first if have before import lost replica*/
                 if(EC_FALSE == cdfs_update_npp_p(cdfs_md_id, path, &cdfsnp_fnode))
                 {
-                    sys_log(LOGSTDOUT, "error:cdfs_import_lost_replica_from_file: update file %s replica failed\n", (char *)cstring_get_str(path));
+                    dbg_log(SEC_0056_CDFS, 0)(LOGSTDOUT, "error:cdfs_import_lost_replica_from_file: update file %s replica failed\n", (char *)cstring_get_str(path));
                 }
             }
             else
             {
-                sys_log(LOGSTDOUT, "[import replica fail] line # %ld\n", line_no ++);
+                dbg_log(SEC_0056_CDFS, 5)(LOGSTDOUT, "[import replica fail] line # %ld\n", line_no ++);
             }
         }
     }
@@ -5500,7 +5489,7 @@ EC_BOOL cdfs_getattr(const UINT32 cdfs_md_id, const CSTRING *path, CFUSE_STAT *s
 
     if(NULL_PTR == CDFS_MD_NPP(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_getattr: name node pool was not open\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_getattr: name node pool was not open\n");
         return (EC_FALSE);
     }
 
@@ -5528,7 +5517,7 @@ EC_BOOL cdfs_getattr_npp(const UINT32 cdfs_md_id, const CSTRING *path, CFUSE_STA
 
     if(NULL_PTR == CDFS_MD_NPP_MOD_MGR(cdfs_md))
     {
-        sys_log(LOGSTDOUT, "warn:cdfs_getattr_npp: npp mod mgr was null\n");
+        dbg_log(SEC_0056_CDFS, 1)(LOGSTDOUT, "warn:cdfs_getattr_npp: npp mod mgr was null\n");
         return (EC_FALSE);
     }
 

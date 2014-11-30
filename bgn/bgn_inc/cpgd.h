@@ -43,14 +43,17 @@ extern "C"{
 #define CPGD_TEST_SCENARIO_256M_DISK     (1)
 #define CPGD_TEST_SCENARIO_512M_DISK     (2)
 #define CPGD_TEST_SCENARIO_032G_DISK     (3)
-#define CPGD_TEST_SCENARIO_001T_DISK     (4)
+#define CPGD_TEST_SCENARIO_512G_DISK     (4)
+#define CPGD_TEST_SCENARIO_001T_DISK     (5)
 
 #if (32 == WORDSIZE)
 #define CPGD_DEBUG_CHOICE CPGD_TEST_SCENARIO_512M_DISK
 #endif/*(32 == WORDSIZE)*/
 
 #if (64 == WORDSIZE)
-#define CPGD_DEBUG_CHOICE CPGD_TEST_SCENARIO_032G_DISK
+//#define CPGD_DEBUG_CHOICE CPGD_TEST_SCENARIO_032G_DISK
+//#define CPGD_DEBUG_CHOICE CPGD_TEST_SCENARIO_512G_DISK
+#define CPGD_DEBUG_CHOICE CPGD_TEST_SCENARIO_001T_DISK
 #endif/*(64 == WORDSIZE)*/
 
 #if (CPGD_TEST_SCENARIO_001T_DISK == CPGD_DEBUG_CHOICE)
@@ -58,6 +61,13 @@ extern "C"{
 #define CPGD_BLOCK_PAGE_MODEL            (CPGB_064MB_MODEL)
 #define CPGD_BLOCK_PAGE_NUM              (CPGB_064MB_PAGE_4K_NUM)
 #endif/*(CPGD_TEST_SCENARIO_001T_DISK == CPGD_DEBUG_CHOICE)*/
+
+#if (CPGD_TEST_SCENARIO_512G_DISK == CPGD_DEBUG_CHOICE)
+#define CPGD_DEBUG_GB_PER_DISK           (512)
+#define CPGD_MAX_BLOCK_NUM               (CPGD_512GB_BLOCK_NUM)
+#define CPGD_BLOCK_PAGE_MODEL            (CPGB_064MB_MODEL)
+#define CPGD_BLOCK_PAGE_NUM              (CPGB_064MB_PAGE_4K_NUM)
+#endif/*(CPGD_TEST_SCENARIO_032G_DISK == CPGD_DEBUG_CHOICE)*/
 
 #if (CPGD_TEST_SCENARIO_256M_DISK == CPGD_DEBUG_CHOICE)
 #define CPGD_DEBUG_MB_PER_DISK           (256)
@@ -141,6 +151,10 @@ typedef struct
 #define CPGD_BLOCK_NODE(cpgd, block_no)                          ((CPGD_MAX_BLOCK_NUM <= (block_no)) ? NULL_PTR : CPGD_BLOCK_CPGB(cpgd, block_no))
 
 
+CPGD_HDR *cpgd_hdr_mem_new(CPGD *cpgd, const uint16_t block_num);
+
+EC_BOOL cpgd_hdr_mem_free(CPGD *cpgd);
+
 CPGD_HDR *cpgd_hdr_new(CPGD *cpgd, const uint16_t block_num);
 
 EC_BOOL cpgd_hdr_free(CPGD *cpgd);
@@ -205,6 +219,12 @@ EC_BOOL cpgd_close(CPGD *cpgd);
 
 /* ---- debug ---- */
 EC_BOOL cpgd_debug_cmp(const CPGD *cpgd_1st, const CPGD *cpgd_2nd);
+
+
+/*-------------------------------------------- DISK in memory --------------------------------------------*/
+CPGD *cpgd_mem_new(const uint16_t block_num);
+
+EC_BOOL cpgd_mem_free(CPGD *cpgd);
 
 
 #endif    /* _CPGD_H */

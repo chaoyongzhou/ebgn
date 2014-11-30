@@ -26,7 +26,7 @@ extern "C"{
 #include "mm.h"
 #include "log.h"
 #include "cmpic.inc"
-#include "croutine.h"
+#include "cmutex.h"
 #include "cstring.h"
 #include "cmisc.h"
 
@@ -35,6 +35,7 @@ extern "C"{
 #include "chashalgo.h"
 #include "cdsk.h"
 #include "cstack.h"
+#include "cmd5.h"
 
 #include "cpgrb.h"
 #include "chfsnprb.h"
@@ -62,7 +63,7 @@ EC_BOOL chfsnp_model_str(const uint8_t chfsnp_model, char **mod_str)
     CHFSNP_CFG *chfsnp_cfg;
     if(chfsnp_model >= g_chfsnp_cfg_tbl_len)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_model_str: invalid chfsnp mode %u\n", chfsnp_model);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_model_str: invalid chfsnp mode %u\n", chfsnp_model);
         return (EC_FALSE);
     }
     chfsnp_cfg = &(g_chfsnp_cfg_tbl[ chfsnp_model ]);
@@ -87,12 +88,12 @@ uint32_t chfsnp_model_get(const char *mod_str)
     return (CHFSNP_ERR_MODEL);
 }
 
-EC_BOOL chfsnp_model_file_size(const uint8_t chfsnp_model, uint32_t *file_size)
+EC_BOOL chfsnp_model_file_size(const uint8_t chfsnp_model, UINT32 *file_size)
 {
     CHFSNP_CFG *chfsnp_cfg;
     if(chfsnp_model >= g_chfsnp_cfg_tbl_len)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_model_file_size: invalid chfsnp mode %u\n", chfsnp_model);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_model_file_size: invalid chfsnp mode %u\n", chfsnp_model);
         return (EC_FALSE);
     }
     chfsnp_cfg = &(g_chfsnp_cfg_tbl[ chfsnp_model ]);
@@ -105,7 +106,7 @@ EC_BOOL chfsnp_model_item_max_num(const uint8_t chfsnp_model, uint32_t *item_max
     CHFSNP_CFG *chfsnp_cfg;
     if(chfsnp_model >= g_chfsnp_cfg_tbl_len)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_model_item_max_num: invalid chfsnp mode %u\n", chfsnp_model);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_model_item_max_num: invalid chfsnp mode %u\n", chfsnp_model);
         return (EC_FALSE);
     }
     chfsnp_cfg = &(g_chfsnp_cfg_tbl[ chfsnp_model ]);
@@ -120,7 +121,7 @@ static char *chfsnp_fname_gen(const char *root_dir, const uint32_t np_id)
 
     if(NULL_PTR == root_dir)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_fname_gen: root_dir is null\n");
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_fname_gen: root_dir is null\n");
         return (NULL_PTR);
     }
 
@@ -129,7 +130,7 @@ static char *chfsnp_fname_gen(const char *root_dir, const uint32_t np_id)
     fname = safe_malloc(len, LOC_CHFSNP_0001);
     if(NULL_PTR == fname)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_fname_gen: malloc %u bytes failed\n", len);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_fname_gen: malloc %u bytes failed\n", len);
         return (NULL_PTR);
     }
     snprintf(fname, len, "%s/hfsnp_%04X.dat", root_dir, np_id);
@@ -151,6 +152,11 @@ static uint32_t chfsnp_path_seg_len(const uint8_t *full_path, const uint32_t ful
     }
 
     return (ptr - path_seg_beg);
+}
+
+static EC_BOOL __chfsnp_path_md5(const uint32_t path_len, const uint8_t *path, uint8_t digest[ CMD5_DIGEST_LEN ])
+{
+	return cmd5_sum(path_len, path, digest);
 }
 
 EC_BOOL chfsnp_inode_init(CHFSNP_INODE *chfsnp_inode)
@@ -444,7 +450,7 @@ EC_BOOL chfsnp_item_init(CHFSNP_ITEM *chfsnp_item)
 {
     CHFSNP_ITEM_R_COUNT(chfsnp_item) = 0;
     CHFSNP_ITEM_K_LEN(chfsnp_item)   = 0;
-    BSET(CHFSNP_ITEM_KEY(chfsnp_item), CHFSNP_KEY_MAX_SIZE, '\0');
+    BSET(CHFSNP_ITEM_KEY(chfsnp_item), '\0', CHFSNP_KEY_MAX_SIZE);
 
     
     chfsnp_fnode_init(CHFSNP_ITEM_FNODE(chfsnp_item));
@@ -458,7 +464,7 @@ EC_BOOL chfsnp_item_clean(CHFSNP_ITEM *chfsnp_item)
 {
     CHFSNP_ITEM_R_COUNT(chfsnp_item) = 0;
     CHFSNP_ITEM_K_LEN(chfsnp_item)   = 0;
-    BSET(CHFSNP_ITEM_KEY(chfsnp_item), CHFSNP_KEY_MAX_SIZE, '\0');
+    BSET(CHFSNP_ITEM_KEY(chfsnp_item), '\0', CHFSNP_KEY_MAX_SIZE);
     
     chfsnp_fnode_clean(CHFSNP_ITEM_FNODE(chfsnp_item));
     
@@ -471,13 +477,13 @@ EC_BOOL chfsnp_item_clone(const CHFSNP_ITEM *chfsnp_item_src, CHFSNP_ITEM *chfsn
 {
     if(NULL_PTR == chfsnp_item_src)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_item_clone: chfsnp_item_src is null\n");
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_item_clone: chfsnp_item_src is null\n");
         return (EC_FALSE);
     }
 
     if(NULL_PTR == chfsnp_item_des)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_item_clone: chfsnp_item_des is null\n");
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_item_clone: chfsnp_item_des is null\n");
         return (EC_FALSE);
     }
 
@@ -527,6 +533,7 @@ void chfsnp_item_print(LOG *log, const CHFSNP_ITEM *chfsnp_item)
 {
     uint32_t pos;
     const CHFSNP_FNODE *chfsnp_fnode;
+    const uint8_t *key;
 
     sys_print(log, "chfsnp_item %p: stat %u, r_count %u, k_len %u\n",
                     chfsnp_item,
@@ -535,7 +542,13 @@ void chfsnp_item_print(LOG *log, const CHFSNP_ITEM *chfsnp_item)
                     CHFSNP_ITEM_K_LEN(chfsnp_item)
                     );
 
-    sys_log(log, "key: %.*s\n", CHFSNP_ITEM_K_LEN(chfsnp_item), CHFSNP_ITEM_KEY(chfsnp_item));
+    key = CHFSNP_ITEM_KEY(chfsnp_item);
+    sys_log(log, "key: [len = %u] %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n", 
+                 CHFSNP_ITEM_K_LEN(chfsnp_item), 
+                 key[ 0 ], key[ 1 ], key[ 2 ], key[ 3 ], 
+                 key[ 4 ], key[ 5 ], key[ 6 ], key[ 7 ], 
+                 key[ 8 ], key[ 9 ], key[ 10 ], key[ 11 ], 
+                 key[ 12 ], key[ 13 ], key[ 14 ], key[ 15 ]);
 
     chfsnp_fnode = CHFSNP_ITEM_FNODE(chfsnp_item);
     sys_log(log, "file size %u, replica num %u\n",
@@ -563,7 +576,7 @@ EC_BOOL chfsnp_item_load(CHFSNP *chfsnp, uint32_t *offset, CHFSNP_ITEM *chfsnp_i
     rsize = sizeof(CHFSNP_ITEM);
     if(EC_FALSE == c_file_load(CHFSNP_FD(chfsnp), &offset_t, rsize, (UINT8 *)chfsnp_item))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_item_load: load item from offset %u failed\n", *offset);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_item_load: load item from offset %u failed\n", *offset);
         return (EC_FALSE);
     }
 
@@ -581,7 +594,7 @@ EC_BOOL chfsnp_item_flush(CHFSNP *chfsnp, uint32_t *offset, const CHFSNP_ITEM *c
     wsize = sizeof(CHFSNP_ITEM);
     if(EC_FALSE == c_file_flush(CHFSNP_FD(chfsnp), &offset_t, wsize, (UINT8 *)chfsnp_item))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_item_load: flush item to offset %u failed\n", *offset);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_item_load: flush item to offset %u failed\n", *offset);
         return (EC_FALSE);
     }
 
@@ -615,14 +628,14 @@ void chfsnp_bucket_print(LOG *log, const uint32_t *chfsnp_buckets, const uint32_
     return;
 }
 
-static CHFSNP_HEADER *__chfsnp_header_open(const uint32_t np_id, const uint32_t fsize, int fd)
+static CHFSNP_HEADER *__chfsnp_header_open(const uint32_t np_id, const UINT32 fsize, int fd)
 {
     CHFSNP_HEADER *chfsnp_header;
 
     chfsnp_header = (CHFSNP_HEADER *)mmap(NULL_PTR, fsize, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if(MAP_FAILED == chfsnp_header)
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_header_open: mmap np %u with fd %d failed, errno = %d, errorstr = %s\n", 
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:__chfsnp_header_open: mmap np %u with fd %d failed, errno = %d, errorstr = %s\n", 
                            np_id, fd, errno, strerror(errno));
         return (NULL_PTR);
     } 
@@ -630,30 +643,30 @@ static CHFSNP_HEADER *__chfsnp_header_open(const uint32_t np_id, const uint32_t 
     return (chfsnp_header);
 }
 
-static CHFSNP_HEADER *__chfsnp_header_create(const uint32_t np_id, const uint32_t fsize, int fd, const uint8_t np_model, const uint32_t bucket_max_num)
+static CHFSNP_HEADER *__chfsnp_header_create(const uint32_t np_id, const UINT32 fsize, int fd, const uint8_t np_model, const uint32_t bucket_max_num)
 {
     CHFSNP_HEADER *chfsnp_header;
     uint32_t *bucket;
     uint32_t node_max_num;
     uint32_t node_sizeof;
     uint32_t bucket_pos;
-    uint32_t bucket_offset;
-    uint32_t expect_fsize;    
+    UINT32   bucket_offset;
+    UINT32   expect_fsize;    
 
     chfsnp_model_item_max_num(np_model, &node_max_num);
     node_sizeof = sizeof(CHFSNP_ITEM);
 
-    bucket_offset = (uint32_t)(sizeof(CHFSNP_HEADER) + node_max_num * sizeof(CHFSNP_ITEM));
-    expect_fsize  = (uint32_t)(bucket_offset + bucket_max_num * sizeof(uint32_t));
+    bucket_offset = (UINT32)(sizeof(CHFSNP_HEADER) + node_max_num * sizeof(CHFSNP_ITEM));
+    expect_fsize  = (UINT32)(bucket_offset + bucket_max_num * sizeof(uint32_t));
 
-    sys_log(LOGSTDOUT, "[DEBUG] __chfsnp_header_create: fsize %u, expect_fsize %u, where node_max_num %u, "
+    dbg_log(SEC_0097_CHFSNP, 9)(LOGSTDOUT, "[DEBUG] __chfsnp_header_create: fsize %lu, expect_fsize %lu, where node_max_num %u, "
                        "node_sizeof %u, sizeof(CHFSNP_HEADER) %u, sizeof(CHFSNP_ITEM) %u\n", 
                         fsize, expect_fsize, node_max_num, node_sizeof, sizeof(CHFSNP_HEADER), sizeof(CHFSNP_ITEM));
 
 
     if(expect_fsize > fsize)
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_header_create: fsize %u, but expect_fsize %u, where node_max_num %u, "
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:__chfsnp_header_create: fsize %lu, but expect_fsize %lu, where node_max_num %u, "
                            "node_sizeof %u, sizeof(CHFSNP_HEADER) %u, sizeof(CHFSNP_ITEM) %u\n", 
                             fsize, expect_fsize, node_max_num, node_sizeof, sizeof(CHFSNP_HEADER), sizeof(CHFSNP_ITEM));
         return (NULL_PTR);
@@ -662,7 +675,7 @@ static CHFSNP_HEADER *__chfsnp_header_create(const uint32_t np_id, const uint32_
     chfsnp_header = (CHFSNP_HEADER *)mmap(NULL_PTR, fsize, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if(MAP_FAILED == chfsnp_header)
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_header_open: mmap np %u with fd %d failed, errno = %d, errorstr = %s\n", 
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:__chfsnp_header_open: mmap np %u with fd %d failed, errno = %d, errorstr = %s\n", 
                            np_id, fd, errno, strerror(errno));
         return (NULL_PTR);
     }     
@@ -670,14 +683,14 @@ static CHFSNP_HEADER *__chfsnp_header_create(const uint32_t np_id, const uint32_
     CHFSNP_HEADER_NP_ID(chfsnp_header)  = np_id;
     CHFSNP_HEADER_MODEL(chfsnp_header)  = np_model;
     
-    sys_log(LOGSTDOUT, "[DEBUG] __chfsnp_header_create: fsize %u, node_max_num %u, node_sizeof %u\n", fsize, node_max_num, node_sizeof);
+    dbg_log(SEC_0097_CHFSNP, 9)(LOGSTDOUT, "[DEBUG] __chfsnp_header_create: fsize %lu, node_max_num %u, node_sizeof %u\n", fsize, node_max_num, node_sizeof);
     chfsnprb_pool_init(CHFSNP_HEADER_ITEMS_POOL(chfsnp_header), node_max_num, node_sizeof);
 
     CHFSNP_HEADER_BUCKET_OFFSET(chfsnp_header)  = bucket_offset;
     CHFSNP_HEADER_BUCKET_MAX_NUM(chfsnp_header) = bucket_max_num;
 
     bucket = (uint32_t *)(((uint8_t *)chfsnp_header) + bucket_offset);
-    sys_log(LOGSTDOUT, "[DEBUG] __chfsnp_header_create: bucket %p\n", bucket);
+    dbg_log(SEC_0097_CHFSNP, 9)(LOGSTDOUT, "[DEBUG] __chfsnp_header_create: bucket %p\n", bucket);
     for(bucket_pos = 0; bucket_pos < bucket_max_num; bucket_pos ++)
     {
         *(bucket + bucket_pos) = CHFSNPRB_ERR_POS;
@@ -686,32 +699,32 @@ static CHFSNP_HEADER *__chfsnp_header_create(const uint32_t np_id, const uint32_
     return (chfsnp_header);
 }
 
-static CHFSNP_HEADER * __chfsnp_header_sync(CHFSNP_HEADER *chfsnp_header, const uint32_t np_id, const uint32_t fsize)
+static CHFSNP_HEADER * __chfsnp_header_sync(CHFSNP_HEADER *chfsnp_header, const uint32_t np_id, const UINT32 fsize)
 {   
     if(NULL_PTR != chfsnp_header)
     {   
         if(0 != msync(chfsnp_header, fsize, MS_SYNC))
         {
-            sys_log(LOGSTDOUT, "warn:__chfsnp_header_sync: sync chfsnp_hdr of np %u with size %u failed\n", 
+            dbg_log(SEC_0097_CHFSNP, 1)(LOGSTDOUT, "warn:__chfsnp_header_sync: sync chfsnp_hdr of np %u with size %u failed\n", 
                                np_id, fsize);
         }
     }    
     return (chfsnp_header);
 }
 
-static CHFSNP_HEADER *__chfsnp_header_close(CHFSNP_HEADER *chfsnp_header, const uint32_t np_id, const uint32_t fsize)
+static CHFSNP_HEADER *__chfsnp_header_close(CHFSNP_HEADER *chfsnp_header, const uint32_t np_id, const UINT32 fsize)
 {   
     if(NULL_PTR != chfsnp_header)
     {   
         if(0 != msync(chfsnp_header, fsize, MS_SYNC))
         {
-            sys_log(LOGSTDOUT, "warn:__chfsnp_header_close: sync chfsnp_hdr of np %u with size %u failed\n", 
+            dbg_log(SEC_0097_CHFSNP, 1)(LOGSTDOUT, "warn:__chfsnp_header_close: sync chfsnp_hdr of np %u with size %u failed\n", 
                                np_id, fsize);
         }
         
         if(0 != munmap(chfsnp_header, fsize))
         {
-            sys_log(LOGSTDOUT, "warn:__chfsnp_header_close: munmap chfsnp of np %u with size %u failed\n", 
+            dbg_log(SEC_0097_CHFSNP, 1)(LOGSTDOUT, "warn:__chfsnp_header_close: munmap chfsnp of np %u with size %u failed\n", 
                                np_id, fsize);
         } 
     }
@@ -845,6 +858,14 @@ EC_BOOL chfsnp_is_full(const CHFSNP *chfsnp)
     return chfsnprb_pool_is_full(pool);
 }
 
+EC_BOOL chfsnp_is_empty(const CHFSNP *chfsnp)
+{
+    CHFSNPRB_POOL *pool;
+
+    pool = CHFSNP_ITEMS_POOL(chfsnp);
+    return chfsnprb_pool_is_empty(pool);
+}
+
 void chfsnp_header_print(LOG *log, const CHFSNP *chfsnp)
 {
     const CHFSNP_HEADER *chfsnp_header;
@@ -930,7 +951,7 @@ uint32_t __chfsnp_bucket_insert(CHFSNP *chfsnp, const uint32_t first_hash, const
 
     if(EC_TRUE == chfsnp_is_full(chfsnp))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_bucket_insert: chfsnp is full\n");
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:__chfsnp_bucket_insert: chfsnp is full\n");
         return (CHFSNPRB_ERR_POS);
     }
 
@@ -940,7 +961,7 @@ uint32_t __chfsnp_bucket_insert(CHFSNP *chfsnp, const uint32_t first_hash, const
 
     if(EC_FALSE == chfsnprb_tree_insert_data(CHFSNP_ITEMS_POOL(chfsnp), &root_pos, second_hash, klen, key, &insert_offset))
     {
-        sys_log(LOGSTDOUT, "warn:__chfsnp_bucket_insert: found duplicate rb node with root %u at node %u\n", root_pos, insert_offset);
+        dbg_log(SEC_0097_CHFSNP, 1)(LOGSTDOUT, "warn:__chfsnp_bucket_insert: found duplicate rb node with root %u at node %u\n", root_pos, insert_offset);
         return (insert_offset);
     }
     
@@ -954,9 +975,9 @@ uint32_t __chfsnp_bucket_delete(CHFSNP *chfsnp, const uint32_t first_hash, const
     uint32_t bucket_pos;
     uint32_t root_pos;
 
-    if(EC_TRUE == chfsnp_is_full(chfsnp))
+    if(EC_TRUE == chfsnp_is_empty(chfsnp))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_bucket_delete: chfsnp is full\n");
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:__chfsnp_bucket_delete: chfsnp is empty\n");
         return (CHFSNPRB_ERR_POS);
     }
 
@@ -966,7 +987,7 @@ uint32_t __chfsnp_bucket_delete(CHFSNP *chfsnp, const uint32_t first_hash, const
 
     if(EC_FALSE == chfsnprb_tree_delete_data(CHFSNP_ITEMS_POOL(chfsnp), &root_pos, second_hash, klen, key, &delete_pos))
     {
-        sys_log(LOGSTDOUT, "warn:__chfsnp_bucket_delete: delete rb node from root %u failed\n", root_pos);
+        dbg_log(SEC_0097_CHFSNP, 1)(LOGSTDOUT, "warn:__chfsnp_bucket_delete: delete rb node from root %u failed\n", root_pos);
         return (CHFSNPRB_ERR_POS);
     }
     CHFSNP_BUCKET(chfsnp, bucket_pos) = root_pos;
@@ -1039,8 +1060,8 @@ EC_BOOL __chfsnp_delete_all_buckets(const CHFSNP *chfsnp, CVECTOR *chfsnp_fnode_
     return (EC_TRUE);
 }
 
-uint32_t chfsnp_search_no_lock(CHFSNP *chfsnp, const uint32_t path_len, const uint8_t *path)
-{
+static uint32_t __chfsnp_search_no_lock(CHFSNP *chfsnp, const uint32_t path_len, const uint8_t *path)
+{  
     uint32_t path_1st_hash;
     uint32_t path_2nd_hash;
     uint32_t node_pos;
@@ -1053,18 +1074,29 @@ uint32_t chfsnp_search_no_lock(CHFSNP *chfsnp, const uint32_t path_len, const ui
     return (node_pos);
 }
 
+uint32_t chfsnp_search_no_lock(CHFSNP *chfsnp, const uint32_t path_len, const uint8_t *path)
+{  
+    uint8_t  digest[ CMD5_DIGEST_LEN ];
+
+    __chfsnp_path_md5(path_len, path, digest);
+    return __chfsnp_search_no_lock(chfsnp, CMD5_DIGEST_LEN, digest);
+}
+
 uint32_t chfsnp_search(CHFSNP *chfsnp, const uint32_t path_len, const uint8_t *path)
 {
+    uint8_t  digest[ CMD5_DIGEST_LEN ];
     uint32_t node_pos;
-
+#if 0
     if(CHFSNP_KEY_MAX_SIZE < path_len)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_search: path_len %u > CHFSNP_KEY_MAX_SIZE %u, overflow\n", path_len, CHFSNP_KEY_MAX_SIZE);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_search: path_len %u > CHFSNP_KEY_MAX_SIZE %u, overflow\n", path_len, CHFSNP_KEY_MAX_SIZE);
         return (CHFSNPRB_ERR_POS);
     }
+#endif
+    __chfsnp_path_md5(path_len, path, digest);
 
     CHFSNP_RDLOCK(chfsnp, LOC_CHFSNP_0012);
-    node_pos = chfsnp_search_no_lock(chfsnp, path_len, path);
+    node_pos = __chfsnp_search_no_lock(chfsnp, CMD5_DIGEST_LEN, digest);
     CHFSNP_UNLOCK(chfsnp, LOC_CHFSNP_0013);
 
     return (node_pos);
@@ -1077,10 +1109,10 @@ uint32_t chfsnp_insert_no_lock(CHFSNP *chfsnp, const uint32_t path_len, const ui
     uint32_t path_2nd_hash;
     uint32_t node_pos;
 
-    sys_log(LOGSTDNULL, "[DEBUG] chfsnp_insert_no_lock: path_len %u\n", path_len);
+    dbg_log(SEC_0097_CHFSNP, 9)(LOGSTDNULL, "[DEBUG] chfsnp_insert_no_lock: path_len %u\n", path_len);
     if(CHFSNP_KEY_MAX_SIZE < path_len)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_insert_no_lock: path_len %u overflow\n", path_len);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_insert_no_lock: path_len %u overflow\n", path_len);
         return (CHFSNPRB_ERR_POS);
     }
 
@@ -1106,16 +1138,19 @@ uint32_t chfsnp_insert_no_lock(CHFSNP *chfsnp, const uint32_t path_len, const ui
 
 uint32_t chfsnp_insert(CHFSNP *chfsnp, const uint32_t path_len, const uint8_t *path)
 {
+    uint8_t  digest[ CMD5_DIGEST_LEN ];
     uint32_t node_pos;
-
+#if 0
     if(CHFSNP_KEY_MAX_SIZE < path_len)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_insert: path_len %u > CHFSNP_KEY_MAX_SIZE %u, overflow\n", path_len, CHFSNP_KEY_MAX_SIZE);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_insert: path_len %u > CHFSNP_KEY_MAX_SIZE %u, overflow\n", path_len, CHFSNP_KEY_MAX_SIZE);
         return (CHFSNPRB_ERR_POS);
     }
+#endif
+    __chfsnp_path_md5(path_len, path, digest);
 
     CHFSNP_WRLOCK(chfsnp, LOC_CHFSNP_0014);
-    node_pos = chfsnp_insert_no_lock(chfsnp, path_len, path);
+    node_pos = chfsnp_insert_no_lock(chfsnp, CMD5_DIGEST_LEN, digest);
     CHFSNP_UNLOCK(chfsnp, LOC_CHFSNP_0015);
 
     return (node_pos);
@@ -1135,7 +1170,7 @@ CHFSNP_ITEM *chfsnp_fetch(const CHFSNP *chfsnp, const uint32_t node_pos)
             return (CHFSNP_ITEM *)CHFSNP_RB_NODE_ITEM(node);
         }
     }
-    sys_log(LOGSTDOUT, "[DEBUG] chfsnp_fetch: np %u, fetch node %u failed\n", CHFSNP_ID(chfsnp), node_pos);
+    dbg_log(SEC_0097_CHFSNP, 9)(LOGSTDOUT, "[DEBUG] chfsnp_fetch: np %u, fetch node %u failed\n", CHFSNP_ID(chfsnp), node_pos);
     return (NULL_PTR);
 }
 
@@ -1234,7 +1269,7 @@ EC_BOOL chfsnp_update_all_buckets(CHFSNP *chfsnp,
                                        src_disk_no, src_block_no, src_page_no, 
                                        des_disk_no, des_block_no, des_page_no))
         {
-            sys_log(LOGSTDOUT, "error:chfsnp_update_all_buckets: update bucket %u failed\n", bucket_pos);
+            dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_update_all_buckets: update bucket %u failed\n", bucket_pos);
             return (EC_FALSE);
         }
     }
@@ -1247,7 +1282,7 @@ EC_BOOL chfsnp_item_update(CHFSNP *chfsnp, CHFSNP_ITEM *chfsnp_item,
 {
     if(CHFSNP_ITEM_STAT_IS_NOT_USED == CHFSNP_ITEM_STAT(chfsnp_item))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_item_update: item was not used\n");
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_item_update: item was not used\n");
         return (EC_FALSE);
     }
 
@@ -1284,6 +1319,8 @@ CHFSNP_ITEM *chfsnp_get(CHFSNP *chfsnp, const uint32_t path_len, const uint8_t *
 
 EC_BOOL chfsnp_delete(CHFSNP *chfsnp, const uint32_t path_len, const uint8_t *path, CVECTOR *chfsnp_fnode_vec)
 {
+    uint8_t  digest[ CMD5_DIGEST_LEN ];
+    
     CHFSNP_ITEM *chfsnp_item;
     uint32_t first_hash;
     uint32_t second_hash;
@@ -1291,18 +1328,20 @@ EC_BOOL chfsnp_delete(CHFSNP *chfsnp, const uint32_t path_len, const uint8_t *pa
 
     if(CHFSNP_KEY_MAX_SIZE < path_len)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_delete: path_len %u > CHFSNP_KEY_MAX_SIZE %u, overflow\n", path_len, CHFSNP_KEY_MAX_SIZE);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_delete: path_len %u > CHFSNP_KEY_MAX_SIZE %u, overflow\n", path_len, CHFSNP_KEY_MAX_SIZE);
         return (EC_FALSE);
     }
-        
-    CHFSNP_WRLOCK(chfsnp, LOC_CHFSNP_0016);
 
-    first_hash  = CHFSNP_1ST_CHASH_ALGO_COMPUTE(chfsnp, path_len, path);
-    second_hash = CHFSNP_2ND_CHASH_ALGO_COMPUTE(chfsnp, path_len, path);
+    __chfsnp_path_md5(path_len, path, digest);    
+
+    first_hash  = CHFSNP_1ST_CHASH_ALGO_COMPUTE(chfsnp, CMD5_DIGEST_LEN, digest);
+    second_hash = CHFSNP_2ND_CHASH_ALGO_COMPUTE(chfsnp, CMD5_DIGEST_LEN, digest);
+
+    CHFSNP_WRLOCK(chfsnp, LOC_CHFSNP_0016);
     
     delete_pos = __chfsnp_bucket_delete(chfsnp, 
                                           first_hash, second_hash, 
-                                          path_len, path);
+                                          CMD5_DIGEST_LEN, digest);
     if(CHFSNPRB_ERR_POS == delete_pos)
     {
         CHFSNP_UNLOCK(chfsnp, LOC_CHFSNP_0017);
@@ -1402,13 +1441,13 @@ CHFSNP *chfsnp_open(const char *np_root_dir, const uint32_t np_id)
     np_fname = chfsnp_fname_gen(np_root_dir, np_id);
     if(NULL_PTR == np_fname)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_open: generate np fname from np_root_dir %s failed\n", np_root_dir);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_open: generate np fname from np_root_dir %s failed\n", np_root_dir);
         return (NULL_PTR);
     }
 
     if(EC_FALSE == c_file_access(np_fname, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_open: np %s not exist, try to create it\n", np_fname);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_open: np %s not exist, try to create it\n", np_fname);
         safe_free(np_fname, LOC_CHFSNP_0019);
         return (NULL_PTR);
     }
@@ -1416,23 +1455,23 @@ CHFSNP *chfsnp_open(const char *np_root_dir, const uint32_t np_id)
     fd = c_file_open(np_fname, O_RDWR, 0666);
     if(ERR_FD == fd)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_open: open chfsnp file %s failed\n", np_fname);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_open: open chfsnp file %s failed\n", np_fname);
         safe_free(np_fname, LOC_CHFSNP_0020);
         return (NULL_PTR);
     }
 
     if(EC_FALSE == c_file_size(fd, &fsize))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_open: get size of %s failed\n", np_fname);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_open: get size of %s failed\n", np_fname);
         safe_free(np_fname, LOC_CHFSNP_0021);
         c_file_close(fd);
         return (NULL_PTR);
     }    
 
-    chfsnp_header = __chfsnp_header_open(np_id, (uint32_t)fsize, fd);
+    chfsnp_header = __chfsnp_header_open(np_id, fsize, fd);
     if(NULL_PTR == chfsnp_header)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_open: open chfsnp file %s failed\n", np_fname);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_open: open chfsnp file %s failed\n", np_fname);
         safe_free(np_fname, LOC_CHFSNP_0022);
         c_file_close(fd);
         return (NULL_PTR);
@@ -1441,7 +1480,7 @@ CHFSNP *chfsnp_open(const char *np_root_dir, const uint32_t np_id)
     chfsnp = chfsnp_new();
     if(NULL_PTR == chfsnp)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_open: new chfsnp %u failed\n", np_id);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_open: new chfsnp %u failed\n", np_id);
         safe_free(np_fname, LOC_CHFSNP_0023);
         c_file_close(fd);
         __chfsnp_header_close(chfsnp_header, np_id, fsize);
@@ -1455,7 +1494,7 @@ CHFSNP *chfsnp_open(const char *np_root_dir, const uint32_t np_id)
     CHFSNP_2ND_CHASH_ALGO(chfsnp) = chash_algo_fetch(CHFSNP_HEADER_2ND_CHASH_ALGO_ID(chfsnp_header));    
 
     CHFSNP_FD(chfsnp)    = fd;
-    CHFSNP_FSIZE(chfsnp) = (uint32_t)fsize;
+    CHFSNP_FSIZE(chfsnp) = fsize;
     CHFSNP_FNAME(chfsnp) = (uint8_t *)np_fname;
 
     ASSERT(np_id == CHFSNP_HEADER_NP_ID(chfsnp_header));
@@ -1492,31 +1531,31 @@ CHFSNP *chfsnp_create(const char *np_root_dir, const uint32_t np_id, const uint8
     CHFSNP_HEADER * chfsnp_header;
     char    *np_fname;
     int      fd;
-    uint32_t fsize;
+    UINT32   fsize;
     uint32_t item_max_num;
 
     if(EC_FALSE == chfsnp_model_file_size(np_model, &fsize))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_create: invalid np_model %u\n", np_model);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_create: invalid np_model %u\n", np_model);
         return (NULL_PTR);
     }
 
     if(EC_FALSE == chfsnp_model_item_max_num(np_model, &item_max_num))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_create: invalid np_model %u\n", np_model);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_create: invalid np_model %u\n", np_model);
         return (NULL_PTR);
     }    
 
     np_fname = chfsnp_fname_gen(np_root_dir, np_id);
     if(NULL_PTR == np_fname)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_create: generate np_fname of np %u, root_dir %s failed\n", np_id, np_root_dir);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_create: generate np_fname of np %u, root_dir %s failed\n", np_id, np_root_dir);
         return (NULL_PTR);
     }
     
     if(EC_TRUE == c_file_access(np_fname, F_OK))/*exist*/
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_create: np %u exist already\n", np_id);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_create: np %u exist already\n", np_id);
         safe_free(np_fname, LOC_CHFSNP_0024);
         return (NULL_PTR);
     }
@@ -1524,14 +1563,16 @@ CHFSNP *chfsnp_create(const char *np_root_dir, const uint32_t np_id, const uint8
     fd = c_file_open(np_fname, O_RDWR | O_CREAT, 0666);
     if(ERR_FD == fd)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_create: cannot create np %s\n", np_fname);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_create: cannot create np %s\n", np_fname);
         safe_free(np_fname, LOC_CHFSNP_0025);
         return (NULL_PTR);
     }
 
+    dbg_log(SEC_0097_CHFSNP, 9)(LOGSTDOUT, "[DEBUG] chfsnp_create: try to truncate %s to size %lu\n", np_fname, fsize);
+
     if(EC_FALSE == c_file_truncate(fd, fsize))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_create: truncate np %s to size %u failed\n", np_fname, fsize);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_create: truncate np %s to size %lu failed\n", np_fname, fsize);
         safe_free(np_fname, LOC_CHFSNP_0026);
         c_file_close(fd);
         return (NULL_PTR);
@@ -1540,7 +1581,7 @@ CHFSNP *chfsnp_create(const char *np_root_dir, const uint32_t np_id, const uint8
     chfsnp_header = __chfsnp_header_create(np_id, fsize, fd, np_model, bucket_max_num);
     if(NULL_PTR == chfsnp_header)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_create: open chfsnp file %s failed\n", np_fname);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_create: open chfsnp file %s failed\n", np_fname);
         safe_free(np_fname, LOC_CHFSNP_0027);
         c_file_close(fd);
         return (NULL_PTR);
@@ -1551,7 +1592,7 @@ CHFSNP *chfsnp_create(const char *np_root_dir, const uint32_t np_id, const uint8
     chfsnp = chfsnp_new();
     if(NULL_PTR == chfsnp)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_create: new chfsnp %u failed\n", np_id);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_create: new chfsnp %u failed\n", np_id);
         safe_free(np_fname, LOC_CHFSNP_0028);
         c_file_close(fd);
         __chfsnp_header_close(chfsnp_header, np_id, fsize);
@@ -1559,7 +1600,7 @@ CHFSNP *chfsnp_create(const char *np_root_dir, const uint32_t np_id, const uint8
     }
     CHFSNP_HDR(chfsnp) = chfsnp_header;
     CHFSNP_BUCKET_ADDR(chfsnp) = (uint32_t *)(((uint8_t *)chfsnp_header) + CHFSNP_HEADER_BUCKET_OFFSET(chfsnp_header));
-    sys_log(LOGSTDOUT, "[DEBUG] chfsnp_create: chfsnp_header = %p, offset = %u, bucket addr %p\n", 
+    dbg_log(SEC_0097_CHFSNP, 9)(LOGSTDOUT, "[DEBUG] chfsnp_create: chfsnp_header = %p, offset = %u, bucket addr %p\n", 
                         chfsnp_header, CHFSNP_HEADER_BUCKET_OFFSET(chfsnp_header), CHFSNP_BUCKET_ADDR(chfsnp));
 
     CHFSNP_1ST_CHASH_ALGO(chfsnp) = chash_algo_fetch(CHFSNP_HEADER_1ST_CHASH_ALGO_ID(chfsnp_header));
@@ -1574,7 +1615,7 @@ CHFSNP *chfsnp_create(const char *np_root_dir, const uint32_t np_id, const uint8
     /*create root item*/
     //chfsnp_create_root_item(chfsnp);
 
-    sys_log(LOGSTDOUT, "[DEBUG] chfsnp_create: create np %u done\n", np_id);
+    dbg_log(SEC_0097_CHFSNP, 9)(LOGSTDOUT, "[DEBUG] chfsnp_create: create np %u done\n", np_id);
 
     return (chfsnp);
 }
@@ -1583,7 +1624,7 @@ EC_BOOL chfsnp_show_item(LOG *log, const CHFSNP_ITEM *chfsnp_item)
 {
     if(CHFSNP_ITEM_STAT_IS_NOT_USED == CHFSNP_ITEM_STAT(chfsnp_item))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_show_item: item %p not used\n", chfsnp_item);
+        dbg_log(SEC_0097_CHFSNP, 0)(LOGSTDOUT, "error:chfsnp_show_item: item %p not used\n", chfsnp_item);
         return (EC_FALSE);
     }
 

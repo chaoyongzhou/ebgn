@@ -51,7 +51,7 @@ EC_BOOL cparacfg_free(CPARACFG *cparacfg)
 }
 
 EC_BOOL cparacfg_init(CPARACFG *cparacfg, const UINT32 this_tcid, const UINT32 this_rank)
-{
+{   
     CPARACFG_TCID(cparacfg) = this_tcid;
     CPARACFG_RANK(cparacfg) = this_rank;
 
@@ -75,6 +75,14 @@ EC_BOOL cparacfg_init(CPARACFG *cparacfg, const UINT32 this_tcid, const UINT32 t
     CPARACFG_FILE_LOG_MAX_RECORDS(cparacfg)                     = FILE_LOG_RECORDS_001M;
     CPARACFG_FILE_LOG_NAME_WITH_DATE_SWITCH(cparacfg)           = SWITCH_OFF;
 
+    log_level_tab_init(CPARACFG_LOG_LEVEL_TAB(cparacfg), SEC_NONE_END, LOG_DEFAULT_DBG_LEVEL);    
+
+    return (EC_TRUE);
+}
+
+EC_BOOL cparacfg_clone(const CPARACFG *cparacfg_src, CPARACFG *cparacfg_des)
+{
+    BCOPY(cparacfg_src, cparacfg_des, sizeof(CPARACFG));
     return (EC_TRUE);
 }
 
@@ -86,7 +94,7 @@ EC_BOOL cparacfg_validity_check(const CPARACFG *cparacfg)
 
     if(2 > CPARACFG_TASK_REQ_THREAD_MAX_NUM(cparacfg))
     {
-        sys_log(LOGSTDOUT, "error:cparacfg_check: TASK_REQ_THREAD_MAX_NUM is less than 2\n");
+        dbg_log(SEC_0052_CPARACFG, 0)(LOGSTDOUT, "error:cparacfg_check: TASK_REQ_THREAD_MAX_NUM is less than 2\n");
         ret = EC_FALSE;
     }
 

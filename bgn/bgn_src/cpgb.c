@@ -119,13 +119,13 @@ static EC_BOOL __cpgb_page_model_cpgrb_bitmap_set(CPGB *cpgb, const uint16_t pag
 
     if(CPGB_CONF_CPGRB_BITMAP_SIZE(cpgb_conf) <= byte_nth)
     {
-        sys_log(LOGSTDERR, "error:__cpgb_page_model_cpgrb_bitmap_set: page_model %u, bit_pos %u overflow\n", page_model, bit_pos);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:__cpgb_page_model_cpgrb_bitmap_set: page_model %u, bit_pos %u overflow\n", page_model, bit_pos);
         return (EC_FALSE);
     }
 
     if(0 != (pgc_cpgrb_bitmap[ byte_nth ] & (uint8_t)(1 << bit_nth)))
     {
-        sys_log(LOGSTDERR, "error:__cpgb_page_model_cpgrb_bitmap_set: page_model %u, bit_pos %u was already set!\n", page_model, bit_pos);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:__cpgb_page_model_cpgrb_bitmap_set: page_model %u, bit_pos %u was already set!\n", page_model, bit_pos);
         return (EC_FALSE);
     }
 
@@ -151,13 +151,13 @@ static EC_BOOL __cpgb_page_model_cpgrb_bitmap_clear(CPGB *cpgb, const uint16_t p
 
     if(CPGB_CONF_CPGRB_BITMAP_SIZE(cpgb_conf) <= byte_nth)
     {
-        sys_log(LOGSTDERR, "error:__cpgb_page_model_cpgrb_bitmap_clear: page_model %u, bit_pos %u overflow\n", page_model, bit_pos);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:__cpgb_page_model_cpgrb_bitmap_clear: page_model %u, bit_pos %u overflow\n", page_model, bit_pos);
         return (EC_FALSE);
     }
 
     if(0 == (pgc_cpgrb_bitmap[ byte_nth ] & (uint8_t)(1 << bit_nth)))
     {
-        sys_log(LOGSTDERR, "error:__cpgb_page_model_cpgrb_bitmap_clear: page_model %u, bit_pos %u was NOT set!\n", page_model, bit_pos);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:__cpgb_page_model_cpgrb_bitmap_clear: page_model %u, bit_pos %u was NOT set!\n", page_model, bit_pos);
         return (EC_FALSE);
     }
 
@@ -183,7 +183,7 @@ static EC_BOOL __cpgb_page_model_cpgrb_bitmap_get(const CPGB *cpgb, const uint16
 
     if(CPGB_CONF_CPGRB_BITMAP_SIZE(cpgb_conf) <= byte_nth)
     {
-        sys_log(LOGSTDERR, "error:__cpgb_page_model_cpgrb_bitmap_clear: page_model %u, bit_pos %u overflow\n", page_model, bit_pos);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:__cpgb_page_model_cpgrb_bitmap_clear: page_model %u, bit_pos %u overflow\n", page_model, bit_pos);
         return (EC_FALSE);
     }
 
@@ -217,7 +217,7 @@ static EC_BOOL __cpgb_page_model_cpgrb_bitmap_is(const CPGB *cpgb, const uint16_
 
     if(CPGB_CONF_CPGRB_BITMAP_SIZE(cpgb_conf) <= byte_nth)
     {
-        sys_log(LOGSTDERR, "error:__cpgb_page_model_cpgrb_bitmap_is: page_model %u, bit_pos %u overflow\n", page_model, bit_pos);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:__cpgb_page_model_cpgrb_bitmap_is: page_model %u, bit_pos %u overflow\n", page_model, bit_pos);
         return (EC_FALSE);
     }
 
@@ -263,7 +263,7 @@ static EC_BOOL __cpgb_page_model_cpgrb_bitmap_check(const CPGB *cpgb, const uint
         || 0x30 == (byte_val & 0x30) 
         || 0xC0 == (byte_val & 0xC0))
         {
-            sys_log(LOGSTDOUT, "error:__cpgb_page_model_cpgrb_bitmap_check: page_model %u found adjacent 2 bits are set"
+            dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:__cpgb_page_model_cpgrb_bitmap_check: page_model %u found adjacent 2 bits are set"
                                " at %u # byte which is 0x%x\n",
                                page_model, byte_nth, byte_val);
             return (EC_FALSE);
@@ -353,7 +353,7 @@ static uint16_t __cpgb_page_model_first_page(const CPGB *cpgb, const uint16_t pa
     node_pos = cpgrb_tree_first_node(CPGB_CPGRB_POOL(cpgb), CPGB_PAGE_MODEL_CPGRB_ROOT_POS(cpgb, page_model));
     if(CPGRB_ERR_POS == node_pos)
     {
-        sys_log(LOGSTDERR, "error:__cpgb_page_model_first_page: no free page in page model %u\n", page_model);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:__cpgb_page_model_first_page: no free page in page model %u\n", page_model);
         return (CPGRB_ERR_POS);
     }
 
@@ -379,7 +379,7 @@ static EC_BOOL __cpgb_page_model_check(const CPGB *cpgb, const uint16_t page_mod
 
     if(bits_count != nodes_count)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] __cpgb_page_model_check: [FAIL] page model %u found inconsistent where bits_count = %u, but nodes_count = %u\n", 
+        dbg_log(SEC_0122_CPGB, 9)(LOGSTDOUT, "[DEBUG] __cpgb_page_model_check: [FAIL] page model %u found inconsistent where bits_count = %u, but nodes_count = %u\n", 
                             page_model, bits_count, nodes_count);
         return (EC_FALSE);
     }
@@ -396,7 +396,7 @@ static EC_BOOL __cpgb_page_model_check(const CPGB *cpgb, const uint16_t page_mod
         node = CPGRB_POOL_NODE(cpgrb_pool, node_pos);
         if(CPGRB_NODE_NOT_USED == CPGRB_NODE_USED_FLAG(node))
         {
-            sys_log(LOGSTDOUT, "[DEBUG] error:__cpgb_page_model_check: found node at pos %u was not used in page model %u\n", 
+            dbg_log(SEC_0122_CPGB, 9)(LOGSTDOUT, "[DEBUG] error:__cpgb_page_model_check: found node at pos %u was not used in page model %u\n", 
                                 node_pos, page_model);
             return (EC_FALSE);
         }
@@ -404,7 +404,7 @@ static EC_BOOL __cpgb_page_model_check(const CPGB *cpgb, const uint16_t page_mod
         page_no = CPGRB_NODE_DATA(node);
         if(EC_FALSE == __cpgb_page_model_cpgrb_bitmap_is(cpgb, page_model, page_no, (uint8_t) 1))
         {
-            sys_log(LOGSTDOUT, "[DEBUG] __cpgb_page_model_check: [FAIL] page model %u found inconsistent "
+            dbg_log(SEC_0122_CPGB, 9)(LOGSTDOUT, "[DEBUG] __cpgb_page_model_check: [FAIL] page model %u found inconsistent "
                                "where page no %u in rbtree without bitmap setting\n", 
                                 page_model, page_no);
             return (EC_FALSE);
@@ -413,12 +413,12 @@ static EC_BOOL __cpgb_page_model_check(const CPGB *cpgb, const uint16_t page_mod
 
     if(EC_FALSE == __cpgb_page_model_cpgrb_bitmap_check(cpgb, page_model))
     {
-        sys_log(LOGSTDOUT, "[DEBUG] __cpgb_page_model_check: [FAIL] page model %u found bitmap invalidity\n", 
+        dbg_log(SEC_0122_CPGB, 9)(LOGSTDOUT, "[DEBUG] __cpgb_page_model_check: [FAIL] page model %u found bitmap invalidity\n", 
                             page_model);
         return (EC_FALSE);
     }
     
-    sys_log(LOGSTDNULL, "[DEBUG] __cpgb_page_model_check: [SUCC] page model %u owns %u pages\n", page_model, nodes_count);
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] __cpgb_page_model_check: [SUCC] page model %u owns %u pages\n", page_model, nodes_count);
     return (EC_TRUE);
 }
 
@@ -453,7 +453,7 @@ CPGB *cpgb_new(const uint16_t page_model_target)
     alloc_static_mem(MD_TBD, 0, MM_CPGB, &cpgb, LOC_CPGB_0001);
     if(NULL_PTR == cpgb)
     {
-        sys_log(LOGSTDOUT, "error:cpgb_new: new cpgb failed\n");
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_new: new cpgb failed\n");
         return (NULL_PTR);
     }
 
@@ -474,7 +474,7 @@ EC_BOOL cpgb_init(CPGB *cpgb, const uint16_t page_model_target)
     
     if(CPGB_MODEL_NUM <= page_model_target)
     {
-        sys_log(LOGSTDOUT, "error:cpgb_init: page_model_target %u overflow\n", page_model_target);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_init: page_model_target %u overflow\n", page_model_target);
         return (EC_FALSE);
     }
 
@@ -483,7 +483,7 @@ EC_BOOL cpgb_init(CPGB *cpgb, const uint16_t page_model_target)
     
     if(EC_FALSE == cpgrb_pool_init(CPGB_CPGRB_POOL(cpgb), page_4k_max_num))
     {
-        sys_log(LOGSTDERR, "error:cpgb_init: init cpgrb pool failed where page_4k_max_num = %u\n", page_4k_max_num);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_init: init cpgrb pool failed where page_4k_max_num = %u\n", page_4k_max_num);
         cpgb_clean(cpgb);
         return (EC_FALSE);
     }
@@ -553,21 +553,21 @@ EC_BOOL cpgb_add_page(CPGB *cpgb, const uint16_t page_model, const uint16_t page
     page_no_max = (uint16_t)(1 << page_model);
     if(page_no >= page_no_max)
     {
-        sys_log(LOGSTDERR, "error:cpgb_add_page: page_no_max %u but page_no to add is %u, overflow!\n", page_no_max, page_no);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_add_page: page_no_max %u but page_no to add is %u, overflow!\n", page_no_max, page_no);
         return (EC_FALSE);
     }
 
     /*insert page_no to bitmap*/
     if(EC_FALSE == __cpgb_page_model_cpgrb_bitmap_set(cpgb, page_model, page_no))
     {
-        sys_log(LOGSTDERR, "error:cpgb_add_page: add page_no %u to bitmap of page model %u failed\n", page_no, page_model);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_add_page: add page_no %u to bitmap of page model %u failed\n", page_no, page_model);
         return (EC_FALSE);
     }
 
     /*insert page_no to rbtree*/
     if(CPGRB_ERR_POS == cpgrb_tree_insert_data(CPGB_CPGRB_POOL(cpgb), &(CPGB_PAGE_MODEL_CPGRB_ROOT_POS(cpgb, page_model)), page_no))
     {
-        sys_log(LOGSTDERR, "error:cpgb_add_page: add page_no %u to rbtree of page model %u failed\n", page_no, page_model);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_add_page: add page_no %u to rbtree of page model %u failed\n", page_no, page_model);
         __cpgb_page_model_cpgrb_bitmap_clear(cpgb, page_model, page_no);
         return (EC_FALSE);
     }
@@ -595,21 +595,21 @@ EC_BOOL cpgb_del_page(CPGB *cpgb, const uint16_t page_model, const uint16_t page
 
     if(page_no >= page_no_max)
     {
-        sys_log(LOGSTDERR, "error:cpgb_del_page: page_no_max %u but page_no to add is %u, overflow!\n", page_no_max, page_no);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_del_page: page_no_max %u but page_no to add is %u, overflow!\n", page_no_max, page_no);
         return (EC_FALSE);
     }
 
     /*del page_no from rbtree*/
     if(CPGRB_ERR_POS == cpgrb_tree_delete_data(CPGB_CPGRB_POOL(cpgb), &(CPGB_PAGE_MODEL_CPGRB_ROOT_POS(cpgb, page_model)), page_no))
     {
-        sys_log(LOGSTDERR, "error:cpgb_del_page: del page_no %u from rbtree of page model %u failed\n", page_no, page_model);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_del_page: del page_no %u from rbtree of page model %u failed\n", page_no, page_model);
         return (EC_FALSE);
     }
 
     /*del page_no from bitmap*/
     if(EC_FALSE == __cpgb_page_model_cpgrb_bitmap_clear(cpgb, page_model, page_no))
     {
-        sys_log(LOGSTDERR, "error:cpgb_del_page: del page_no %u from bitmap of page model %u failed\n", page_no, page_model);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_del_page: del page_no %u from bitmap of page model %u failed\n", page_no, page_model);
         cpgrb_tree_insert_data(CPGB_CPGRB_POOL(cpgb), &(CPGB_PAGE_MODEL_CPGRB_ROOT_POS(cpgb, page_model)), page_no);
         return (EC_FALSE);
     }
@@ -643,7 +643,7 @@ uint16_t cpgb_assign_page(CPGB *cpgb, const uint16_t page_model)
     mask = (uint16_t)((1 << (page_model + 1)) - 1);
     if(0 == (CPGB_PAGE_MODEL_ASSIGN_BITMAP(cpgb) & mask))
     {
-        sys_log(LOGSTDERR, "error:cpgb_assign_page: page_model = %u where 0 == bitmap %x & mask %x indicates page is not available\n", 
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_assign_page: page_model = %u where 0 == bitmap %x & mask %x indicates page is not available\n", 
                            page_model, CPGB_PAGE_MODEL_ASSIGN_BITMAP(cpgb), mask);
         return (CPGRB_ERR_POS);
     }
@@ -657,20 +657,20 @@ uint16_t cpgb_assign_page(CPGB *cpgb, const uint16_t page_model)
 
     if(CPGB_MODEL_NUM <= page_model_t)
     {
-        sys_log(LOGSTDERR, "error:cpgb_assign_page: no free page available from page model %u\n", page_model);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_assign_page: no free page available from page model %u\n", page_model);
         return (CPGRB_ERR_POS);
     }
 
     page_no = __cpgb_page_model_first_page(cpgb, page_model_t);
     if(CPGRB_ERR_POS == page_no)
     {
-        sys_log(LOGSTDERR, "error:cpgb_assign_page: no free page in page model %u\n", page_model_t);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_assign_page: no free page in page model %u\n", page_model_t);
         return (CPGRB_ERR_POS);
     }  
 
     if(EC_FALSE == cpgb_del_page(cpgb, page_model_t, page_no))
     {
-        sys_log(LOGSTDERR, "error:cpgb_assign_page: del page %u from page model %u failed\n", page_no, page_model_t);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_assign_page: del page %u from page model %u failed\n", page_no, page_model_t);
         return (CPGRB_ERR_POS);
     }
 
@@ -683,21 +683,21 @@ uint16_t cpgb_assign_page(CPGB *cpgb, const uint16_t page_model)
         
         if(EC_FALSE == cpgb_add_page(cpgb, page_model_t, page_no + 1))
         {
-            sys_log(LOGSTDERR, "error:cpgb_assign_page: borrowed one page %u from page model %u, "
+            dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_assign_page: borrowed one page %u from page model %u, "
                                "but insert the splitted page %u into page model %u failed\n",
                                 (uint16_t)(page_no >> 1), (page_model_t - 1), page_no + 1, page_model_t);
-            sys_log(LOGSTDERR, "error:cpgb_assign_page: try to return page %u to page model %u ...\n",
+            dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_assign_page: try to return page %u to page model %u ...\n",
                                 (uint16_t)(page_no >> 1), (page_model_t - 1));
 #if 0
             /*try ...*/
             if(EC_TRUE == cpgb_recycle_page(cpgb, page_model_t - 1, (uint16_t)(page_no >> 1)))
             {
-                sys_log(LOGSTDERR, "error:cpgb_assign_page: try to recycle page %u to page model %u ... done\n",
+                dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_assign_page: try to recycle page %u to page model %u ... done\n",
                                     (uint16_t)(page_no >> 1), (page_model_t - 1));            
             }
             else
             {
-                sys_log(LOGSTDERR, "error:cpgb_assign_page: try to recycle page %u to page model %u ... failed\n",
+                dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_assign_page: try to recycle page %u to page model %u ... failed\n",
                                     (uint16_t)(page_no >> 1), (page_model_t - 1));            
             }
 #endif            
@@ -705,7 +705,6 @@ uint16_t cpgb_assign_page(CPGB *cpgb, const uint16_t page_model)
         }
     }
 
-    sys_log(LOGSTDNULL, "[DEBUG] =============================================================\n");
     return (page_no);
 }
 
@@ -725,7 +724,7 @@ EC_BOOL cpgb_recycle_page(CPGB *cpgb, const uint16_t page_model, const uint16_t 
     page_no_max = (uint16_t)(1 << page_model);
     if(page_no >= page_no_max)
     {
-        sys_log(LOGSTDERR, "error:cpgb_recycle_page: page_no_max %u but page_no to add is %u, overflow!\n", page_no_max, page_no);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_recycle_page: page_no_max %u but page_no to add is %u, overflow!\n", page_no_max, page_no);
         return (EC_FALSE);
     }
 
@@ -755,7 +754,7 @@ EC_BOOL cpgb_recycle_page(CPGB *cpgb, const uint16_t page_model, const uint16_t 
 
     if(EC_FALSE == cpgb_add_page(cpgb, page_model_t, page_no_t))
     {
-        sys_log(LOGSTDERR, "error:cpgb_recycle_page: add page_no %u to page model %u failed\n", page_no_t, page_model_t);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_recycle_page: add page_no %u to page model %u failed\n", page_no_t, page_model_t);
         return (EC_FALSE);
     }
 
@@ -776,12 +775,12 @@ EC_BOOL cpgb_new_space(CPGB *cpgb, const uint32_t size, uint16_t *page_4k_no)
 
     if(CPGB_CACHE_MAX_BYTE_SIZE < size)
     {
-        sys_log(LOGSTDERR, "error:cpgb_new_space: the expected size %u overflow\n", size);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_new_space: the expected size %u overflow\n", size);
         return (EC_FALSE);
     }
 
     page_4k_num_need = (uint16_t)((size + CPGB_PAGE_4K_BYTE_SIZE - 1) >> CPGB_PAGE_4K_BIT_SIZE);
-    sys_log(LOGSTDNULL, "[DEBUG] cpgb_new_space: size = %u ==> page_4k_num_need = %u\n", size, page_4k_num_need);
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_new_space: size = %u ==> page_4k_num_need = %u\n", size, page_4k_num_need);
 
     /*find a page model which can accept the page_4k_num_need 4k-pages */
     /*and then split the left space into page model with smaller size  */ 
@@ -794,24 +793,24 @@ EC_BOOL cpgb_new_space(CPGB *cpgb, const uint32_t size, uint16_t *page_4k_no)
     {
         /*do nothing*/
     }
-    sys_log(LOGSTDNULL, "[DEBUG] cpgb_new_space: t = 0x%x, page_model = %u, e = 0x%x, t << 1 is 0x%x\n", t, page_model, e, (t << 1));
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_new_space: t = 0x%x, page_model = %u, e = 0x%x, t << 1 is 0x%x\n", t, page_model, e, (t << 1));
 
     if(CPGB_PAGE_4K_LO_BITS_MASK & t)
     {
         page_model --;/*upgrade page_model one level*/
     }
 
-    sys_log(LOGSTDNULL, "[DEBUG] cpgb_new_space: page_4k_num_need = %u ==> page_model = %u (has %u 4k-pages )\n", 
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_new_space: page_4k_num_need = %u ==> page_model = %u (has %u 4k-pages )\n", 
                        page_4k_num_need, page_model, (uint16_t)(1 << (CPGB_MODEL_NUM - 1 - page_model)));
 
     page_no = cpgb_assign_page(cpgb, page_model);
     if(CPGRB_ERR_POS == page_no)
     {
-        sys_log(LOGSTDERR, "error:cpgb_new_space: free one page from page model %u failed\n", page_model);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_new_space: assign one page from page model %u failed\n", page_model);
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDNULL, "[DEBUG] cpgb_new_space: free page_no = %u from page_model = %u\n", page_no, page_model);
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_new_space: assign page_no = %u from page_model = %u\n", page_no, page_model);
 
     page_4k_num_has  = (uint16_t)(1 << (CPGB_MODEL_NUM - 1 - page_model));       /*2 ^ (16 - page_model - 1)*/
     page_4k_start_no = (uint16_t)(page_no  << (CPGB_MODEL_NUM - 1 - page_model));/*page_no * page_4k_num_has*/
@@ -819,12 +818,12 @@ EC_BOOL cpgb_new_space(CPGB *cpgb, const uint32_t size, uint16_t *page_4k_no)
     
     page_4k_num_left = page_4k_num_has - page_4k_num_need;
 
-    sys_log(LOGSTDNULL, "[DEBUG] cpgb_new_space: page_4k_num_has %u, page_4k_start_no %u, page_4k_end_no %u, page_4k_num_left %u\n",
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_new_space: page_4k_num_has %u, page_4k_start_no %u, page_4k_end_no %u, page_4k_num_left %u\n",
                         page_4k_num_has, page_4k_start_no, page_4k_end_no, page_4k_num_left);
 
     /*left pages in page_4k are {page_4k_end_no - page_4k_num_left, ...., page_4k_end_no - 1}*/
     /*add the left pages to corresponding page models*/
-    //sys_log(LOGSTDNULL, "[DEBUG] cpgb_new_space: page_4k_num_left = 0x%x bits are\n", page_4k_num_left);
+    //dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_new_space: page_4k_num_left = 0x%x bits are\n", page_4k_num_left);
     //c_uint16_hi2lo_header_print(LOGSTDNULL);
     //c_uint16_hi2lo_bits_print(LOGSTDNULL, page_4k_num_left);
     
@@ -833,17 +832,17 @@ EC_BOOL cpgb_new_space(CPGB *cpgb, const uint32_t size, uint16_t *page_4k_no)
         t >>= 1, page_model --, page_no >>= 1
        )
     {
-        sys_log(LOGSTDNULL, "[DEBUG] cpgb_new_space: page_no %u, page_model %u\n", page_no, page_model);
+        dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_new_space: page_no %u, page_model %u\n", page_no, page_model);
         if(0 == (t & 1))
         {
             continue;
         }
-        sys_log(LOGSTDNULL, "[DEBUG] cpgb_new_space: add page_no %u to page_model %u where t(i.e. cur page_4k_num_left) = %u\n",
+        dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_new_space: add page_no %u to page_model %u where t(i.e. cur page_4k_num_left) = %u\n",
                             page_no, page_model, t);
         if(EC_FALSE == cpgb_recycle_page(cpgb, page_model, page_no))
         {
-            sys_log(LOGSTDOUT, "error:cpgb_new_space: add page_no %u to page_model %u failed !!!\n", page_no, page_model);
-            cpgb_page_model_print(LOGSTDNULL, cpgb, page_model);
+            dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_new_space: add page_no %u to page_model %u failed !!!\n", page_no, page_model);
+            //cpgb_page_model_print(LOGSTDNULL, cpgb, page_model);
         }
         page_no ++; 
     }
@@ -852,9 +851,9 @@ EC_BOOL cpgb_new_space(CPGB *cpgb, const uint32_t size, uint16_t *page_4k_no)
     CPGB_PAGE_ACTUAL_USED_SIZE(cpgb) += size;
 
     CPGB_ASSERT(EC_TRUE == cpgb_check(cpgb));
-    sys_log(LOGSTDNULL, "[DEBUG] cpgb_new_space: pgc_page_4k_used_num %u due to increment %u\n", 
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDOUT, "[DEBUG] cpgb_new_space: pgb_page_4k_used_num %u due to increment %u\n", 
                         CPGB_PAGE_4K_USED_NUM(cpgb), page_4k_num_need);
-    sys_log(LOGSTDNULL, "[DEBUG] cpgb_new_space: pgc_actual_used_size %u due to increment %u\n", 
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDOUT, "[DEBUG] cpgb_new_space: pgb_actual_used_size %u due to increment %u\n", 
                         CPGB_PAGE_ACTUAL_USED_SIZE(cpgb), size);
 
     (*page_4k_no) = page_4k_start_no;
@@ -870,12 +869,12 @@ EC_BOOL cpgb_free_space(CPGB *cpgb, const uint16_t page_4k_start_no, const uint3
 
     if(CPGB_CACHE_MAX_BYTE_SIZE < size)
     {
-        sys_log(LOGSTDERR, "error:cpgb_free_space: invalid size %u due to overflow\n", size);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_free_space: invalid size %u due to overflow\n", size);
         return (EC_FALSE);
     }
 
     page_4k_num_used = (uint16_t)((size + CPGB_PAGE_4K_BYTE_SIZE - 1) >> CPGB_PAGE_4K_BIT_SIZE);
-    sys_log(LOGSTDNULL, "[DEBUG] cpgb_free_space: size = %u ==> page_4k_num_used = %u\n", size, page_4k_num_used);
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_free_space: size = %u ==> page_4k_num_used = %u\n", size, page_4k_num_used);
 
     /*find a page model and recycle the used pages */
     CPGB_ASSERT(0 == (CPGB_PAGE_4K_ERR_HI_BITS_MASK & page_4k_num_used));    
@@ -885,29 +884,29 @@ EC_BOOL cpgb_free_space(CPGB *cpgb, const uint16_t page_4k_start_no, const uint3
         t >>= 1, page_model --, page_no >>= 1
        )
     {
-        sys_log(LOGSTDNULL, "[DEBUG] cpgb_free_space: page_no %u, page_model %u\n", page_no, page_model);
+        dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_free_space: page_no %u, page_model %u\n", page_no, page_model);
         if(0 == (t & 1))
         {
             continue;
         }
 
         page_no --;
-        sys_log(LOGSTDNULL, "[DEBUG] cpgb_free_space: recycle page_no %u to page_model %u where t(i.e. cur page_4k_num_used) = %u\n",
+        dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_free_space: recycle page_no %u to page_model %u where t(i.e. cur page_4k_num_used) = %u\n",
                             page_no, page_model, t);
         if(EC_FALSE == cpgb_recycle_page(cpgb, page_model, page_no))
         {
-            sys_log(LOGSTDOUT, "error:cpgb_free_space: recycle page_no %u to page_model %u failed !!!\n", page_no, page_model);
-            cpgb_page_model_print(LOGSTDNULL, cpgb, page_model);
+            dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_free_space: recycle page_no %u to page_model %u failed !!!\n", page_no, page_model);
+            //cpgb_page_model_print(LOGSTDNULL, cpgb, page_model);
         }
     }
     
-    sys_log(LOGSTDNULL, "[DEBUG] cpgb_free_space: recycle successfully\n", page_no, page_model);
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_free_space: recycle successfully\n", page_no, page_model);
 
     CPGB_PAGE_4K_USED_NUM(cpgb)      -= page_4k_num_used;
     CPGB_PAGE_ACTUAL_USED_SIZE(cpgb) -= size;
-    sys_log(LOGSTDNULL, "[DEBUG] cpgb_free_space: pgc_page_4k_used_num %u due to decrement %u\n", 
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDOUT, "[DEBUG] cpgb_free_space: pgb_page_4k_used_num %u due to decrement %u\n", 
                         CPGB_PAGE_4K_USED_NUM(cpgb), page_4k_num_used);
-    sys_log(LOGSTDNULL, "[DEBUG] cpgb_free_space: pgc_actual_used_size %u due to decrement %u\n", 
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDOUT, "[DEBUG] cpgb_free_space: pgb_actual_used_size %u due to decrement %u\n", 
                         CPGB_PAGE_ACTUAL_USED_SIZE(cpgb), size);
 
     return (EC_TRUE);    
@@ -945,14 +944,14 @@ EC_BOOL cpgb_check(const CPGB *cpgb)
     {
         if(EC_FALSE == __cpgb_page_model_check(cpgb, page_model))
         {
-            sys_log(LOGSTDOUT, "cpgb_check: check page model %u failed\n", page_model);
+            dbg_log(SEC_0122_CPGB, 5)(LOGSTDOUT, "cpgb_check: check page model %u failed\n", page_model);
             ret = EC_FALSE;
         }
         else
         {
-            sys_log(LOGSTDNULL, "cpgb_check: check page model %u successfully\n", page_model);
+            dbg_log(SEC_0122_CPGB, 5)(LOGSTDNULL, "cpgb_check: check page model %u successfully\n", page_model);
         }        
-        sys_log(LOGSTDNULL, "----------------------------------------------------------\n");
+        dbg_log(SEC_0122_CPGB, 5)(LOGSTDNULL, "----------------------------------------------------------\n");
     }
 
     page_4k_free_num = 0;
@@ -960,12 +959,12 @@ EC_BOOL cpgb_check(const CPGB *cpgb)
     {
         page_4k_free_num += (uint16_t)(__cpgb_page_model_cpgrb_bitmap_count_bits(cpgb, page_model) << (CPGB_MODEL_NUM - 1 - page_model));
     }
-    sys_log(LOGSTDNULL, "[DEBUG] cpgb_check: pgc_page_4k_max_num = %u, pgc_page_4k_used_num = %u, counted page_4k_free_num = %u\n",
+    dbg_log(SEC_0122_CPGB, 9)(LOGSTDNULL, "[DEBUG] cpgb_check: pgc_page_4k_max_num = %u, pgc_page_4k_used_num = %u, counted page_4k_free_num = %u\n",
                         CPGB_PAGE_4K_MAX_NUM(cpgb), CPGB_PAGE_4K_USED_NUM(cpgb), page_4k_free_num);
 
     if(CPGB_PAGE_4K_MAX_NUM(cpgb) != CPGB_PAGE_4K_USED_NUM(cpgb) + page_4k_free_num)
     {
-        sys_log(LOGSTDOUT, "cpgb_check:[FAIL] pgc_page_4k_max_num %u != %u(pgc_page_4k_used_num %u + counted page_4k_free_num %u)\n",
+        dbg_log(SEC_0122_CPGB, 5)(LOGSTDOUT, "cpgb_check:[FAIL] pgc_page_4k_max_num %u != %u(pgc_page_4k_used_num %u + counted page_4k_free_num %u)\n",
                            CPGB_PAGE_4K_MAX_NUM(cpgb), 
                            CPGB_PAGE_4K_USED_NUM(cpgb) + page_4k_free_num,
                            CPGB_PAGE_4K_USED_NUM(cpgb), 
@@ -975,11 +974,11 @@ EC_BOOL cpgb_check(const CPGB *cpgb)
 #if 1
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cpgb_check: check cpgb %p failed\n", cpgb);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_check: check cpgb %p failed\n", cpgb);
     }
     else
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cpgb_check: check cpgb %p done\n", cpgb);
+        dbg_log(SEC_0122_CPGB, 9)(LOGSTDOUT, "[DEBUG] cpgb_check: check cpgb %p done\n", cpgb);
     }
 #endif    
     return (ret);    
@@ -999,7 +998,7 @@ EC_BOOL cpgb_flush(const CPGB *cpgb, int fd, UINT32 *offset)
     /*flush rbtree pool*/
     if(EC_FALSE == cpgrb_flush(CPGB_CPGRB_POOL(cpgb), fd, offset))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_flush: flush CPGB_CPGRB_POOL at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_flush: flush CPGB_CPGRB_POOL at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1007,14 +1006,14 @@ EC_BOOL cpgb_flush(const CPGB *cpgb, int fd, UINT32 *offset)
     osize = CPGB_RB_BITMAP_SIZE;
     if(EC_FALSE == c_file_flush(fd, offset, osize, CPGB_PAGE_MODEL_CPGRB_BITMAP_BUFF(cpgb)))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_flush: flush CPGB_PAGE_MODEL_CPGRB_BITMAP_BUFF with %u bytes at offset %u of fd %d failed\n", 
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_flush: flush CPGB_PAGE_MODEL_CPGRB_BITMAP_BUFF with %u bytes at offset %u of fd %d failed\n", 
                             osize, (*offset), fd);
         return (EC_FALSE);
     }   
 
     if(EC_FALSE == c_file_pad(fd, offset, CPGB_RB_BITMAP_PAD_SIZE, FILE_PAD_CHAR))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_flush: flush CPGB_RB_BITMAP_PAD at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_flush: flush CPGB_RB_BITMAP_PAD at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1022,7 +1021,7 @@ EC_BOOL cpgb_flush(const CPGB *cpgb, int fd, UINT32 *offset)
     osize = CPGB_MODEL_NUM * sizeof(uint16_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)CPGB_PAGE_MODEL_CPGRB_ROOT_POS_TBL(cpgb)))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_flush: flush CPGB_PAGE_MODEL_CPGRB_ROOT_POS_TBL at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_flush: flush CPGB_PAGE_MODEL_CPGRB_ROOT_POS_TBL at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }   
 
@@ -1030,7 +1029,7 @@ EC_BOOL cpgb_flush(const CPGB *cpgb, int fd, UINT32 *offset)
     osize = sizeof(uint16_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CPGB_PAGE_MODEL_ASSIGN_BITMAP(cpgb))))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_flush: write CPGB_PAGE_MODEL_ASSIGN_BITMAP at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_flush: write CPGB_PAGE_MODEL_ASSIGN_BITMAP at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }    
     
@@ -1038,7 +1037,7 @@ EC_BOOL cpgb_flush(const CPGB *cpgb, int fd, UINT32 *offset)
     osize = sizeof(uint16_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CPGB_PAGE_4K_MAX_NUM(cpgb))))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_flush: write CPGB_PAGE_4K_MAX_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_flush: write CPGB_PAGE_4K_MAX_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1046,7 +1045,7 @@ EC_BOOL cpgb_flush(const CPGB *cpgb, int fd, UINT32 *offset)
     osize = sizeof(uint16_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CPGB_PAGE_4K_USED_NUM(cpgb))))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_flush: write CPGB_PAGE_4K_USED_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_flush: write CPGB_PAGE_4K_USED_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1054,13 +1053,13 @@ EC_BOOL cpgb_flush(const CPGB *cpgb, int fd, UINT32 *offset)
     osize = sizeof(uint32_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CPGB_PAGE_ACTUAL_USED_SIZE(cpgb))))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_flush: write CPGB_PAGE_ACTUAL_USED_SIZE at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_flush: write CPGB_PAGE_ACTUAL_USED_SIZE at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == c_file_pad(fd, offset, CPGB_PAD_SIZE, FILE_PAD_CHAR))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_flush: flush CPGB_PAD at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_flush: flush CPGB_PAD at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }    
 
@@ -1076,7 +1075,7 @@ EC_BOOL cpgb_load(CPGB *cpgb, int fd, UINT32 *offset)
     /*load rbtree pool*/
     if(EC_FALSE == cpgrb_load(CPGB_CPGRB_POOL(cpgb), fd, offset))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_load: load CPGB_CPGRB_POOL at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_load: load CPGB_CPGRB_POOL at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1084,7 +1083,7 @@ EC_BOOL cpgb_load(CPGB *cpgb, int fd, UINT32 *offset)
     osize = CPGB_RB_BITMAP_SIZE;
     if(EC_FALSE == c_file_load(fd, offset, osize, CPGB_PAGE_MODEL_CPGRB_BITMAP_BUFF(cpgb)))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_load: load CPGB_PAGE_MODEL_CPGRB_BITMAP_BUFF with %u bytes at offset %u of fd %d failed\n", 
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_load: load CPGB_PAGE_MODEL_CPGRB_BITMAP_BUFF with %u bytes at offset %u of fd %d failed\n", 
                             osize, (*offset), fd);
         return (EC_FALSE);
     }     
@@ -1095,7 +1094,7 @@ EC_BOOL cpgb_load(CPGB *cpgb, int fd, UINT32 *offset)
     osize = CPGB_MODEL_NUM * sizeof(uint16_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)CPGB_PAGE_MODEL_CPGRB_ROOT_POS_TBL(cpgb)))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_load: load CPGB_PAGE_MODEL_CPGRB_ROOT_POS_TBL at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_load: load CPGB_PAGE_MODEL_CPGRB_ROOT_POS_TBL at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1103,7 +1102,7 @@ EC_BOOL cpgb_load(CPGB *cpgb, int fd, UINT32 *offset)
     osize = sizeof(uint16_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(CPGB_PAGE_MODEL_ASSIGN_BITMAP(cpgb))))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_load: load CPGB_PAGE_MODEL_ASSIGN_BITMAP at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_load: load CPGB_PAGE_MODEL_ASSIGN_BITMAP at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }    
 
@@ -1111,7 +1110,7 @@ EC_BOOL cpgb_load(CPGB *cpgb, int fd, UINT32 *offset)
     osize = sizeof(uint16_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(CPGB_PAGE_4K_MAX_NUM(cpgb))))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_load: load CPGB_PAGE_4K_MAX_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_load: load CPGB_PAGE_4K_MAX_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1119,7 +1118,7 @@ EC_BOOL cpgb_load(CPGB *cpgb, int fd, UINT32 *offset)
     osize = sizeof(uint16_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(CPGB_PAGE_4K_USED_NUM(cpgb))))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_load: load CPGB_PAGE_4K_USED_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_load: load CPGB_PAGE_4K_USED_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1127,7 +1126,7 @@ EC_BOOL cpgb_load(CPGB *cpgb, int fd, UINT32 *offset)
     osize = sizeof(uint32_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(CPGB_PAGE_ACTUAL_USED_SIZE(cpgb))))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_load: load CPGB_PAGE_ACTUAL_USED_SIZE at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_load: load CPGB_PAGE_ACTUAL_USED_SIZE at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1192,7 +1191,7 @@ EC_BOOL cpgb_debug_cmp(const CPGB *cpgb_1st, const CPGB *cpgb_2nd)
     /*cpgrb pool*/
     if(EC_FALSE == cpgrb_debug_cmp(CPGB_CPGRB_POOL(cpgb_1st), CPGB_CPGRB_POOL(cpgb_2nd)))
     {
-        sys_log(LOGSTDOUT, "error:cpgb_debug_cmp: inconsistent cpgrb pool\n");
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDOUT, "error:cpgb_debug_cmp: inconsistent cpgrb pool\n");
         return (EC_FALSE);
     }
 
@@ -1207,7 +1206,7 @@ EC_BOOL cpgb_debug_cmp(const CPGB *cpgb_1st, const CPGB *cpgb_2nd)
 
         if(root_pos_1st != root_pos_2nd)
         {
-            sys_log(LOGSTDERR, "error:cpgb_debug_cmp: inconsistent root_pos: %u != %u at page_model %u\n", 
+            dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_debug_cmp: inconsistent root_pos: %u != %u at page_model %u\n", 
                                 root_pos_1st, root_pos_2nd, page_model);
             return (EC_FALSE);
         }     
@@ -1232,7 +1231,7 @@ EC_BOOL cpgb_debug_cmp(const CPGB *cpgb_1st, const CPGB *cpgb_2nd)
         {
             if(pgc_cpgrb_bitmap_1st[ cpgrb_bitmap_pos ] != pgc_cpgrb_bitmap_1st[ cpgrb_bitmap_pos ])
             {
-                sys_log(LOGSTDERR, "error:cpgb_debug_cmp: inconsistent bitmap at pos %u: %u != %u where page_model %u\n",
+                dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_debug_cmp: inconsistent bitmap at pos %u: %u != %u where page_model %u\n",
                                     cpgrb_bitmap_pos,
                                     pgc_cpgrb_bitmap_1st[ cpgrb_bitmap_pos ], pgc_cpgrb_bitmap_2nd[ cpgrb_bitmap_pos ],
                                     page_model);
@@ -1244,7 +1243,7 @@ EC_BOOL cpgb_debug_cmp(const CPGB *cpgb_1st, const CPGB *cpgb_2nd)
     /*assign bitmap*/
     if(CPGB_PAGE_MODEL_ASSIGN_BITMAP(cpgb_1st) != CPGB_PAGE_MODEL_ASSIGN_BITMAP(cpgb_1st))
     {
-        sys_log(LOGSTDERR, "error:cpgb_debug_cmp: inconsistent CPGB_PAGE_MODEL_ASSIGN_BITMAP: %u != %u\n", 
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_debug_cmp: inconsistent CPGB_PAGE_MODEL_ASSIGN_BITMAP: %u != %u\n", 
                             CPGB_PAGE_MODEL_ASSIGN_BITMAP(cpgb_1st), CPGB_PAGE_MODEL_ASSIGN_BITMAP(cpgb_2nd));
         return (EC_FALSE);
     }
@@ -1252,7 +1251,7 @@ EC_BOOL cpgb_debug_cmp(const CPGB *cpgb_1st, const CPGB *cpgb_2nd)
     /*4k-page max num*/
     if(CPGB_PAGE_4K_MAX_NUM(cpgb_1st) != CPGB_PAGE_4K_MAX_NUM(cpgb_1st))
     {
-        sys_log(LOGSTDERR, "error:cpgb_debug_cmp: inconsistent CPGB_PAGE_4K_MAX_NUM: %u != %u\n", 
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_debug_cmp: inconsistent CPGB_PAGE_4K_MAX_NUM: %u != %u\n", 
                             CPGB_PAGE_4K_MAX_NUM(cpgb_1st), CPGB_PAGE_4K_MAX_NUM(cpgb_2nd));
         return (EC_FALSE);
     }
@@ -1260,7 +1259,7 @@ EC_BOOL cpgb_debug_cmp(const CPGB *cpgb_1st, const CPGB *cpgb_2nd)
     /*4k-page used num*/
     if(CPGB_PAGE_4K_USED_NUM(cpgb_1st) != CPGB_PAGE_4K_USED_NUM(cpgb_1st))
     {
-        sys_log(LOGSTDERR, "error:cpgb_debug_cmp: inconsistent CPGB_PAGE_4K_USED_NUM: %u != %u\n", 
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_debug_cmp: inconsistent CPGB_PAGE_4K_USED_NUM: %u != %u\n", 
                             CPGB_PAGE_4K_USED_NUM(cpgb_1st), CPGB_PAGE_4K_USED_NUM(cpgb_2nd));
         return (EC_FALSE);
     }
@@ -1268,7 +1267,7 @@ EC_BOOL cpgb_debug_cmp(const CPGB *cpgb_1st, const CPGB *cpgb_2nd)
     /*4k-page actual used bytes num*/
     if(CPGB_PAGE_ACTUAL_USED_SIZE(cpgb_1st) != CPGB_PAGE_ACTUAL_USED_SIZE(cpgb_1st))
     {
-        sys_log(LOGSTDERR, "error:cpgb_debug_cmp: inconsistent CPGB_PAGE_ACTUAL_USED_SIZE: %u != %u\n", 
+        dbg_log(SEC_0122_CPGB, 0)(LOGSTDERR, "error:cpgb_debug_cmp: inconsistent CPGB_PAGE_ACTUAL_USED_SIZE: %u != %u\n", 
                             CPGB_PAGE_ACTUAL_USED_SIZE(cpgb_1st), CPGB_PAGE_ACTUAL_USED_SIZE(cpgb_2nd));
         return (EC_FALSE);
     }    

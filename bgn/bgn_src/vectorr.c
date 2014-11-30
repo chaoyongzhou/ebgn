@@ -131,7 +131,7 @@ UINT32 vector_r_start( )
     vectorr_md->real_md_id = real_md_id;
     vectorr_md->usedcounter = 1;
 
-    //sys_log(LOGSTDOUT, "========================= vector_r_start: VECTORR table info:\n");
+    //dbg_log(SEC_0098_VECTORR, 3)(LOGSTDOUT, "========================= vector_r_start: VECTORR table info:\n");
     //vector_r_print_module_status(vectorr_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -152,7 +152,7 @@ void vector_r_end(const UINT32 vectorr_md_id)
     vectorr_md = VECTORR_MD_GET(vectorr_md_id);
     if ( NULL_PTR == vectorr_md )
     {
-        sys_log(LOGSTDOUT,"error:vector_r_end: vectorr_md_id = %ld is overflow.\n",vectorr_md_id);
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDOUT,"error:vector_r_end: vectorr_md_id = %ld is overflow.\n",vectorr_md_id);
         dbg_exit(MD_VECTORR, vectorr_md_id);
     }
 
@@ -165,7 +165,7 @@ void vector_r_end(const UINT32 vectorr_md_id)
 
     if ( 0 == vectorr_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:vector_r_end: vectorr_md_id = %ld is not started.\n",vectorr_md_id);
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDOUT,"error:vector_r_end: vectorr_md_id = %ld is not started.\n",vectorr_md_id);
         dbg_exit(MD_VECTORR, vectorr_md_id);
     }
 
@@ -187,7 +187,7 @@ void vector_r_end(const UINT32 vectorr_md_id)
 
     breathing_static_mem();
 
-    //sys_log(LOGSTDOUT, "========================= vector_r_end: VECTORR table info:\n");
+    //dbg_log(SEC_0098_VECTORR, 3)(LOGSTDOUT, "========================= vector_r_end: VECTORR table info:\n");
     //vector_r_print_module_status(vectorr_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -259,13 +259,13 @@ UINT32 vector_r_alloc_block( const UINT32 vectorr_md_type, const UINT32 vectorr_
 {
     if ( MD_VECTORR != vectorr_md_type )
     {
-        sys_log(LOGSTDOUT,"error:vector_r_alloc_block: invalid vectorr_md_type = %ld\n", vectorr_md_type);
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDOUT,"error:vector_r_alloc_block: invalid vectorr_md_type = %ld\n", vectorr_md_type);
         exit(0);
     }
 
     if ( MM_VECTOR_BLOCK != type )
     {
-        sys_log(LOGSTDOUT,"error:vector_r_alloc_block: invalid type = %ld\n",type);
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDOUT,"error:vector_r_alloc_block: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -305,7 +305,7 @@ UINT32 vector_r_clear_block( const UINT32 vectorr_md_type, const UINT32 vectorr_
 {
     if ( MD_VECTORR != vectorr_md_type )
     {
-        sys_log(LOGSTDOUT,"error:vector_r_clear_block: invalid vectorr_md_type = %ld\n", vectorr_md_type);
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDOUT,"error:vector_r_clear_block: invalid vectorr_md_type = %ld\n", vectorr_md_type);
         exit(0);
     }
 
@@ -330,7 +330,7 @@ UINT32 vector_r_free_block( const UINT32 vectorr_md_type, const UINT32 vectorr_m
 {
     if ( MM_VECTOR_BLOCK != type )
     {
-        sys_log(LOGSTDOUT,"error:vector_r_free_block: invalid type = %ld\n",type);
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDOUT,"error:vector_r_free_block: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -355,12 +355,12 @@ static UINT32 vector_r_alloc_vector( const UINT32 vectorr_md_type, const UINT32 
 {
     if ( MD_VECTORR != vectorr_md_type )
     {
-        sys_log(LOGSTDOUT,"error:vector_r_alloc_vector: invalid vectorr_md_type = %ld\n", vectorr_md_type);
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDOUT,"error:vector_r_alloc_vector: invalid vectorr_md_type = %ld\n", vectorr_md_type);
         exit(0);
     }
     if ( MM_VECTOR != type )
     {
-        sys_log(LOGSTDOUT,"error:vector_r_alloc_vector: invalid type = %ld\n",type);
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDOUT,"error:vector_r_alloc_vector: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -375,12 +375,12 @@ static UINT32 vector_r_free_vector( const UINT32 vectorr_md_type, const UINT32 v
 {
     if ( MD_VECTORR != vectorr_md_type )
     {
-        sys_log(LOGSTDOUT,"error:vector_r_free_vector: invalid vectorr_md_type = %ld\n", vectorr_md_type);
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDOUT,"error:vector_r_free_vector: invalid vectorr_md_type = %ld\n", vectorr_md_type);
         exit(0);
     }
     if ( MM_VECTOR != type )
     {
-        sys_log(LOGSTDOUT,"error:vector_r_free_vector: invalid type = %ld\n",type);
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDOUT,"error:vector_r_free_vector: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -403,7 +403,7 @@ UINT32 vector_r_new_vector_skeleton(const UINT32 vectorr_md_id, UINT32 num, VECT
 
     if( NULL_PTR == vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_new_vector_skeleton: vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_new_vector_skeleton: vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -452,7 +452,7 @@ UINT32 vector_r_new_vector(const UINT32 vectorr_md_id, const UINT32 num, VECTOR 
 {
     if( NULL_PTR == ppvector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_new_vector: ppvector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_new_vector: ppvector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -486,7 +486,7 @@ UINT32 vector_r_clear_vector(const UINT32 vectorr_md_id, VECTOR *vector)
 
     if( NULL_PTR == vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_clear_vector: vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_clear_vector: vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -520,7 +520,7 @@ UINT32 vector_r_clean_vector(const UINT32 vectorr_md_id, VECTOR *vector)
 
     if( NULL_PTR == vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_clean_vector: vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_clean_vector: vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -567,13 +567,13 @@ UINT32 vector_r_move_vector(const UINT32 vectorr_md_id, VECTOR *src_vector, VECT
 
     if( NULL_PTR == src_vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_move_vector: src_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_move_vector: src_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_move_vector: des_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_move_vector: des_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -1252,7 +1252,7 @@ UINT32 vector_r_block_adc(const UINT32 vectorr_md_id, const VECTOR_BLOCK *src_ve
 #if ( SWITCH_ON == VECTOR_DEBUG_SWITCH )
     if(VECTOR_BLOCK_GET_NUM(src_vector_block) != VECTOR_BLOCK_GET_NUM(des_vector_block))
     {
-        sys_log(LOGSTDOUT, "error:vector_r_block_adc: mismatchable vector: src num = %d, des num = %d\n",
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDOUT, "error:vector_r_block_adc: mismatchable vector: src num = %d, des num = %d\n",
                         VECTOR_BLOCK_GET_NUM(src_vector_block),
                         VECTOR_BLOCK_GET_NUM(des_vector_block));
         dbg_exit(MD_VECTORR, vectorr_md_id);
@@ -1570,13 +1570,13 @@ UINT32 vector_r_get_row_num(const UINT32 vectorr_md_id, const VECTOR *vector, UI
 {
     if( NULL_PTR == vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_get_row_num: vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_get_row_num: vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == row_num )
     {
-        sys_log(LOGSTDERR,"error:vector_r_get_row_num: row_num is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_get_row_num: row_num is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -1611,13 +1611,13 @@ UINT32 vector_r_get_col_num(const UINT32 vectorr_md_id, const VECTOR *vector, UI
 {
     if( NULL_PTR == vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_get_col_num: vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_get_col_num: vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == col_num )
     {
-        sys_log(LOGSTDERR,"error:vector_r_get_col_num: col_num is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_get_col_num: col_num is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -1653,19 +1653,19 @@ UINT32 vector_r_get_type(const UINT32 vectorr_md_id, const VECTOR *vector, UINT3
 {
     if( NULL_PTR == vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_get_type: vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_get_type: vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == row_num )
     {
-        sys_log(LOGSTDERR,"error:vector_r_get_type: row_num is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_get_type: row_num is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == col_num )
     {
-        sys_log(LOGSTDERR,"error:vector_r_get_type: col_num is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_get_type: col_num is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -1711,14 +1711,14 @@ UINT32 vector_r_clone(const UINT32 vectorr_md_id, const VECTOR *src_vector, VECT
     if( NULL_PTR == src_vector )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:vector_r_clone: src_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_clone: src_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_vector )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:vector_r_clone: des_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_clone: des_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -1762,7 +1762,7 @@ UINT32 vector_r_rotate(const UINT32 vectorr_md_id, VECTOR *vector)
     if( NULL_PTR == vector )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:vector_r_rotate: vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_rotate: vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -1793,7 +1793,7 @@ UINT32 vector_r_set_zero(const UINT32 vectorr_md_id, VECTOR *vector)
     if( NULL_PTR == vector )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:vector_r_set_zero: vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_set_zero: vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -1831,7 +1831,7 @@ UINT32 vector_r_set_one(const UINT32 vectorr_md_id, VECTOR *vector)
     if( NULL_PTR == vector )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:vector_r_set_one: vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_set_one: vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -1849,7 +1849,7 @@ UINT32 vector_r_set_one(const UINT32 vectorr_md_id, VECTOR *vector)
 
     if( 0 == num )
     {
-        sys_log(LOGSTDERR,"error:vector_r_set_one: not valid vector: num = %ld\n", num);
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_set_one: not valid vector: num = %ld\n", num);
         return ((UINT32)(-1));
     }
 
@@ -1881,7 +1881,7 @@ UINT32 vector_r_xchg(const UINT32 vectorr_md_id, const UINT32 idx_1, const UINT3
     if( NULL_PTR == vector )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:vector_r_xchg: vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_xchg: vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -1897,13 +1897,13 @@ UINT32 vector_r_xchg(const UINT32 vectorr_md_id, const UINT32 idx_1, const UINT3
 
     if( idx_1 >= VECTOR_GET_NUM(vector) )
     {
-        sys_log(LOGSTDERR, "vector_r_xchg: idx_1 %ld overflow where vector num is %ld\n", idx_1, VECTOR_GET_NUM(vector));
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR, "vector_r_xchg: idx_1 %ld overflow where vector num is %ld\n", idx_1, VECTOR_GET_NUM(vector));
         return ((UINT32)(-1));
     }
 
     if( idx_2 >= VECTOR_GET_NUM(vector) )
     {
-        sys_log(LOGSTDERR, "vector_r_xchg: idx_2 %ld overflow where vector num is %ld\n", idx_2, VECTOR_GET_NUM(vector));
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR, "vector_r_xchg: idx_2 %ld overflow where vector num is %ld\n", idx_2, VECTOR_GET_NUM(vector));
         return ((UINT32)(-1));
     }
 
@@ -1935,7 +1935,7 @@ EC_BOOL vector_r_is_zero(const UINT32 vectorr_md_id, const VECTOR *vector)
 
     if( NULL_PTR == vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_is_zero: vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_is_zero: vector is null pointer\n");
         return (EC_TRUE);
     }
 
@@ -1972,7 +1972,7 @@ EC_BOOL vector_r_is_one(const UINT32 vectorr_md_id, const VECTOR *vector)
 
     if( NULL_PTR == vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_is_one: vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_is_one: vector is null pointer\n");
         return (EC_TRUE);
     }
 
@@ -2016,13 +2016,13 @@ EC_BOOL vector_r_cmp(const UINT32 vectorr_md_id, const VECTOR *vector_1, const V
 
     if( NULL_PTR == vector_1 )
     {
-        sys_log(LOGSTDERR,"error:vector_r_cmp: vector_1 is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_cmp: vector_1 is null pointer\n");
         return (EC_TRUE);
     }
 
     if( NULL_PTR == vector_2 )
     {
-        sys_log(LOGSTDERR,"error:vector_r_cmp: vector_2 is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_cmp: vector_2 is null pointer\n");
         return (EC_TRUE);
     }
 
@@ -2088,13 +2088,13 @@ UINT32 vector_r_neg(const UINT32 vectorr_md_id, const VECTOR *src_vector, VECTOR
 
     if( NULL_PTR == src_vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_neg: src_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_neg: src_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_neg: des_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_neg: des_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2141,13 +2141,13 @@ UINT32 vector_r_adc(const UINT32 vectorr_md_id, const VECTOR *src_vector, VECTOR
 
     if( NULL_PTR == src_vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_adc: src_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_adc: src_vector is null pointer\n");
         return (0);
     }
 
     if( NULL_PTR == des_vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_adc: des_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_adc: des_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2163,7 +2163,7 @@ UINT32 vector_r_adc(const UINT32 vectorr_md_id, const VECTOR *src_vector, VECTOR
 
     if( VECTOR_GET_ROTATED_FLAG(src_vector) != VECTOR_GET_ROTATED_FLAG(des_vector) )
     {
-        sys_log(LOGSTDERR,"error:vector_r_adc: not matchable vector: rotated_flag of src_vector = %ld, rotated_flag of des_vector = %ld\n",
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_adc: not matchable vector: rotated_flag of src_vector = %ld, rotated_flag of des_vector = %ld\n",
                         VECTOR_GET_ROTATED_FLAG(src_vector),
                         VECTOR_GET_ROTATED_FLAG(des_vector));
         return ((UINT32)(-1));
@@ -2171,7 +2171,7 @@ UINT32 vector_r_adc(const UINT32 vectorr_md_id, const VECTOR *src_vector, VECTOR
 
     if(  VECTOR_GET_NUM(src_vector) != VECTOR_GET_NUM(des_vector) )
     {
-        sys_log(LOGSTDERR,"error:vector_r_adc: not matchable vector: num of src_vector = %ld, num of des_vector = %ld\n",
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_adc: not matchable vector: num of src_vector = %ld, num of des_vector = %ld\n",
                         VECTOR_GET_NUM(src_vector),
                         VECTOR_GET_NUM(des_vector));
         return ((UINT32)(-1));
@@ -2201,19 +2201,19 @@ UINT32 vector_r_add(const UINT32 vectorr_md_id, const VECTOR *src_vector_1, cons
 
     if( NULL_PTR == src_vector_1 )
     {
-        sys_log(LOGSTDERR,"error:vector_r_add: src_vector_1 is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_add: src_vector_1 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_vector_2 )
     {
-        sys_log(LOGSTDERR,"error:vector_r_add: src_vector_2 is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_add: src_vector_2 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_add: des_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_add: des_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2239,19 +2239,19 @@ UINT32 vector_r_add(const UINT32 vectorr_md_id, const VECTOR *src_vector_1, cons
 
     if( NULL_PTR == src_vector_1 )
     {
-        sys_log(LOGSTDERR,"error:vector_r_add: src_vector_1 is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_add: src_vector_1 is null pointer\n");
         return vector_r_clone(vectorr_md_id, src_vector_2, des_vector);
     }
 
     if( NULL_PTR == src_vector_2 )
     {
-        sys_log(LOGSTDERR,"error:vector_r_add: src_vector_2 is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_add: src_vector_2 is null pointer\n");
         return vector_r_clone(vectorr_md_id, src_vector_1, des_vector);
     }
 
     if( VECTOR_GET_ROTATED_FLAG(src_vector_1) != VECTOR_GET_ROTATED_FLAG(src_vector_2) )
     {
-        sys_log(LOGSTDERR,"error:vector_r_add: not matchable vector: rotated_flag of src_vector_1 = %ld,rotated_flag of src_vector_2 = %ld\n",
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_add: not matchable vector: rotated_flag of src_vector_1 = %ld,rotated_flag of src_vector_2 = %ld\n",
                         VECTOR_GET_ROTATED_FLAG(src_vector_1),
                         VECTOR_GET_ROTATED_FLAG(src_vector_2));
         return ((UINT32)(-1));
@@ -2259,7 +2259,7 @@ UINT32 vector_r_add(const UINT32 vectorr_md_id, const VECTOR *src_vector_1, cons
 
     if( VECTOR_GET_NUM(src_vector_1) != VECTOR_GET_NUM(src_vector_2) )
     {
-        sys_log(LOGSTDERR,"error:vector_r_add: not matchable vector: num of src_vector_1 = %ld, num of src_vector_2 = %ld\n",
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_add: not matchable vector: num of src_vector_1 = %ld, num of src_vector_2 = %ld\n",
                         VECTOR_GET_NUM(src_vector_1),
                         VECTOR_GET_NUM(src_vector_2));
         return ((UINT32)(-1));
@@ -2303,13 +2303,13 @@ UINT32 vector_r_sbb(const UINT32 vectorr_md_id, const VECTOR *src_vector, VECTOR
 
     if( NULL_PTR == src_vector)
     {
-        sys_log(LOGSTDERR,"error:vector_r_sbb: src_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_sbb: src_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_vector)
     {
-        sys_log(LOGSTDERR,"error:vector_r_sbb: des_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_sbb: des_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2330,7 +2330,7 @@ UINT32 vector_r_sbb(const UINT32 vectorr_md_id, const VECTOR *src_vector, VECTOR
 
     if(  VECTOR_GET_ROTATED_FLAG(src_vector) != VECTOR_GET_ROTATED_FLAG(des_vector) )
     {
-        sys_log(LOGSTDERR,"error:vector_r_sbb: not matchable vector: rotated_flag of src_vector = %ld, rotated_flag of des_vector = %ld\n",
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_sbb: not matchable vector: rotated_flag of src_vector = %ld, rotated_flag of des_vector = %ld\n",
                         VECTOR_GET_ROTATED_FLAG(src_vector),
                         VECTOR_GET_ROTATED_FLAG(des_vector));
         return ((UINT32)(-1));
@@ -2338,7 +2338,7 @@ UINT32 vector_r_sbb(const UINT32 vectorr_md_id, const VECTOR *src_vector, VECTOR
 
     if(  VECTOR_GET_NUM(src_vector) != VECTOR_GET_NUM(des_vector) )
     {
-        sys_log(LOGSTDERR,"error:vector_r_sbb: not matchable vector: num of src_vector = %ld, num of des_vector = %ld\n",
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_sbb: not matchable vector: num of src_vector = %ld, num of des_vector = %ld\n",
                         VECTOR_GET_NUM(src_vector),
                         VECTOR_GET_NUM(des_vector));
         return ((UINT32)(-1));
@@ -2369,19 +2369,19 @@ UINT32 vector_r_sub(const UINT32 vectorr_md_id, const VECTOR *src_vector_1, cons
 
     if( NULL_PTR == src_vector_1 )
     {
-        sys_log(LOGSTDERR,"error:vector_r_sub: src_vector_1 is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_sub: src_vector_1 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_vector_2 )
     {
-        sys_log(LOGSTDERR,"error:vector_r_sub: src_vector_2 is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_sub: src_vector_2 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_vector)
     {
-        sys_log(LOGSTDERR,"error:vector_r_sub: des_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_sub: des_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2407,7 +2407,7 @@ UINT32 vector_r_sub(const UINT32 vectorr_md_id, const VECTOR *src_vector_1, cons
 
     if( VECTOR_GET_ROTATED_FLAG(src_vector_1) != VECTOR_GET_ROTATED_FLAG(src_vector_2) )
     {
-        sys_log(LOGSTDERR,"error:vector_r_sbb: not matchable vector: rotated_flag of src_vector_1 = %ld,rotated_flag of src_vector_2 = %ld\n",
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_sbb: not matchable vector: rotated_flag of src_vector_1 = %ld,rotated_flag of src_vector_2 = %ld\n",
                         VECTOR_GET_ROTATED_FLAG(src_vector_1),
                         VECTOR_GET_ROTATED_FLAG(src_vector_2));
         return ((UINT32)(-1));
@@ -2415,7 +2415,7 @@ UINT32 vector_r_sub(const UINT32 vectorr_md_id, const VECTOR *src_vector_1, cons
 
     if(  VECTOR_GET_NUM(src_vector_1) != VECTOR_GET_NUM(src_vector_2) )
     {
-        sys_log(LOGSTDERR,"error:vector_r_sub: not matchable vector: num of src_vector_1 = %ld, num of src_vector_2 = %ld\n",
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_sub: not matchable vector: num of src_vector_1 = %ld, num of src_vector_2 = %ld\n",
                         VECTOR_GET_NUM(src_vector_1),
                         VECTOR_GET_NUM(src_vector_1));
         return ((UINT32)(-1));
@@ -2478,19 +2478,19 @@ UINT32 vector_r_s_mul(const UINT32 vectorr_md_id, const REAL *s_data_addr, const
 
     if( NULL_PTR == s_data_addr )
     {
-        sys_log(LOGSTDERR,"error:vector_r_s_mul: s_data_addr is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_s_mul: s_data_addr is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_s_mul: src_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_s_mul: src_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_vector )
     {
-        sys_log(LOGSTDERR,"error:vector_r_s_mul: des_vector is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_s_mul: des_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2548,19 +2548,19 @@ UINT32 vector_r_row_vector_mul_col_vector(const UINT32 vectorr_md_id, const VECT
 
     if( NULL_PTR == src_vector_1 )
     {
-        sys_log(LOGSTDERR,"error:vector_r_row_vector_mul_col_vector: src_vector_1 is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_row_vector_mul_col_vector: src_vector_1 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_vector_2 )
     {
-        sys_log(LOGSTDERR,"error:vector_r_row_vector_mul_col_vector: src_vector_2 is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_row_vector_mul_col_vector: src_vector_2 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_data_addr )
     {
-        sys_log(LOGSTDERR,"error:vector_r_row_vector_mul_col_vector: des_data_addr is null pointer\n");
+        dbg_log(SEC_0098_VECTORR, 0)(LOGSTDERR,"error:vector_r_row_vector_mul_col_vector: des_data_addr is null pointer\n");
         return ((UINT32)(-1));
     }
 

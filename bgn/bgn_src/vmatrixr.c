@@ -190,7 +190,7 @@ void vmatrix_r_end(const UINT32 vmatrixr_md_id)
     vmatrixr_md = VMATRIXR_MD_GET(vmatrixr_md_id);
     if(NULL_PTR == vmatrixr_md)
     {
-        sys_log(LOGSTDOUT,"error:vmatrix_r_end: vmatrixr_md_id = %ld is overflow.\n", vmatrixr_md_id);
+        dbg_log(SEC_0092_VMATRIXR, 0)(LOGSTDOUT,"error:vmatrix_r_end: vmatrixr_md_id = %ld is overflow.\n", vmatrixr_md_id);
         dbg_exit(MD_VMATRIXR, vmatrixr_md_id);
     }
 
@@ -203,7 +203,7 @@ void vmatrix_r_end(const UINT32 vmatrixr_md_id)
 
     if ( 0 == vmatrixr_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:vmatrix_r_end: vmatrixr_md_id = %ld is not started.\n", vmatrixr_md_id);
+        dbg_log(SEC_0092_VMATRIXR, 0)(LOGSTDOUT,"error:vmatrix_r_end: vmatrixr_md_id = %ld is not started.\n", vmatrixr_md_id);
         dbg_exit(MD_VMATRIXR, vmatrixr_md_id);
     }
 
@@ -261,17 +261,17 @@ UINT32 vmatrix_r_set_mod_mgr(const UINT32 vmatrixr_md_id, const MOD_MGR * src_mo
     vmatrixr_md = VMATRIXR_MD_GET(vmatrixr_md_id);
     des_mod_mgr = vmatrixr_md->mod_mgr;
 
-    //sys_log(LOGSTDOUT, "vmatrix_r_set_mod_mgr: md_id %d, src_mod_mgr %lx\n", vmatrixr_md_id, src_mod_mgr);
+    //dbg_log(SEC_0092_VMATRIXR, 5)(LOGSTDOUT, "vmatrix_r_set_mod_mgr: md_id %d, src_mod_mgr %lx\n", vmatrixr_md_id, src_mod_mgr);
     //mod_mgr_print(LOGSTDOUT, src_mod_mgr);
 
     mod_mgr_limited_clone(vmatrixr_md_id, src_mod_mgr, des_mod_mgr);
 
-    //sys_log(LOGSTDOUT, "vmatrix_r_set_mod_mgr: md_id %d, des_mod_mgr %lx\n", vmatrixr_md_id, des_mod_mgr);
+    //dbg_log(SEC_0092_VMATRIXR, 5)(LOGSTDOUT, "vmatrix_r_set_mod_mgr: md_id %d, des_mod_mgr %lx\n", vmatrixr_md_id, des_mod_mgr);
     //mod_mgr_print(LOGSTDOUT, des_mod_mgr);
 
-    sys_log(LOGSTDOUT, "====================================vmatrix_r_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
+    dbg_log(SEC_0092_VMATRIXR, 5)(LOGSTDOUT, "====================================vmatrix_r_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
     mod_mgr_print(LOGSTDOUT, des_mod_mgr);
-    sys_log(LOGSTDOUT, "====================================vmatrix_r_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
+    dbg_log(SEC_0092_VMATRIXR, 5)(LOGSTDOUT, "====================================vmatrix_r_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
 
 
     return (0);
@@ -403,7 +403,7 @@ EC_BOOL vmatrix_r_free_vmm_node(const UINT32 vmatrixr_md_id, VMM_NODE *vmm_node)
 
     if(0 != VMM_NODE_ADDR(vmm_node))
     {
-        sys_log(LOGSTDOUT, "error:vmatrix_r_free_vmm_node: vmm_node %lx mount pointer %lx\n", vmm_node, VMM_NODE_ADDR(vmm_node));
+        dbg_log(SEC_0092_VMATRIXR, 0)(LOGSTDOUT, "error:vmatrix_r_free_vmm_node: vmm_node %lx mount pointer %lx\n", vmm_node, VMM_NODE_ADDR(vmm_node));
     }
     free_static_mem(MD_VMATRIXR, vmatrixr_md_id, MM_VMM_NODE, vmm_node, LOC_VMATRIXR_0002);
     return (EC_TRUE);
@@ -468,7 +468,7 @@ UINT32 vmatrix_r_free_block(const UINT32 vmatrixr_md_id, VMM_NODE *matrix_block_
     if(0 != VMM_NODE_ADDR(matrix_block_vmm))
     {
         matrix_block = (MATRIX_BLOCK *)VMM_NODE_ADDR(matrix_block_vmm);
-        sys_log(LOGSTDOUT, "vmatrix_r_free_block: free matrix_block %lx\n", matrix_block);
+        dbg_log(SEC_0092_VMATRIXR, 5)(LOGSTDOUT, "vmatrix_r_free_block: free matrix_block %lx\n", matrix_block);
 
         matrix_r_clean_block(vmatrixr_md->matrixr_md_id, matrix_block);
 
@@ -476,7 +476,7 @@ UINT32 vmatrix_r_free_block(const UINT32 vmatrixr_md_id, VMM_NODE *matrix_block_
     }
     else
     {
-        sys_log(LOGSTDOUT, "vmatrix_r_free_block: matrix_block is null\n");
+        dbg_log(SEC_0092_VMATRIXR, 5)(LOGSTDOUT, "vmatrix_r_free_block: matrix_block is null\n");
     }
 
     task_brd = vmatrixr_md->task_brd;
@@ -585,7 +585,7 @@ UINT32 vmatrix_r_new_matrix_skeleton(const UINT32 vmatrixr_md_id, const UINT32 r
 
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:vmatrix_r_new_matrix_skeleton: matrix is null pointer\n");
+        dbg_log(SEC_0092_VMATRIXR, 0)(LOGSTDERR,"error:vmatrix_r_new_matrix_skeleton: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -681,7 +681,7 @@ UINT32 vmatrix_r_new_matrix(const UINT32 vmatrixr_md_id, const UINT32 row_num, c
 
     if( NULL_PTR == matrix_vmm )
     {
-        sys_log(LOGSTDERR,"error:vmatrix_r_new_matrix: matrix_vmm is null pointer\n");
+        dbg_log(SEC_0092_VMATRIXR, 0)(LOGSTDERR,"error:vmatrix_r_new_matrix: matrix_vmm is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -945,7 +945,7 @@ UINT32 vmatrix_r_clean_matrix(const UINT32 vmatrixr_md_id, VMM_NODE *matrix_vmm)
 
     if( NULL_PTR == matrix_vmm )
     {
-        sys_log(LOGSTDERR,"error:vmatrix_r_clean_matrix: matrix_vmm is null pointer\n");
+        dbg_log(SEC_0092_VMATRIXR, 0)(LOGSTDERR,"error:vmatrix_r_clean_matrix: matrix_vmm is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -971,7 +971,7 @@ UINT32 vmatrix_r_clean_matrix(const UINT32 vmatrixr_md_id, VMM_NODE *matrix_vmm)
 
         if(0 == VMM_NODE_ADDR(matrix_block_vmm))
         {
-            sys_log(LOGSTDOUT, "vmatrix_r_clean_matrix: matrix_block_vmm %lx mount null\n", matrix_block_vmm);
+            dbg_log(SEC_0092_VMATRIXR, 5)(LOGSTDOUT, "vmatrix_r_clean_matrix: matrix_block_vmm %lx mount null\n", matrix_block_vmm);
             continue;
         }
 
@@ -1144,19 +1144,19 @@ UINT32 vmatrix_r_mul_p(const UINT32 vmatrixr_md_id, const VMM_NODE *src_matrix_v
 
     if( NULL_PTR == src_matrix_vmm_1 )
     {
-        sys_log(LOGSTDERR,"error:vmatrix_r_mul_p: src_matrix_vmm_1 is null pointer\n");
+        dbg_log(SEC_0092_VMATRIXR, 0)(LOGSTDERR,"error:vmatrix_r_mul_p: src_matrix_vmm_1 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_matrix_vmm_2 )
     {
-        sys_log(LOGSTDERR,"error:vmatrix_r_mul_p: src_matrix_vmm_2 is null pointer\n");
+        dbg_log(SEC_0092_VMATRIXR, 0)(LOGSTDERR,"error:vmatrix_r_mul_p: src_matrix_vmm_2 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix_vmm)
     {
-        sys_log(LOGSTDERR,"error:vmatrix_r_mul_p: des_matrix_vmm is null pointer\n");
+        dbg_log(SEC_0092_VMATRIXR, 0)(LOGSTDERR,"error:vmatrix_r_mul_p: des_matrix_vmm is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -1171,7 +1171,7 @@ UINT32 vmatrix_r_mul_p(const UINT32 vmatrixr_md_id, const VMM_NODE *src_matrix_v
     if(  MATRIX_GET_COL_NUM(src_matrix_1)
       != MATRIX_GET_ROW_NUM(src_matrix_2) )
     {
-        sys_log(LOGSTDERR,"error:vmatrix_r_mul_p: not matchable matrix: col num of src_matrix_1 = %ld, row num of src_matrix_2 = %ld\n",
+        dbg_log(SEC_0092_VMATRIXR, 0)(LOGSTDERR,"error:vmatrix_r_mul_p: not matchable matrix: col num of src_matrix_1 = %ld, row num of src_matrix_2 = %ld\n",
                         MATRIX_GET_COL_NUM(src_matrix_1),
                         MATRIX_GET_ROW_NUM(src_matrix_2));
         return ((UINT32)(-1));
@@ -1216,11 +1216,11 @@ UINT32 vmatrix_r_mul_p(const UINT32 vmatrixr_md_id, const VMM_NODE *src_matrix_v
 
             clist_push_back(clist, pro_matrix_block_vmm);
 #if 0
-            sys_log(LOGSTDOUT, "vmatrix_r_mul_p: beg:\n");
+            dbg_log(SEC_0092_VMATRIXR, 5)(LOGSTDOUT, "vmatrix_r_mul_p: beg:\n");
             vmm_print(vmatrixr_md->vmm_md_id, LOGSTDOUT, src_matrix_block_vmm_1);
             vmm_print(vmatrixr_md->vmm_md_id, LOGSTDOUT, src_matrix_block_vmm_2);
             vmm_print(vmatrixr_md->vmm_md_id, LOGSTDOUT, pro_matrix_block_vmm);
-            sys_log(LOGSTDOUT, "vmatrix_r_mul_p: end:\n");
+            dbg_log(SEC_0092_VMATRIXR, 5)(LOGSTDOUT, "vmatrix_r_mul_p: end:\n");
 #endif
             //task_inc(task_mgr, &ret, FI_vmatrix_r_block_mul, ERR_MODULE_ID, src_matrix_block_vmm_1, src_matrix_block_vmm_2, pro_matrix_block_vmm);
             /*if send the op=block_mul to one module which own one matrix_block, we have 50% possibility to reduce op=get_block to zero! */

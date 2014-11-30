@@ -37,7 +37,9 @@ typedef struct
     UINT32 (*data_clean)(const UINT32 , void *);
     UINT32 (*data_free)(const UINT32 , void *);
 
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH) 
     CMUTEX    cmutex;
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/        
 }CINDEX;
 
 typedef  void *(*CINDEX_DATA_MALLOC)();
@@ -52,11 +54,22 @@ typedef UINT32 (*CINDEX_DATA_CLEAN)(const UINT32, void *);
 typedef UINT32 (*CINDEX_DATA_FREE)(const UINT32, void *);
 
 /*------------------ lock interface ----------------*/
-#define CINDEX_INIT_LOCK(cindex, __location__)          cmutex_init((CMUTEX *)&((cindex)->cmutex), CMUTEX_PROCESS_PRIVATE, (__location__))
-#define CINDEX_CLEAN_LOCK(cindex, __location__)         cmutex_clean((CMUTEX *)&((cindex)->cmutex), (__location__))
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)    
+#define CINDEX_CMUTEX(cindex)                           ((CMUTEX *)&((cindex)->cmutex))
+#define CINDEX_INIT_LOCK(cindex, __location__)          cmutex_init(CINDEX_CMUTEX(cindex), CMUTEX_PROCESS_PRIVATE, (__location__))
+#define CINDEX_CLEAN_LOCK(cindex, __location__)         cmutex_clean(CINDEX_CMUTEX(cindex), (__location__))
 
-#define CINDEX_LOCK(cindex, __location__)               cmutex_lock((CMUTEX *)&((cindex)->cmutex), (__location__))
-#define CINDEX_UNLOCK(cindex, __location__)             cmutex_unlock((CMUTEX *)&((cindex)->cmutex), (__location__))
+#define CINDEX_LOCK(cindex, __location__)               cmutex_lock(CINDEX_CMUTEX(cindex), (__location__))
+#define CINDEX_UNLOCK(cindex, __location__)             cmutex_unlock(CINDEX_CMUTEX(cindex), (__location__))
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/  
+
+#if (SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)    
+#define CINDEX_INIT_LOCK(cindex, __location__)          do{}while(0)
+#define CINDEX_CLEAN_LOCK(cindex, __location__)         do{}while(0)
+
+#define CINDEX_LOCK(cindex, __location__)               do{}while(0)
+#define CINDEX_UNLOCK(cindex, __location__)             do{}while(0)
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)*/  
 
 CINDEX *cindex_new(const UINT32 capacity, const UINT32 mm_type, const UINT32 location);
 

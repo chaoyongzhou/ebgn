@@ -140,22 +140,22 @@ UINT32 ec_f2n_start( const BIGINT *f_x, const ECF2N_CURVE *curve, const BIGINT *
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == f_x )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_start: f_x is NULL_PTR.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_start: f_x is NULL_PTR.\n");
         dbg_exit(MD_ECF2N, ERR_MODULE_ID);
     }
     if ( NULL_PTR == curve )
     {
-         sys_log(LOGSTDOUT,"error:ec_f2n_start: curve is NULL_PTR.\n");
+         dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_start: curve is NULL_PTR.\n");
          dbg_exit(MD_ECF2N, ERR_MODULE_ID);
     }
     if ( NULL_PTR == order )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_start: order is NULL_PTR.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_start: order is NULL_PTR.\n");
         dbg_exit(MD_ECF2N, ERR_MODULE_ID);
     }
     if ( NULL_PTR == base_point )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_start: base_point is NULL_PTR.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_start: base_point is NULL_PTR.\n");
         dbg_exit(MD_ECF2N, ERR_MODULE_ID);
     }
 #endif/*ECC_DEBUG_SWITCH*/
@@ -231,22 +231,22 @@ UINT32 ec_f2n_start( const BIGINT *f_x, const ECF2N_CURVE *curve, const BIGINT *
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == ecf2n_f )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_start: ecf2n_f is NULL_PTR.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_start: ecf2n_f is NULL_PTR.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == ecf2n_curve )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_start: ecf2n_curve is NULL_PTR.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_start: ecf2n_curve is NULL_PTR.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == ecf2n_order )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_start: ecf2n_order is NULL_PTR.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_start: ecf2n_order is NULL_PTR.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == ecf2n_base_point )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_start: ecf2n_base_point is NULL_PTR.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_start: ecf2n_base_point is NULL_PTR.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 
@@ -308,7 +308,7 @@ UINT32 ec_f2n_start( const BIGINT *f_x, const ECF2N_CURVE *curve, const BIGINT *
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == g_ecf2n_naf_arry[ ecf2n_md_id ] )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_start: g_ecf2n_naf_arry[ %ld ] is NULL_PTR.\n",ecf2n_md_id);
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_start: g_ecf2n_naf_arry[ %ld ] is NULL_PTR.\n",ecf2n_md_id);
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif/*ECC_DEBUG_SWITCH*/
@@ -353,7 +353,7 @@ void ec_f2n_end(const UINT32 ecf2n_md_id)
 
     if ( MAX_NUM_OF_ECF2N_MD < ecf2n_md_id )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_end: ecf2n_md_id = %ld is overflow.\n",ecf2n_md_id);
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_end: ecf2n_md_id = %ld is overflow.\n",ecf2n_md_id);
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 
@@ -369,7 +369,7 @@ void ec_f2n_end(const UINT32 ecf2n_md_id)
 
     if ( 0 == ecf2n_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_end: ecf2n_md_id = %ld is not started.\n",ecf2n_md_id);
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_end: ecf2n_md_id = %ld is not started.\n",ecf2n_md_id);
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 
@@ -439,7 +439,7 @@ EC_BOOL ec_f2n_point_is_infinit(const UINT32 ecf2n_md_id, const EC_CURVE_POINT *
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_is_infinit: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_is_infinit: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -486,7 +486,7 @@ void ec_f2n_point_set_infinit(const UINT32 ecf2n_md_id, EC_CURVE_POINT * P)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_set_infinit: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_set_infinit: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -530,7 +530,7 @@ UINT32 ec_f2n_point_aff_is_infinit(const UINT32 ecf2n_md_id, const EC_CURVE_AFF_
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_is_infinit: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_is_infinit: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -574,7 +574,7 @@ void ec_f2n_point_aff_set_infinit(const UINT32 ecf2n_md_id, EC_CURVE_AFF_POINT *
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_set_infinit: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_set_infinit: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -618,12 +618,12 @@ void ec_f2n_point_clone(const UINT32 ecf2n_md_id, const EC_CURVE_POINT * src,EC_
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == src)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_clone: src is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_clone: src is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == des)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_clone: des is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_clone: des is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -659,12 +659,12 @@ void ec_f2n_point_aff_clone(const UINT32 ecf2n_md_id, const EC_CURVE_AFF_POINT *
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == src)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_clone: src is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_clone: src is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == des)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_clone: des is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_clone: des is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -699,12 +699,12 @@ void ec_f2n_curve_clone(const UINT32 ecf2n_md_id, const ECF2N_CURVE * src,ECF2N_
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == src)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_curve_clone: src is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_curve_clone: src is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == des)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_curve_clone: des is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_curve_clone: des is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -747,12 +747,12 @@ UINT32 ec_f2n_curve_cmp(const UINT32 ecf2n_md_id, const ECF2N_CURVE * curve_1,co
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == curve_1 )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_curve_cmp: curve_1 is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_curve_cmp: curve_1 is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == curve_2 )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_curve_cmp: curve_2 is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_curve_cmp: curve_2 is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -807,12 +807,12 @@ UINT32 ec_f2n_point_cmp(const UINT32 ecf2n_md_id, const EC_CURVE_POINT * P,const
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_cmp: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_cmp: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == Q )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_cmp: Q is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_cmp: Q is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -872,12 +872,12 @@ UINT32 ec_f2n_point_aff_cmp(const UINT32 ecf2n_md_id, const EC_CURVE_AFF_POINT *
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_cmp: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_cmp: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == Q )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_cmp: Q is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_cmp: Q is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -954,7 +954,7 @@ EC_BOOL ec_f2n_point_is_on_curve(const UINT32 ecf2n_md_id, const EC_CURVE_POINT 
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == point)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_is_on_curve: point is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_is_on_curve: point is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1048,12 +1048,12 @@ void ec_f2n_point_neg(const UINT32 ecf2n_md_id, const EC_CURVE_POINT * P,EC_CURV
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_neg: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_neg: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == negP)
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_neg: negP is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_neg: negP is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1112,17 +1112,17 @@ void ec_f2n_point_mix_add(const UINT32 ecf2n_md_id, const EC_CURVE_AFF_POINT * P
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mix_add: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mix_add: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == Q )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mix_add: Q is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mix_add: Q is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mix_add: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mix_add: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1130,7 +1130,7 @@ void ec_f2n_point_mix_add(const UINT32 ecf2n_md_id, const EC_CURVE_AFF_POINT * P
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( P == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mix_add: address of P and R conflict.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mix_add: address of P and R conflict.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1161,7 +1161,7 @@ void ec_f2n_point_mix_add(const UINT32 ecf2n_md_id, const EC_CURVE_AFF_POINT * P
     && 0 == bgn_f2n_cmp( bgnf2n_md_id, x1, x2 )
     && 0 == bgn_f2n_cmp( bgnf2n_md_id, y1, y2 ) )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mix_add: P is same as Q.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mix_add: P is same as Q.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif
@@ -1278,17 +1278,17 @@ void ec_f2n_point_mix_sub(const UINT32 ecf2n_md_id, const EC_CURVE_AFF_POINT * P
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mix_sub: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mix_sub: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == Q )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mix_sub: Q is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mix_sub: Q is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mix_sub: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mix_sub: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1351,12 +1351,12 @@ void ec_f2n_point_aff_double(const UINT32 ecf2n_md_id, const EC_CURVE_AFF_POINT 
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_double: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_double: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_double: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_double: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1364,7 +1364,7 @@ void ec_f2n_point_aff_double(const UINT32 ecf2n_md_id, const EC_CURVE_AFF_POINT 
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( P == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_double: address of P and R conflict.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_double: address of P and R conflict.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1478,12 +1478,12 @@ void ec_f2n_point_convert(const UINT32 ecf2n_md_id, const EC_CURVE_POINT * P,EC_
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_convert: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_convert: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_convert: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_convert: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1552,12 +1552,12 @@ void ec_f2n_point_aff_convert(const UINT32 ecf2n_md_id, const EC_CURVE_AFF_POINT
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_convert: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_convert: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_convert: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_convert: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1655,17 +1655,17 @@ void ec_f2n_point_mul_naf(const UINT32 ecf2n_md_id, const EC_CURVE_POINT * P,con
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul_naf: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul_naf: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == k )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul_naf: k is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul_naf: k is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul_naf: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul_naf: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1773,12 +1773,12 @@ void ec_f2n_point_mul_fix_base(const UINT32 ecf2n_md_id, const BIGINT * k,EC_CUR
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == k )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul_fix_base: k is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul_fix_base: k is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul_fix_base: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul_fix_base: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1864,17 +1864,17 @@ void ec_f2n_point_mul(const UINT32 ecf2n_md_id, const EC_CURVE_POINT * P,const B
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == k )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul: k is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul: k is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1937,17 +1937,17 @@ void ec_f2n_point_add(const UINT32 ecf2n_md_id, const EC_CURVE_POINT * P,const E
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_add: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_add: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == Q )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_add: Q is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_add: Q is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_add: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_add: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -2021,13 +2021,13 @@ void ec_f2n_point_double(const UINT32 ecf2n_md_id, const EC_CURVE_POINT * P,EC_C
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_double: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_double: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_double: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_double: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -2093,17 +2093,17 @@ void ec_f2n_point_sub(const UINT32 ecf2n_md_id, const EC_CURVE_POINT * P,const E
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_sub: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_sub: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == Q )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_sub: Q is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_sub: Q is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_sub: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_sub: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -2149,12 +2149,12 @@ void ec_f2n_point_mul_M_ary_Pre(const UINT32 ecf2n_md_id, const EC_CURVE_POINT *
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul_M_ary_Pre: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul_M_ary_Pre: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == buf )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul_M_ary_Pre: buf is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul_M_ary_Pre: buf is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -2195,12 +2195,12 @@ void ec_f2n_point_aff_doubles(const UINT32 ecf2n_md_id, const EC_CURVE_AFF_POINT
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_doubles: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_doubles: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_aff_doubles: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_aff_doubles: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -2269,17 +2269,17 @@ void ec_f2n_point_mul_M_ary(const UINT32 ecf2n_md_id, const EC_CURVE_POINT * P,c
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == P )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul_M_ary: P is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul_M_ary: P is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == k )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul_M_ary: k  is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul_M_ary: k  is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
     if ( NULL_PTR == R )
     {
-        sys_log(LOGSTDOUT,"error:ec_f2n_point_mul_M_ary: R is null.\n");
+        dbg_log(SEC_0045_ECF2N, 0)(LOGSTDOUT,"error:ec_f2n_point_mul_M_ary: R is null.\n");
         dbg_exit(MD_ECF2N, ecf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -2379,7 +2379,7 @@ void ec_f2n_point_mul_M_ary(const UINT32 ecf2n_md_id, const EC_CURVE_POINT * P,c
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
             if ( t != ( ( 1 << even_s ) * odd_h ) )
             {
-                sys_log(LOGSTDOUT,"point_mul_M_ary: t=%ld,even_s=%ld,odd_h=%ld\n",
+                dbg_log(SEC_0045_ECF2N, 5)(LOGSTDOUT,"point_mul_M_ary: t=%ld,even_s=%ld,odd_h=%ld\n",
                                t, even_s, odd_h );
                 dbg_exit(MD_ECF2N, ecf2n_md_id);
             }
@@ -2388,7 +2388,7 @@ void ec_f2n_point_mul_M_ary(const UINT32 ecf2n_md_id, const EC_CURVE_POINT * P,c
             {
                 sys_log(LOGSTDOUT,
                     "error:point_mul_M_ary: g_buf_for_point_mul_M_ary overflow");
-                sys_log(LOGSTDOUT,"(odd_h=ld).\n",odd_h);
+                dbg_log(SEC_0045_ECF2N, 5)(LOGSTDOUT,"(odd_h=ld).\n",odd_h);
                 dbg_exit(MD_ECF2N, ecf2n_md_id);
             }
 #endif /* ECC_DEBUG_SWITCH */
@@ -2446,7 +2446,7 @@ static void ec_f2n_point_mul_M_ary_factor(const UINT32 ecf2n_md_id)
 
         odd = num;
 
-        sys_log(LOGSTDOUT,"/* %ld */{ %ld, %ld },\n",k, even_cnt, odd );
+        dbg_log(SEC_0045_ECF2N, 5)(LOGSTDOUT,"/* %ld */{ %ld, %ld },\n",k, even_cnt, odd );
     }
 }
 static void ec_f2n_point_mul_M_ary_Pre_fix_base(const UINT32 ecf2n_md_id)
@@ -2469,7 +2469,7 @@ static void ec_f2n_point_mul_M_ary_Pre_fix_base(const UINT32 ecf2n_md_id)
     oddP = g_buf_for_point_mul_M_ary;
     oddP_num = ( ECC_M_ARY_M >> 1 );
 
-    sys_log(LOGSTDOUT,"basepoint P:\n");
+    dbg_log(SEC_0045_ECF2N, 5)(LOGSTDOUT,"basepoint P:\n");
     print_point( LOGSTDOUT, P );
 
     ec_f2n_point_mul_M_ary_Pre( ecf2n_md_id, P, oddP, oddP_num );
@@ -2478,7 +2478,7 @@ static void ec_f2n_point_mul_M_ary_Pre_fix_base(const UINT32 ecf2n_md_id)
     {
         Q = &( oddP[ point_idx ] );
         k = 2 * point_idx + 1;
-        sys_log(LOGSTDOUT,"/* k = %ld, kP: */\n", k );
+        dbg_log(SEC_0045_ECF2N, 5)(LOGSTDOUT,"/* k = %ld, kP: */\n", k );
 
         print_point_format( LOGSTDOUT, Q );
     }
@@ -2507,16 +2507,16 @@ static void ec_f2n_point_mul_pre_fix_base(const UINT32 ecf2n_md_id)
 #if ( SWITCH_ON == STATIC_MEMORY_SWITCH )
     alloc_static_mem(MD_ECF2N, ecf2n_md_id, MM_CURVE_POINT ,&Q, LOC_ECF2N_0069);
 #endif/* STATIC_MEMORY_SWITCH */
-    sys_log(LOGSTDOUT,"/********************************************************************\\\n");
-    sys_log(LOGSTDOUT,"basepoint P:\n");
+    dbg_log(SEC_0045_ECF2N, 5)(LOGSTDOUT,"/********************************************************************\\\n");
+    dbg_log(SEC_0045_ECF2N, 5)(LOGSTDOUT,"basepoint P:\n");
     print_point( LOGSTDOUT, P );
-    sys_log(LOGSTDOUT,"\\********************************************************************/\n");
+    dbg_log(SEC_0045_ECF2N, 5)(LOGSTDOUT,"\\********************************************************************/\n");
 
     ec_f2n_point_clone( ecf2n_md_id, P, Q );
 
     for ( exp = 0; exp <= CURVE_DEG; exp ++ )
     {
-        sys_log(LOGSTDOUT,"/* k = 2 ^ %ld, kP: */\n", exp );
+        dbg_log(SEC_0045_ECF2N, 5)(LOGSTDOUT,"/* k = 2 ^ %ld, kP: */\n", exp );
         print_point_format(LOGSTDOUT, Q );
 
         ec_f2n_point_double(ecf2n_md_id, Q, Q);

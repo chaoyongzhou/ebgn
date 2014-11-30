@@ -23,6 +23,7 @@ extern "C"{
 
 #include "bgnctrl.h"
 #include "crb.h"
+#include "cthread.h"
 
 /**********************************************************************************************************************************************\
 test_mutext.c
@@ -96,28 +97,38 @@ summary:
 4. when  unlock, must __m_kind = 1
 5. after unlock, __m_reserved = 0, __m_count = 0
 6. when clean, must __m_reserved = 0
+
+note: __m_kind = 1 means CMUTEX_RECURSIVE_NP is set
 \**********************************************************************************************************************************************/
 
 static CMUTEX_POOL g_cmutex_pool;
 
-EC_BOOL cmutex_log_switch = EC_FALSE;
+static EC_BOOL cmutex_log_switch = EC_FALSE;
 
-#if (SWITCH_ON == CMUTEX_DEBUG_SWITCH)
-static EC_BOOL __ptr_dbg_cmutex_tree_update(void *pvoid, const UINT32 location);
-static EC_BOOL __ptr_dbg_ccond_tree_update(void *pvoid, const UINT32 location);
-static EC_BOOL __ptr_dbg_crwlock_tree_update(void *pvoid, const UINT32 location);
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)   
+#define cmutex_dbg_log(SECTION, LEVEL)  !do_log(SECTION, LEVEL) ? (void) 0 : cmutex_log_null
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/
 
-#define CMUTEX_STAT_DEBUG(__pvoid, __location)      __ptr_dbg_cmutex_tree_update(__pvoid, __location)
-#define CCOND_STAT_DEBUG(__pvoid, __location)       __ptr_dbg_ccond_tree_update(__pvoid, __location)
-#define CRWLOCK_STAT_DEBUG(__pvoid, __location)     __ptr_dbg_crwlock_tree_update(__pvoid, __location)
-#endif/*(SWITCH_ON == CMUTEX_DEBUG_SWITCH)*/
+#if (SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)
+#define cmutex_dbg_log(SECTION, LEVEL) dbg_log(SECTION, LEVEL)
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)*/
 
-#if (SWITCH_OFF == CMUTEX_DEBUG_SWITCH)
-#define CMUTEX_STAT_DEBUG(__pvoid, __location)      do{}while(0)
-#define CCOND_STAT_DEBUG(__pvoid, __location)       do{}while(0)
-#define CRWLOCK_STAT_DEBUG(__pvoid, __location)     do{}while(0)
-#endif/*(SWITCH_OFF == CMUTEX_DEBUG_SWITCH)*/
+int cmutex_log_null(LOG *log, const char * format, ...)
+{
+    return 0;
+}
 
+static void cmutex_print(const char *info, const CMUTEX *cmutex)
+{
+    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[tid %d] %s: cmutex %p : __m_reserved = %d, __m_count = %d, __m_owner = %d, __m_kind = %d\n",
+                        CTHREAD_GET_TID(), info, cmutex,
+                        CMUTEX_RESERVED(cmutex),
+                        CMUTEX_COUNT(cmutex),
+                        CMUTEX_OWNER(cmutex),
+                        CMUTEX_KIND(cmutex)
+            );
+    return;
+}
 static EC_BOOL cmutex_check(const CMUTEX *cmutex, const UINT32 op, const UINT32 location)
 {
     switch(op)
@@ -127,7 +138,7 @@ static EC_BOOL cmutex_check(const CMUTEX *cmutex, const UINT32 op, const UINT32 
         case CMUTEX_OP_INIT:
             if(0 != CMUTEX_COUNT(cmutex))
             {
-                sys_log(LOGSTDOUT, "error: cmutex %lx : op = %ld, __m_reserved = %d, __m_count = %d, __m_owner = %d, __m_kind = %d, at %s:%ld\n",
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error: cmutex %p : op = %ld, __m_reserved = %d, __m_count = %d, __m_owner = %d, __m_kind = %d, at %s:%ld\n",
                                     cmutex, op,
                                     CMUTEX_RESERVED(cmutex),
                                     CMUTEX_COUNT(cmutex),
@@ -143,7 +154,7 @@ static EC_BOOL cmutex_check(const CMUTEX *cmutex, const UINT32 op, const UINT32 
         case CMUTEX_OP_FREE:
             if(0 != CMUTEX_COUNT(cmutex))
             {
-                sys_log(LOGSTDOUT, "error: cmutex %lx : op = %ld, __m_reserved = %d, __m_count = %d, __m_owner = %d, __m_kind = %d, at %s:%ld\n",
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error: cmutex %p : op = %ld, __m_reserved = %d, __m_count = %d, __m_owner = %d, __m_kind = %d, at %s:%ld\n",
                                     cmutex, op,
                                     CMUTEX_RESERVED(cmutex),
                                     CMUTEX_COUNT(cmutex),
@@ -159,7 +170,7 @@ static EC_BOOL cmutex_check(const CMUTEX *cmutex, const UINT32 op, const UINT32 
         case CMUTEX_OP_CLEAN:
             if(0 != CMUTEX_COUNT(cmutex))
             {
-                sys_log(LOGSTDOUT, "error: cmutex %lx : op = %ld, __m_reserved = %d, __m_count = %d, __m_owner = %d, __m_kind = %d, at %s:%ld\n",
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error: cmutex %p : op = %ld, __m_reserved = %d, __m_count = %d, __m_owner = %d, __m_kind = %d, at %s:%ld\n",
                                     cmutex, op,
                                     CMUTEX_RESERVED(cmutex),
                                     CMUTEX_COUNT(cmutex),
@@ -175,7 +186,7 @@ static EC_BOOL cmutex_check(const CMUTEX *cmutex, const UINT32 op, const UINT32 
         case CMUTEX_OP_LOCK:
             if(0 != CMUTEX_COUNT(cmutex))
             {
-                sys_log(LOGSTDOUT, "error: cmutex %lx : op = %ld, __m_reserved = %d, __m_count = %d, __m_owner = %d, __m_kind = %d, at %s:%ld\n",
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error: cmutex %p : op = %ld, __m_reserved = %d, __m_count = %d, __m_owner = %d, __m_kind = %d, at %s:%ld\n",
                                     cmutex, op,
                                     CMUTEX_RESERVED(cmutex),
                                     CMUTEX_COUNT(cmutex),
@@ -191,7 +202,7 @@ static EC_BOOL cmutex_check(const CMUTEX *cmutex, const UINT32 op, const UINT32 
         case CMUTEX_OP_UNLOCK:
             if(0 == CMUTEX_COUNT(cmutex))
             {
-                sys_log(LOGSTDOUT, "error: cmutex %lx : op = %ld, __m_reserved = %d, __m_count = %d, __m_owner = %d, __m_kind = %d, at %s:%ld\n",
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error: cmutex %p : op = %ld, __m_reserved = %d, __m_count = %d, __m_owner = %d, __m_kind = %d, at %s:%ld\n",
                                     cmutex, op,
                                     CMUTEX_RESERVED(cmutex),
                                     CMUTEX_COUNT(cmutex),
@@ -220,13 +231,13 @@ EC_BOOL cmutex_attr_set(CMUTEX_ATTR  *mutex_attr, const UINT32 flag, const UINT3
         {
             case ENOMEM:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_attr_set - ENOMEM: Insufficient memory to create the mutex attributes object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_attr_set - ENOMEM: Insufficient memory to create the mutex attributes object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
             default:
             {
                 /* Unknown error */
-                sys_log(LOGSTDOUT, "error:cmutex_attr_set - UNKNOWN: Error detected when mutexattr init, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_attr_set - UNKNOWN: Error detected when mutexattr init, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -234,7 +245,7 @@ EC_BOOL cmutex_attr_set(CMUTEX_ATTR  *mutex_attr, const UINT32 flag, const UINT3
         return (ret_val);
     }
 
-    if(CMUTEX_PROCESS_PRIVATE == flag)
+    if(CMUTEX_PROCESS_PRIVATE & flag)
     {
         ret_val = pthread_mutexattr_setpshared(mutex_attr, PTHREAD_PROCESS_PRIVATE);
         if( 0 != ret_val )
@@ -243,13 +254,13 @@ EC_BOOL cmutex_attr_set(CMUTEX_ATTR  *mutex_attr, const UINT32 flag, const UINT3
             {
                 case EINVAL:
                 {
-                    sys_log(LOGSTDOUT, "error:cmutex_attr_set - EINVAL: value specified for argument -pshared- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_attr_set - EINVAL: value specified for argument -pshared- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                     break;
                 }
 
                 default:
                 {
-                    sys_log(LOGSTDOUT, "error:cmutex_attr_set - UNKNOWN: error detected when setpshared, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_attr_set - UNKNOWN: error detected when setpshared, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                     break;
                 }
             }
@@ -258,7 +269,7 @@ EC_BOOL cmutex_attr_set(CMUTEX_ATTR  *mutex_attr, const UINT32 flag, const UINT3
         }
     }
 
-    if(CMUTEX_PROCESS_SHARED == flag)
+    if(CMUTEX_PROCESS_SHARED & flag)
     {
         ret_val = pthread_mutexattr_setpshared(mutex_attr, PTHREAD_PROCESS_SHARED);
         if( 0 != ret_val )
@@ -267,13 +278,13 @@ EC_BOOL cmutex_attr_set(CMUTEX_ATTR  *mutex_attr, const UINT32 flag, const UINT3
             {
                 case EINVAL:
                 {
-                    sys_log(LOGSTDOUT, "error:cmutex_attr_set - EINVAL: value specified for argument -pshared- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_attr_set - EINVAL: value specified for argument -pshared- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                     break;
                 }
 
                 default:
                 {
-                    sys_log(LOGSTDOUT, "error:cmutex_attr_set - UNKNOWN: error detected when setpshared, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_attr_set - UNKNOWN: error detected when setpshared, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                     break;
                 }
             }
@@ -282,28 +293,60 @@ EC_BOOL cmutex_attr_set(CMUTEX_ATTR  *mutex_attr, const UINT32 flag, const UINT3
         }
     }
 
-    /*Initialize the mutex attribute called 'type' to PTHREAD_MUTEX_RECURSIVE_NP,
-    so that a thread can recursively lock a mutex if needed. */
-    ret_val = pthread_mutexattr_settype(mutex_attr, PTHREAD_MUTEX_RECURSIVE_NP);
-    if( 0 != ret_val )
+    if(CMUTEX_TIMED_NP & flag)
     {
-        switch( ret_val )
+        /*Initialize the mutex attribute called 'type' to PTHREAD_MUTEX_RECURSIVE_NP,
+        so that a thread can recursively lock a mutex if needed. */
+        ret_val = pthread_mutexattr_settype(mutex_attr, PTHREAD_MUTEX_TIMED_NP);
+        if( 0 != ret_val )
         {
-            case EINVAL:
+            switch( ret_val )
             {
-                sys_log(LOGSTDOUT, "error:cmutex_attr_set - EINVAL: value specified for argument -type- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
-                break;
+                case EINVAL:
+                {
+                    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_attr_set - EINVAL: value specified for argument -type- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                    break;
+                }
+
+                default:
+                {
+                    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_attr_set - UNKNOWN: error detected when settype, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                    break;
+                }
             }
 
-            default:
-            {
-                sys_log(LOGSTDOUT, "error:cmutex_attr_set - UNKNOWN: error detected when settype, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
-                break;
-            }
+            return (ret_val);
         }
+    }    
 
-        return (ret_val);
+    //if(CMUTEX_RECURSIVE_NP & flag)
+    else
+    {
+        /*Initialize the mutex attribute called 'type' to PTHREAD_MUTEX_RECURSIVE_NP,
+        so that a thread can recursively lock a mutex if needed. */
+        ret_val = pthread_mutexattr_settype(mutex_attr, PTHREAD_MUTEX_RECURSIVE_NP);
+        if( 0 != ret_val )
+        {
+            switch( ret_val )
+            {
+                case EINVAL:
+                {
+                    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_attr_set - EINVAL: value specified for argument -type- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                    break;
+                }
+
+                default:
+                {
+                    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_attr_set - UNKNOWN: error detected when settype, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                    break;
+                }
+            }
+
+            return (ret_val);
+        }
     }
+
+    //pthread_mutexattr_setprotocol(mutex_attr, PTHREAD_PRIO_NONE);
 
     return (ret_val);
 
@@ -316,13 +359,13 @@ CMUTEX *cmutex_new(const UINT32 flag, const UINT32 location)
     cmutex = (CMUTEX *)SAFE_MALLOC(sizeof(CMUTEX), LOC_CMUTEX_0001);
     if(NULL_PTR == cmutex)
     {
-        sys_log(LOGSTDOUT, "error:cmutex_new: failed to alloc CMUTEX, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_new: failed to alloc CMUTEX, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (NULL_PTR);
     }
 
     if(EC_FALSE == cmutex_init(cmutex, flag, location))
     {
-        sys_log(LOGSTDOUT, "error:cmutex_init: failed to init cmutex %lx, called at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_init: failed to init cmutex %p, called at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         SAFE_FREE(cmutex, LOC_CMUTEX_0002);
         return (NULL_PTR);
     }
@@ -340,6 +383,8 @@ EC_BOOL cmutex_init(CMUTEX *cmutex, const UINT32 flag, const UINT32 location)
     CMUTEX_ATTR  mutex_attr;
     int ret_val;
 
+    cmutex_dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[DEBUG] cmutex_init: cmutex %p: lock at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+
     CMUTEX_INIT_LOCATION(cmutex);
     //CMUTEX_CHECK_LOCK_VALIDITY(cmutex, CMUTEX_OP_INIT, location);
     
@@ -349,7 +394,7 @@ EC_BOOL cmutex_init(CMUTEX *cmutex, const UINT32 flag, const UINT32 location)
     ret_val = cmutex_attr_set(&mutex_attr, flag, location);
     if( 0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:cmutex_init: failed to set mutex attribute\n");
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_init: failed to set mutex attribute\n");
         return (EC_FALSE);
     }
 
@@ -361,38 +406,38 @@ EC_BOOL cmutex_init(CMUTEX *cmutex, const UINT32 flag, const UINT32 location)
         {
             case EAGAIN:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_new - EAGAIN: System resources(other than memory) are unavailable, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_new - EAGAIN: System resources(other than memory) are unavailable, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EPERM:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_new - EPERM: Doesn't have privilige to perform this operation, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_new - EPERM: Doesn't have privilige to perform this operation, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_new - EINVAL: mutex_attr doesn't refer a valid condition variable attribute object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_new - EINVAL: mutex_attr doesn't refer a valid condition variable attribute object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EFAULT:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_new - EFAULT: Mutex or mutex_attr is an invalid pointer, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_new - EFAULT: Mutex or mutex_attr is an invalid pointer, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case ENOMEM:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_new - ENOMEM: Insufficient memory exists to initialize the mutex, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_new - ENOMEM: Insufficient memory exists to initialize the mutex, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
                 /* Unknown error */
-                sys_log(LOGSTDOUT, "error:cmutex_new - UNKNOWN: Error detected when mutex init, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_new - UNKNOWN: Error detected when mutex init, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -418,12 +463,14 @@ void cmutex_clean(CMUTEX *cmutex, const UINT32 location)
 {
     int ret_val;
 
+    cmutex_dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[DEBUG] cmutex_clean: cmutex %p: lock at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+
     CMUTEX_CHECK_LOCK_VALIDITY(cmutex, CMUTEX_OP_CLEAN, location);
 
     /*when clean, must __m_reserved = 0*/
     if(0 != CMUTEX_RESERVED(cmutex))
     {
-        sys_log(LOGSTDOUT, "error:cmutex_clean: cmutex %lx:invalid reserved value found at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_clean: cmutex %p:invalid reserved value found at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         CMUTEX_PRINT_LOCK_INFO(LOGSTDOUT, CMUTEX_OP_CLEAN, cmutex);
         return;
     }
@@ -437,20 +484,20 @@ void cmutex_clean(CMUTEX *cmutex, const UINT32 location)
         {
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_clean - EINVAL: cmutex %lx doesn't refer to an initialized mutex, called at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_clean - EINVAL: cmutex %p doesn't refer to an initialized mutex, called at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EBUSY:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_clean - EBUSY: cmutex %lx is locked or in use by another thread, called at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_clean - EBUSY: cmutex %p is locked or in use by another thread, called at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
                 /* Unknown error */
-                sys_log(LOGSTDOUT, "error:cmutex_clean - UNKNOWN: cmutex %lx detect error, error no: %d, called at %s:%ld\n", cmutex, ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_clean - UNKNOWN: cmutex %p detect error, error no: %d, called at %s:%ld\n", cmutex, ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -465,12 +512,14 @@ EC_BOOL cmutex_lock(CMUTEX *cmutex, const UINT32 location)
 {
     int ret_val;
 
+    cmutex_dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[DEBUG] cmutex_lock: cmutex %p: lock at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+     
     CMUTEX_CHECK_LOCK_VALIDITY(cmutex, CMUTEX_OP_LOCK, location);
 #if 1
     /*when  lock, must __m_kind = 1*/
     if(PTHREAD_MUTEX_RECURSIVE_NP != CMUTEX_KIND(cmutex))
     {
-        sys_log(LOGSTDOUT, "error:cmutex_lock: cmutex %lx: invalid kind value %d found at %s:%ld\n", cmutex, CMUTEX_KIND(cmutex), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_lock: cmutex %p: invalid kind value %d found at %s:%ld\n", cmutex, CMUTEX_KIND(cmutex), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         CMUTEX_PRINT_LOCK_INFO(LOGSTDOUT, CMUTEX_OP_LOCK, cmutex);
         CMUTEX_PRINT_LOCATION(LOGSTDOUT, "cmutex_lock", cmutex);
         return (EC_FALSE);
@@ -478,22 +527,20 @@ EC_BOOL cmutex_lock(CMUTEX *cmutex, const UINT32 location)
 #endif
     if(NULL_PTR == cmutex)
     {
-        sys_log(LOGSTDOUT, "error:cmutex_lock: refuse to lock null cmutex, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_lock: refuse to lock null cmutex, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cmutex_log_switch)
     {
-        sys_log(LOGSTDOUT, "cmutex_lock:lock %lx at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 5)(LOGSTDOUT, "cmutex_lock:lock %p at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
     }
 
     if(1 < CMUTEX_COUNT(cmutex))
     {
-        sys_log(LOGSTDOUT, "warn:cmutex_lock: lock %lx recursively at %s:%ld, depth = %ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location), CMUTEX_COUNT(cmutex));
+        dbg_log(SEC_0083_CMUTEX, 1)(LOGSTDOUT, "warn:cmutex_lock: lock %p recursively at %s:%ld, depth = %ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location), CMUTEX_COUNT(cmutex));
         CMUTEX_PRINT_LOCATION(LOGSTDOUT, "cmutex_lock", cmutex);
     }
-
-    CMUTEX_STAT_DEBUG(cmutex, location);
 
     ret_val = pthread_mutex_lock(CMUTEX_MUTEX(cmutex));
     if(0 != ret_val)
@@ -502,31 +549,31 @@ EC_BOOL cmutex_lock(CMUTEX *cmutex, const UINT32 location)
         {
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_lock - EINVAL: cmutex NOT an initialized object, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_lock - EINVAL: cmutex NOT an initialized object, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EDEADLK:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_lock - EDEADLK: deadlock is detected or current thread already owns the cmutex, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_lock - EDEADLK: deadlock is detected or current thread already owns the cmutex, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case ETIMEDOUT:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_lock - ETIMEDOUT: failed to lock cmutex before the specified timeout expired , called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_lock - ETIMEDOUT: failed to lock cmutex before the specified timeout expired , called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EBUSY:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_lock - EBUSY: failed to lock cmutex due to busy , called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_lock - EBUSY: failed to lock cmutex due to busy , called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_lock - UNKNOWN: error detected, errno %d, errstr %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_lock - UNKNOWN: error detected, errno %d, errstr %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -542,12 +589,14 @@ EC_BOOL cmutex_unlock(CMUTEX *cmutex, const UINT32 location)
 {
     int ret_val;
 
+    cmutex_dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[DEBUG] cmutex_unlock: cmutex %p: lock at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+
     CMUTEX_CHECK_LOCK_VALIDITY(cmutex, CMUTEX_OP_UNLOCK, location);
 #if 1
     /*when  unlock, must __m_kind = 1*/
     if(1 != CMUTEX_KIND(cmutex))
     {
-        sys_log(LOGSTDOUT, "error:cmutex_unlock: cmutex %lx: invalid kind value found at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_unlock: cmutex %p: invalid kind value found at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         CMUTEX_PRINT_LOCK_INFO(LOGSTDOUT, CMUTEX_OP_UNLOCK, cmutex);
         CMUTEX_PRINT_LOCATION(LOGSTDOUT, "cmutex_unlock", cmutex);
         return (EC_FALSE);
@@ -555,18 +604,18 @@ EC_BOOL cmutex_unlock(CMUTEX *cmutex, const UINT32 location)
 #endif
     if(NULL_PTR == cmutex)
     {
-        sys_log(LOGSTDOUT, "error:cmutex_unlock: refuse to unlock null cmutex, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_unlock: refuse to unlock null cmutex, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
 
     if(EC_TRUE == cmutex_log_switch)
     {
-        sys_log(LOGSTDOUT, "cmutex_unlock:unlock %lx at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 5)(LOGSTDOUT, "cmutex_unlock:unlock %p at %s:%ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
     }
 
     if(0 == CMUTEX_COUNT(cmutex))
     {
-        sys_log(LOGSTDOUT, "error:cmutex_unlock: lock %lx found conflict at %s:%ld, depth = %ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location), CMUTEX_COUNT(cmutex));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_unlock: lock %p found conflict at %s:%ld, depth = %ld\n", cmutex, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location), CMUTEX_COUNT(cmutex));
         CMUTEX_PRINT_LOCATION(LOGSTDOUT, "cmutex_unlock", cmutex);
     }
 
@@ -577,19 +626,19 @@ EC_BOOL cmutex_unlock(CMUTEX *cmutex, const UINT32 location)
         {
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_unlock - EINVAL: cmutex NOT an initialized object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_unlock - EINVAL: cmutex NOT an initialized object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EPERM:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_unlock - EPERM: current thread does not hold a lock on cmutex, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_unlock - EPERM: current thread does not hold a lock on cmutex, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
-                sys_log(LOGSTDOUT, "error:cmutex_unlock - UNKNOWN: error detected, errno %d, errstr %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:cmutex_unlock - UNKNOWN: error detected, errno %d, errstr %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -601,6 +650,22 @@ EC_BOOL cmutex_unlock(CMUTEX *cmutex, const UINT32 location)
     return (EC_TRUE);
 }
 
+static void ccond_print_var(const char *info, const CCOND *ccond)
+{
+    pthread_cond_t  *var;
+    var = CCOND_VAR(ccond);
+    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[tid %d] %s: ccond %p counter %ld, var: __lock = %d, __futex = %d, __total_seq = %d, __wakeup_seq = %d, __woken_seq = %d, __nwaiters =%d\n",
+                        CTHREAD_GET_TID(), info, ccond, CCOND_COUNTER(ccond),
+                        var->__data.__lock,
+                        var->__data.__futex,
+                        var->__data.__total_seq,
+                        var->__data.__wakeup_seq,
+                        var->__data.__woken_seq,
+                        var->__data.__nwaiters
+            );
+    return;
+}
+
 CCOND *ccond_new(const UINT32 location)
 {
     CCOND      *ccond;
@@ -608,19 +673,21 @@ CCOND *ccond_new(const UINT32 location)
     ccond = (CCOND *)SAFE_MALLOC(sizeof(CCOND), LOC_CMUTEX_0005);
     if(NULL_PTR == ccond)
     {
-        sys_log(LOGSTDOUT, "error:ccond_new: failed to alloc CCOND, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_new: failed to alloc CCOND, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (NULL_PTR);
     }
 
     if(EC_FALSE == ccond_init(ccond, location))
     {
-        sys_log(LOGSTDOUT, "error:ccond_init: failed to init ccond %lx, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_init: failed to init ccond %p, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         SAFE_FREE(ccond, LOC_CMUTEX_0006);
         return (NULL_PTR);
     }
 
     CCOND_INIT_LOCATION(ccond);
     CCOND_SET_LOCATION(ccond, CCOND_OP_NEW, location);
+
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND] new %p, location %ld\n", ccond, location);
     return (ccond);
 }
 
@@ -629,12 +696,13 @@ EC_BOOL ccond_init(CCOND *ccond, const UINT32 location)
     CMUTEX_ATTR mutex_attr;
     int ret_val;
 
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] init %p, location %ld\n", CTHREAD_GET_TID(), ccond, location);
     CCOND_SET_LOCATION(ccond, CCOND_OP_INIT, location);
 
-    ret_val = cmutex_attr_set(&mutex_attr, CMUTEX_PROCESS_PRIVATE, location);
+    ret_val = cmutex_attr_set(&mutex_attr, CMUTEX_PROCESS_PRIVATE | CMUTEX_RECURSIVE_NP, location);
     if( 0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:ccond_init: failed to set mutex attribute\n");
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_init: failed to set mutex attribute\n");
         return (EC_FALSE);
     }
 
@@ -645,19 +713,19 @@ EC_BOOL ccond_init(CCOND *ccond, const UINT32 location)
         {
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:ccond_init - EINVAL: cmutex NOT an initialized object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_init - EINVAL: cmutex NOT an initialized object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EBUSY:
             {
-                sys_log(LOGSTDOUT, "error:ccond_init - EBUSY: failed to lock cmutex due to busy, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_init - EBUSY: failed to lock cmutex due to busy, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
-                sys_log(LOGSTDOUT, "error:ccond_init - UNKNOWN: error detected, errno %d, errstr %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_init - UNKNOWN: error detected, errno %d, errstr %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -671,38 +739,38 @@ EC_BOOL ccond_init(CCOND *ccond, const UINT32 location)
         {
             case EAGAIN:
             {
-                sys_log(LOGSTDOUT, "error:ccond_init - EAGAIN: System resources(other than memory) are unavailable, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_init - EAGAIN: System resources(other than memory) are unavailable, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EPERM:
             {
-                sys_log(LOGSTDOUT, "error:ccond_init - EPERM: Doesn't have privilige to perform this operation, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_init - EPERM: Doesn't have privilige to perform this operation, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:ccond_init - EINVAL: mutex_attr doesn't refer a valid condition variable attribute object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_init - EINVAL: mutex_attr doesn't refer a valid condition variable attribute object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EFAULT:
             {
-                sys_log(LOGSTDOUT, "error:ccond_init - EFAULT: Mutex or mutex_attr is an invalid pointer, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_init - EFAULT: Mutex or mutex_attr is an invalid pointer, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case ENOMEM:
             {
-                sys_log(LOGSTDOUT, "error:ccond_init - ENOMEM: Insufficient memory exists to initialize the mutex, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_init - ENOMEM: Insufficient memory exists to initialize the mutex, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
                 /* Unknown error */
-                sys_log(LOGSTDOUT, "error:ccond_init - UNKNOWN: Error detected when mutex init, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_init - UNKNOWN: Error detected when mutex init, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -712,13 +780,25 @@ EC_BOOL ccond_init(CCOND *ccond, const UINT32 location)
 
     CCOND_COUNTER(ccond) = 0;
 
+    //pthread_mutexattr_destroy(&mutex_attr);
+
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] init %p, location %ld, __nwaiters %d, __kind %d\n", CTHREAD_GET_TID(), ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+
+    //cmutex_print("[DEBUG][CCOND] init", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] init", ccond);
+
     return (EC_TRUE);
 }
 
 void ccond_free(CCOND *ccond, const UINT32 location)
 {
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] free %p, location %ld\n", CTHREAD_GET_TID(), ccond, location);
     CCOND_SET_LOCATION(ccond, CCOND_OP_FREE, location);
     ccond_clean(ccond, LOC_CMUTEX_0007);
+
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] free %p, location %ld, __nwaiters %d, __kind %d\n", CTHREAD_GET_TID(), ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] free", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] free", ccond);
     SAFE_FREE(ccond, LOC_CMUTEX_0008);
 }
 
@@ -726,6 +806,7 @@ EC_BOOL ccond_clean(CCOND *ccond, const UINT32 location)
 {
     int ret_val;
 
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] clean %p, location %ld\n", CTHREAD_GET_TID(), ccond, location);
     CCOND_SET_LOCATION(ccond, CCOND_OP_CLEAN, location);
 
     ret_val = pthread_mutex_destroy(CCOND_MUTEX(ccond));
@@ -735,20 +816,20 @@ EC_BOOL ccond_clean(CCOND *ccond, const UINT32 location)
         {
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:ccond_clean - EINVAL: ccond %lx mutex doesn't refer to an initialized mutex, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_clean - EINVAL: ccond %p mutex doesn't refer to an initialized mutex, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EBUSY:
             {
-                sys_log(LOGSTDOUT, "error:ccond_clean - EBUSY: ccond %lx mutex is locked or in use by another thread, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_clean - EBUSY: ccond %p mutex is locked or in use by another thread, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
                 /* Unknown error */
-                sys_log(LOGSTDOUT, "error:ccond_clean - UNKNOWN: ccond %lx mutex detect error, error no: %d, called at %s:%ld\n", ccond, ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_clean - UNKNOWN: ccond %p mutex detect error, error no: %d, called at %s:%ld\n", ccond, ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -761,20 +842,20 @@ EC_BOOL ccond_clean(CCOND *ccond, const UINT32 location)
         {
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:ccond_clean - EINVAL: ccond %lx var doesn't refer to an initialized cond var, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_clean - EINVAL: ccond %p var doesn't refer to an initialized cond var, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EBUSY:
             {
-                sys_log(LOGSTDOUT, "error:ccond_clean - EBUSY: ccond %lx var is locked or in use by another thread, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_clean - EBUSY: ccond %p var is locked or in use by another thread, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
                 /* Unknown error */
-                sys_log(LOGSTDOUT, "error:ccond_clean - UNKNOWN: ccond %lx var detect error, error no: %d, called at %s:%ld\n", ccond, ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_clean - UNKNOWN: ccond %p var detect error, error no: %d, called at %s:%ld\n", ccond, ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -782,40 +863,62 @@ EC_BOOL ccond_clean(CCOND *ccond, const UINT32 location)
 
     CCOND_COUNTER(ccond) = 0;
 
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] clean %p, location %ld, __nwaiters %d, __kind %d\n", CTHREAD_GET_TID(), ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] clean", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] clean", ccond);
+
     return (EC_TRUE);
 }
 
 EC_BOOL ccond_wait(CCOND *ccond, const UINT32 location)
 {
     int ret_val;
+
+    cmutex_dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[DEBUG] ccond_wait: ccond %p: wait at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] wait %p, location %ld\n", CTHREAD_GET_TID(), ccond, location);
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] wait %p, location %ld, __nwaiters %d, __kind %d [1]\n", CTHREAD_GET_TID(), ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] wait[1]", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] wait[1]", ccond);
+    
 #if 1
     ret_val = pthread_mutex_lock(CCOND_MUTEX(ccond));
     if(0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:ccond_wait: failed to lock mutex of ccond %lx, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_wait: failed to lock mutex of ccond %p, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
 #endif
 
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] wait %p, location %ld, __nwaiters %d, __kind %d [2]\n", CTHREAD_GET_TID(),ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] wait[2]", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] wait[2]", ccond);
     CCOND_SET_LOCATION(ccond, CCOND_OP_WAIT, location);
 
     /*when reserved*/
     while(0 < CCOND_COUNTER(ccond))
     {
+        //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] wait %p, location %ld, __nwaiters %d [3]\n", CTHREAD_GET_TID(),ccond, location, ccond->var.__data.__nwaiters);
+        //cmutex_print("[DEBUG][CCOND] wait[3]", CCOND_MUTEX(ccond));
+        //ccond_print_var("[DEBUG][CCOND] wait[3]", ccond);
         ret_val = pthread_cond_wait(CCOND_VAR(ccond), CCOND_MUTEX(ccond));
         if(0 != ret_val)
         {
-            sys_log(LOGSTDOUT, "error:ccond_wait: something wrong, error no: %d, error info: %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+            dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_wait: something wrong, error no: %d, error info: %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         }
     }
 #if 1
     ret_val = pthread_mutex_unlock(CCOND_MUTEX(ccond));
     if(0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:ccond_wait: failed to unlock mutex of ccond %lx, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_wait: failed to unlock mutex of ccond %p, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
  #endif
+
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] wait %p, location %ld, __nwaiters %d, __kind %d [4]\n", CTHREAD_GET_TID(),ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind); 
+    //cmutex_print("[DEBUG][CCOND] wait[4]", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] wait[4]", ccond);
     return (EC_TRUE);
 }
 
@@ -823,12 +926,17 @@ EC_BOOL ccond_reserve(CCOND *ccond, const UINT32 counter, const UINT32 location)
 {
     int ret_val;
 
-    CCOND_STAT_DEBUG(ccond, location);
+    cmutex_dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[DEBUG] ccond_reserve: ccond %p: reserve at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] reserve %p, location %ld, counter %ld\n", CTHREAD_GET_TID(),ccond, location, counter);
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] reserve %p, location %ld, __nwaiters %d, __kind %d [1]\n", CTHREAD_GET_TID(),ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] reserve[1]", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] reserve[1]", ccond);
 
     ret_val = pthread_mutex_lock(CCOND_MUTEX(ccond));
     if(0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:ccond_reserve: failed to lock mutex of ccond %lx with counter %ld, called at %s:%ld\n", ccond, counter, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_reserve: failed to lock mutex of ccond %p with counter %ld, called at %s:%ld\n", ccond, counter, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
 
@@ -837,12 +945,20 @@ EC_BOOL ccond_reserve(CCOND *ccond, const UINT32 counter, const UINT32 location)
     //CCOND_COUNTER(ccond) = counter;
     CCOND_COUNTER(ccond) += counter;
 
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] reserve %p, location %ld, __nwaiters %d, __kind %d [2]\n", CTHREAD_GET_TID(),ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] reserve[2]", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] reserve[2]", ccond);
+
     ret_val = pthread_mutex_unlock(CCOND_MUTEX(ccond));
     if(0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:ccond_reserve: failed to unlock mutex of ccond %lx with counter %ld, called at %s:%ld\n", ccond, counter, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_reserve: failed to unlock mutex of ccond %p with counter %ld, called at %s:%ld\n", ccond, counter, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
+
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] reserve %p, location %ld, __nwaiters %d, __kind %d [3]\n", CTHREAD_GET_TID(),ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] reserve[3]", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] reserve[3]", ccond);
 
     return (EC_TRUE);
 }
@@ -851,33 +967,50 @@ EC_BOOL ccond_release(CCOND *ccond, const UINT32 location)
 {
     int ret_val;
 
+    cmutex_dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[DEBUG] ccond_release: ccond %p: release at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] release %p, location %ld\n", CTHREAD_GET_TID(),ccond, location);
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] release %p, location %ld, __nwaiters %d, __kind %d [1]\n", CTHREAD_GET_TID(),ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] release[1]", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] release[1]", ccond);
+    
     ret_val = pthread_mutex_lock(CCOND_MUTEX(ccond));
     if(0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:ccond_release: failed to lock mutex of ccond %lx, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_release: failed to lock mutex of ccond %p, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
 
     CCOND_SET_LOCATION(ccond, CCOND_OP_RELEASE, location);
 
-    -- CCOND_COUNTER(ccond);
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] release %p, location %ld, __nwaiters %d, __kind %d [2]\n", CTHREAD_GET_TID(),ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] release[2]", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] release[2]", ccond);    
+
+    if(0 < CCOND_COUNTER(ccond))
+    {
+        -- CCOND_COUNTER(ccond);
+    }
 
     if(0 == CCOND_COUNTER(ccond))
     {
         ret_val = pthread_cond_signal(CCOND_VAR(ccond));
         if(0 != ret_val)
         {
-            sys_log(LOGSTDOUT, "error:ccond_release: something wrong, error no: %d, error info: %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+            dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_release: something wrong, error no: %d, error info: %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         }
-    }
+    }    
 
     ret_val = pthread_mutex_unlock(CCOND_MUTEX(ccond));
     if(0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:ccond_release: failed to unlock mutex of ccond %lx, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_release: failed to unlock mutex of ccond %p, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
 
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] release %p, location %ld, __nwaiters %d, __kind %d [3]\n", CTHREAD_GET_TID(),ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] release[3]", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] release[3]", ccond);
     return (EC_TRUE);
 }
 
@@ -885,10 +1018,17 @@ EC_BOOL ccond_release_all(CCOND *ccond, const UINT32 location)
 {
     int ret_val;
 
+    cmutex_dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[DEBUG] ccond_release_all: ccond %p: release at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] release_all %p, location %ld\n", CTHREAD_GET_TID(),ccond, location);
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] release_all %p, location %ld, __nwaiters %d, __kind %d [1]\n", CTHREAD_GET_TID(),ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] release_all[1]", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] release_all[1]", ccond);
+
     ret_val = pthread_mutex_lock(CCOND_MUTEX(ccond));
     if(0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:ccond_release_all: failed to lock mutex of ccond %lx, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_release_all: failed to lock mutex of ccond %p, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
 
@@ -896,22 +1036,29 @@ EC_BOOL ccond_release_all(CCOND *ccond, const UINT32 location)
 
     -- CCOND_COUNTER(ccond);
 
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] release_all %p, location %ld, __nwaiters %d, __kind %d [2]\n", CTHREAD_GET_TID(),ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] release_all[2]", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] release_all[2]", ccond);
+
     if(0 == CCOND_COUNTER(ccond))
     {
         ret_val = pthread_cond_broadcast(CCOND_VAR(ccond));/*broadcast to all*/
         if(0 != ret_val)
         {
-            sys_log(LOGSTDOUT, "error:ccond_release_all: something wrong, error no: %d, error info: %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+            dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_release_all: something wrong, error no: %d, error info: %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         }
     }
 
     ret_val = pthread_mutex_unlock(CCOND_MUTEX(ccond));
     if(0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:ccond_release_all: failed to unlock mutex of ccond %lx, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_release_all: failed to unlock mutex of ccond %p, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
 
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND][tid %d] release_all %p, location %ld, __nwaiters %d, __kind %d [3]\n", CTHREAD_GET_TID(),ccond, location, ccond->var.__data.__nwaiters, CCOND_MUTEX(ccond)->__data.__kind);
+    //cmutex_print("[DEBUG][CCOND] release_all[3]", CCOND_MUTEX(ccond));
+    //ccond_print_var("[DEBUG][CCOND] release_all[3]", ccond);
     return (EC_TRUE);
 }
 
@@ -921,10 +1068,14 @@ UINT32 ccond_spy(CCOND *ccond, const UINT32 location)
     UINT32 times;
     int ret_val;
 
+    cmutex_dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[DEBUG] ccond_spy: ccond %p: spy at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND] spy %p, location %ld\n", ccond, location);
+
     ret_val = pthread_mutex_lock(CCOND_MUTEX(ccond));
     if(0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:ccond_spy: failed to lock mutex of ccond %lx, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_spy: failed to lock mutex of ccond %p, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (ERR_CCOND_TIMES);
     }
 
@@ -933,9 +1084,11 @@ UINT32 ccond_spy(CCOND *ccond, const UINT32 location)
     ret_val = pthread_mutex_unlock(CCOND_MUTEX(ccond));
     if(0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:ccond_spy: failed to unlock mutex of ccond %lx, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:ccond_spy: failed to unlock mutex of ccond %p, called at %s:%ld\n", ccond, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (ERR_CCOND_TIMES);
     }
+
+    //sys_log(LOGSTDOUT, "[DEBUG][CCOND] spy %p, location %ld, __nwaiters %d\n", ccond, location, ccond->var.__data.__nwaiters);
     return (times);
 }
 
@@ -955,7 +1108,7 @@ EC_BOOL cmutex_node_clean(CMUTEX_NODE *cmutex_node)
 
 void cmutex_node_print(LOG *log, CMUTEX_NODE *cmutex_node)
 {
-    sys_print(log, "cmutex %lx, owner %ld\n",
+    sys_print(log, "cmutex %p, owner %ld\n",
                     CMUTEX_NODE_RECORDED_CMUTEX(cmutex_node),
                     CMUTEX_OWNER((CMUTEX *)CMUTEX_NODE_RECORDED_CMUTEX(cmutex_node)));
     return;
@@ -1145,18 +1298,18 @@ EC_BOOL crwlock_attr_set(CRWLOCK_ATTR  *rwlock_attr, const UINT32 flag, const UI
         {
             case ENOMEM:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_attr_set - ENOMEM: Insufficient memory to create the rwlock attributes object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_attr_set - ENOMEM: Insufficient memory to create the rwlock attributes object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_attr_set - EINVAL: value specified for argument -pshared- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_attr_set - EINVAL: value specified for argument -pshared- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
             default:
             {
                 /* Unknown error */
-                sys_log(LOGSTDOUT, "error:crwlock_attr_set - UNKNOWN: Error detected when rwlockattr init, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_attr_set - UNKNOWN: Error detected when rwlockattr init, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -1173,13 +1326,13 @@ EC_BOOL crwlock_attr_set(CRWLOCK_ATTR  *rwlock_attr, const UINT32 flag, const UI
             {
                 case EINVAL:
                 {
-                    sys_log(LOGSTDOUT, "error:crwlock_attr_set - EINVAL: value specified for argument -pshared- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_attr_set - EINVAL: value specified for argument -pshared- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                     break;
                 }
 
                 default:
                 {
-                    sys_log(LOGSTDOUT, "error:crwlock_attr_set - UNKNOWN: error detected when setpshared, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_attr_set - UNKNOWN: error detected when setpshared, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                     break;
                 }
             }
@@ -1197,13 +1350,13 @@ EC_BOOL crwlock_attr_set(CRWLOCK_ATTR  *rwlock_attr, const UINT32 flag, const UI
             {
                 case EINVAL:
                 {
-                    sys_log(LOGSTDOUT, "error:crwlock_attr_set - EINVAL: value specified for argument -pshared- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_attr_set - EINVAL: value specified for argument -pshared- is INCORRECT, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                     break;
                 }
 
                 default:
                 {
-                    sys_log(LOGSTDOUT, "error:crwlock_attr_set - UNKNOWN: error detected when setpshared, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                    dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_attr_set - UNKNOWN: error detected when setpshared, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                     break;
                 }
             }
@@ -1223,13 +1376,13 @@ CRWLOCK *crwlock_new(const UINT32 flag, const UINT32 location)
     crwlock = (CRWLOCK *)SAFE_MALLOC(sizeof(CRWLOCK), LOC_CMUTEX_0009);
     if(NULL_PTR == crwlock)
     {
-        sys_log(LOGSTDOUT, "error:crwlock_new: failed to alloc CRWLOCK, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_new: failed to alloc CRWLOCK, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (NULL_PTR);
     }
 
     if(EC_FALSE == crwlock_init(crwlock, flag, location))
     {
-        sys_log(LOGSTDOUT, "error:crwlock_init: failed to init crwlock %lx, called at %s:%ld\n", crwlock, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_init: failed to init crwlock %p, called at %s:%ld\n", crwlock, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         SAFE_FREE(crwlock, LOC_CMUTEX_0010);
         return (NULL_PTR);
     }
@@ -1254,7 +1407,7 @@ EC_BOOL crwlock_init(CRWLOCK *crwlock, const UINT32 flag, const UINT32 location)
     ret_val = crwlock_attr_set(&rwlock_attr, flag, location);
     if( 0 != ret_val)
     {
-        sys_log(LOGSTDOUT, "error:crwlock_init: failed to set rwlock attribute\n");
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_init: failed to set rwlock attribute\n");
         return (EC_FALSE);
     }
 
@@ -1266,38 +1419,38 @@ EC_BOOL crwlock_init(CRWLOCK *crwlock, const UINT32 flag, const UINT32 location)
         {
             case EAGAIN:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_new - EAGAIN: System resources(other than memory) are unavailable, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_new - EAGAIN: System resources(other than memory) are unavailable, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EPERM:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_new - EPERM: Doesn't have privilige to perform this operation, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_new - EPERM: Doesn't have privilige to perform this operation, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_new - EINVAL: rwlock_attr doesn't refer a valid condition variable attribute object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_new - EINVAL: rwlock_attr doesn't refer a valid condition variable attribute object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EBUSY:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_new - EBUSY: The implementation has detected an attempt to destroy the object referenced by rwlock while it is locked., called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_new - EBUSY: The implementation has detected an attempt to destroy the object referenced by rwlock while it is locked., called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case ENOMEM:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_new - ENOMEM: Insufficient memory exists to initialize the rwlock, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_new - ENOMEM: Insufficient memory exists to initialize the rwlock, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
                 /* Unknown error */
-                sys_log(LOGSTDOUT, "error:crwlock_new - UNKNOWN: Error detected when rwlock init, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_new - UNKNOWN: Error detected when rwlock init, error no: %d, called at %s:%ld\n", ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -1328,7 +1481,7 @@ void crwlock_clean(CRWLOCK *crwlock, const UINT32 location)
     /*when clean, must __m_reserved = 0*/
     if(0 != CRWLOCK_NR_READER(crwlock) || 0 != CRWLOCK_NR_READER_QUEUED(crwlock) || 0 != CRWLOCK_NR_WRITER_QUEUED(crwlock))
     {
-        sys_log(LOGSTDOUT, "error:crwlock_clean: crwlock %lx:invalid status found at %s:%ld\n", crwlock, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_clean: crwlock %p:invalid status found at %s:%ld\n", crwlock, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         CRWLOCK_PRINT_LOCK_INFO(LOGSTDOUT, CRWLOCK_OP_CLEAN, crwlock);
         return;
     }
@@ -1342,38 +1495,38 @@ void crwlock_clean(CRWLOCK *crwlock, const UINT32 location)
         {
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_clean - EINVAL: crwlock %lx doesn't refer to an initialized rwlock, called at %s:%ld\n", crwlock, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_clean - EINVAL: crwlock %p doesn't refer to an initialized rwlock, called at %s:%ld\n", crwlock, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EBUSY:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_clean - EBUSY: crwlock %lx is locked or in use by another thread, called at %s:%ld\n", crwlock, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_clean - EBUSY: crwlock %p is locked or in use by another thread, called at %s:%ld\n", crwlock, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EAGAIN:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_clean - EAGAIN: System resources(other than memory) are unavailable, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_clean - EAGAIN: System resources(other than memory) are unavailable, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EPERM:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_clean - EPERM: Doesn't have privilige to perform this operation, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_clean - EPERM: Doesn't have privilige to perform this operation, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case ENOMEM:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_clean - ENOMEM: Insufficient memory exists to initialize the rwlock, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_clean - ENOMEM: Insufficient memory exists to initialize the rwlock, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
                 /* Unknown error */
-                sys_log(LOGSTDOUT, "error:crwlock_clean - UNKNOWN: crwlock %lx detect error, error no: %d, called at %s:%ld\n", crwlock, ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_clean - UNKNOWN: crwlock %p detect error, error no: %d, called at %s:%ld\n", crwlock, ret_val, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -1389,15 +1542,15 @@ EC_BOOL crwlock_rdlock(CRWLOCK *crwlock, const UINT32 location)
 {
     int ret_val;
 
+    cmutex_dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[DEBUG] crwlock_rdlock: crwlock %p: rdlock at %s:%ld\n", crwlock, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+
     CRWLOCK_CHECK_LOCK_VALIDITY(crwlock, CRWLOCK_OP_RDLOCK, location);
 
     if(NULL_PTR == crwlock)
     {
-        sys_log(LOGSTDOUT, "error:crwlock_rdlock: refuse to lock null crwlock, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_rdlock: refuse to lock null crwlock, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
-
-    CRWLOCK_STAT_DEBUG(crwlock, location);
 
     ret_val = pthread_rwlock_rdlock(CRWLOCK_RWLOCK(crwlock));
     if(0 != ret_val)
@@ -1406,31 +1559,31 @@ EC_BOOL crwlock_rdlock(CRWLOCK *crwlock, const UINT32 location)
         {
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_rdlock - EINVAL: crwlock NOT an initialized object, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_rdlock - EINVAL: crwlock NOT an initialized object, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EDEADLK:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_rdlock - EDEADLK: deadlock is detected or current thread already owns the crwlock, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_rdlock - EDEADLK: deadlock is detected or current thread already owns the crwlock, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EAGAIN:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_rdlock - EAGAIN: The read lock could not be acquired because the maximum number of read locks for rwlock has been exceeded, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_rdlock - EAGAIN: The read lock could not be acquired because the maximum number of read locks for rwlock has been exceeded, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EBUSY:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_rdlock - EBUSY: failed to lock crwlock due to busy , called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_rdlock - EBUSY: failed to lock crwlock due to busy , called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_rdlock - UNKNOWN: error detected, errno %d, errstr %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_rdlock - UNKNOWN: error detected, errno %d, errstr %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -1447,15 +1600,15 @@ EC_BOOL crwlock_wrlock(CRWLOCK *crwlock, const UINT32 location)
 {
     int ret_val;
 
+    cmutex_dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[DEBUG] crwlock_wrlock: crwlock %p: wrlock at %s:%ld\n", crwlock, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+
     CRWLOCK_CHECK_LOCK_VALIDITY(crwlock, CRWLOCK_OP_WRLOCK, location);
 
     if(NULL_PTR == crwlock)
     {
-        sys_log(LOGSTDOUT, "error:crwlock_wrlock: refuse to lock null crwlock, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_wrlock: refuse to lock null crwlock, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
-
-    CRWLOCK_STAT_DEBUG(crwlock, location);
 
     ret_val = pthread_rwlock_wrlock(CRWLOCK_RWLOCK(crwlock));
     if(0 != ret_val)
@@ -1464,25 +1617,25 @@ EC_BOOL crwlock_wrlock(CRWLOCK *crwlock, const UINT32 location)
         {
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_wrlock - EINVAL: crwlock NOT an initialized object, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_wrlock - EINVAL: crwlock NOT an initialized object, called at %s:%ld, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EDEADLK:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_wrlock - EDEADLK: deadlock is detected or current thread already owns the crwlock, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_wrlock - EDEADLK: deadlock is detected or current thread already owns the crwlock, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EBUSY:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_wrlock - EBUSY: failed to lock crwlock due to busy , called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_wrlock - EBUSY: failed to lock crwlock due to busy , called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_wrlock - UNKNOWN: error detected, errno %d, errstr %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_wrlock - UNKNOWN: error detected, errno %d, errstr %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -1500,11 +1653,12 @@ EC_BOOL crwlock_unlock(CRWLOCK *crwlock, const UINT32 location)
 {
     int ret_val;
 
+    cmutex_dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "[DEBUG] crwlock_unlock: crwlock %p: unlock at %s:%ld\n", crwlock, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
     CRWLOCK_CHECK_LOCK_VALIDITY(crwlock, CRWLOCK_OP_UNLOCK, location);
 
     if(NULL_PTR == crwlock)
     {
-        sys_log(LOGSTDOUT, "error:crwlock_unlock: refuse to unlock null crwlock, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+        dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_unlock: refuse to unlock null crwlock, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
         return (EC_FALSE);
     }
 
@@ -1515,19 +1669,19 @@ EC_BOOL crwlock_unlock(CRWLOCK *crwlock, const UINT32 location)
         {
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_unlock - EINVAL: crwlock NOT an initialized object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_unlock - EINVAL: crwlock NOT an initialized object, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             case EPERM:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_unlock - EPERM: current thread does not hold a lock on crwlock, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_unlock - EPERM: current thread does not hold a lock on crwlock, called at %s:%ld\n", MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
 
             default:
             {
-                sys_log(LOGSTDOUT, "error:crwlock_unlock - UNKNOWN: error detected, errno %d, errstr %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+                dbg_log(SEC_0083_CMUTEX, 0)(LOGSTDOUT, "error:crwlock_unlock - UNKNOWN: error detected, errno %d, errstr %s, called at %s:%ld\n", ret_val, strerror(ret_val), MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
                 break;
             }
         }
@@ -1539,161 +1693,6 @@ EC_BOOL crwlock_unlock(CRWLOCK *crwlock, const UINT32 location)
     return (EC_TRUE);
 }
 
-/*--------------------------------------------- statistics debug interface (should fix recursive bug)---------------------------------------------*/
-#if (SWITCH_ON == CMUTEX_DEBUG_SWITCH)
-static EC_BOOL __ptr_dbg_node_init(PTR_DBG_NODE *ptr_dbg_node)
-{
-    ptr_dbg_node->ptr      = NULL_PTR;
-    ptr_dbg_node->location = LOC_NONE_BASE;
-    ptr_dbg_node->counter  = 0;
-    return (EC_TRUE);
-}
-
-static PTR_DBG_NODE *__ptr_dbg_node_new()
-{
-    PTR_DBG_NODE *ptr_dbg_node;
-
-    ptr_dbg_node = malloc(sizeof(PTR_DBG_NODE));
-    if(NULL_PTR == ptr_dbg_node)
-    {
-        sys_log(LOGSTDOUT, "error:__ptr_dbg_node_new: malloc PTR_DBG_NODE failed\n");
-        return (NULL_PTR);
-    }
-
-    __ptr_dbg_node_init(ptr_dbg_node);
-    return (ptr_dbg_node);
-}
-
-static void __ptr_dbg_node_free(PTR_DBG_NODE *ptr_dbg_node)
-{
-    if(NULL_PTR != ptr_dbg_node)
-    {
-        free(ptr_dbg_node);
-    }
-    return;
-}
-
-static void __ptr_dbg_node_print(LOG *log, const PTR_DBG_NODE *ptr_dbg_node)
-{
-    sys_log(log, "ptr %p, location %ld, counter %ld\n", 
-                ptr_dbg_node->ptr, 
-                ptr_dbg_node->location,
-                ptr_dbg_node->counter
-                );
-    return;
-}
-
-
-static EC_BOOL __ptr_dbg_node_set(PTR_DBG_NODE *ptr_dbg_node, void *pvoid, const UINT32 location, const UINT32 counter)
-{
-    ptr_dbg_node->ptr      = pvoid;
-    ptr_dbg_node->location = location;
-    ptr_dbg_node->counter  = counter;
-    return (EC_TRUE);
-}
-
-static EC_BOOL __ptr_dbg_node_inc(PTR_DBG_NODE *ptr_dbg_node)
-{
-    ptr_dbg_node->counter  ++;
-    return (EC_TRUE);
-}
-
-static int __ptr_dbg_node_cmp(const PTR_DBG_NODE *ptr_dbg_node_1st, const PTR_DBG_NODE *ptr_dbg_node_2nd)
-{
-    if(ptr_dbg_node_1st->ptr < ptr_dbg_node_2nd->ptr)
-    {
-        return (-1);
-    }
-
-    if(ptr_dbg_node_1st->ptr > ptr_dbg_node_2nd->ptr)
-    {
-        return (1);
-    }    
-
-    if(ptr_dbg_node_1st->location < ptr_dbg_node_2nd->location)
-    {
-        return (-1);
-    }
-
-    if(ptr_dbg_node_1st->location > ptr_dbg_node_2nd->location)
-    {
-        return (1);
-    }     
-
-    return (0);
-}
-
-static EC_BOOL __ptr_dbg_tree_update(CRB_TREE *crb_tree, void *pvoid, const UINT32 location)
-{
-    PTR_DBG_NODE  ptr_dbg_node_t;
-    PTR_DBG_NODE *ptr_dbg_node;
-
-    __ptr_dbg_node_set(&ptr_dbg_node_t, pvoid, location, 0);
-
-    ptr_dbg_node = crb_tree_search_data(crb_tree, &ptr_dbg_node_t);
-    if(NULL_PTR != ptr_dbg_node)
-    {
-        __ptr_dbg_node_inc(ptr_dbg_node);
-        return (EC_TRUE);
-    }
-
-    ptr_dbg_node = __ptr_dbg_node_new();
-    if(NULL_PTR == ptr_dbg_node)
-    {
-        return (EC_FALSE);
-    }
-
-    if(NULL_PTR == crb_tree_insert_data(crb_tree, (void *)ptr_dbg_node))
-    {
-        __ptr_dbg_node_free(ptr_dbg_node);
-        return (EC_FALSE);
-    }
-
-    return (EC_TRUE);
-}
-
-static CRB_TREE g_cmutex_crb_tree  = {0, {0,0,0}, NULL_PTR, (CRB_DATA_CMP)__ptr_dbg_node_cmp, (CRB_DATA_FREE)__ptr_dbg_node_free, (CRB_DATA_PRINT)__ptr_dbg_node_print};
-static CRB_TREE g_ccond_crb_tree   = {0, {0,0,0}, NULL_PTR, (CRB_DATA_CMP)__ptr_dbg_node_cmp, (CRB_DATA_FREE)__ptr_dbg_node_free, (CRB_DATA_PRINT)__ptr_dbg_node_print};
-static CRB_TREE g_crwlock_crb_tree = {0, {0,0,0}, NULL_PTR, (CRB_DATA_CMP)__ptr_dbg_node_cmp, (CRB_DATA_FREE)__ptr_dbg_node_free, (CRB_DATA_PRINT)__ptr_dbg_node_print};
-
-static EC_BOOL __ptr_dbg_cmutex_tree_update(void *pvoid, const UINT32 location)
-{
-    return __ptr_dbg_tree_update(&g_cmutex_crb_tree, pvoid, location);
-}
-
-static EC_BOOL __ptr_dbg_ccond_tree_update(void *pvoid, const UINT32 location)
-{
-    return __ptr_dbg_tree_update(&g_ccond_crb_tree, pvoid, location);
-}
-
-static EC_BOOL __ptr_dbg_crwlock_tree_update(void *pvoid, const UINT32 location)
-{
-    return __ptr_dbg_tree_update(&g_crwlock_crb_tree, pvoid, location);
-}
-
-void cmutex_dbg_stat_print(LOG *log)
-{
-    sys_log(log, "cmutex_dbg_stat_print: g_cmutex_crb_tree is\n");
-    crb_inorder_print(log, &g_cmutex_crb_tree);
-
-    sys_log(log, "cmutex_dbg_stat_print: g_ccond_crb_tree is\n");
-    crb_inorder_print(log, &g_ccond_crb_tree);
-
-    sys_log(log, "cmutex_dbg_stat_print: g_crwlock_crb_tree is\n");
-    crb_inorder_print(log, &g_crwlock_crb_tree);
-
-    return;
-}
-#endif/*(SWITCH_ON == CMUTEX_DEBUG_SWITCH)*/
-
-#if (SWITCH_OFF == CMUTEX_DEBUG_SWITCH)
-void cmutex_dbg_stat_print(LOG *log)
-{
-    sys_log(log, "cmutex_dbg_stat_print: this interface is disabled\b");
-
-    return;
-}
-#endif/*(SWITCH_OFF == CMUTEX_DEBUG_SWITCH)*/
 
 #ifdef __cplusplus
 }

@@ -55,7 +55,7 @@ EC_BOOL cbtree_verbose = EC_FALSE;
 #if 0
 #define PRINT_BUFF(info, buff, beg, end) do{\
     UINT32 __pos;\
-    sys_log(LOGSTDOUT, "[%4d] %s: \n", (end) - (beg), info);\
+    dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "[%4d] %s: \n", (end) - (beg), info);\
     for(__pos = beg; __pos < (end); __pos ++)\
     {\
         sys_print(LOGSTDOUT, "%2x,", ((UINT8 *)buff)[ __pos ]);\
@@ -184,7 +184,7 @@ static uint32_t __cbtree_x_key_tlen(const uint8_t *key)
 static int __cbtree_x_key_cmp(const uint8_t *key_1st, const uint8_t *key_2nd)
 {
     int ret;
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbtree_x_key_cmp: %s <--> %s\n", (const char *)key_1st, (const char *)key_2nd);
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_x_key_cmp: %s <--> %s\n", (const char *)key_1st, (const char *)key_2nd);
     ret = strcmp((const char *)key_1st, (const char *)key_2nd);
     if(0 > ret)
     {
@@ -214,7 +214,7 @@ static EC_BOOL __cbtree_x_key_encode(const uint8_t *key, uint8_t *buff, const ui
     len = strlen((const char *)key) + 1;
     if(sizeof(uint32_t) + len > size - (*pos))
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_x_key_encode: left room is %d bytes, no enough room to accept %d bytes\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_x_key_encode: left room is %d bytes, no enough room to accept %d bytes\n", 
                             size - (*pos), len + sizeof(uint32_t));
         return (EC_FALSE);
     }
@@ -232,7 +232,7 @@ static EC_BOOL __cbtree_x_key_decode(uint8_t **key, uint8_t *buff, const uint32_
 
     if(sizeof(uint32_t) > size - (*pos))
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_x_key_decode: left room is %d bytes, insufficent to decode len info\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_x_key_decode: left room is %d bytes, insufficent to decode len info\n", 
                             size - (*pos));
         return (EC_FALSE);
     }
@@ -241,7 +241,7 @@ static EC_BOOL __cbtree_x_key_decode(uint8_t **key, uint8_t *buff, const uint32_
 
     if(len > size - (*pos))
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_x_key_decode: left room is %d bytes, insufficent to decode %d bytes\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_x_key_decode: left room is %d bytes, insufficent to decode %d bytes\n", 
                             size - (*pos), len);
         return (EC_FALSE);
     }
@@ -249,7 +249,7 @@ static EC_BOOL __cbtree_x_key_decode(uint8_t **key, uint8_t *buff, const uint32_
     (*key) = (uint8_t *)safe_malloc(len, LOC_CBTREE_0003);
     if(NULL_PTR == (*key))
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_x_key_decode: malloc %d bytes failed\n", len);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_x_key_decode: malloc %d bytes failed\n", len);
         return (EC_FALSE);
     }
 
@@ -332,7 +332,7 @@ EC_BOOL cbtree_key_free(const CBTREE *cbtree, CBTREE_KEY *cbtree_key)
 {
     if(NULL_PTR != cbtree_key)
     {
-        //sys_log(LOGSTDOUT, "[DEBUG] cbtree_key_free: try to clean key %lx\n", cbtree_key);
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_key_free: try to clean key %lx\n", cbtree_key);
         cbtree_key_clean(cbtree, cbtree_key);
         free_static_mem(MD_TBD, CMPI_ANY_MODI, MM_CBTREE_KEY, cbtree_key, LOC_CBTREE_0006);
     }
@@ -348,14 +348,14 @@ CBTREE_KEY *cbtree_key_make(const CBTREE *cbtree, const uint8_t *key)
     cbtree_key = cbtree_key_new(cbtree);
     if(NULL_PTR == cbtree_key)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_key_make: new cbtree_key failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_make: new cbtree_key failed\n");
         return (NULL_PTR);
     }
 
     dup_key = CBTREE_KEY_DUP_OP(cbtree)(key, LOC_CBTREE_0007);
     if(NULL_PTR == dup_key)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_key_make: dup key failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_make: dup key failed\n");
         cbtree_key_free(cbtree, cbtree_key);
         return (NULL_PTR);
     }
@@ -436,7 +436,7 @@ EC_BOOL cbtree_key_clone(const CBTREE *cbtree, const CBTREE_KEY *cbtree_key_src,
             key = CBTREE_KEY_DUP_OP(cbtree)(CBTREE_KEY_KV(cbtree_key_src, ver), LOC_CBTREE_0009);
             if(NULL_PTR == key)
             {
-                sys_log(LOGSTDOUT, "error:cbtree_key_clone: dup key of version %ld failed\n", ver);
+                dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_clone: dup key of version %ld failed\n", ver);
                 return (EC_FALSE);
             }
             CBTREE_KEY_KV(cbtree_key_des, ver) = key;
@@ -457,13 +457,13 @@ CBTREE_KEY *cbtree_key_dup_all(const CBTREE *cbtree, const CBTREE_KEY * cbtree_k
     cbtree_key_des = cbtree_key_new(cbtree);
     if(NULL_PTR == cbtree_key_des)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_key_dup_all: new cbtree key failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_dup_all: new cbtree key failed\n");
         return (NULL_PTR);
     }
 
     if(EC_FALSE == cbtree_key_clone(cbtree, cbtree_key_src, cbtree_key_des))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_key_dup_all: clone cbtree key failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_dup_all: clone cbtree key failed\n");
         cbtree_key_free(cbtree, cbtree_key_des);
         return (NULL_PTR);
     }
@@ -556,10 +556,10 @@ EC_BOOL cbtree_node_clean(const CBTREE *cbtree, CBTREE_NODE *cbtree_node)
 
 EC_BOOL cbtree_node_free(const CBTREE *cbtree, CBTREE_NODE *cbtree_node)
 {
-    //sys_log(LOGSTDOUT, "[DEBUG] cbtree_node_free: try to free node %lx\n", cbtree_node);
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_node_free: try to free node %lx\n", cbtree_node);
     if(NULL_PTR != cbtree_node)
     {
-        //sys_log(LOGSTDOUT, "[DEBUG] cbtree_node_free: try to clean node %lx\n", cbtree_node);
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_node_free: try to clean node %lx\n", cbtree_node);
         cbtree_node_clean(cbtree, cbtree_node);
         free_static_mem(MD_TBD, CMPI_ANY_MODI, MM_CBTREE_NODE, cbtree_node, LOC_CBTREE_0012);
     }
@@ -578,7 +578,7 @@ EC_BOOL cbtree_node_set_key(CBTREE *cbtree, CBTREE_NODE *cbtree_node, const uint
         cbtree_key = cbtree_key_new(cbtree);
         if(NULL_PTR == cbtree_key)
         {
-            sys_log(LOGSTDOUT, "error:cbtree_node_set_key: new cbtree_key failed\n");
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_set_key: new cbtree_key failed\n");
             return (EC_FALSE);
         }
 
@@ -791,38 +791,38 @@ CBTREE *cbtree_new(const uint8_t order, const uint8_t max_ver, const uint8_t key
 
     if(order > CBTREE_MAX_ORDER)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_new: overflow! order %ld > max supported order %ld\n", order, CBTREE_MAX_ORDER);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_new: overflow! order %ld > max supported order %ld\n", order, CBTREE_MAX_ORDER);
         return (NULL_PTR);
     }
 
     if(0 == order)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_new: order cannot be zero\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_new: order cannot be zero\n");
         return (NULL_PTR);
     }    
 
     if(max_ver > CBTREE_MAX_VERSION)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_new: overflow! max version %ld > max supported version %ld\n", max_ver, CBTREE_MAX_VERSION);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_new: overflow! max version %ld > max supported version %ld\n", max_ver, CBTREE_MAX_VERSION);
         return (NULL_PTR);
     }
 
     if(0 == max_ver)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_new: max version cannot be zero\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_new: max version cannot be zero\n");
         return (NULL_PTR);
     }      
 
     alloc_static_mem(MD_TBD, CMPI_ANY_MODI, MM_CBTREE, &cbtree, LOC_CBTREE_0013);
     if(NULL_PTR == cbtree)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_new: new cbtree failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_new: new cbtree failed\n");
         return (NULL_PTR);
     }
     
     if(EC_FALSE == cbtree_init(cbtree, order, max_ver, key_type))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_new: init cbtree failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_new: init cbtree failed\n");
         cbtree_free(cbtree);
         return (NULL_PTR);
     }
@@ -882,7 +882,7 @@ EC_BOOL cbtree_init(CBTREE *cbtree, const uint8_t order, const uint8_t max_ver, 
             CBTREE_KEY_DECODE_OP(cbtree)      = keyDecode;        
             break;
         default:
-        sys_log(LOGSTDOUT, "error:cbtree_init: not support key type %ld\n", key_type);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_init: not support key type %ld\n", key_type);
         return (EC_FALSE);
     }
     
@@ -1018,11 +1018,11 @@ EC_BOOL cbtree_checker(const CBTREE *cbtree, CBTREE_KEY_PRINTER key_printer, CBT
         
         if(! CBTREE_NODE_IS_LEAF(leaf_node))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_checker: NOT leaf!\n");
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_checker: NOT leaf!\n");
             return (EC_FALSE);
         }    
 
-        sys_log(LOGSTDOUT, "leaf_idx: %ld, leaf_node %lx\n", leaf_idx, leaf_node);
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "leaf_idx: %ld, leaf_node %lx\n", leaf_idx, leaf_node);
 
         for (j = 0; j < CBTREE_NODE_COUNT(leaf_node); j++)
         {
@@ -1047,7 +1047,7 @@ EC_BOOL cbtree_check_in_depth(const CBTREE *cbtree, const CBTREE_NODE *cbtree_no
 {
     if(NULL_PTR == cbtree_node)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_check_in_depth: cbtree_node is null\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_check_in_depth: cbtree_node is null\n");
         cbtree_print(LOGSTDOUT, cbtree, CBTREE_ROOT_NODE(cbtree), 0, key_printer);
         return (EC_FALSE);
     }
@@ -1157,12 +1157,12 @@ static EC_BOOL __cbtree_add_key(CBTREE *cbtree, CBTREE_NODE *root_node,
     uint8_t i;
     int result;
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG] #### __cbtree_add_key enter\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] #### __cbtree_add_key enter\n");
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_add_key: when enter: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_add_key: when enter: beg: ===================================================================================================\n");
     cbtree_print(LOGSTDNULL, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
     cbtree_node_print(LOGSTDNULL, cbtree, (*insert_node), 0, NULL_PTR);
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_add_key: when enter: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_add_key: when enter: end: ===================================================================================================\n");
 #endif
 
     result = -3;/*invalid*/
@@ -1217,7 +1217,7 @@ static EC_BOOL __cbtree_add_key(CBTREE *cbtree, CBTREE_NODE *root_node,
         {
             j++;
 
-            //sys_log(LOGSTDNULL, "[DEBUG] [0] j = %ld, root node is %s\n", j, CBTREE_NODE_LEAF_STR(root_node));
+            //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] [0] j = %ld, root node is %s\n", j, CBTREE_NODE_LEAF_STR(root_node));
 
             /*put in the insert_node*/
             tmp_node_1 = CBTREE_NODE_CHILD(root_node, j);
@@ -1254,12 +1254,12 @@ static EC_BOOL __cbtree_add_key(CBTREE *cbtree, CBTREE_NODE *root_node,
     }
 
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_add_key: when leav: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_add_key: when leav: beg: ===================================================================================================\n");
     cbtree_print(LOGSTDNULL, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
     cbtree_node_print(LOGSTDNULL, cbtree, (*insert_node), 0, NULL_PTR);
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_add_key: when leav: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_add_key: when leav: end: ===================================================================================================\n");
 
-    sys_log(LOGSTDNULL, "[DEBUG] #### __cbtree_add_key leav\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] #### __cbtree_add_key leav\n");
     sys_print(LOGSTDNULL, "\n\n");
 #endif    
     return (EC_TRUE);
@@ -1281,12 +1281,12 @@ static EC_BOOL __cbtree_split_node(CBTREE *cbtree, CBTREE_NODE *root_node,
     int result;
 
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG] #### __cbtree_split_node enter\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] #### __cbtree_split_node enter\n");
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_split_node: when enter: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_split_node: when enter: beg: ===================================================================================================\n");
     cbtree_print(LOGSTDNULL, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
     cbtree_node_print(LOGSTDNULL, cbtree, (*insert_node), 0, NULL_PTR);
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_split_node: when enter: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_split_node: when enter: end: ===================================================================================================\n");
 #endif
 
     /*root_node is full when reach here*/
@@ -1315,7 +1315,7 @@ static EC_BOOL __cbtree_split_node(CBTREE *cbtree, CBTREE_NODE *root_node,
 
     *split = 1;
 
-    //sys_log(LOGSTDNULL, "[DEBUG]xxxxx [0] root_node:");
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG]xxxxx [0] root_node:");
     //cbtree_node_print(LOGSTDNULL, cbtree, root_node, 0, NULL_PTR);    
 
     if (i < (CBTREE_ORDER(cbtree) - 1))
@@ -1343,7 +1343,7 @@ static EC_BOOL __cbtree_split_node(CBTREE *cbtree, CBTREE_NODE *root_node,
         {
             XCHG(CBTREE_NODE *, CBTREE_NODE_CHILD(root_node, j), tmp_node_1);
         }
-        //sys_log(LOGSTDNULL, "[DEBUG]xxxxx [1] tmp:");
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG]xxxxx [1] tmp:");
         //cbtree_node_print(LOGSTDNULL, cbtree, tmp_node_1, 0, NULL_PTR);
         //ASSERT(NULL_PTR != CBTREE_NODE_CHILD(root_node, 0));
 #endif      
@@ -1359,7 +1359,7 @@ static EC_BOOL __cbtree_split_node(CBTREE *cbtree, CBTREE_NODE *root_node,
             {
                 XCHG(CBTREE_NODE *, CBTREE_NODE_CHILD(root_node, j), tmp_node_1);
             }
-            //sys_log(LOGSTDNULL, "[DEBUG]xxxxx [1] tmp:");
+            //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG]xxxxx [1] tmp:");
             //cbtree_node_print(LOGSTDNULL, cbtree, tmp_node_1, 0, NULL_PTR);
             ASSERT(NULL_PTR != CBTREE_NODE_CHILD(root_node, 0));            
         }
@@ -1389,13 +1389,13 @@ static EC_BOOL __cbtree_split_node(CBTREE *cbtree, CBTREE_NODE *root_node,
             tmp_node_1 = (*insert_node);
             ASSERT(NULL_PTR != CBTREE_NODE_CHILD(root_node, 0));
         }
-        //sys_log(LOGSTDNULL, "[DEBUG]xxxxx [2] tmp:");
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG]xxxxx [2] tmp:");
         //cbtree_node_print(LOGSTDNULL, cbtree, tmp_node_1, 0, NULL_PTR);        
     }
 
-    //sys_log(LOGSTDNULL, "beg: ===================================================================================================\n");
+    //dbg_log(SEC_0050_CBTREE, 5)(LOGSTDNULL, "beg: ===================================================================================================\n");
     //cbtree_print(LOGSTDNULL, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
-    //sys_log(LOGSTDNULL, "end: ===================================================================================================\n");
+    //dbg_log(SEC_0050_CBTREE, 5)(LOGSTDNULL, "end: ===================================================================================================\n");
 
     /*split*/
     if (CBTREE_NODE_IS_LEAF(root_node))
@@ -1409,14 +1409,14 @@ static EC_BOOL __cbtree_split_node(CBTREE *cbtree, CBTREE_NODE *root_node,
 
     (*insert_key) = CBTREE_NODE_KEY(root_node, div);
 
-    //sys_log(LOGSTDNULL, "[DEBUG]xxxxx [3] root_node:");
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG]xxxxx [3] root_node:");
     //cbtree_node_print(LOGSTDNULL, cbtree, root_node, 0, NULL_PTR);
 
     /*make new insert_node*/
     new_node = cbtree_node_new(cbtree);
     if(NULL_PTR == new_node)
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_split_node: new cbtree node failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_split_node: new cbtree node failed\n");
         return (EC_FALSE);
     }
     CBTREE_NODE_COUNT(new_node) = CBTREE_ORDER(cbtree) - 1 - div;
@@ -1436,13 +1436,13 @@ static EC_BOOL __cbtree_split_node(CBTREE *cbtree, CBTREE_NODE *root_node,
         CBTREE_NODE_CHILD(root_node, i) = NULL_PTR;
     }
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG]xxxxx [4] root_node:");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG]xxxxx [4] root_node:");
     cbtree_node_print(LOGSTDNULL, cbtree, root_node, 0, NULL_PTR);
     
-    sys_log(LOGSTDNULL, "[DEBUG]xxxxx [5] new_node:");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG]xxxxx [5] new_node:");
     cbtree_node_print(LOGSTDNULL, cbtree, new_node, 0, NULL_PTR);
 
-    sys_log(LOGSTDNULL, "i = %ld, j = %ld, div = %ld\n", i,j, div);
+    dbg_log(SEC_0050_CBTREE, 5)(LOGSTDNULL, "i = %ld, j = %ld, div = %ld\n", i,j, div);
 #endif        
     /*i = 2, j = 0, div = 1*/
     CBTREE_NODE_KEY(new_node, j)    = tmp_key_1;
@@ -1459,10 +1459,10 @@ static EC_BOOL __cbtree_split_node(CBTREE *cbtree, CBTREE_NODE *root_node,
         ASSERT(NULL_PTR != CBTREE_NODE_CHILD(new_node, 0));
     }      
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG]xxxxx [6] root_node:");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG]xxxxx [6] root_node:");
     cbtree_node_print(LOGSTDNULL, cbtree, root_node, 0, NULL_PTR);
     
-    sys_log(LOGSTDNULL, "[DEBUG]xxxxx [7] new_node:");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG]xxxxx [7] new_node:");
     cbtree_node_print(LOGSTDNULL, cbtree, new_node, 0, NULL_PTR);
 #endif
     (*insert_node) = new_node;
@@ -1480,18 +1480,18 @@ static EC_BOOL __cbtree_split_node(CBTREE *cbtree, CBTREE_NODE *root_node,
     }
 
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG]xxxxx [8] root_node:");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG]xxxxx [8] root_node:");
     cbtree_node_print(LOGSTDNULL, cbtree, root_node, 0, NULL_PTR);
     
-    sys_log(LOGSTDNULL, "[DEBUG]xxxxx [9] new_node:");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG]xxxxx [9] new_node:");
     cbtree_node_print(LOGSTDNULL, cbtree, new_node, 0, NULL_PTR);    
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_split_node: when leave: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_split_node: when leave: beg: ===================================================================================================\n");
     cbtree_print(LOGSTDNULL, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
     cbtree_node_print(LOGSTDNULL, cbtree, (*insert_node), 0, NULL_PTR);
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_split_node: when leave: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_split_node: when leave: end: ===================================================================================================\n");
 
-    sys_log(LOGSTDNULL, "[DEBUG] #### __cbtree_split_node leave\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] #### __cbtree_split_node leave\n");
     sys_print(LOGSTDNULL, "\n\n");
 #endif    
     return (EC_TRUE);
@@ -1502,11 +1502,11 @@ static EC_BOOL __cbtree_insert_key(CBTREE *cbtree, CBTREE_NODE * root_node, CBTR
 {
     EC_BOOL success;
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG] #### __cbtree_insert_key enter\n");
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_insert_key: when enter: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] #### __cbtree_insert_key enter\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_insert_key: when enter: beg: ===================================================================================================\n");
     cbtree_print(LOGSTDNULL, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
     cbtree_node_print(LOGSTDNULL, cbtree, (*insert_node), 0, NULL_PTR);
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_insert_key: when enter: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_insert_key: when enter: end: ===================================================================================================\n");
 #endif
 
     success = EC_FALSE;
@@ -1522,7 +1522,7 @@ static EC_BOOL __cbtree_insert_key(CBTREE *cbtree, CBTREE_NODE * root_node, CBTR
             success = __cbtree_split_node(cbtree, root_node, key, insert_node, split);
         }
 
-        //sys_log(LOGSTDNULL, "[DEBUG] #### __cbtree_insert_key leave\n");
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] #### __cbtree_insert_key leave\n");
 
         return (success);
     }
@@ -1567,12 +1567,12 @@ static EC_BOOL __cbtree_insert_key(CBTREE *cbtree, CBTREE_NODE * root_node, CBTR
         }
     }
 #if 0    
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_insert_key: when leave: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_insert_key: when leave: beg: ===================================================================================================\n");
     cbtree_print(LOGSTDNULL, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
     cbtree_node_print(LOGSTDNULL, cbtree, (*insert_node), 0, NULL_PTR);
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_insert_key: when leave: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_insert_key: when leave: end: ===================================================================================================\n");
     
-    sys_log(LOGSTDNULL, "[DEBUG] #### __cbtree_insert_key leave\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] #### __cbtree_insert_key leave\n");
     sys_print(LOGSTDNULL, "\n\n");
 #endif    
     return (success);
@@ -1594,7 +1594,7 @@ static EC_BOOL __cbtree_insert_do(CBTREE *cbtree, CBTREE_KEY **insert_key)
         insert_node = cbtree_node_new(cbtree);
         if(NULL_PTR == insert_node)
         {
-            sys_log(LOGSTDOUT, "error:__cbtree_insert_do: new cbtree node failed\n");
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_insert_do: new cbtree node failed\n");
             return (EC_FALSE);
         }
         
@@ -1632,7 +1632,7 @@ static EC_BOOL __cbtree_insert_do(CBTREE *cbtree, CBTREE_KEY **insert_key)
         new_node = cbtree_node_new(cbtree);
         if(NULL_PTR == new_node)
         {
-            sys_log(LOGSTDOUT, "error:__cbtree_insert_do: new cbtree_node failed\n");
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_insert_do: new cbtree_node failed\n");
             return (EC_FALSE);
         }
 
@@ -1666,9 +1666,9 @@ static EC_BOOL __cbtree_insert_do(CBTREE *cbtree, CBTREE_KEY **insert_key)
     if(NULL_PTR == (*insert_key))
     {
         CBTREE_SIZE(cbtree) ++;
-        //sys_log(LOGSTDOUT, "[DEBUG] cbtree_insert: [1] cbtree tlen %d => \n", CBTREE_TLEN(cbtree));
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_insert: [1] cbtree tlen %d => \n", CBTREE_TLEN(cbtree));
         CBTREE_TLEN(cbtree) += tlen;
-        //sys_log(LOGSTDOUT, "[DEBUG] cbtree_insert: [1] cbtree tlen %d <= \n", CBTREE_TLEN(cbtree));
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_insert: [1] cbtree tlen %d <= \n", CBTREE_TLEN(cbtree));
         //CBTREE_TLEN(cbtree) -= cbtree_key_tlen(cbtree, insert_key);
         CBTREE_SET_DIRTY(cbtree);
     }
@@ -1676,10 +1676,10 @@ static EC_BOOL __cbtree_insert_do(CBTREE *cbtree, CBTREE_KEY **insert_key)
     else
     {
         //CBTREE_SIZE(cbtree) ++;
-        //sys_log(LOGSTDOUT, "[DEBUG] cbtree_insert: [2] cbtree tlen %d => \n", CBTREE_TLEN(cbtree));
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_insert: [2] cbtree tlen %d => \n", CBTREE_TLEN(cbtree));
         CBTREE_TLEN(cbtree) += tlen;
         CBTREE_TLEN(cbtree) -= cbtree_key_tlen(cbtree, (*insert_key));
-        //sys_log(LOGSTDOUT, "[DEBUG] cbtree_insert: [2] cbtree tlen %d <= \n", CBTREE_TLEN(cbtree));
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_insert: [2] cbtree tlen %d <= \n", CBTREE_TLEN(cbtree));
         CBTREE_SET_DIRTY(cbtree);    
     }
 
@@ -1713,7 +1713,7 @@ EC_BOOL cbtree_insert(CBTREE *cbtree, const uint8_t *key)
     insert_key = cbtree_key_make(cbtree, key);
     if(NULL_PTR == insert_key)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_insert: make cbtree key by key %lx failed\n", key);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_insert: make cbtree key by key %lx failed\n", key);
         return (EC_FALSE);
     }
 
@@ -1728,7 +1728,7 @@ EC_BOOL cbtree_insert(CBTREE *cbtree, const uint8_t *key)
     /*patch, reason unknown yet!*/
     if(NULL_PTR == CBTREE_LEFT_LEAF(cbtree))
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cbtree_insert: left leaf of tree %lx is null\n", cbtree);
+        dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_insert: left leaf of tree %lx is null\n", cbtree);
         CBTREE_LEFT_LEAF(cbtree) = cbtree_node_get_l_leaf(cbtree, CBTREE_ROOT_NODE(cbtree));
     }
 
@@ -1745,11 +1745,11 @@ static EC_BOOL __cbtree_rmv_key(CBTREE *cbtree, CBTREE_NODE *root_node, const CB
     int result;
 
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: when enter: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: when enter: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: root: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: root: ");
     cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: when enter: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: when enter: end: ===================================================================================================\n");
 __CBTREE_DEBUG_END
 
     ASSERT(CBTREE_NODE_IS_LEAF(root_node));
@@ -1769,7 +1769,7 @@ __CBTREE_DEBUG_END
     {
         (*del_key) = CBTREE_NODE_KEY(root_node, i);
 
-        //sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: root %lx key %d # saved to del_key as %lx\n", root_node, i, *del_key);
+        //dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: root %lx key %d # saved to del_key as %lx\n", root_node, i, *del_key);
         //ASSERT(NULL_PTR == (*rmv_node));/*must be null*/
         //cbtree_key_free(CBTREE_NODE_KEY(root_node, i));
 
@@ -1787,11 +1787,11 @@ __CBTREE_DEBUG_END
         CBTREE_NODE_COUNT(root_node)--;
 
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: when leave: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: when leave: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: root: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: root: ");
     cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: when leave: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key: when leave: end: ===================================================================================================\n");
 __CBTREE_DEBUG_END
 
         return (EC_TRUE);
@@ -1804,17 +1804,17 @@ static void __cbtree_rmv_key2(CBTREE *cbtree, CBTREE_NODE *root_node, uint8_t in
     uint8_t i;
 
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key2: when enter: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key2: when enter: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key2: root: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key2: root: ");
     cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key2: index: %d\n", index);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key2: when enter: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key2: index: %d\n", index);
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key2: when enter: end: ===================================================================================================\n");
 __CBTREE_DEBUG_END
 
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbtree_rmv_key2: CBTREE_NODE_KEY(root_node:%lx, index:%ld) = %lx to free\n", root_node, index, CBTREE_NODE_KEY(root_node, index));
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_rmv_key2: CBTREE_NODE_KEY(root_node:%lx, index:%ld) = %lx to free\n", root_node, index, CBTREE_NODE_KEY(root_node, index));
     //cbtree_key_free(CBTREE_NODE_KEY(root_node, index));
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbtree_rmv_key2: CBTREE_NODE_KEY(root_node:%lx, index:%ld) = %lx free done\n", root_node, index, CBTREE_NODE_KEY(root_node, index));
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_rmv_key2: CBTREE_NODE_KEY(root_node:%lx, index:%ld) = %lx free done\n", root_node, index, CBTREE_NODE_KEY(root_node, index));
     for (i = index; i < CBTREE_NODE_COUNT(root_node) - 1; i++)
     {
         CBTREE_NODE_KEY(root_node, i)   = CBTREE_NODE_KEY(root_node, i + 1);
@@ -1832,9 +1832,9 @@ __CBTREE_DEBUG_END
     CBTREE_NODE_COUNT(root_node) --;
 
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key2: when leave: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key2: when leave: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key2: when leave: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_rmv_key2: when leave: end: ===================================================================================================\n");
 __CBTREE_DEBUG_END
     return;
 }
@@ -1845,20 +1845,20 @@ static EC_BOOL __cbtree_borrow_right(CBTREE *cbtree, CBTREE_NODE *root_node, CBT
     CBTREE_NODE *node;
 
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: when enter: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: when enter: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: root: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: root: ");
     cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: prev: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: prev: ");
     cbtree_node_print(LOGCONSOLE, cbtree, prev_node, 0, NULL_PTR);   
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: div %ld, prev_node count %ld\n", div, CBTREE_NODE_COUNT(prev_node));
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: when enter: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: div %ld, prev_node count %ld\n", div, CBTREE_NODE_COUNT(prev_node));
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: when enter: end: ===================================================================================================\n");
 __CBTREE_DEBUG_END
 
     if (div >= CBTREE_NODE_COUNT(prev_node))/*now no right node of root_node*/
     {
 __CBTREE_DEBUG_BEG    
-        sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: root has no right neighbor\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: root has no right neighbor\n");
 __CBTREE_DEBUG_END        
         return (EC_FALSE);
     }
@@ -1867,7 +1867,7 @@ __CBTREE_DEBUG_END
     node = CBTREE_NODE_CHILD(prev_node, div + 1);
     if(NULL_PTR == node)
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_borrow_right: child %d of previous node %lx is null\n", div + 1, prev_node);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_borrow_right: child %d of previous node %lx is null\n", div + 1, prev_node);
         return (EC_FALSE);
     }
 
@@ -1916,7 +1916,7 @@ __CBTREE_DEBUG_END
     else
     {
 __CBTREE_DEBUG_BEG    
-        sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: borrowed nothing\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: borrowed nothing\n");
 __CBTREE_DEBUG_END        
         return (EC_FALSE);
     }
@@ -1925,11 +1925,11 @@ __CBTREE_DEBUG_END
     __cbtree_rmv_key2(cbtree, node, 0);
 
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: when leave: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: when leave: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
     cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
     cbtree_node_print(LOGCONSOLE, cbtree, prev_node, 0, NULL_PTR);    
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: when leave: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_right: when leave: end: ===================================================================================================\n");
 __CBTREE_DEBUG_END
     return (EC_TRUE);
 }
@@ -1940,31 +1940,31 @@ static EC_BOOL __cbtree_borrow_left(CBTREE *cbtree, CBTREE_NODE *root_node, CBTR
     CBTREE_NODE *node;
 
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: when enter: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: when enter: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: root: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: root: ");
     cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: prev: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: prev: ");
     cbtree_node_print(LOGCONSOLE, cbtree, prev_node, 0, NULL_PTR);   
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: div %ld, prev_node count %ld\n", div, CBTREE_NODE_COUNT(prev_node));
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: when enter: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: div %ld, prev_node count %ld\n", div, CBTREE_NODE_COUNT(prev_node));
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: when enter: end: ===================================================================================================\n");
 __CBTREE_DEBUG_END
 
     if (0 == div)/*now no left node of root_node*/
     {
 __CBTREE_DEBUG_BEG    
-        sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: root has no left neighbor\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: root has no left neighbor\n");
 __CBTREE_DEBUG_END        
         return (EC_FALSE);
     }
     node = CBTREE_NODE_CHILD(prev_node, div - 1);
     if(NULL_PTR == node)
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_borrow_left: node of child %d of previous node %lx is null\n", div - 1, prev_node);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_borrow_left: node of child %d of previous node %lx is null\n", div - 1, prev_node);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: root_node %lx lend to prev_node %lx child %d: node %lx\n", root_node, prev_node, div - 1, node);
+    //dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: root_node %lx lend to prev_node %lx child %d: node %lx\n", root_node, prev_node, div - 1, node);
 
     if (CBTREE_NODE_IS_LEAF(node) && CBTREE_NODE_COUNT(node) > CBTREE_MIN_LEAF(cbtree))
     {
@@ -2004,7 +2004,7 @@ __CBTREE_DEBUG_END
     else
     {
 __CBTREE_DEBUG_BEG    
-        sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: borrowed nothing\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: borrowed nothing\n");
 __CBTREE_DEBUG_END        
         return (EC_FALSE);
     }
@@ -2012,11 +2012,11 @@ __CBTREE_DEBUG_END
     CBTREE_NODE_COUNT(node) --;
 
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: when leave: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: when leave: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
     cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
     cbtree_node_print(LOGCONSOLE, cbtree, prev_node, 0, NULL_PTR);    
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: when leave: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_borrow_left: when leave: end: ===================================================================================================\n");
 __CBTREE_DEBUG_END
     return (EC_TRUE);
 }
@@ -2027,14 +2027,14 @@ static EC_BOOL __cbtree_merge_node(CBTREE *cbtree, CBTREE_NODE *root_node, CBTRE
     CBTREE_NODE *node;
 
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: when enter: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: when enter: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: root: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: root: ");
     cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: prev: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: prev: ");
     cbtree_node_print(LOGCONSOLE, cbtree, prev_node, 0, NULL_PTR);    
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: div %ld, prev_node count %ld\n", div, CBTREE_NODE_COUNT(prev_node));
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: when enter: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: div %ld, prev_node count %ld\n", div, CBTREE_NODE_COUNT(prev_node));
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: when enter: end: ===================================================================================================\n");
 __CBTREE_DEBUG_END
 
     /* Try to merge the node with its left sibling. */
@@ -2044,7 +2044,7 @@ __CBTREE_DEBUG_END
         node = CBTREE_NODE_CHILD(prev_node, div - 1);
         if(NULL_PTR == node)
         {
-            sys_log(LOGSTDOUT, "error:__cbtree_merge_node: child %d of previous node %lx is null\n", div - 1, prev_node);
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_merge_node: child %d of previous node %lx is null\n", div - 1, prev_node);
             return (EC_FALSE);
         }
        
@@ -2057,12 +2057,12 @@ __CBTREE_DEBUG_END
             if(CBTREE_NODE_KEY(prev_node, div) ==  del_key)
             {
                 CBTREE_NODE_KEY(prev_node, div - 1) = cbtree_node_get_r_key(cbtree, root_node);/*xxx*/                
-                //sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [1] is to removed key\n");
+                //dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [1] is to removed key\n");
             }
             else
             {
                 CBTREE_NODE_KEY(prev_node, div - 1) = CBTREE_NODE_KEY(prev_node, div);/*xxx*/
-                //sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [1] is NOT to removed key\n");
+                //dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [1] is NOT to removed key\n");
             }            
             
             CBTREE_NODE_COUNT(node) ++;
@@ -2112,17 +2112,17 @@ __CBTREE_DEBUG_END
         CBTREE_NODE_KEY(prev_node, div)       = NULL_PTR;        
 
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [2]: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [2]: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
     cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
     cbtree_node_print(LOGCONSOLE, cbtree, prev_node, 0, NULL_PTR);    
     cbtree_node_print(LOGCONSOLE, cbtree, node, 0, NULL_PTR);    
-    sys_log(LOGCONSOLE, "[DEBUG]__cbtree_merge_node: div %ld, prev_node count %ld\n", div, CBTREE_NODE_COUNT(prev_node));
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [2]: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG]__cbtree_merge_node: div %ld, prev_node count %ld\n", div, CBTREE_NODE_COUNT(prev_node));
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [2]: end: ===================================================================================================\n");
 __CBTREE_DEBUG_END
 
         cbtree_node_free(cbtree, root_node);
-        //sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_node: [1] rmv prev %lx child %d (div = %d)\n", prev_node, div, div);
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_node: [1] rmv prev %lx child %d (div = %d)\n", prev_node, div, div);
         __cbtree_rmv_key2(cbtree, prev_node, div);
     }
     else/*when root_node is the left most child of prev_node*/
@@ -2131,24 +2131,24 @@ __CBTREE_DEBUG_END
         node = CBTREE_NODE_CHILD(prev_node, div + 1);
         if(NULL_PTR == node)
         {
-            sys_log(LOGSTDOUT, "error:__cbtree_merge_node: child %d of previous node %lx is null\n", div + 1, prev_node);
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_merge_node: child %d of previous node %lx is null\n", div + 1, prev_node);
             return (EC_FALSE);
         }
         
         i    = CBTREE_NODE_COUNT(root_node);/*0*/
-        //sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [2] i = %ld, root_node count %ld\n", i, CBTREE_NODE_COUNT(root_node));
+        //dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [2] i = %ld, root_node count %ld\n", i, CBTREE_NODE_COUNT(root_node));
 
         if (!CBTREE_NODE_IS_LEAF(root_node))
         {
             if(CBTREE_NODE_KEY(prev_node, div) == del_key)
             {
                 CBTREE_NODE_KEY(root_node, i) = cbtree_node_get_r_key(cbtree, root_node);
-                //sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [2] is to removed key\n");
+                //dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [2] is to removed key\n");
             }
             else
             {
                 CBTREE_NODE_KEY(root_node, i) = CBTREE_NODE_KEY(prev_node, div);
-                //sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [2] is NOT to removed key\n");
+                //dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [2] is NOT to removed key\n");
             }
             
             CBTREE_NODE_COUNT(root_node)++;
@@ -2190,25 +2190,25 @@ __CBTREE_DEBUG_END
         CBTREE_NODE_KEY(prev_node, div)       = NULL_PTR;
 
 __CBTREE_DEBUG_BEG
-        sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [5] root_node: ");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [5] root_node: ");
         cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
-        sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [5] prev_node: ");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: [5] prev_node: ");
         cbtree_node_print(LOGCONSOLE, cbtree, prev_node, 0, NULL_PTR) ; 
 __CBTREE_DEBUG_END
 
         cbtree_node_free(cbtree, node);
 
-        //sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_node: [2] rmv prev %lx child %d (div = %d)\n", prev_node, div, div);
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_node: [2] rmv prev %lx child %d (div = %d)\n", prev_node, div, div);
 
         __cbtree_rmv_key2(cbtree, prev_node, div);
     }
 
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: when leave: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: when leave: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
     cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
     cbtree_node_print(LOGCONSOLE, cbtree, prev_node, 0, NULL_PTR);    
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: when leave: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_merge_node: when leave: end: ===================================================================================================\n");
 __CBTREE_DEBUG_END
 
     return (EC_TRUE);
@@ -2224,18 +2224,18 @@ static EC_BOOL __cbtree_delete(CBTREE *cbtree, CBTREE_NODE *root_node, CBTREE_NO
     uint8_t i;
     if(NULL_PTR == root_node)
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_delete: root node is null\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_delete: root node is null\n");
         return (EC_FALSE);
     }
 
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [0]when enter: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [0]when enter: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [0]root: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [0]root: ");
     cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [0]prev: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [0]prev: ");
     cbtree_node_print(LOGCONSOLE, cbtree, prev_node, 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [0]when enter: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [0]when enter: end: ===================================================================================================\n");
 __CBTREE_DEBUG_END
 
     success = EC_FALSE;
@@ -2265,7 +2265,7 @@ __CBTREE_DEBUG_END
 
     if (EC_FALSE == success)
     {
-        //sys_log(LOGSTDOUT, "[DEBUG] error:__cbtree_delete: false\n");
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] error:__cbtree_delete: false\n");
         return (EC_FALSE);
     }
 
@@ -2273,7 +2273,7 @@ __CBTREE_DEBUG_END
     {
         return (EC_TRUE);
     }  
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbtree_delete: ### merge = %d, root %lx, prev %lx, index %d\n", *merged, root_node, prev_node, index);
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_delete: ### merge = %d, root %lx, prev %lx, index %d\n", *merged, root_node, prev_node, index);
 
 #if 1
     if (
@@ -2284,25 +2284,25 @@ __CBTREE_DEBUG_END
 #if 1    
         if(NULL_PTR != prev_node && CBTREE_NODE_KEY(prev_node, index) == (*del_key))
         {
-            //sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2]update prev %lx key %ld #, del_key %lx\n", prev_node, index, *del_key);
+            //dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2]update prev %lx key %ld #, del_key %lx\n", prev_node, index, *del_key);
             CBTREE_NODE_KEY(prev_node, index) = cbtree_node_get_r_key(cbtree, root_node);
         }
         else
         {
-            //sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2]NOT update prev %lx key %ld # where result = %d, del_key %lx\n", prev_node, index, result, *del_key);
+            //dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2]NOT update prev %lx key %ld # where result = %d, del_key %lx\n", prev_node, index, result, *del_key);
         }   
 #endif        
 __CBTREE_DEBUG_BEG
-        sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2]when leave: beg: ===================================================================================================\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2]when leave: beg: ===================================================================================================\n");
         cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
-        sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2]root: ");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2]root: ");
         cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
-        sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2]prev: ");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2]prev: ");
         cbtree_node_print(LOGCONSOLE, cbtree, prev_node, 0, NULL_PTR);
-        sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2]when leave: end: ===================================================================================================\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2]when leave: end: ===================================================================================================\n");
 
 
-        sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2] return where tree root node (%lx, min_leaf %ld, min_intr %ld), root_node (%lx, %s, count %ld), merged %d\n",
+        dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [2] return where tree root node (%lx, min_leaf %ld, min_intr %ld), root_node (%lx, %s, count %ld), merged %d\n",
                            CBTREE_ROOT_NODE(cbtree),  CBTREE_MIN_LEAF(cbtree), CBTREE_MIN_INTR(cbtree),
                            root_node, CBTREE_NODE_LEAF_STR(root_node), CBTREE_NODE_COUNT(root_node),
                            (*merged));
@@ -2329,26 +2329,26 @@ __CBTREE_DEBUG_END
 #if 1
     if(NULL_PTR != prev_node && CBTREE_NODE_KEY(prev_node, index) == (*del_key))
     {
-        //sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [3]update prev %lx key %ld #, del_key %lx\n", prev_node, index, *del_key);
+        //dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [3]update prev %lx key %ld #, del_key %lx\n", prev_node, index, *del_key);
         CBTREE_NODE_KEY(prev_node, index) = cbtree_node_get_r_key(cbtree, root_node);
     }
     else
     {
-        //sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [3]NOT update prev %lx key %ld # where result = %d, del_key %lx\n", prev_node, index, result, *del_key);
+        //dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [3]NOT update prev %lx key %ld # where result = %d, del_key %lx\n", prev_node, index, result, *del_key);
     }  
 #endif     
     
 __CBTREE_DEBUG_BEG
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [4]when leave: beg: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [4]when leave: beg: ===================================================================================================\n");
     cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [4]root: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [4]root: ");
     cbtree_node_print(LOGCONSOLE, cbtree, root_node, 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [4]prev: ");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [4]prev: ");
     cbtree_node_print(LOGCONSOLE, cbtree, prev_node, 0, NULL_PTR);
-    sys_log(LOGCONSOLE, "[DEBUG] __cbtree_delete: [4]when leave: end: ===================================================================================================\n");
+    dbg_log(SEC_0050_CBTREE, 0)(LOGCONSOLE, "[DEBUG] __cbtree_delete: [4]when leave: end: ===================================================================================================\n");
 
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbtree_delete: [4] return\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_delete: [4] return\n");
 __CBTREE_DEBUG_END    
     return (EC_TRUE);
 }
@@ -2387,7 +2387,7 @@ static EC_BOOL __cbtree_delete_key(CBTREE *cbtree, const CBTREE_KEY *rmv_key, CB
     root_node = CBTREE_ROOT_NODE(cbtree);
     if(NULL_PTR == root_node)
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_delete_key: root node of tree is null\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_delete_key: root node of tree is null\n");
         return (EC_FALSE);
     }
 #if 0
@@ -2441,7 +2441,7 @@ EC_BOOL cbtree_delete(CBTREE *cbtree, const uint8_t *key)
     rmv_key = cbtree_key_make(cbtree, key);
     if(NULL_PTR == rmv_key)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_delete: make cbtree_key by key %lx failed\n", key);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_delete: make cbtree_key by key %lx failed\n", key);
         return (EC_FALSE);
     }
 
@@ -2467,7 +2467,7 @@ static CBTREE_KEY * __cbtree_search0(CBTREE *cbtree, CBTREE_NODE *root_node, con
 
     if(NULL_PTR == root_node)
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_search0: root_node is null\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_search0: root_node is null\n");
         return (NULL_PTR);
     }
 
@@ -2490,7 +2490,7 @@ static CBTREE_KEY * __cbtree_search0(CBTREE *cbtree, CBTREE_NODE *root_node, con
 
     if (CBTREE_NODE_IS_LEAF(root_node))
     {
-        //sys_log(LOGSTDOUT, "error:__cbtree_search0: on leaf i = %d, keyCount %d\n", i, CBTREE_NODE_COUNT(root_node));
+        //dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_search0: on leaf i = %d, keyCount %d\n", i, CBTREE_NODE_COUNT(root_node));
         return (NULL_PTR);
     }
 
@@ -2537,20 +2537,20 @@ CBTREE_KEY *cbtree_search(CBTREE *cbtree, const uint8_t *key)
 
     if(EC_TRUE == cbtree_is_empty(cbtree))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_search: cbtree is empty\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_search: cbtree is empty\n");
         return (NULL_PTR);
     }
 
     if (NULL_PTR == key)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_search: key is null\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_search: key is null\n");
         return (NULL_PTR);
     }
 
     search_key = cbtree_key_make(cbtree, key);
     if(NULL_PTR == search_key)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_search: make cbtree_key by key failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_search: make cbtree_key by key failed\n");
         return (NULL_PTR);
     }
 
@@ -2570,7 +2570,7 @@ uint32_t cbtree_count_size(const CBTREE *cbtree)
     const CBTREE_NODE *cbtree_node;
     uint32_t size;
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cbtree_count_size: tree basic info:\n");
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_count_size: tree basic info:\n");
     //cbtree_print_itself(LOGSTDOUT, cbtree);
 
     size = 0;
@@ -2580,7 +2580,7 @@ uint32_t cbtree_count_size(const CBTREE *cbtree)
         size += CBTREE_NODE_COUNT(cbtree_node);
 #if 0        
         //ASSERT(CBTREE_NODE_IS_LEAF(cbtree_node));
-        sys_log(LOGSTDOUT, "[DEBUG] cbtree_count_size: cbtree_node %lx, leaf flag %d, order %d, next is %lx\n",
+        dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_count_size: cbtree_node %lx, leaf flag %d, order %d, next is %lx\n",
                             cbtree_node, CBTREE_NODE_FLAG(cbtree_node), CBTREE_ORDER(cbtree), CBTREE_NODE_CHILD(cbtree_node, CBTREE_ORDER(cbtree) - 1));
 #endif                            
         cbtree_node = CBTREE_NODE_CHILD(cbtree_node, CBTREE_ORDER(cbtree) - 1);
@@ -2632,7 +2632,7 @@ EC_BOOL cbtree_split0(CBTREE *cbtree, CBTREE **cbtree_son)
 
     if(EC_TRUE == cbtree_is_empty(cbtree))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_split: cbtree is empty, refuse to split\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_split: cbtree is empty, refuse to split\n");
         return (EC_FALSE);
     }
 
@@ -2642,21 +2642,21 @@ EC_BOOL cbtree_split0(CBTREE *cbtree, CBTREE **cbtree_son)
     || (!CBTREE_NODE_IS_LEAF(root_node_src) && CBTREE_NODE_COUNT(root_node_src) <= CBTREE_MIN_INTR(cbtree))
     )
     {
-        sys_log(LOGSTDOUT, "error:cbtree_split: cbtree root node has no enough childs to split\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_split: cbtree root node has no enough childs to split\n");
         return (EC_FALSE);
     }
 
     cbtree_des = cbtree_new(CBTREE_ORDER(cbtree), CBTREE_MAX_VER(cbtree), CBTREE_KEY_TYPE(cbtree));
     if(NULL_PTR == cbtree_des)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_split: new cbtree failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_split: new cbtree failed\n");
         return (EC_FALSE);
     }
 
     root_node_des = cbtree_node_new(cbtree_des);
     if(NULL_PTR == root_node_des)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_split: new cbtree_des root node failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_split: new cbtree_des root node failed\n");
         cbtree_free(cbtree_des);
         return (EC_FALSE);
     }    
@@ -2665,7 +2665,7 @@ EC_BOOL cbtree_split0(CBTREE *cbtree, CBTREE **cbtree_son)
     i   = div - 1;
 
     right_most_leaf = cbtree_node_get_r_leaf(cbtree, CBTREE_NODE_CHILD(root_node_src, i));
-    //sys_log(LOGSTDOUT, "[DEBUG] cbtree_split: div = %d, i = %d, right_most_leaf = %lx\n", div, i, right_most_leaf);
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_split: div = %d, i = %d, right_most_leaf = %lx\n", div, i, right_most_leaf);
 
     for(i = div, j = 0; i < CBTREE_NODE_COUNT(root_node_src); i ++, j ++)
     {
@@ -2747,7 +2747,7 @@ static EC_BOOL __cbtree_split(CBTREE *cbtree, CBTREE **left_sub_cbtree)
     uint8_t      i;
     uint8_t      j;
 
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbtree_split: before split:\n");
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_split: before split:\n");
     //cbtree_print(LOGSTDOUT, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);
 
     root_node = CBTREE_ROOT_NODE(cbtree);
@@ -2759,14 +2759,14 @@ static EC_BOOL __cbtree_split(CBTREE *cbtree, CBTREE **left_sub_cbtree)
     left_cbtree = cbtree_new(CBTREE_ORDER(cbtree), CBTREE_MAX_VER(cbtree), CBTREE_KEY_TYPE(cbtree));
     if(NULL_PTR == left_cbtree)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_split: new left_cbtree failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_split: new left_cbtree failed\n");
         return (EC_FALSE);
     }  
 
     left_root_node = cbtree_node_new(left_cbtree);
     if(NULL_PTR == left_root_node)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_split: new left_root_node failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_split: new left_root_node failed\n");
         cbtree_free(left_cbtree);
         return (EC_FALSE);
     }
@@ -3000,14 +3000,14 @@ EC_BOOL cbtree_split(CBTREE *cbtree, CBTREE **left_sub_cbtree)
     cached_min_key_list = clist_new(MM_CBTREE_KEY, LOC_CBTREE_0015);
     if(NULL_PTR == cached_min_key_list)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_split: new cached_min_key_list failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_split: new cached_min_key_list failed\n");
         return (EC_FALSE);
     }
 
     cached_max_key_list = clist_new(MM_CBTREE_KEY, LOC_CBTREE_0016);
     if(NULL_PTR == cached_max_key_list)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_split: new cached_max_key_list failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_split: new cached_max_key_list failed\n");
         clist_free_no_lock(cached_min_key_list, LOC_CBTREE_0017);
         return (EC_FALSE);
     }
@@ -3025,19 +3025,19 @@ EC_BOOL cbtree_split(CBTREE *cbtree, CBTREE **left_sub_cbtree)
             __cbtree_split_pop_max_key(cbtree, cached_max_key_list);
         }
 #if 0        
-        sys_log(LOGSTDOUT, "[DEBUG]cbtree_split: cbtree now size %d, min cached %ld, max cached %ld\n", 
+        dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG]cbtree_split: cbtree now size %d, min cached %ld, max cached %ld\n", 
                             CBTREE_SIZE(cbtree), 
                             clist_size(cached_min_key_list),
                             clist_size(cached_max_key_list)
                             );
 #endif                            
-        //sys_log(LOGSTDOUT, "[DEBUG]cbtree_split: cbtree now is\n");
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG]cbtree_split: cbtree now is\n");
         //cbtree_print(LOGCONSOLE, cbtree, CBTREE_ROOT_NODE(cbtree), 0, NULL_PTR);        
     }
 
     if(NULL_PTR == root_node || 2 > CBTREE_NODE_COUNT(root_node))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_split: cbtree %lx has no enough nodes to split\n", cbtree);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_split: cbtree %lx has no enough nodes to split\n", cbtree);
         __cbtree_split_push_all(cbtree, cached_min_key_list);
         __cbtree_split_push_all(cbtree, cached_max_key_list);
         __cbtree_split_cleanup(cbtree, cached_min_key_list);
@@ -3050,7 +3050,7 @@ EC_BOOL cbtree_split(CBTREE *cbtree, CBTREE **left_sub_cbtree)
     left_cbtree = NULL_PTR;
     if(EC_FALSE == __cbtree_split(cbtree, &left_cbtree))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_split: split cbtree %lx failed\n", cbtree);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_split: split cbtree %lx failed\n", cbtree);
         __cbtree_split_push_all(cbtree, cached_min_key_list);
         __cbtree_split_push_all(cbtree, cached_max_key_list);
         __cbtree_split_cleanup(cbtree, cached_min_key_list);
@@ -3083,7 +3083,7 @@ static void __cbtree_node_print(LOG *log, const CBTREE * tree, const CBTREE_NODE
 
     if(NULL_PTR == node)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] __cbtree_node_print: node is null\n");
+        dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_node_print: node is null\n");
         return;
     }
 
@@ -3110,15 +3110,15 @@ static EC_BOOL __cbtree_merge_balance(CBTREE *des_tree, CBTREE_NODE *left_node, 
     ASSERT(!CBTREE_NODE_IS_LEAF(left_node));
     ASSERT(!CBTREE_NODE_IS_LEAF(right_node));
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance: left_node %lx, right_node %lx\n", left_node, right_node);
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance: left_node %lx, right_node %lx\n", left_node, right_node);
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance:[1] left_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance:[1] left_node is\n");
     __cbtree_node_print(LOGSTDOUT,  des_tree, left_node); 
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_balance:[1] right_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_balance:[1] right_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, right_node);     
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance:[0] des_tree is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance:[0] des_tree is\n");
     cbtree_print(LOGSTDOUT, des_tree, CBTREE_ROOT_NODE(des_tree), 0, NULL_PTR);    
     
     if(CBTREE_NODE_COUNT(left_node) > CBTREE_MIN_INTR(des_tree) + 1)/*move some keys and children from left_node to right_node*/
@@ -3132,11 +3132,11 @@ static EC_BOOL __cbtree_merge_balance(CBTREE *des_tree, CBTREE_NODE *left_node, 
         root_node = cbtree_node_new(des_tree);
         if(NULL_PTR == root_node)
         {
-            sys_log(LOGSTDOUT, "error:__cbtree_merge_balance: new cbtree node failed where left_node count %ld > min_intra %ld\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_merge_balance: new cbtree node failed where left_node count %ld > min_intra %ld\n", 
                                 CBTREE_NODE_COUNT(left_node), CBTREE_MIN_INTR(des_tree));
             return (EC_FALSE);
         }
-        sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance:[A] new root_node %lx\n", root_node);
+        dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance:[A] new root_node %lx\n", root_node);
 
         k = CBTREE_NODE_COUNT(left_node) - CBTREE_MIN_INTR(des_tree);
         j = CBTREE_NODE_COUNT(right_node) + k;
@@ -3176,7 +3176,7 @@ static EC_BOOL __cbtree_merge_balance(CBTREE *des_tree, CBTREE_NODE *left_node, 
         CBTREE_NODE_KEY(left_node, CBTREE_NODE_COUNT(left_node) - 1) = NULL_PTR;
         CBTREE_NODE_COUNT(left_node) --;
 
-        sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_balance:[A] root_node is\n");
+        dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_balance:[A] root_node is\n");
         __cbtree_node_print(LOGSTDNULL,  des_tree, root_node);          
 
         (*new_node) = root_node;
@@ -3193,11 +3193,11 @@ static EC_BOOL __cbtree_merge_balance(CBTREE *des_tree, CBTREE_NODE *left_node, 
         root_node = cbtree_node_new(des_tree);
         if(NULL_PTR == root_node)
         {
-            sys_log(LOGSTDOUT, "error:__cbtree_merge_balance: new cbtree node failed where left_node count %ld < min_intra %ld\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_merge_balance: new cbtree node failed where left_node count %ld < min_intra %ld\n", 
                                 CBTREE_NODE_COUNT(left_node), CBTREE_MIN_INTR(des_tree));
             return (EC_FALSE);
         }
-        sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance:[B] new root_node %lx\n", root_node);
+        dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance:[B] new root_node %lx\n", root_node);
 
         k = CBTREE_MIN_INTR(des_tree) - CBTREE_NODE_COUNT(left_node);
         j = CBTREE_NODE_COUNT(left_node);
@@ -3238,7 +3238,7 @@ static EC_BOOL __cbtree_merge_balance(CBTREE *des_tree, CBTREE_NODE *left_node, 
         CBTREE_NODE_COUNT(left_node) --;       
 
 
-        sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_balance:[B] root_node is\n");
+        dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_balance:[B] root_node is\n");
         __cbtree_node_print(LOGSTDNULL,  des_tree, root_node);                
 
         (*new_node) = root_node;
@@ -3250,11 +3250,11 @@ static EC_BOOL __cbtree_merge_balance(CBTREE *des_tree, CBTREE_NODE *left_node, 
         root_node = cbtree_node_new(des_tree);
         if(NULL_PTR == root_node)
         {
-            sys_log(LOGSTDOUT, "error:__cbtree_merge_balance: new cbtree node failed where left_node count %ld == min_intra %ld\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_merge_balance: new cbtree node failed where left_node count %ld == min_intra %ld\n", 
                                 CBTREE_NODE_COUNT(left_node), CBTREE_MIN_INTR(des_tree));
             return (EC_FALSE);
         }
-        sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance:[C] new root_node %lx\n", root_node);
+        dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance:[C] new root_node %lx\n", root_node);
 
         CBTREE_NODE_CHILD(root_node, 0) = left_node;
         CBTREE_NODE_KEY(root_node, 0)   = CBTREE_NODE_KEY(left_node, CBTREE_NODE_COUNT(left_node) - 1);
@@ -3264,16 +3264,16 @@ static EC_BOOL __cbtree_merge_balance(CBTREE *des_tree, CBTREE_NODE *left_node, 
         CBTREE_NODE_KEY(left_node, CBTREE_NODE_COUNT(left_node) - 1) = NULL_PTR;
         CBTREE_NODE_COUNT(left_node) --;
 
-        sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_balance:[C] root_node is\n");
+        dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_balance:[C] root_node is\n");
         __cbtree_node_print(LOGSTDNULL, des_tree, root_node);          
         
         (*new_node) = root_node;
     }
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_balance:[4] right_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_balance:[4] right_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, right_node);  
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance:[4] des_tree is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_balance:[4] des_tree is\n");
     cbtree_print(LOGSTDOUT, des_tree, CBTREE_ROOT_NODE(des_tree), 0, NULL_PTR);       
     
     return (EC_TRUE);
@@ -3295,10 +3295,10 @@ static EC_BOOL __cbtree_merge_to_right_push_leaf(CBTREE *des_tree, CBTREE_NODE *
     j = CBTREE_NODE_COUNT(right_node) + k;
     i = CBTREE_NODE_COUNT(right_node);
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_leaf:[1] left_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_leaf:[1] left_node is\n");
     __cbtree_node_print(LOGSTDNULL, des_tree, left_node);
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_leaf:[1] right_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_leaf:[1] right_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, right_node);    
 
     CBTREE_NODE_CHILD(right_node, j) = CBTREE_NODE_CHILD(right_node, i);        
@@ -3321,15 +3321,15 @@ static EC_BOOL __cbtree_merge_to_right_push_leaf(CBTREE *des_tree, CBTREE_NODE *
     CBTREE_NODE_COUNT(left_node)   = 0;
     CBTREE_NODE_COUNT(right_node) += k;    
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_leaf:[3] right_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_leaf:[3] right_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, right_node);         
 
     cbtree_node_free(des_tree, left_node);
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_leaf:[4] right_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_leaf:[4] right_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, right_node);       
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right_push_leaf:[4] des_tree is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right_push_leaf:[4] des_tree is\n");
     cbtree_print(LOGSTDOUT, des_tree, CBTREE_ROOT_NODE(des_tree), 0, NULL_PTR);
     return (EC_TRUE);
 }
@@ -3341,9 +3341,9 @@ static EC_BOOL __cbtree_merge_to_right_push_all(CBTREE *des_tree, CBTREE_NODE *l
     uint8_t j;
     uint8_t k;/*the num of keys expected to shift*/
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right_push_all: left_node %lx, right_node %lx\n", left_node, right_node);
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right_push_all: left_node %lx, right_node %lx\n", left_node, right_node);
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right_push_all:[0] des_tree is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right_push_all:[0] des_tree is\n");
     cbtree_print(LOGSTDOUT, des_tree, CBTREE_ROOT_NODE(des_tree), 0, NULL_PTR);
     
     ASSERT(CBTREE_NODE_COUNT(left_node) + CBTREE_NODE_COUNT(right_node) < CBTREE_ORDER(des_tree));
@@ -3352,10 +3352,10 @@ static EC_BOOL __cbtree_merge_to_right_push_all(CBTREE *des_tree, CBTREE_NODE *l
     j = CBTREE_NODE_COUNT(right_node) + k;
     i = CBTREE_NODE_COUNT(right_node);
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_all:[1] left_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_all:[1] left_node is\n");
     __cbtree_node_print(LOGSTDNULL, des_tree, left_node);
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_all:[1] right_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_all:[1] right_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, right_node);    
 
     CBTREE_NODE_CHILD(right_node, j) = CBTREE_NODE_CHILD(right_node, i);        
@@ -3379,15 +3379,15 @@ static EC_BOOL __cbtree_merge_to_right_push_all(CBTREE *des_tree, CBTREE_NODE *l
     CBTREE_NODE_COUNT(left_node)   = 0;
     CBTREE_NODE_COUNT(right_node) += k;    
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_all:[3] right_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_all:[3] right_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, right_node);         
 
     cbtree_node_free(des_tree, left_node);
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_all:[4] right_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_push_all:[4] right_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, right_node);       
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right_push_all:[4] des_tree is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right_push_all:[4] des_tree is\n");
     cbtree_print(LOGSTDOUT, des_tree, CBTREE_ROOT_NODE(des_tree), 0, NULL_PTR);
     return (EC_TRUE);
 }
@@ -3426,12 +3426,12 @@ static EC_BOOL __cbtree_merge_to_right_at_leaf_level(CBTREE *des_tree, CBTREE_NO
     ASSERT(CBTREE_NODE_IS_LEAF(left_node));
     ASSERT(CBTREE_NODE_IS_LEAF(right_node));
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right_at_leaf_level: left_node %lx, right_node %lx\n", left_node, right_node);
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right_at_leaf_level: left_node %lx, right_node %lx\n", left_node, right_node);
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_at_leaf_level:[1] left_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_at_leaf_level:[1] left_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, left_node); 
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_at_leaf_level:[1] right_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_at_leaf_level:[1] right_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, right_node);     
 
     if(CBTREE_NODE_COUNT(left_node) + CBTREE_NODE_COUNT(right_node) <= CBTREE_ORDER(des_tree))
@@ -3446,7 +3446,7 @@ static EC_BOOL __cbtree_merge_to_right_at_leaf_level(CBTREE *des_tree, CBTREE_NO
         root_node = cbtree_node_new(des_tree);
         if(NULL_PTR == root_node)
         {
-            sys_log(LOGSTDOUT, "error:__cbtree_merge_to_right_at_leaf_level: new cbtree node failed\n");
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_merge_to_right_at_leaf_level: new cbtree node failed\n");
             return (EC_FALSE);
         }
 
@@ -3465,12 +3465,12 @@ static EC_BOOL __cbtree_merge_to_right_at_leaf_level(CBTREE *des_tree, CBTREE_NO
 
 static EC_BOOL __cbtree_merge_to_right_at_same_level(CBTREE *des_tree, CBTREE_NODE *left_node, CBTREE_NODE *right_node, const UINT32 limit, CBTREE_NODE **new_node)
 {        
-    sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right_at_same_level: left_node %lx, right_node %lx\n", left_node, right_node);
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right_at_same_level: left_node %lx, right_node %lx\n", left_node, right_node);
     
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_at_same_level:[1] left_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_at_same_level:[1] left_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, left_node); 
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_at_same_level:[1] right_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right_at_same_level:[1] right_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, right_node);   
 
     if(CBTREE_NODE_IS_LEAF(left_node))
@@ -3498,12 +3498,12 @@ static EC_BOOL __cbtree_merge_to_right(CBTREE *des_tree, CBTREE_NODE *left_node,
 {
     CBTREE_NODE *root_node;
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right: left_node %lx, right_node %lx\n", left_node, right_node);
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] __cbtree_merge_to_right: left_node %lx, right_node %lx\n", left_node, right_node);
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right:[1] left_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right:[1] left_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, left_node); 
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right:[1] right_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right:[1] right_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, right_node);  
     
     if(0 == height_delta)
@@ -3517,7 +3517,7 @@ static EC_BOOL __cbtree_merge_to_right(CBTREE *des_tree, CBTREE_NODE *left_node,
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right:[1] root_node is\n");
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDNULL, "[DEBUG] __cbtree_merge_to_right:[1] root_node is\n");
     __cbtree_node_print(LOGSTDNULL,  des_tree, root_node);     
 
     if(NULL_PTR != root_node)
@@ -3567,7 +3567,7 @@ static EC_BOOL __cbtree_merge(CBTREE *left_tree, CBTREE *right_tree, CBTREE **re
        
         if(EC_FALSE == __cbtree_merge_to_right(des_tree, left_root_node, right_root_node, height_delta, &root_node))
         {
-            sys_log(LOGSTDOUT, "error:__cbtree_merge: merge to right tree failed\n");
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_merge: merge to right tree failed\n");
             return (EC_FALSE);
         }
 
@@ -3587,7 +3587,7 @@ static EC_BOOL __cbtree_merge(CBTREE *left_tree, CBTREE *right_tree, CBTREE **re
     }
     else
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_merge: merge to left tree not implemented yet\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_merge: merge to left tree not implemented yet\n");
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -3818,7 +3818,7 @@ CBTREE * cbtree_merge(CBTREE *cbtree_left, CBTREE *cbtree_right)
 
     if(EC_FALSE == __cbtree_merge(cbtree_left, cbtree_right, &cbtree_des))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_merge: merge trees failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_merge: merge trees failed\n");
         return (NULL_PTR);
     }
 
@@ -3834,7 +3834,7 @@ CBTREE * cbtree_merge(CBTREE *cbtree_left, CBTREE *cbtree_right)
         cbtree_free(cbtree_left);
     }    
     
-    //sys_log(LOGSTDOUT, "error:cbtree_merge: not implemented yet!\n");
+    //dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_merge: not implemented yet!\n");
     return (cbtree_des);
 }
 
@@ -3871,7 +3871,7 @@ CBTREE * cbtree_merge(CBTREE *cbtree_left, CBTREE *cbtree_right)
 
             if(EC_FALSE == __cbtree_insert_do(cbtree_des, &insert_key))
             {
-                sys_log(LOGSTDOUT, "error:cbtree_merge: insert key to des tree %lx failed\n", cbtree_des);
+                dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_merge: insert key to des tree %lx failed\n", cbtree_des);
                 return (cbtree_des);
             }
 
@@ -3909,7 +3909,7 @@ EC_BOOL cbtree_key_encode_size(CBTREE *cbtree, CBTREE_KEY *cbtree_key, uint32_t 
     {
         if(EC_FALSE == CBTREE_KEY_ENCODE_SIZE_OP(cbtree)(CBTREE_KEY_KV(cbtree_key, ver), pos))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_key_encode_size: encode_size cbtree_key %lx ver %d # key %lx failed\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_encode_size: encode_size cbtree_key %lx ver %d # key %lx failed\n", 
                                 cbtree_key, ver, CBTREE_KEY_KV(cbtree_key, ver));
             return (EC_FALSE);
         }
@@ -3943,9 +3943,9 @@ EC_BOOL cbtree_key_encode(CBTREE *cbtree, CBTREE_KEY *cbtree_key, uint8_t *buff,
 
     if(sizeof(uint8_t) > size - (*pos))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_key_encode: left room is %d bytes, insufficient to accept ver info\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_encode: left room is %d bytes, insufficient to accept ver info\n", 
                             size - (*pos));
-        sys_log(LOGSTDOUT, "error:cbtree_key_encode: size = %d, pos = %d\n", size, (*pos));
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_encode: size = %d, pos = %d\n", size, (*pos));
         return (EC_FALSE);
     }
     
@@ -3957,7 +3957,7 @@ EC_BOOL cbtree_key_encode(CBTREE *cbtree, CBTREE_KEY *cbtree_key, uint8_t *buff,
     {
         if(EC_FALSE == CBTREE_KEY_ENCODE_OP(cbtree)(CBTREE_KEY_KV(cbtree_key, ver), buff, size, pos))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_key_encode: encode cbtree_key %lx ver %d # key %lx failed\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_encode: encode cbtree_key %lx ver %d # key %lx failed\n", 
                                 cbtree_key, ver, CBTREE_KEY_KV(cbtree_key, ver));
             return (EC_FALSE);
         }
@@ -3971,9 +3971,9 @@ EC_BOOL cbtree_key_encode(CBTREE *cbtree, CBTREE_KEY *cbtree_key, uint8_t *buff,
         
         if(pad_len > size - (*pos))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_key_encode: left room is %d bytes, insufficient to accept %d pad info\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_encode: left room is %d bytes, insufficient to accept %d pad info\n", 
                                 size - (*pos), pad_len);
-            sys_log(LOGSTDOUT, "error:cbtree_key_encode: size = %d, pos = %d\n", size, (*pos));
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_encode: size = %d, pos = %d\n", size, (*pos));
             return (EC_FALSE);
         }
     
@@ -3997,9 +3997,9 @@ CBTREE_KEY * cbtree_key_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t siz
     
     if(sizeof(uint8_t) > size - (*pos))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_key_decode: left room is %d bytes, insufficient to decode ver info\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_decode: left room is %d bytes, insufficient to decode ver info\n", 
                             size - (*pos));
-        sys_log(LOGSTDOUT, "error:cbtree_key_decode: size = %d, pos = %d\n", size, (*pos));
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_decode: size = %d, pos = %d\n", size, (*pos));
         return (NULL_PTR);
     }
 
@@ -4010,7 +4010,7 @@ CBTREE_KEY * cbtree_key_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t siz
     max_ver = gdbGet8(buff, pos);
     if(max_ver > CBTREE_MAX_VERSION)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_key_decode: decoded version %d overflow the max supported version %d\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_decode: decoded version %d overflow the max supported version %d\n", 
                             max_ver, CBTREE_MAX_VERSION);
         return (NULL_PTR);
     }
@@ -4018,7 +4018,7 @@ CBTREE_KEY * cbtree_key_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t siz
     cbtree_key = cbtree_key_new(cbtree);
     if(NULL_PTR == cbtree_key)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_key_decode: new cbtree_key failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_decode: new cbtree_key failed\n");
         return (NULL_PTR);
     }    
 
@@ -4027,7 +4027,7 @@ CBTREE_KEY * cbtree_key_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t siz
         uint8_t *key;
         if(EC_FALSE == CBTREE_KEY_DECODE_OP(cbtree)(&key, buff, size, pos))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_key_decode: decode cbtree_key %lx ver %d # key failed\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_decode: decode cbtree_key %lx ver %d # key failed\n", 
                                 cbtree_key, ver);
             cbtree_key_free(cbtree, cbtree_key);
             return (NULL_PTR);
@@ -4044,9 +4044,9 @@ CBTREE_KEY * cbtree_key_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t siz
         
         if(pad_len > size - (*pos))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_key_decode: left room is %d bytes, insufficient to skip %d pad info\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_decode: left room is %d bytes, insufficient to skip %d pad info\n", 
                                 size - (*pos), pad_len);
-            sys_log(LOGSTDOUT, "error:cbtree_key_decode: size = %d, pos = %d\n", size, (*pos));
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_key_decode: size = %d, pos = %d\n", size, (*pos));
             cbtree_key_free(cbtree, cbtree_key);
             return (NULL_PTR);
         }
@@ -4057,7 +4057,7 @@ CBTREE_KEY * cbtree_key_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t siz
     /*save cbtree_key address info to buff_beg*/
     CBTREE_KEY_PTR(cbtree_key_faked) = cbtree_key;/*trick!*/    
     //ASSERT(NULL_PTR != CBTREE_KEY_LATEST(cbtree_key));
-    //sys_log(LOGSTDOUT, "[DEBUG] cbtree_key_decode: update ptr at offset %d, key %lx, encoded_size %d\n", beg_pos, cbtree_key, (*pos) - beg_pos);
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_key_decode: update ptr at offset %d, key %lx, encoded_size %d\n", beg_pos, cbtree_key, (*pos) - beg_pos);
 
     return (cbtree_key);
 }
@@ -4090,7 +4090,7 @@ EC_BOOL cbtree_node_encode_size(CBTREE *cbtree, CBTREE_NODE *root_node, uint32_t
             
             if(EC_FALSE == cbtree_key_encode_size(cbtree, cbtree_key, pos))
             {
-                sys_log(LOGSTDOUT, "error:cbtree_node_encode_size: encode %d # key %lx of leaf node %lx failed\n", 
+                dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_encode_size: encode %d # key %lx of leaf node %lx failed\n", 
                                     idx, cbtree_key, root_node);
                 return (EC_FALSE);
             }
@@ -4106,7 +4106,7 @@ EC_BOOL cbtree_node_encode_size(CBTREE *cbtree, CBTREE_NODE *root_node, uint32_t
             
             if(EC_FALSE == cbtree_node_encode_size(cbtree, child_node, pos))
             {
-                sys_log(LOGSTDOUT, "error:cbtree_node_encode_size: encode intr node %lx child %d # %lx failed\n", 
+                dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_encode_size: encode intr node %lx child %d # %lx failed\n", 
                                     root_node, idx, child_node);
                 return (EC_FALSE);
             }
@@ -4142,7 +4142,7 @@ EC_BOOL cbtree_node_encode(CBTREE *cbtree, CBTREE_NODE *root_node, uint8_t *buff
     {
         if(CBTREE_NODE_IS_LEAF(root_node))
         {
-            sys_log(LOGSTDOUT, "[DEBUG] cbtree_node_encode: tree %lx, root_node %lx is leaf, order %d, next is %lx\n", 
+            dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_node_encode: tree %lx, root_node %lx is leaf, order %d, next is %lx\n", 
                                 cbtree, root_node, CBTREE_ORDER(cbtree), CBTREE_NODE_CHILD(root_node, CBTREE_ORDER(cbtree) - 1));
         }
     }
@@ -4161,14 +4161,14 @@ EC_BOOL cbtree_node_encode(CBTREE *cbtree, CBTREE_NODE *root_node, uint8_t *buff
         > size - (*pos)
         )
         {
-            sys_log(LOGSTDOUT, "error:cbtree_node_encode: left room is %d bytes, insufficient to accept leaf node count,flag and next leaf node offset info\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_encode: left room is %d bytes, insufficient to accept leaf node count,flag and next leaf node offset info\n", 
                                 size - (*pos));
-            sys_log(LOGSTDOUT, "error:cbtree_node_encode: size = %d, pos = %d\n", size, (*pos));
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_encode: size = %d, pos = %d\n", size, (*pos));
             return (EC_FALSE);
         }
 
         next_node = CBTREE_NODE_CHILD(root_node, CBTREE_ORDER(cbtree) - 1);
-        //sys_log(LOGSTDOUT, "[DEBUG] cbtree_node_encode: tree %lx, leaf %lx ---> next %lx\n", cbtree, root_node, next_node);
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_node_encode: tree %lx, leaf %lx ---> next %lx\n", cbtree, root_node, next_node);
         
         CBTREE_NODE_OFFSET(root_node) = (*pos);/*encode leaf node from here*/
 
@@ -4179,12 +4179,12 @@ EC_BOOL cbtree_node_encode(CBTREE *cbtree, CBTREE_NODE *root_node, uint8_t *buff
         if(NULL_PTR == next_node)
         {
             gdbPut32(buff, pos, (uint32_t)CBTREE_ERR_OFFSET);/*reach tail leaf node*/
-            //sys_log(LOGSTDOUT, "[DEBUG] cbtree_node_encode: tree %lx, next_node %lx put next_offset = %d\n", cbtree, next_node, CBTREE_ERR_OFFSET);
+            //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_node_encode: tree %lx, next_node %lx put next_offset = %d\n", cbtree, next_node, CBTREE_ERR_OFFSET);
         }
         else
         {
             gdbPut32(buff, pos, CBTREE_NODE_OFFSET(next_node));/*save next leaf node offset info*/            
-            //sys_log(LOGSTDOUT, "[DEBUG] cbtree_node_encode: tree %lx, next_node %lx put next_offset = %d\n", cbtree, next_node, CBTREE_NODE_OFFSET(next_node));
+            //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_node_encode: tree %lx, next_node %lx put next_offset = %d\n", cbtree, next_node, CBTREE_NODE_OFFSET(next_node));
         }
 
         for(idx = CBTREE_NODE_COUNT(root_node); idx -- > 0;)
@@ -4194,7 +4194,7 @@ EC_BOOL cbtree_node_encode(CBTREE *cbtree, CBTREE_NODE *root_node, uint8_t *buff
             
             if(EC_FALSE == cbtree_key_encode(cbtree, cbtree_key, buff, size, pos))
             {
-                sys_log(LOGSTDOUT, "error:cbtree_node_encode: encode %d # key %lx of leaf node %lx failed\n", 
+                dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_encode: encode %d # key %lx of leaf node %lx failed\n", 
                                     idx, cbtree_key, root_node);
                 return (EC_FALSE);
             }
@@ -4210,7 +4210,7 @@ EC_BOOL cbtree_node_encode(CBTREE *cbtree, CBTREE_NODE *root_node, uint8_t *buff
             
             if(EC_FALSE == cbtree_node_encode(cbtree, child_node, buff, size, pos))
             {
-                sys_log(LOGSTDOUT, "error:cbtree_node_encode: encode intr node %lx child %d # %lx failed\n", 
+                dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_encode: encode intr node %lx child %d # %lx failed\n", 
                                     root_node, idx, child_node);
                 return (EC_FALSE);
             }
@@ -4226,9 +4226,9 @@ EC_BOOL cbtree_node_encode(CBTREE *cbtree, CBTREE_NODE *root_node, uint8_t *buff
         > size - (*pos)
         )
         {
-            sys_log(LOGSTDOUT, "error:cbtree_node_encode: left room is %d bytes, insufficient to accept intr node count,flag info\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_encode: left room is %d bytes, insufficient to accept intr node count,flag info\n", 
                                 size - (*pos));
-            sys_log(LOGSTDOUT, "error:cbtree_node_encode: size = %d, pos = %d\n", size, (*pos));
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_encode: size = %d, pos = %d\n", size, (*pos));
             return (EC_FALSE);
         }
         
@@ -4262,9 +4262,9 @@ EC_BOOL cbtree_node_encode(CBTREE *cbtree, CBTREE_NODE *root_node, uint8_t *buff
         
         if(pad_len > size - (*pos))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_node_encode: left room is %d bytes, insufficient to accept %d pad info\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_encode: left room is %d bytes, insufficient to accept %d pad info\n", 
                                 size - (*pos), pad_len);
-            sys_log(LOGSTDOUT, "error:cbtree_node_encode: size = %d, pos = %d\n", size, (*pos));
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_encode: size = %d, pos = %d\n", size, (*pos));
             return (EC_FALSE);
         }
     
@@ -4293,9 +4293,9 @@ CBTREE_NODE *cbtree_node_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t si
     > size - (*pos)
     )
     {
-        sys_log(LOGSTDOUT, "error:cbtree_node_decode: left room is %d bytes, insufficient to decode node count,flag info\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_decode: left room is %d bytes, insufficient to decode node count,flag info\n", 
                             size - (*pos));
-        sys_log(LOGSTDOUT, "error:cbtree_node_decode: size = %d, pos = %d\n", size, (*pos));                            
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_decode: size = %d, pos = %d\n", size, (*pos));                            
         return (NULL_PTR);
     }
 
@@ -4305,7 +4305,7 @@ CBTREE_NODE *cbtree_node_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t si
     root_node = cbtree_node_new(cbtree);
     if(NULL_PTR == root_node)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_node_decode: new cbtree node failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_decode: new cbtree node failed\n");
         return (NULL_PTR);
     }
 
@@ -4338,18 +4338,18 @@ CBTREE_NODE *cbtree_node_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t si
         for(idx = count; idx -- > 0;)
         {
             CBTREE_KEY *cbtree_key;
-            //sys_log(LOGSTDOUT, "[DEBUG] cbtree_node_decode: on leaf, [beg] tree %lx, key %d#, beg offset %d\n", cbtree, idx, (*pos));
+            //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_node_decode: on leaf, [beg] tree %lx, key %d#, beg offset %d\n", cbtree, idx, (*pos));
             
             cbtree_key = cbtree_key_decode(cbtree, buff, size, pos);
             if(NULL_PTR == cbtree_key)
             {
-                sys_log(LOGSTDOUT, "error:cbtree_node_decode: decode key # %d of leaf node at offset %d failed\n", 
+                dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_decode: decode key # %d of leaf node at offset %d failed\n", 
                                     idx, beg_pos);
                 cbtree_node_free(cbtree, root_node);
                 return (NULL_PTR);
             }            
             CBTREE_NODE_KEY(root_node, idx) = cbtree_key;
-            //sys_log(LOGSTDOUT, "[DEBUG] cbtree_node_decode: on leaf, [end] tree %lx, key %d#, end offset %d => %lx\n", cbtree, idx, (*pos), cbtree_key);
+            //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_node_decode: on leaf, [end] tree %lx, key %d#, end offset %d => %lx\n", cbtree, idx, (*pos), cbtree_key);
             
             //ASSERT(NULL_PTR != CBTREE_KEY_LATEST(cbtree_key));
         }        
@@ -4364,9 +4364,9 @@ CBTREE_NODE *cbtree_node_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t si
         > size - (*pos)
         )
         {
-            sys_log(LOGSTDOUT, "error:cbtree_node_decode: left room is %d bytes, insufficient to decode %d keys, children offset info\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_decode: left room is %d bytes, insufficient to decode %d keys, children offset info\n", 
                                 size - (*pos), count);
-            sys_log(LOGSTDOUT, "error:cbtree_node_decode: size = %d, pos = %d\n", size, (*pos));
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_decode: size = %d, pos = %d\n", size, (*pos));
             cbtree_node_free(cbtree, root_node);
             return (NULL_PTR);
         }
@@ -4384,7 +4384,7 @@ CBTREE_NODE *cbtree_node_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t si
             child_node = cbtree_node_decode(cbtree, buff, size, &child_offset);
             if(NULL_PTR == child_node)
             {
-                sys_log(LOGSTDOUT, "error:cbtree_node_decode: decode child failed\n");
+                dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_decode: decode child failed\n");
                 cbtree_node_free(cbtree, root_node);
                 return (NULL_PTR);
             }
@@ -4403,7 +4403,7 @@ CBTREE_NODE *cbtree_node_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t si
             /*get key from the offset*/
             cbtree_key = CBTREE_KEY_PTR((CBTREE_KEY *)(buff + key_offset));
             CBTREE_NODE_KEY(root_node, idx) = cbtree_key;
-            //sys_log(LOGSTDOUT, "[DEBUG] cbtree_node_decode: on intra, tree %lx, key %d#, offset %d => %lx\n", cbtree, idx, key_offset, cbtree_key);
+            //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_node_decode: on intra, tree %lx, key %d#, offset %d => %lx\n", cbtree, idx, key_offset, cbtree_key);
             //ASSERT(NULL_PTR != CBTREE_KEY_LATEST(cbtree_key));
         }        
     }
@@ -4415,9 +4415,9 @@ CBTREE_NODE *cbtree_node_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t si
         
         if(pad_len > size - (*pos))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_node_decode: left room is %d bytes, insufficient to skip %d pad info\n", 
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_decode: left room is %d bytes, insufficient to skip %d pad info\n", 
                                 size - (*pos), pad_len);
-            sys_log(LOGSTDOUT, "error:cbtree_node_decode: size = %d, pos = %d\n", size, (*pos));
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_node_decode: size = %d, pos = %d\n", size, (*pos));
             cbtree_node_free(cbtree, root_node);
             return (NULL_PTR);
         }
@@ -4427,7 +4427,7 @@ CBTREE_NODE *cbtree_node_decode(CBTREE *cbtree, uint8_t *buff, const uint32_t si
     
     /*save cbtree_node address info to buff_beg*/
     CBTREE_NODE_PTR(root_node_faked) = root_node;/*trick!*/
-    //sys_log(LOGSTDOUT, "[DEBUG] cbtree_node_decode: update ptr at offset %d, encoded_size %d\n", beg_pos, (*pos) - beg_pos);
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_node_decode: update ptr at offset %d, encoded_size %d\n", beg_pos, (*pos) - beg_pos);
     
     return (root_node);    
 }
@@ -4443,7 +4443,7 @@ EC_BOOL cbtree_encode_size(CBTREE *cbtree, uint32_t *pos)
        
         if(EC_FALSE == cbtree_node_encode_size(cbtree, root_node, pos))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_encode_size: encode root node %lx failed\n", root_node);
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_encode_size: encode root node %lx failed\n", root_node);
             return (EC_FALSE);
         }
     }
@@ -4481,9 +4481,9 @@ EC_BOOL cbtree_encode(CBTREE *cbtree, uint8_t *buff, const uint32_t size, uint32
     
     if(CBTREE_HDR_OFFSET > size - (*pos))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_encode: left room is %d bytes, insufficient to accept cbtree header info\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_encode: left room is %d bytes, insufficient to accept cbtree header info\n", 
                             size - (*pos));
-        sys_log(LOGSTDOUT, "error:cbtree_encode: size = %d, pos = %d\n", size, (*pos));
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_encode: size = %d, pos = %d\n", size, (*pos));
         return (EC_FALSE);
     }    
    
@@ -4502,7 +4502,7 @@ EC_BOOL cbtree_encode(CBTREE *cbtree, uint8_t *buff, const uint32_t size, uint32
 
         if(CBTREE_HDR_OFFSET < (*pos) - beg_pos)
         {
-            sys_log(LOGSTDOUT, "error:cbtree_encode: overhead cbtree header info!\n");
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_encode: overhead cbtree header info!\n");
             return (EC_FALSE);            
         }
         gdbPutPad(buff, pos, (uint8_t)FILE_PAD_CHAR, CBTREE_HDR_OFFSET - (*pos));
@@ -4523,7 +4523,7 @@ EC_BOOL cbtree_encode(CBTREE *cbtree, uint8_t *buff, const uint32_t size, uint32
 
         if(CBTREE_HDR_OFFSET < (*pos) - beg_pos)
         {
-            sys_log(LOGSTDOUT, "error:cbtree_encode: overhead cbtree header info!\n");
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_encode: overhead cbtree header info!\n");
             return (EC_FALSE);            
         }
         gdbPutPad(buff, pos, (uint8_t)FILE_PAD_CHAR, CBTREE_HDR_OFFSET - (*pos));
@@ -4538,19 +4538,19 @@ EC_BOOL cbtree_encode(CBTREE *cbtree, uint8_t *buff, const uint32_t size, uint32
        
         if(EC_FALSE == cbtree_node_encode(cbtree, root_node, buff, size, pos))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_encode: encode root node %lx failed\n", root_node);
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_encode: encode root node %lx failed\n", root_node);
             return (EC_FALSE);
         }
 
         if(CBTREE_HDR_OFFSET > size - (*pos))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_encode: insufficient to accept cbtree header info\n");
-            sys_log(LOGSTDOUT, "error:cbtree_encode: size = %d, pos = %d\n", size, (*pos));
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_encode: insufficient to accept cbtree header info\n");
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_encode: size = %d, pos = %d\n", size, (*pos));
             return (EC_FALSE);            
         }
 
-        //sys_log(LOGSTDOUT, "[DEBUG] cbtree_encode: CBTREE_NODE_OFFSET(root_node) = %d\n", CBTREE_NODE_OFFSET(root_node));
-        //sys_log(LOGSTDOUT, "[DEBUG] cbtree_encode: CBTREE_NODE_OFFSET(left_leaf) = %d\n", CBTREE_NODE_OFFSET(left_leaf));
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_encode: CBTREE_NODE_OFFSET(root_node) = %d\n", CBTREE_NODE_OFFSET(root_node));
+        //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_encode: CBTREE_NODE_OFFSET(left_leaf) = %d\n", CBTREE_NODE_OFFSET(left_leaf));
 
         beg_pos = (*pos);
 
@@ -4570,9 +4570,9 @@ EC_BOOL cbtree_encode(CBTREE *cbtree, uint8_t *buff, const uint32_t size, uint32
             
             if(pad_len > size - (*pos))
             {
-                sys_log(LOGSTDOUT, "error:cbtree_encode: left room is %d bytes, insufficient to accept %d pad info\n", 
+                dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_encode: left room is %d bytes, insufficient to accept %d pad info\n", 
                                     size - (*pos), pad_len);
-                sys_log(LOGSTDOUT, "error:cbtree_encode: size = %d, pos = %d\n", size, (*pos));
+                dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_encode: size = %d, pos = %d\n", size, (*pos));
                 return (EC_FALSE);
             }
         
@@ -4582,7 +4582,7 @@ EC_BOOL cbtree_encode(CBTREE *cbtree, uint8_t *buff, const uint32_t size, uint32
     }
 
     PRINT_BUFF("[DEBUG] cbtree_encode: ", buff, beg_pos, (*pos));
-    sys_log(LOGSTDOUT, "[DEBUG] cbtree_encode: size = %d, pos = %d\n", size, (*pos));
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_encode: size = %d, pos = %d\n", size, (*pos));
    
     return (EC_TRUE);
 }
@@ -4606,7 +4606,7 @@ CBTREE * cbtree_decode(uint8_t *buff, const uint32_t size)
   
     if(CBTREE_HDR_OFFSET > size)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_decode: left room is %d bytes, insufficient to decode cbtree header info\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_decode: left room is %d bytes, insufficient to decode cbtree header info\n", 
                             size);        
         return (NULL_PTR);
     }
@@ -4625,17 +4625,17 @@ CBTREE * cbtree_decode(uint8_t *buff, const uint32_t size)
     root_node_offset  = gdbGet32(buff, pos);/*tree root node offset*/
     left_node_offset  = gdbGet32(buff, pos);/*tree left most node offset*/  
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] tree_size        = %d\n", tree_size);
-    sys_log(LOGSTDOUT, "[DEBUG] tree_order       = %d\n", tree_order);
-    sys_log(LOGSTDOUT, "[DEBUG] tree_max_ver     = %d\n", tree_max_ver);
-    sys_log(LOGSTDOUT, "[DEBUG] tree_key_type    = %d\n", tree_key_type);
-    sys_log(LOGSTDOUT, "[DEBUG] tree_tlen        = %d\n", tree_tlen);
-    sys_log(LOGSTDOUT, "[DEBUG] root_node_offset = %d\n", root_node_offset);
-    sys_log(LOGSTDOUT, "[DEBUG] left_node_offset = %d\n", left_node_offset);
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] tree_size        = %d\n", tree_size);
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] tree_order       = %d\n", tree_order);
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] tree_max_ver     = %d\n", tree_max_ver);
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] tree_key_type    = %d\n", tree_key_type);
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] tree_tlen        = %d\n", tree_tlen);
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] root_node_offset = %d\n", root_node_offset);
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] left_node_offset = %d\n", left_node_offset);
 #endif
     if(CBTREE_HDR_OFFSET < (*pos) - beg_pos)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_decode: overhead cbtree header info!\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_decode: overhead cbtree header info!\n");
         return (NULL_PTR);            
     }
 
@@ -4654,7 +4654,7 @@ CBTREE * cbtree_decode(uint8_t *buff, const uint32_t size)
     cbtree = cbtree_new(tree_order, tree_max_ver, tree_key_type);
     if(NULL_PTR == cbtree)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_decode: new cbtree failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_decode: new cbtree failed\n");
         return (NULL_PTR);
     }    
 
@@ -4671,7 +4671,7 @@ CBTREE * cbtree_decode(uint8_t *buff, const uint32_t size)
         CBTREE_ROOT_NODE(cbtree) = cbtree_node_decode(cbtree, buff, size, pos);
         if(NULL_PTR == CBTREE_ROOT_NODE(cbtree))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_decode: decode root node at offset %d failed\n", root_node_offset);
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_decode: decode root node at offset %d failed\n", root_node_offset);
             cbtree_free(cbtree);
             return (NULL_PTR);
         }
@@ -4679,7 +4679,7 @@ CBTREE * cbtree_decode(uint8_t *buff, const uint32_t size)
         CBTREE_LEFT_LEAF(cbtree) = CBTREE_NODE_PTR((CBTREE_NODE *)(buff + left_node_offset));        
         if(NULL_PTR == CBTREE_LEFT_LEAF(cbtree))
         {
-            sys_log(LOGSTDOUT, "error:cbtree_decode: get left leaf node at offset %d failed\n", left_node_offset);
+            dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_decode: get left leaf node at offset %d failed\n", left_node_offset);
             cbtree_free(cbtree);
             return (NULL_PTR);
         }
@@ -4702,7 +4702,7 @@ static EC_BOOL __cbtree_key_is_equal(const CBTREE *cbtree, const CBTREE_KEY *cbt
 
     if(NULL_PTR == cbtree_key_1st || NULL_PTR == cbtree_key_2nd)
     {
-        sys_log(LOGSTDOUT, "__cbtree_key_is_equal: cbtree_key_1st = %lx but cbtree_key_2nd = %lx\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_key_is_equal: cbtree_key_1st = %lx but cbtree_key_2nd = %lx\n", 
                             cbtree_key_1st, 
                             cbtree_key_2nd);
         return (EC_FALSE);
@@ -4710,7 +4710,7 @@ static EC_BOOL __cbtree_key_is_equal(const CBTREE *cbtree, const CBTREE_KEY *cbt
 
     if(0 != cbtree_key_cmp(cbtree, cbtree_key_1st, cbtree_key_2nd))
     {
-        sys_log(LOGSTDOUT, "__cbtree_key_is_equal: cbtree_key_1st = %lx not equal to cbtree_key_2nd = %lx\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_key_is_equal: cbtree_key_1st = %lx not equal to cbtree_key_2nd = %lx\n", 
                             cbtree_key_1st, 
                             cbtree_key_2nd);
         return (EC_FALSE);
@@ -4737,7 +4737,7 @@ static EC_BOOL __cbtree_node_is_equal(const CBTREE *cbtree, const CBTREE_NODE *c
 
     if(NULL_PTR == cbtree_node_1st || NULL_PTR == cbtree_node_2nd)
     {
-        sys_log(LOGSTDOUT, "__cbtree_node_is_equal: cbtree_node_1st = %lx but cbtree_node_2nd = %lx\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_node_is_equal: cbtree_node_1st = %lx but cbtree_node_2nd = %lx\n", 
                             cbtree_node_1st, 
                             cbtree_node_2nd);
         return (EC_FALSE);
@@ -4745,7 +4745,7 @@ static EC_BOOL __cbtree_node_is_equal(const CBTREE *cbtree, const CBTREE_NODE *c
 
     if(CBTREE_NODE_COUNT(cbtree_node_1st) != CBTREE_NODE_COUNT(cbtree_node_2nd))
     {
-        sys_log(LOGSTDOUT, "__cbtree_node_is_equal: cbtree_node_1st %lx count = %d but cbtree_node_2nd %lx count = %d\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_node_is_equal: cbtree_node_1st %lx count = %d but cbtree_node_2nd %lx count = %d\n", 
                             cbtree_node_1st, CBTREE_NODE_COUNT(cbtree_node_1st), 
                             cbtree_node_2nd, CBTREE_NODE_COUNT(cbtree_node_2nd));
         return (EC_FALSE);
@@ -4755,7 +4755,7 @@ static EC_BOOL __cbtree_node_is_equal(const CBTREE *cbtree, const CBTREE_NODE *c
 
     if(CBTREE_NODE_FLAG(cbtree_node_1st) != CBTREE_NODE_FLAG(cbtree_node_2nd))
     {
-        sys_log(LOGSTDOUT, "__cbtree_node_is_equal: cbtree_node_1st %lx flag = %d but cbtree_node_2nd %lx flag = %d\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_node_is_equal: cbtree_node_1st %lx flag = %d but cbtree_node_2nd %lx flag = %d\n", 
                             cbtree_node_1st, CBTREE_NODE_FLAG(cbtree_node_1st), 
                             cbtree_node_2nd, CBTREE_NODE_FLAG(cbtree_node_2nd));
         return (EC_FALSE);
@@ -4773,7 +4773,7 @@ static EC_BOOL __cbtree_node_is_equal(const CBTREE *cbtree, const CBTREE_NODE *c
         
         if(EC_FALSE == __cbtree_key_is_equal(cbtree, cbtree_key_1st, cbtree_key_2nd))
         {
-            sys_log(LOGSTDOUT, "__cbtree_node_is_equal: mismatched key %d #: cbtree_node_1st %lx key %lx and cbtree_node_2nd %lx key %lx\n",
+            dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_node_is_equal: mismatched key %d #: cbtree_node_1st %lx key %lx and cbtree_node_2nd %lx key %lx\n",
                                idx,
                                cbtree_node_1st, cbtree_key_1st, 
                                cbtree_node_2nd, cbtree_key_2nd);
@@ -4796,7 +4796,7 @@ static EC_BOOL __cbtree_node_is_equal(const CBTREE *cbtree, const CBTREE_NODE *c
         
         if(EC_FALSE == __cbtree_node_is_equal(cbtree, child_node_1st, child_node_2nd))
         {
-            sys_log(LOGSTDOUT, "__cbtree_node_is_equal: mismatched child %d #: cbtree_node_1st %lx child %lx and cbtree_node_2nd %lx child %lx\n",
+            dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_node_is_equal: mismatched child %d #: cbtree_node_1st %lx child %lx and cbtree_node_2nd %lx child %lx\n",
                                idx,
                                cbtree_node_1st, child_node_1st, 
                                cbtree_node_2nd, child_node_2nd);
@@ -4821,7 +4821,7 @@ static EC_BOOL __cbtree_is_equal(const CBTREE *cbtree_1st, const CBTREE *cbtree_
 
     if(NULL_PTR == cbtree_1st || NULL_PTR == cbtree_2nd)
     {
-        sys_log(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st = %lx but cbtree_2nd = %lx\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st = %lx but cbtree_2nd = %lx\n", 
                             cbtree_1st, 
                             cbtree_2nd);
         return (EC_FALSE);
@@ -4829,7 +4829,7 @@ static EC_BOOL __cbtree_is_equal(const CBTREE *cbtree_1st, const CBTREE *cbtree_
 
     if(CBTREE_SIZE(cbtree_1st) != CBTREE_SIZE(cbtree_2nd))
     {
-        sys_log(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx size = %d but cbtree_2nd %lx size = %d\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx size = %d but cbtree_2nd %lx size = %d\n", 
                             cbtree_1st, CBTREE_SIZE(cbtree_1st), 
                             cbtree_2nd, CBTREE_SIZE(cbtree_2nd));
         return (EC_FALSE);
@@ -4837,7 +4837,7 @@ static EC_BOOL __cbtree_is_equal(const CBTREE *cbtree_1st, const CBTREE *cbtree_
 
     if(CBTREE_ORDER(cbtree_1st) != CBTREE_ORDER(cbtree_2nd))
     {
-        sys_log(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx order = %d but cbtree_2nd %lx order = %d\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx order = %d but cbtree_2nd %lx order = %d\n", 
                             cbtree_1st, CBTREE_ORDER(cbtree_1st), 
                             cbtree_2nd, CBTREE_ORDER(cbtree_2nd));
         return (EC_FALSE);
@@ -4845,7 +4845,7 @@ static EC_BOOL __cbtree_is_equal(const CBTREE *cbtree_1st, const CBTREE *cbtree_
 
     if(CBTREE_MAX_VER(cbtree_1st) != CBTREE_MAX_VER(cbtree_2nd))
     {
-        sys_log(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx max ver = %d but cbtree_2nd %lx max ver = %d\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx max ver = %d but cbtree_2nd %lx max ver = %d\n", 
                             cbtree_1st, CBTREE_MAX_VER(cbtree_1st), 
                             cbtree_2nd, CBTREE_MAX_VER(cbtree_2nd));
         return (EC_FALSE);
@@ -4853,7 +4853,7 @@ static EC_BOOL __cbtree_is_equal(const CBTREE *cbtree_1st, const CBTREE *cbtree_
 
     if(CBTREE_HEIGHT(cbtree_1st) != CBTREE_HEIGHT(cbtree_2nd))
     {
-        sys_log(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx height = %d but cbtree_2nd %lx height = %d\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx height = %d but cbtree_2nd %lx height = %d\n", 
                             cbtree_1st, CBTREE_HEIGHT(cbtree_1st), 
                             cbtree_2nd, CBTREE_HEIGHT(cbtree_2nd));
         return (EC_FALSE);
@@ -4861,7 +4861,7 @@ static EC_BOOL __cbtree_is_equal(const CBTREE *cbtree_1st, const CBTREE *cbtree_
 
     if(CBTREE_KEY_TYPE(cbtree_1st) != CBTREE_KEY_TYPE(cbtree_2nd))
     {
-        sys_log(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx key type = %d but cbtree_2nd %lx key type = %d\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx key type = %d but cbtree_2nd %lx key type = %d\n", 
                             cbtree_1st, CBTREE_KEY_TYPE(cbtree_1st), 
                             cbtree_2nd, CBTREE_KEY_TYPE(cbtree_2nd));
         return (EC_FALSE);
@@ -4869,7 +4869,7 @@ static EC_BOOL __cbtree_is_equal(const CBTREE *cbtree_1st, const CBTREE *cbtree_
 
     if(CBTREE_MIN_LEAF(cbtree_1st) != CBTREE_MIN_LEAF(cbtree_2nd))
     {
-        sys_log(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx min_leaf = %d but cbtree_2nd %lx min_leaf = %d\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx min_leaf = %d but cbtree_2nd %lx min_leaf = %d\n", 
                             cbtree_1st, CBTREE_MIN_LEAF(cbtree_1st), 
                             cbtree_2nd, CBTREE_MIN_LEAF(cbtree_2nd));
         return (EC_FALSE);
@@ -4877,7 +4877,7 @@ static EC_BOOL __cbtree_is_equal(const CBTREE *cbtree_1st, const CBTREE *cbtree_
 
     if(CBTREE_MIN_INTR(cbtree_1st) != CBTREE_MIN_INTR(cbtree_2nd))
     {
-        sys_log(LOGSTDOUT, "cbtree_cmp: cbtree_1st %lx min_intr = %d but cbtree_2nd %lx min_intr = %d\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "cbtree_cmp: cbtree_1st %lx min_intr = %d but cbtree_2nd %lx min_intr = %d\n", 
                             cbtree_1st, CBTREE_MIN_INTR(cbtree_1st), 
                             cbtree_2nd, CBTREE_MIN_INTR(cbtree_2nd));
         return (EC_FALSE);
@@ -4885,7 +4885,7 @@ static EC_BOOL __cbtree_is_equal(const CBTREE *cbtree_1st, const CBTREE *cbtree_
 
     if(CBTREE_TLEN(cbtree_1st) != CBTREE_TLEN(cbtree_2nd))
     {
-        sys_log(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx total len = %d but cbtree_2nd %lx total len = %d\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx total len = %d but cbtree_2nd %lx total len = %d\n", 
                             cbtree_1st, CBTREE_TLEN(cbtree_1st), 
                             cbtree_2nd, CBTREE_TLEN(cbtree_2nd));
         return (EC_FALSE);
@@ -4893,7 +4893,7 @@ static EC_BOOL __cbtree_is_equal(const CBTREE *cbtree_1st, const CBTREE *cbtree_
 
     if(EC_FALSE == __cbtree_node_is_equal(cbtree_1st, CBTREE_ROOT_NODE(cbtree_1st), CBTREE_ROOT_NODE(cbtree_2nd)))
     {
-        sys_log(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx root_node not equal to cbtree_2nd %lx root_node\n", 
+        dbg_log(SEC_0050_CBTREE, 5)(LOGSTDOUT, "__cbtree_is_equal: cbtree_1st %lx root_node not equal to cbtree_2nd %lx root_node\n", 
                             cbtree_1st,
                             cbtree_2nd);
         return (EC_FALSE);
@@ -4939,28 +4939,28 @@ EC_BOOL cbtree_flush_posix(CBTREE *cbtree, int fd)
 
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_flush_posix: invalid fd\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush_posix: invalid fd\n");
         return (EC_FALSE);
     }    
 
     size = sizeof(uint32_t);/*save the total len of encoded buff*/
     if(EC_FALSE == cbtree_encode_size(cbtree, &size))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_flush_posix: encode_size of cbtree %lx failed\n", cbtree);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush_posix: encode_size of cbtree %lx failed\n", cbtree);
         return (EC_FALSE);
     }
 
     buff = (uint8_t *)safe_malloc(size, LOC_CBTREE_0024);
     if(NULL_PTR == buff)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_flush_posix: malloc %d bytes failed\n", size);        
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush_posix: malloc %d bytes failed\n", size);        
         return (EC_FALSE);
     }
 
     pos = 0;
     if(EC_FALSE == cbtree_encode(cbtree, buff + sizeof(uint32_t), size - sizeof(uint32_t), &pos))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_flush_posix: encode cbtree %lx to buff %lx with size %d failed\n",
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush_posix: encode cbtree %lx to buff %lx with size %d failed\n",
                            cbtree, buff + sizeof(uint32_t), size - sizeof(uint32_t));
         safe_free(buff, LOC_CBTREE_0025);
         return (EC_FALSE);
@@ -4972,7 +4972,7 @@ EC_BOOL cbtree_flush_posix(CBTREE *cbtree, int fd)
     offset = 0;
     if(EC_FALSE == c_file_flush(fd, &offset, (UINT32)(pos + sizeof(uint32_t)), buff))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_flush_posix: flush %d bytes to fd %d failed\n", pos + sizeof(uint32_t), fd);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush_posix: flush %d bytes to fd %d failed\n", pos + sizeof(uint32_t), fd);
         safe_free(buff, LOC_CBTREE_0026);
         return (EC_FALSE);
     }
@@ -4996,7 +4996,7 @@ EC_BOOL cbtree_flush_hsdfs(CBTREE *cbtree, const CSTRING *fname_cstr, const UINT
     encoded_size = 0;
     if(EC_FALSE == cbtree_encode_size(cbtree, &encoded_size))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_flush_hsdfs: encode_size of cbtree %lx failed\n", cbtree);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush_hsdfs: encode_size of cbtree %lx failed\n", cbtree);
         return (EC_FALSE);
     }
 
@@ -5004,7 +5004,7 @@ EC_BOOL cbtree_flush_hsdfs(CBTREE *cbtree, const CSTRING *fname_cstr, const UINT
     encoded_buff = (uint8_t *)safe_malloc(encoded_size, LOC_CBTREE_0028);
     if(NULL == encoded_buff)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_flush_hsdfs: alloc %d bytes encoding buff failed\n", encoded_size);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush_hsdfs: alloc %d bytes encoding buff failed\n", encoded_size);
         return (EC_FALSE);
     }
 
@@ -5012,7 +5012,7 @@ EC_BOOL cbtree_flush_hsdfs(CBTREE *cbtree, const CSTRING *fname_cstr, const UINT
     encoded_pos = 0;
     if(EC_FALSE == cbtree_encode(cbtree, encoded_buff, encoded_size, &encoded_pos))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_flush_hsdfs: encode cbtree %lx to buff %lx with size %d failed\n",
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush_hsdfs: encode cbtree %lx to buff %lx with size %d failed\n",
                            cbtree, encoded_buff, encoded_size);
         safe_free(encoded_buff, LOC_CBTREE_0029);
         return (EC_FALSE);
@@ -5023,7 +5023,7 @@ EC_BOOL cbtree_flush_hsdfs(CBTREE *cbtree, const CSTRING *fname_cstr, const UINT
     compressed_buff = (uint8_t *)safe_malloc(compressed_len, LOC_CBTREE_0030);
     if(NULL == compressed_buff)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_flush_hsdfs: alloc %d bytes compression buff failed\n", compressed_len);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush_hsdfs: alloc %d bytes compression buff failed\n", compressed_len);
         safe_free(encoded_buff, LOC_CBTREE_0031);
         return (EC_FALSE);
     }
@@ -5034,7 +5034,7 @@ EC_BOOL cbtree_flush_hsdfs(CBTREE *cbtree, const CSTRING *fname_cstr, const UINT
     /*compressing*/
     if(Z_OK != compress(compressed_buff + counter, &compressed_len, encoded_buff, encoded_pos))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_flush_hsdfs: compress buff %lx size %d to buff %lx failed\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush_hsdfs: compress buff %lx size %d to buff %lx failed\n", 
                             encoded_buff, encoded_pos, compressed_buff + counter);
         
         safe_free(encoded_buff, LOC_CBTREE_0032);
@@ -5044,7 +5044,7 @@ EC_BOOL cbtree_flush_hsdfs(CBTREE *cbtree, const CSTRING *fname_cstr, const UINT
 
     safe_free(encoded_buff, LOC_CBTREE_0034);/*free memory as fast as possible*/
 
-    sys_log(LOGSTDOUT, "[DEBUG] cbtree_flush_hsdfs: compress %d bytes => %d bytes, rate = %.2f\n",
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_flush_hsdfs: compress %d bytes => %d bytes, rate = %.2f\n",
                        encoded_pos, compressed_len, (compressed_len + 0.0)/(encoded_pos + 0.0));
 
     /*flush compressed buff to hsdfs*/
@@ -5053,7 +5053,7 @@ EC_BOOL cbtree_flush_hsdfs(CBTREE *cbtree, const CSTRING *fname_cstr, const UINT
     {
         cbytes_umount(&cbytes);
         safe_free(compressed_buff, LOC_CBTREE_0035);
-        sys_log(LOGSTDOUT, "error:cbtree_flush_hsdfs: update %s with %ld bytes failed\n",
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush_hsdfs: update %s with %ld bytes failed\n",
                             (char *)cstring_get_str(fname_cstr), compressed_len);
         return (EC_FALSE);
     }
@@ -5074,13 +5074,13 @@ EC_BOOL cbtree_flush(CBTREE *cbtree, const char *fname)
     fd = c_file_open(fname, flags, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_flush: open file %s with flags %d failed\n", fname, flags);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush: open file %s with flags %d failed\n", fname, flags);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cbtree_flush_posix(cbtree, fd))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_flush: flush cbtree %lx to file %s failed\n", cbtree, fname);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_flush: flush cbtree %lx to file %s failed\n", cbtree, fname);
         c_file_close(fd);
         return (EC_FALSE);
     }
@@ -5102,7 +5102,7 @@ CBTREE * cbtree_load_posix(int fd)
 
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_load_posix: invalid fd\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load_posix: invalid fd\n");
         return (NULL_PTR);
     }
 
@@ -5110,7 +5110,7 @@ CBTREE * cbtree_load_posix(int fd)
     f_size = (uint32_t)lseek(fd, 0, SEEK_END);
     if(sizeof(uint32_t) > f_size)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_load_posix: fd %d size %d is invalid\n", fd, f_size);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load_posix: fd %d size %d is invalid\n", fd, f_size);
         return (NULL_PTR);
     }
 
@@ -5118,7 +5118,7 @@ CBTREE * cbtree_load_posix(int fd)
 
     if(EC_FALSE == c_file_load(fd, &offset, sizeof(uint32_t), (uint8_t *)&size))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_load_posix: read encoded buff size info from fd %d failed\n", fd);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load_posix: read encoded buff size info from fd %d failed\n", fd);
         return (NULL_PTR);
     }
 
@@ -5127,24 +5127,24 @@ CBTREE * cbtree_load_posix(int fd)
 
     if(size + sizeof(uint32_t) > f_size)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_load_posix: fd %d size %d is less than the expected encoded buff size %d plus 4B len info\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load_posix: fd %d size %d is less than the expected encoded buff size %d plus 4B len info\n", 
                             fd, f_size, size);
         return (NULL_PTR);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cbtree_load: f_size = %d, encoded_size = %d\n", f_size, size);
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_load: f_size = %d, encoded_size = %d\n", f_size, size);
 
     /*load encoded buff from file*/
     buff = (uint8_t *)safe_malloc(size , LOC_CBTREE_0037);
     if(NULL_PTR == buff)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_load_posix: malloc %d bytes failed\n", size);        
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load_posix: malloc %d bytes failed\n", size);        
         return (NULL_PTR);
     }
 
     if(EC_FALSE == c_file_load(fd, &offset, size, buff))
     {
-        sys_log(LOGSTDOUT, "error:cbtree_load_posix: load %d bytes of encoded buff plus 4B from fd %d failed\n", size, fd);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load_posix: load %d bytes of encoded buff plus 4B from fd %d failed\n", size, fd);
         safe_free(buff, LOC_CBTREE_0038);
         return (NULL_PTR);
     }    
@@ -5153,7 +5153,7 @@ CBTREE * cbtree_load_posix(int fd)
     cbtree = cbtree_decode(buff, size);
     if(NULL_PTR == cbtree)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_load_posix: decode cbtree from buff with size %d loading from fd %d failed\n", size, fd);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load_posix: decode cbtree from buff with size %d loading from fd %d failed\n", size, fd);
         safe_free(buff, LOC_CBTREE_0039);
         return (NULL_PTR);
     }    
@@ -5181,21 +5181,21 @@ CBTREE * cbtree_load_hsdfs(const UINT32 cdfs_md_id, const CSTRING *fname_cstr)
     cbytes = cbytes_new(0);
     if(NULL_PTR == cbytes)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_load_hsdfs: new cbytes failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load_hsdfs: new cbytes failed\n");
         return (NULL_PTR);
     }
 
     if(EC_FALSE == cdfs_read(cdfs_md_id, fname_cstr, cbytes))
     {
         cbytes_free(cbytes, LOC_CBTREE_0041);
-        sys_log(LOGSTDOUT, "error:cbtree_load_hsdfs: read file %s failed\n", (char *)cstring_get_str(fname_cstr));
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load_hsdfs: read file %s failed\n", (char *)cstring_get_str(fname_cstr));
         return (NULL_PTR);
     }
 
     compressed_buf = cbytes_buf(cbytes);
     compressed_len = cbytes_len(cbytes);
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cbtree_load_hsdfs: cdfs_read get cbytes len %ld\n", compressed_len);
+    //dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_load_hsdfs: cdfs_read get cbytes len %ld\n", compressed_len);
 
     counter = 0;
     encoded_len = gdbGet32(compressed_buf, &counter);
@@ -5203,7 +5203,7 @@ CBTREE * cbtree_load_hsdfs(const UINT32 cdfs_md_id, const CSTRING *fname_cstr)
     if(NULL_PTR == encoded_buf)
     {
         cbytes_free(cbytes, LOC_CBTREE_0043);
-        sys_log(LOGSTDOUT, "error:cbtree_load_hsdfs: malloc %d bytes encoded buf failed\n", encoded_len);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load_hsdfs: malloc %d bytes encoded buf failed\n", encoded_len);
         return (NULL_PTR);
     }
 
@@ -5212,7 +5212,7 @@ CBTREE * cbtree_load_hsdfs(const UINT32 cdfs_md_id, const CSTRING *fname_cstr)
     {
         cbytes_free(cbytes, LOC_CBTREE_0044);
         safe_free(encoded_buf, LOC_CBTREE_0045);
-        sys_log(LOGSTDOUT, "error:cbtree_load_hsdfs: uncompress %d bytes to encoded buf with len %ld failed\n", compressed_len - counter, encoded_len_t);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load_hsdfs: uncompress %d bytes to encoded buf with len %ld failed\n", compressed_len - counter, encoded_len_t);
         return (NULL_PTR);
     }
     ASSERT(encoded_len_t <= ((uint32_t)~0));
@@ -5220,14 +5220,14 @@ CBTREE * cbtree_load_hsdfs(const UINT32 cdfs_md_id, const CSTRING *fname_cstr)
 
     cbytes_free(cbytes, LOC_CBTREE_0046);/*free memory as fast as possible*/    
 
-    sys_log(LOGSTDOUT, "[DEBUG] cbtree_load_hsdfs: uncompress %d bytes => %d bytes, rate = %.2f\n",
+    dbg_log(SEC_0050_CBTREE, 9)(LOGSTDOUT, "[DEBUG] cbtree_load_hsdfs: uncompress %d bytes => %d bytes, rate = %.2f\n",
                        compressed_len - counter, encoded_len, (compressed_len - counter + 0.0)/(encoded_len + 0.0));
 
     /*decode cbtree from buff*/
     cbtree = cbtree_decode(encoded_buf, encoded_len);
     if(NULL_PTR == cbtree)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_load_hsdfs: decode cbtree from buff with size %d loading from %s failed\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load_hsdfs: decode cbtree from buff with size %d loading from %s failed\n", 
                             encoded_len, (char *)cstring_get_str(fname_cstr));
         safe_free(encoded_buf, LOC_CBTREE_0047);
         return (NULL_PTR);
@@ -5250,14 +5250,14 @@ CBTREE * cbtree_load(const char *fname)
     fd = c_file_open(fname, flags, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_load: open file %s with flags %d failed\n", fname, flags);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load: open file %s with flags %d failed\n", fname, flags);
         return (NULL_PTR);
     }
 
     cbtree = cbtree_load_posix(fd);
     if(NULL_PTR == cbtree)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_load: load cbtree from file %s failed\n", fname);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_load: load cbtree from file %s failed\n", fname);
         c_file_close(fd);
         return (NULL_PTR);
     }
@@ -5280,7 +5280,7 @@ static EC_BOOL __cbtree_key_scan(CBTREE *cbtree, CBTREE_KEY *cbtree_key,
 
     if(EC_FALSE == dbg_caller(handler_func_addr, func_para_num, func_para_value, (UINT32 *)handler_retval_addr))
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_key_scan: dbg_caller failed\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_key_scan: dbg_caller failed\n");
         return (EC_FALSE);
     }
 
@@ -5304,7 +5304,7 @@ static EC_BOOL __cbtree_node_scan(CBTREE *cbtree, CBTREE_NODE *cbtree_node,
 
     if(! CBTREE_NODE_IS_LEAF(cbtree_node))
     {
-        sys_log(LOGSTDOUT, "error:__cbtree_node_scan: node %lx is NOT leaf!\n", cbtree_node);
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:__cbtree_node_scan: node %lx is NOT leaf!\n", cbtree_node);
         return (EC_FALSE);
     }
 
@@ -5369,20 +5369,20 @@ EC_BOOL cbtree_scan(CBTREE *cbtree,
 
     if(0 == func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_scan: func_para_num must be larger than 1\n");
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_scan: func_para_num must be larger than 1\n");
         return (EC_FALSE);
     }
 
     if(MAX_NUM_OF_FUNC_PARAS < func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_scan: func_para_num %ld overflow which must be smaller than %ld\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_scan: func_para_num %ld overflow which must be smaller than %ld\n", 
                            func_para_num, MAX_NUM_OF_FUNC_PARAS);
         return (EC_FALSE);
     }
 
     if(key_pos >= func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_scan: invalid setting where key_pos %ld >= func_para_num %ld\n", 
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_scan: invalid setting where key_pos %ld >= func_para_num %ld\n", 
                            key_pos, func_para_num);
         return (EC_FALSE);
     }
@@ -5418,7 +5418,7 @@ uint8_t *cbtree_make_kv(const char *row, const char *colf, const char *colq, con
     key_buff = kvNewHs(&keyValue, LOC_CBTREE_0049);
     if(NULL_PTR == key_buff)
     {
-        sys_log(LOGSTDOUT, "error:cbtree_make_kv: failed to alloc %d bytes for key\n", keyValueGettLenHs(&keyValue));
+        dbg_log(SEC_0050_CBTREE, 0)(LOGSTDOUT, "error:cbtree_make_kv: failed to alloc %d bytes for key\n", keyValueGettLenHs(&keyValue));
         return (NULL_PTR);
     }
     kvPutHs(key_buff, &keyValue);

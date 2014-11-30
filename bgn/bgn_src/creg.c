@@ -67,6 +67,11 @@ extern "C"{
 #include "crfsdn.h"
 #include "crfs.h"
 #include "chfs.h"
+#include "ccurl.h"
+#include "crfsc.h"
+#include "cxmppc2s.h"
+#include "cmd5.h"
+#include "cbuffer.h"
 
 #include "findex.inc"
 
@@ -109,7 +114,10 @@ extern "C"{
 #include "cscore.inc"
 #include "crfs.inc"
 #include "chfs.inc"
-
+#include "ccurl.inc"
+#include "crfsbk.inc"
+#include "crfsc.inc"
+#include "cxmppc2s.inc"
 #include "task.inc"
 
 TYPE_CONV_ITEM *creg_type_conv_item_new()
@@ -119,7 +127,7 @@ TYPE_CONV_ITEM *creg_type_conv_item_new()
     alloc_static_mem(MD_TASK, CMPI_ANY_MODI, MM_TYPE_CONV_ITEM, &type_conv_item, LOC_CREG_0001);
     if(NULL_PTR == type_conv_item)
     {
-        sys_log(LOGSTDOUT, "error:creg_type_conv_item_new: new type conv item failed\n");
+        dbg_log(SEC_0123_CREG, 0)(LOGSTDOUT, "error:creg_type_conv_item_new: new type conv item failed\n");
         return (NULL_PTR);
     }
     creg_type_conv_item_init(type_conv_item);
@@ -173,7 +181,7 @@ CVECTOR *creg_type_conv_vec_fetch()
     task_brd = task_brd_default_get();
     if(NULL_PTR == task_brd)
     {
-        sys_log(LOGSTDOUT, "error:creg_type_conv_vec_fetch: task_brd not init\n");
+        dbg_log(SEC_0123_CREG, 0)(LOGSTDOUT, "error:creg_type_conv_vec_fetch: task_brd not init\n");
         return (NULL_PTR);
     }
     return TASK_BRD_TYPE_CONV_VEC(task_brd);
@@ -207,7 +215,7 @@ EC_BOOL creg_type_conv_vec_add(CVECTOR *type_conv_vec,
 
     if(NULL_PTR != cvector_get(type_conv_vec, var_dbg_type))
     {
-        sys_log(LOGSTDOUT, "error:creg_type_conv_vec_add: type conv item for var_dbg_type %ld was already defined\n", var_dbg_type);
+        dbg_log(SEC_0123_CREG, 0)(LOGSTDOUT, "error:creg_type_conv_vec_add: type conv item for var_dbg_type %ld was already defined\n", var_dbg_type);
         return (EC_FALSE);
     }
 
@@ -219,7 +227,7 @@ EC_BOOL creg_type_conv_vec_add(CVECTOR *type_conv_vec,
     type_conv_item = creg_type_conv_item_new();
     if(NULL_PTR == type_conv_item)
     {
-        sys_log(LOGSTDOUT, "error:creg_type_conv_vec_add: new type conv item failed\n");
+        dbg_log(SEC_0123_CREG, 0)(LOGSTDOUT, "error:creg_type_conv_vec_add: new type conv item failed\n");
         return (EC_FALSE);
     }
 
@@ -1134,6 +1142,54 @@ EC_BOOL creg_type_conv_vec_add_default(CVECTOR *type_conv_vec)
         /* cmpi_decode_type_func  */(UINT32)/*cmpi_decode_crfsdn_cache_node*/NULL_PTR,
         /* cmpi_encode_type_size  */(UINT32)/*cmpi_encode_crfsdn_cache_node_size*/NULL_PTR
     );     
+    creg_type_conv_vec_add(type_conv_vec,
+        /* type                   */e_dbg_CMD5_DIGEST_ptr,
+        /* type_sizeof            */sizeof(CMD5_DIGEST),
+        /* pointer_flag           */EC_TRUE,
+        /* var_mm_type            */MM_CMD5_DIGEST,
+        /* init_type_func         */(UINT32)cmd5_digest_init_0,
+        /* clean_type_func        */(UINT32)cmd5_digest_clean_0,
+        /* free_type_func         */(UINT32)cmd5_digest_free_0,
+        /* cmpi_encode_type_func  */(UINT32)cmpi_encode_cmd5_digest,
+        /* cmpi_decode_type_func  */(UINT32)cmpi_decode_cmd5_digest,
+        /* cmpi_encode_type_size  */(UINT32)cmpi_encode_cmd5_digest_size
+    );    
+    creg_type_conv_vec_add(type_conv_vec,
+        /* type                   */e_dbg_CRFSOP_ptr,
+        /* type_sizeof            */sizeof(CRFSOP),
+        /* pointer_flag           */EC_TRUE,
+        /* var_mm_type            */MM_CRFSOP,
+        /* init_type_func         */(UINT32)crfsop_init_0,
+        /* clean_type_func        */(UINT32)crfsop_clean_0,
+        /* free_type_func         */(UINT32)crfsop_free_0,
+        /* cmpi_encode_type_func  */(UINT32)cmpi_encode_crfsop,
+        /* cmpi_decode_type_func  */(UINT32)cmpi_decode_crfsop,
+        /* cmpi_encode_type_size  */(UINT32)cmpi_encode_crfsop_size
+    );  
+    creg_type_conv_vec_add(type_conv_vec,
+        /* type                   */e_dbg_CRFSDT_PNODE_ptr,
+        /* type_sizeof            */sizeof(CRFSDT_PNODE),
+        /* pointer_flag           */EC_TRUE,
+        /* var_mm_type            */MM_CRFSDT_PNODE,
+        /* init_type_func         */(UINT32)crfsdt_pnode_init_0,
+        /* clean_type_func        */(UINT32)crfsdt_pnode_clean_0,
+        /* free_type_func         */(UINT32)crfsdt_pnode_free_0,
+        /* cmpi_encode_type_func  */(UINT32)cmpi_encode_crfsdt_pnode,
+        /* cmpi_decode_type_func  */(UINT32)cmpi_decode_crfsdt_pnode,
+        /* cmpi_encode_type_size  */(UINT32)cmpi_encode_crfsdt_pnode_size
+    );   
+    creg_type_conv_vec_add(type_conv_vec,
+        /* type                   */e_dbg_CBUFFER_ptr,
+        /* type_sizeof            */sizeof(CBUFFER),
+        /* pointer_flag           */EC_TRUE,
+        /* var_mm_type            */MM_CBUFFER,
+        /* init_type_func         */(UINT32)cbuffer_init_0,
+        /* clean_type_func        */(UINT32)cbuffer_clean_0,
+        /* free_type_func         */(UINT32)cbuffer_free_0,
+        /* cmpi_encode_type_func  */(UINT32)cmpi_encode_cbuffer,
+        /* cmpi_decode_type_func  */(UINT32)cmpi_decode_cbuffer,
+        /* cmpi_encode_type_size  */(UINT32)cmpi_encode_cbuffer_size
+    );      
     return (EC_TRUE);
 }
 
@@ -1144,7 +1200,7 @@ FUNC_ADDR_MGR *creg_func_addr_mgr_new()
     alloc_static_mem(MD_TASK, CMPI_ANY_MODI, MM_FUNC_ADDR_MGR, &func_addr_mgr, LOC_CREG_0005);
     if(NULL_PTR == func_addr_mgr)
     {
-        sys_log(LOGSTDOUT, "error:creg_func_addr_mgr_new: new func addr mgr failed\n");
+        dbg_log(SEC_0123_CREG, 0)(LOGSTDOUT, "error:creg_func_addr_mgr_new: new func addr mgr failed\n");
         return (NULL_PTR);
     }
     creg_func_addr_mgr_init(func_addr_mgr);
@@ -1221,7 +1277,7 @@ EC_BOOL creg_func_addr_vec_add(CVECTOR *func_addr_vec,
 
     if(NULL_PTR != cvector_get(func_addr_vec, md_type))
     {
-        sys_log(LOGSTDOUT, "error:creg_func_addr_vec_add: func addr mgr for md_type %ld was already defined\n", md_type);
+        dbg_log(SEC_0123_CREG, 0)(LOGSTDOUT, "error:creg_func_addr_vec_add: func addr mgr for md_type %ld was already defined\n", md_type);
         return (EC_FALSE);
     }
 
@@ -1233,7 +1289,7 @@ EC_BOOL creg_func_addr_vec_add(CVECTOR *func_addr_vec,
     func_addr_mgr = creg_func_addr_mgr_new();
     if(NULL_PTR == func_addr_mgr)
     {
-        sys_log(LOGSTDOUT, "error:creg_func_addr_vec_add: new type conv item failed\n");
+        dbg_log(SEC_0123_CREG, 0)(LOGSTDOUT, "error:creg_func_addr_vec_add: new type conv item failed\n");
         return (EC_FALSE);
     }
 
@@ -1293,6 +1349,12 @@ EC_BOOL creg_func_addr_vec_add_default(CVECTOR *func_addr_vec)
     creg_func_addr_vec_add(func_addr_vec, MD_CRFS    ,  &g_crfs_func_addr_list_len   ,   (FUNC_ADDR_NODE *)g_crfs_func_addr_list   , FI_crfs_start    , FI_crfs_end     , ERR_FUNC_ID             , NULL_PTR                                   );
     creg_func_addr_vec_add(func_addr_vec, MD_CHFS    ,  &g_chfs_func_addr_list_len   ,   (FUNC_ADDR_NODE *)g_chfs_func_addr_list   , FI_chfs_start    , FI_chfs_end     , ERR_FUNC_ID             , NULL_PTR                                   );
 
+    creg_func_addr_vec_add(func_addr_vec, MD_CCURL   ,  &g_ccurl_func_addr_list_len  ,   (FUNC_ADDR_NODE *)g_ccurl_func_addr_list  , FI_ccurl_start   , FI_ccurl_end    , FI_ccurl_set_mod_mgr    , NULL_PTR                                   );
+
+    creg_func_addr_vec_add(func_addr_vec, MD_CRFSC   ,  &g_crfsc_func_addr_list_len  ,  (FUNC_ADDR_NODE *)g_crfsc_func_addr_list   , FI_crfsc_start   , FI_crfsc_end    , ERR_FUNC_ID             , NULL_PTR                                   );
+
+    creg_func_addr_vec_add(func_addr_vec, MD_CXMPPC2S,  &g_cxmppc2s_func_addr_list_len  ,  (FUNC_ADDR_NODE *)g_cxmppc2s_func_addr_list   , FI_cxmppc2s_start   , FI_cxmppc2s_end    , ERR_FUNC_ID             , NULL_PTR                                   );
+ 
     return (EC_TRUE);
 }
 
@@ -1301,7 +1363,7 @@ EC_BOOL creg_static_mem_tbl_add(const UINT32 mm_type, const char *mm_name, const
 {
     if(0 != reg_mm_man(mm_type, mm_name, block_num, type_size, location))
     {
-        sys_log(LOGSTDOUT, "error:creg_static_mem_tbl_add: add static mem failed for type %ld, name %s, block num %ld, type size %ld at location %ld\n",
+        dbg_log(SEC_0123_CREG, 0)(LOGSTDOUT, "error:creg_static_mem_tbl_add: add static mem failed for type %ld, name %s, block num %ld, type size %ld at location %ld\n",
                             mm_type, mm_name, block_num, type_size, location);
         return (EC_FALSE);
     }

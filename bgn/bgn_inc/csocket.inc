@@ -34,11 +34,15 @@ extern "C"{
 #include "taskcfg.inc"
 #include "mod.inc"
 
+#define CSOCKET_BUFF_MAX_LEN             ((UINT32)(1 << 30)) /*1 GB*/
+
 //#define CSOCKET_RECV_ONCE_MAX_SIZE       (32 * 1024) /*32KB*/
 //#define CSOCKET_SEND_ONCE_MAX_SIZE       (32 * 1024) /*32KB*/
 
 #define CSOCKET_RECV_ONCE_MAX_SIZE       (64 * 1024) /*64KB*/
 #define CSOCKET_SEND_ONCE_MAX_SIZE       (64 * 1024) /*64KB*/
+
+#define CSOCKET_BACKLOG                  (81920) /*SOMAXCONN = 128 is a system default constant*/
 
 #if (CSOCKET_RECV_ONCE_MAX_SIZE > CSOCKET_SORCVBUFF_SIZE)
 #error "fatal error: CSOCKET_RECV_ONCE_MAX_SIZE > CSOCKET_SORCVBUFF_SIZE. pls check settting again!"
@@ -53,6 +57,8 @@ extern "C"{
 #define CSOCKET_CNODE_SENT_TASKC_NODE       ((UINT32) 1)
 #define CSOCKET_CNODE_RCVD_TASKC_NODE       ((UINT32) 2)
 #define CSOCKET_CNODE_XCHG_TASKC_NODE       ((UINT32) 3)
+
+#define CSOCKET_CNODE_PKT_HDR_SIZE          ((UINT32)32)
 
 #define CSOCKET_IS_BLOCK_MODE               ((UINT32) 1)
 #define CSOCKET_IS_NONBLOCK_MODE            ((UINT32) 2)
@@ -81,9 +87,21 @@ typedef struct _CSOCKET_CNODE
     UINT32  status; /*counter for monitor client up to 2: send local taskc_node info to remote, recv remote taskc_node info from remote*/
 
     UINT32  load;  /*load of sending direction*/
+
+    union
+    {
+        struct
+        {
+            UINT8   pkt_hdr[CSOCKET_CNODE_PKT_HDR_SIZE];
+            UINT32  pkt_pos;/*when pos reaches csocket_encode_actual_size, header is ready*/
+        }pkt;
+        struct
+        {
+            void   *ptr;
+            UINT32  modi;
+        }ext;
+    }u;
     
-    UINT8   pkt_hdr[32];
-    UINT32  pkt_pos;/*when pos reaches csocket_encode_actual_size, header is ready*/
 
     struct _TASK_NODE *incoming_task_node; /*be incoming data*/
     struct _TASK_NODE *incomed_task_node; /*when no save_to_list recv it, mount here. used by tasks_monitor*/
@@ -101,13 +119,16 @@ typedef struct _CSOCKET_CNODE
 #define CSOCKET_CNODE_SIZE(csocket_cnode)                ((csocket_cnode)->size)
 #define CSOCKET_CNODE_SOCKFD(csocket_cnode)              ((csocket_cnode)->sockfd)
 #define CSOCKET_CNODE_STATUS(csocket_cnode)              ((csocket_cnode)->status)
+#define CSOCKET_CNODE_RETRIES(csocket_cnode)             ((csocket_cnode)->status)/*reuse status field*/
 
 #define CSOCKET_CNODE_LOAD(csocket_cnode)                ((csocket_cnode)->load)
 
 #define CSOCKET_CNODE_IPADDR_STR(csocket_cnode)          (c_word_to_ipv4(CSOCKET_CNODE_IPADDR(csocket_cnode)))
-#define CSOCKET_CNODE_PKT_HDR(csocket_cnode)             ((csocket_cnode)->pkt_hdr)
-#define CSOCKET_CNODE_PKT_HDR_BYTE(csocket_cnode, pos)   ((csocket_cnode)->pkt_hdr[pos])
-#define CSOCKET_CNODE_PKT_POS(csocket_cnode)             ((csocket_cnode)->pkt_pos)
+#define CSOCKET_CNODE_PKT_HDR(csocket_cnode)             ((csocket_cnode)->u.pkt.pkt_hdr)
+#define CSOCKET_CNODE_PKT_HDR_BYTE(csocket_cnode, pos)   ((csocket_cnode)->u.pkt.pkt_hdr[pos])
+#define CSOCKET_CNODE_PKT_POS(csocket_cnode)             ((csocket_cnode)->u.pkt.pkt_pos)
+#define CSOCKET_CNODE_PTR(csocket_cnode)                 ((csocket_cnode)->u.ext.ptr)
+#define CSOCKET_CNODE_MODI(csocket_cnode)                ((csocket_cnode)->u.ext.modi)
 #define CSOCKET_CNODE_TASKS_NODE(csocket_cnode)          ((csocket_cnode)->tasks_node)
 
 #define CSOCKET_CNODE_INCOMING_TASK_NODE(csocket_cnode)  ((csocket_cnode)->incoming_task_node)
@@ -128,6 +149,7 @@ typedef struct _CSOCKET_CNODE
 
 #define CSOCKET_CNODE_IS_CONNECTED(csocket_cnode)        csocket_is_connected(CSOCKET_CNODE_SOCKFD(csocket_cnode))
 #endif/*(SWITCH_OFF == TASK_BRD_CEPOLL_SWITCH)*/
+
 
 #endif/*_CSOCKET_INC*/
 

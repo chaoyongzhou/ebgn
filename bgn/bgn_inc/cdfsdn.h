@@ -24,7 +24,7 @@ extern "C"{
 
 #include "type.h"
 #include "clist.h"
-#include "croutine.h"
+#include "cmutex.h"
 
 #if (32 == WORDSIZE)
 #define CDFSDN_BLOCK_CONFIG_GROUP 4

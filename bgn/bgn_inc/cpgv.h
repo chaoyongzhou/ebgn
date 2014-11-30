@@ -89,11 +89,9 @@ typedef struct
 #define CPGV_DISK_NODE(cpgv, disk_no)                            ((CPGV_MAX_DISK_NUM <= (disk_no)) ? NULL_PTR : CPGV_DISK_CPGD(cpgv, disk_no))
 
 
-CPGV_HDR *cpgv_hdr_new(CPGV *cpgv);
-
 EC_BOOL cpgv_hdr_init(CPGV *cpgv);
 
-EC_BOOL cpgv_hdr_free(CPGV *cpgv);
+CPGV_HDR *cpgv_hdr_create(CPGV *cpgv);
 
 CPGV_HDR *cpgv_hdr_open(CPGV *cpgv);
 
@@ -121,6 +119,8 @@ EC_BOOL cpgv_del_disk(CPGV *cpgv, const uint16_t disk_no);
 EC_BOOL cpgv_mount_disk(CPGV *cpgv, const uint16_t disk_no);
 
 EC_BOOL cpgv_umount_disk(CPGV *cpgv, const uint16_t disk_no);
+
+EC_BOOL cpgv_new_space_from_disk(CPGV *cpgv, const uint32_t size, const uint16_t disk_no, uint16_t *block_no, uint16_t *page_4k_no);
 
 EC_BOOL cpgv_new_space(CPGV *cpgv, const uint32_t size, uint16_t *disk_no, uint16_t *block_no, uint16_t *page_4k_no);
 

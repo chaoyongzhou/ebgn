@@ -35,7 +35,8 @@ uint16_t cpgrb_node_new(CPGRB_POOL *pool)
     node_pos_t = CPGRB_POOL_FREE_HEAD(pool);
     if(CPGRB_ERR_POS == node_pos_t)
     {
-        sys_log(LOGSTDERR, "error:cpgrb_node_new: no free node in pool\n");
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDERR, "error:cpgrb_node_new: no free node in pool %p where free_head = %d, node_num = %d\n",
+                           pool, CPGRB_POOL_FREE_HEAD(pool), CPGRB_POOL_NODE_NUM(pool));
         return (CPGRB_ERR_POS);
     }
     
@@ -886,10 +887,14 @@ uint16_t cpgrb_tree_insert_data(CPGRB_POOL *pool, uint16_t *root_pos, const uint
         }
     }
 
-
     /*not found data in the rbtree*/
     new_pos_t = cpgrb_node_new(pool);
-    if(CPGRB_ERR_POS != new_pos_t)
+    if(CPGRB_ERR_POS == new_pos_t)
+    {
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDOUT, "error:cpgrb_tree_insert_data: new cpgrb_node from pool %p failed\n", pool);
+        return (CPGRB_ERR_POS);
+    }
+    else
     {
         CPGRB_NODE *node;        
 
@@ -977,7 +982,7 @@ EC_BOOL cpgrb_pool_init(CPGRB_POOL *pool, const uint16_t node_num)
 
     if(CPGRB_POOL_MAX_SIZE < node_num)
     {
-        sys_log(LOGSTDERR, "error:cpgrb_pool_init: node_num %u overflow!\n", node_num);
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDERR, "error:cpgrb_pool_init: node_num %u overflow!\n", node_num);
         return (EC_FALSE);
     }
 
@@ -1020,10 +1025,12 @@ void cpgrb_pool_print(LOG *log, const CPGRB_POOL *pool)
                  pool, 
                  node_num, 
                  CPGRB_POOL_FREE_HEAD(pool));
+
     for(node_pos = 0; node_pos < node_num; node_pos ++)
     {
         cpgrb_node_print(log, pool, node_pos);
     }
+
     return;
 }
 
@@ -1147,7 +1154,7 @@ EC_BOOL cpgrb_flush(const CPGRB_POOL *pool, int fd, UINT32 *offset)
     osize = sizeof(uint32_t);
     if(EC_FALSE == c_file_pad(fd, offset, osize, FILE_PAD_CHAR))
     {
-        sys_log(LOGSTDOUT, "error:cpgrb_flush: pad %u bytes at offset %u of fd %d failed\n", osize, (*offset), fd);
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDOUT, "error:cpgrb_flush: pad %u bytes at offset %u of fd %d failed\n", osize, (*offset), fd);
         return (EC_FALSE);
     }
     
@@ -1155,7 +1162,7 @@ EC_BOOL cpgrb_flush(const CPGRB_POOL *pool, int fd, UINT32 *offset)
     osize = sizeof(uint16_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CPGRB_POOL_FREE_HEAD(pool))))
     {
-        sys_log(LOGSTDOUT, "error:cpgrb_flush: write CPGRB_POOL_FREE_HEAD at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDOUT, "error:cpgrb_flush: write CPGRB_POOL_FREE_HEAD at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1163,7 +1170,7 @@ EC_BOOL cpgrb_flush(const CPGRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint16_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CPGRB_POOL_NODE_NUM(pool))))
     {
-        sys_log(LOGSTDOUT, "error:cpgrb_flush: write CPGRB_POOL_NODE_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDOUT, "error:cpgrb_flush: write CPGRB_POOL_NODE_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1171,7 +1178,7 @@ EC_BOOL cpgrb_flush(const CPGRB_POOL *pool, int fd, UINT32 *offset)
     osize  = CPGRB_POOL_NODE_NUM(pool) * sizeof(CPGRB_NODE);    
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)CPGRB_POOL_NODE_TBL(pool)))
     {
-        sys_log(LOGSTDOUT, "error:cpgrb_flush: write CPGRB_POOL_NODE_TBL at offset %u of fd %d failed where CPGRB_POOL_NODE_NUM is %u\n", 
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDOUT, "error:cpgrb_flush: write CPGRB_POOL_NODE_TBL at offset %u of fd %d failed where CPGRB_POOL_NODE_NUM is %u\n", 
                             (*offset), fd, CPGRB_POOL_NODE_NUM(pool));
         return (EC_FALSE);
     }
@@ -1179,7 +1186,7 @@ EC_BOOL cpgrb_flush(const CPGRB_POOL *pool, int fd, UINT32 *offset)
     osize = (CPGRB_POOL_MAX_SIZE - CPGRB_POOL_NODE_NUM(pool)) * sizeof(CPGRB_NODE);
     if(EC_FALSE == c_file_pad(fd, offset, osize, FILE_PAD_CHAR))
     {
-        sys_log(LOGSTDOUT, "error:cpgrb_flush: pad %u at offset %u of fd %d failed\n", osize, (*offset), fd);
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDOUT, "error:cpgrb_flush: pad %u at offset %u of fd %d failed\n", osize, (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1200,7 +1207,7 @@ EC_BOOL cpgrb_load(CPGRB_POOL *pool, int fd, UINT32 *offset)
     osize = sizeof(uint16_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(CPGRB_POOL_FREE_HEAD(pool))))
     {
-        sys_log(LOGSTDOUT, "error:cpgrb_load: load CPGRB_POOL_FREE_HEAD at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDOUT, "error:cpgrb_load: load CPGRB_POOL_FREE_HEAD at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1208,7 +1215,7 @@ EC_BOOL cpgrb_load(CPGRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint16_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(node_num)))
     {
-        sys_log(LOGSTDOUT, "error:cpgrb_load: load CPGRB_POOL_NODE_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDOUT, "error:cpgrb_load: load CPGRB_POOL_NODE_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1218,7 +1225,7 @@ EC_BOOL cpgrb_load(CPGRB_POOL *pool, int fd, UINT32 *offset)
     osize  = CPGRB_POOL_NODE_NUM(pool) * sizeof(CPGRB_NODE);    
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)CPGRB_POOL_NODE_TBL(pool)))
     {
-        sys_log(LOGSTDOUT, "error:cpgrb_load: load CPGRB_POOL_NODE_TBL at offset %u of fd %d failed where CPGRB_POOL_NODE_NUM is %u\n", 
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDOUT, "error:cpgrb_load: load CPGRB_POOL_NODE_TBL at offset %u of fd %d failed where CPGRB_POOL_NODE_NUM is %u\n", 
                             (*offset), fd, CPGRB_POOL_NODE_NUM(pool));
         return (EC_FALSE);
     }
@@ -1245,35 +1252,35 @@ EC_BOOL cpgrb_node_debug_cmp(const CPGRB_NODE *node_1st, const CPGRB_NODE *node_
 {
     if(CPGRB_NODE_USED_FLAG(node_1st) != CPGRB_NODE_USED_FLAG(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_USED_FLAG: %u != %u\n", 
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_USED_FLAG: %u != %u\n", 
                             CPGRB_NODE_USED_FLAG(node_1st), CPGRB_NODE_USED_FLAG(node_2nd));
         return (EC_FALSE);
     }
 
     if(CPGRB_NODE_COLOR(node_1st) != CPGRB_NODE_COLOR(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_COLOR: %u != %u\n", 
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_COLOR: %u != %u\n", 
                             CPGRB_NODE_COLOR(node_1st), CPGRB_NODE_COLOR(node_2nd));
         return (EC_FALSE);
     }  
 
     if(CPGRB_NODE_PARENT_POS(node_1st) != CPGRB_NODE_PARENT_POS(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_PARENT_POS: %u != %u\n", 
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_PARENT_POS: %u != %u\n", 
                             CPGRB_NODE_PARENT_POS(node_1st), CPGRB_NODE_PARENT_POS(node_2nd));
         return (EC_FALSE);
     }  
 
     if(CPGRB_NODE_RIGHT_POS(node_1st) != CPGRB_NODE_RIGHT_POS(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_RIGHT_POS: %u != %u\n", 
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_RIGHT_POS: %u != %u\n", 
                             CPGRB_NODE_RIGHT_POS(node_1st), CPGRB_NODE_RIGHT_POS(node_2nd));
         return (EC_FALSE);
     }
 
     if(CPGRB_NODE_LEFT_POS(node_1st) != CPGRB_NODE_LEFT_POS(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_LEFT_POS: %u != %u\n", 
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_LEFT_POS: %u != %u\n", 
                             CPGRB_NODE_LEFT_POS(node_1st), CPGRB_NODE_LEFT_POS(node_2nd));
         return (EC_FALSE);
     }    
@@ -1282,7 +1289,7 @@ EC_BOOL cpgrb_node_debug_cmp(const CPGRB_NODE *node_1st, const CPGRB_NODE *node_
     {
         if(CPGRB_NODE_DATA(node_1st) != CPGRB_NODE_DATA(node_2nd))
         {
-            sys_log(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_DATA: %u != %u\n", 
+            dbg_log(SEC_0000_CPGRB, 0)(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_DATA: %u != %u\n", 
                                 CPGRB_NODE_DATA(node_1st), CPGRB_NODE_DATA(node_2nd));
             return (EC_FALSE);
         }    
@@ -1291,7 +1298,7 @@ EC_BOOL cpgrb_node_debug_cmp(const CPGRB_NODE *node_1st, const CPGRB_NODE *node_
     {
         if(CPGRB_NODE_NEXT_POS(node_1st) != CPGRB_NODE_NEXT_POS(node_2nd))
         {
-            sys_log(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_NEXT_POS: %u != %u\n", 
+            dbg_log(SEC_0000_CPGRB, 0)(LOGSTDERR, "error:cpgrb_node_debug_cmp: inconsistent CPGRB_NODE_NEXT_POS: %u != %u\n", 
                                 CPGRB_NODE_NEXT_POS(node_1st), CPGRB_NODE_NEXT_POS(node_2nd));
             return (EC_FALSE);
         }    
@@ -1306,14 +1313,14 @@ EC_BOOL cpgrb_debug_cmp(const CPGRB_POOL *pool_1st, const CPGRB_POOL *pool_2nd)
     
     if(CPGRB_POOL_FREE_HEAD(pool_1st) != CPGRB_POOL_FREE_HEAD(pool_2nd))
     {
-        sys_log(LOGSTDERR, "error:cpgrb_debug_cmp: inconsistent CPGRB_POOL_FREE_HEAD: %u != %u\n", 
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDERR, "error:cpgrb_debug_cmp: inconsistent CPGRB_POOL_FREE_HEAD: %u != %u\n", 
                             CPGRB_POOL_FREE_HEAD(pool_1st), CPGRB_POOL_FREE_HEAD(pool_2nd));
         return (EC_FALSE);
     }
 
     if(CPGRB_POOL_NODE_NUM(pool_1st) != CPGRB_POOL_NODE_NUM(pool_2nd))
     {
-        sys_log(LOGSTDERR, "error:cpgrb_debug_cmp: inconsistent CPGRB_POOL_NODE_NUM: %u != %u\n", 
+        dbg_log(SEC_0000_CPGRB, 0)(LOGSTDERR, "error:cpgrb_debug_cmp: inconsistent CPGRB_POOL_NODE_NUM: %u != %u\n", 
                             CPGRB_POOL_NODE_NUM(pool_1st), CPGRB_POOL_NODE_NUM(pool_2nd));
         return (EC_FALSE);
     }
@@ -1329,7 +1336,7 @@ EC_BOOL cpgrb_debug_cmp(const CPGRB_POOL *pool_1st, const CPGRB_POOL *pool_2nd)
 
         if(EC_FALSE == cpgrb_node_debug_cmp(node_1st, node_2nd))
         {
-            sys_log(LOGSTDERR, "error:cpgrb_debug_cmp: inconsistent node at pos %u\n", node_pos);
+            dbg_log(SEC_0000_CPGRB, 0)(LOGSTDERR, "error:cpgrb_debug_cmp: inconsistent node at pos %u\n", node_pos);
             return (EC_FALSE);
         }
     }

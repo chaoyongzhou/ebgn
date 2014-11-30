@@ -34,6 +34,8 @@ EC_BOOL tasks_srv_start(TASKS_CFG *tasks_cfg);
 
 EC_BOOL tasks_srv_end(TASKS_CFG *tasks_cfg);
 
+EC_BOOL tasks_srv_accept_once(TASKS_CFG *tasks_cfg, EC_BOOL *continue_flag);
+
 EC_BOOL tasks_srv_accept(TASKS_CFG *tasks_cfg);
 
 EC_BOOL tasks_srv_select(TASKS_CFG *tasks_cfg, int *ret);
@@ -132,9 +134,15 @@ EC_BOOL tasks_work_isend_node(CVECTOR *tasks_node_work, const UINT32 des_tcid, c
 
 EC_BOOL tasks_work_irecv_node(CVECTOR *tasks_node_work, CLIST *save_to_list);
 
+EC_BOOL tasks_work_need_isend_on_csocket_cnode(CVECTOR *tasks_work, CSOCKET_CNODE *csocket_cnode);
+
 EC_BOOL tasks_work_isend_on_csocket_cnode(CVECTOR *tasks_work, CSOCKET_CNODE *csocket_cnode);
 
 EC_BOOL tasks_work_irecv_on_csocket_cnode(CVECTOR *tasks_node_work, CSOCKET_CNODE *csocket_cnode, CLIST *save_to_list);
+
+EC_BOOL tasks_work_irecv_on_csocket_cnode_by_epoll(CSOCKET_CNODE *csocket_cnode);
+
+EC_BOOL tasks_work_isend_on_csocket_cnode_by_epoll(CSOCKET_CNODE *csocket_cnode);
 
 EC_BOOL tasks_work_isend_on_tasks_node(CVECTOR *tasks_node_work, TASKS_NODE *tasks_node);
 
@@ -154,6 +162,8 @@ UINT32 tasks_monitor_count(const CVECTOR *tasks_node_monitor, const UINT32 tcid,
 
 EC_BOOL tasks_monitor_open(CVECTOR *tasks_node_monitor, const UINT32 tcid, const UINT32 srv_ipaddr, const UINT32 srv_port);
 
+EC_BOOL tasks_monitor_share_taskc_node_epoll(CSOCKET_CNODE *csocket_cnode);
+
 /*share current taskcomm info to remote taskcomm which is connected via csocket_cnode*/
 EC_BOOL tasks_monitor_share_taskc_node(CVECTOR *tasks_node_monitor, CSOCKET_CNODE *csocket_cnode);
 
@@ -165,9 +175,15 @@ EC_BOOL tasks_monitor_isend_on_csocket_cnode(CVECTOR *tasks_node_monitor, CSOCKE
 
 EC_BOOL tasks_monitor_irecv_on_csocket_cnode(CVECTOR *tasks_node_monitor, CSOCKET_CNODE *csocket_cnode);
 
+EC_BOOL tasks_monitor_isend_on_csocket_cnode_by_epoll(CSOCKET_CNODE *csocket_cnode);
+
+EC_BOOL tasks_monitor_irecv_on_csocket_cnode_by_epoll(CSOCKET_CNODE *csocket_cnode);
+
 EC_BOOL tasks_monitor_isend(CVECTOR *tasks_node_monitor);
 
 EC_BOOL tasks_monitor_irecv(CVECTOR *tasks_node_monitor);
+
+EC_BOOL tasks_monitor_incomed_one(CSOCKET_CNODE *csocket_cnode);
 
 EC_BOOL tasks_monitor_incomed(CVECTOR *tasks_node_monitor);
 
@@ -178,6 +194,8 @@ EC_BOOL tasks_monitor_checker(CVECTOR *tasks_node_monitor, CROUTINE_COND *checke
 EC_BOOL tasks_monitor_init(CVECTOR *tasks_node_monitor);
 
 EC_BOOL tasks_monitor_clean(CVECTOR *tasks_node_monitor);
+
+EC_BOOL tasks_monitor_is_empty(const CVECTOR *tasks_node_monitor);
 
 void tasks_monitor_print(LOG *log, const CVECTOR *tasks_node_monitor);
 

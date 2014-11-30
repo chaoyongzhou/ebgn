@@ -174,8 +174,8 @@ UINT32 matrix_r_start( )
     matrixr_md->vectorr_md_id = vectorr_md_id;
     matrixr_md->usedcounter = 1;
 
-    sys_log(LOGSTDOUT, "matrix_r_start: start MATRIXR module #%ld\n", matrixr_md_id);
-    //sys_log(LOGSTDOUT, "========================= matrix_r_start: MATRIXR table info:\n");
+    dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_start: start MATRIXR module #%ld\n", matrixr_md_id);
+    //dbg_log(SEC_0018_MATRIXR, 3)(LOGSTDOUT, "========================= matrix_r_start: MATRIXR table info:\n");
     //matrix_r_print_module_status(matrixr_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -197,7 +197,7 @@ void matrix_r_end(const UINT32 matrixr_md_id)
     matrixr_md = MATRIXR_MD_GET(matrixr_md_id);
     if(NULL_PTR == matrixr_md)
     {
-        sys_log(LOGSTDOUT,"error:matrix_r_end: matrixr_md_id = %ld not exist.\n", matrixr_md_id);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT,"error:matrix_r_end: matrixr_md_id = %ld not exist.\n", matrixr_md_id);
         dbg_exit(MD_MATRIXR, matrixr_md_id);
     }
 
@@ -210,7 +210,7 @@ void matrix_r_end(const UINT32 matrixr_md_id)
 
     if ( 0 == matrixr_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:matrix_r_end: matrixr_md_id = %ld is not started.\n", matrixr_md_id);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT,"error:matrix_r_end: matrixr_md_id = %ld is not started.\n", matrixr_md_id);
         dbg_exit(MD_MATRIXR, matrixr_md_id);
     }
 
@@ -232,12 +232,12 @@ void matrix_r_end(const UINT32 matrixr_md_id)
     matrixr_md->vectorr_md_id = ERR_MODULE_ID;
     matrixr_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "matrix_r_end: stop MATRIXR module #%ld\n", matrixr_md_id);
+    dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_end: stop MATRIXR module #%ld\n", matrixr_md_id);
     cbc_md_free(MD_MATRIXR, matrixr_md_id);
 
     breathing_static_mem();
 
-    //sys_log(LOGSTDOUT, "========================= matrix_r_end: MATRIXR table info:\n");
+    //dbg_log(SEC_0018_MATRIXR, 3)(LOGSTDOUT, "========================= matrix_r_end: MATRIXR table info:\n");
     //matrix_r_print_module_status(matrixr_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -269,7 +269,7 @@ UINT32 matrix_r_set_mod_mgr(const UINT32 matrixr_md_id, const MOD_MGR * src_mod_
     matrixr_md = MATRIXR_MD_GET(matrixr_md_id);
     des_mod_mgr = matrixr_md->mod_mgr;
 
-    sys_log(LOGSTDOUT, "matrix_r_set_mod_mgr: md_id %d, des_mod_mgr %lx\n", matrixr_md_id, des_mod_mgr);
+    dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_set_mod_mgr: md_id %d, des_mod_mgr %lx\n", matrixr_md_id, des_mod_mgr);
 
     mod_mgr_limited_clone(matrixr_md_id, src_mod_mgr, des_mod_mgr);
     return (0);
@@ -378,13 +378,13 @@ UINT32 matrix_r_alloc_block( const UINT32 matrixr_md_type, const UINT32 matrixr_
 {
     if ( MD_MATRIXR != matrixr_md_type )
     {
-        sys_log(LOGSTDOUT,"error:matrix_r_alloc_block: invalid matrixr_md_type = %ld\n", matrixr_md_type);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT,"error:matrix_r_alloc_block: invalid matrixr_md_type = %ld\n", matrixr_md_type);
         exit(0);
     }
 
     if ( MM_MATRIX_BLOCK != type )
     {
-        sys_log(LOGSTDOUT,"error:matrix_r_alloc_block: invalid type = %ld\n",type);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT,"error:matrix_r_alloc_block: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -486,7 +486,7 @@ static UINT32 matrix_r_clear_block( const UINT32 matrixr_md_type, const UINT32 m
 {
     if ( MD_MATRIXR != matrixr_md_type )
     {
-        sys_log(LOGSTDOUT,"error:matrix_r_clear_block: invalid matrixr_md_type = %ld\n", matrixr_md_type);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT,"error:matrix_r_clear_block: invalid matrixr_md_type = %ld\n", matrixr_md_type);
         exit(0);
     }
 
@@ -511,7 +511,7 @@ UINT32 matrix_r_free_block( const UINT32 matrixr_md_type, const UINT32 matrixr_m
 {
     if ( MM_MATRIX_BLOCK != type )
     {
-        sys_log(LOGSTDOUT,"error:matrix_r_free_block: invalid type = %ld\n",type);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT,"error:matrix_r_free_block: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -543,12 +543,12 @@ static UINT32 matrix_r_alloc_matrix( const UINT32 matrixr_md_type, const UINT32 
 {
     if ( MD_MATRIXR != matrixr_md_type )
     {
-        sys_log(LOGSTDOUT,"error:matrix_r_alloc_matrix: invalid matrixr_md_type = %ld\n", matrixr_md_type);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT,"error:matrix_r_alloc_matrix: invalid matrixr_md_type = %ld\n", matrixr_md_type);
         exit(0);
     }
     if ( MM_MATRIX != type )
     {
-        sys_log(LOGSTDOUT,"error:matrix_r_alloc_matrix: invalid type = %ld\n",type);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT,"error:matrix_r_alloc_matrix: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -563,12 +563,12 @@ static UINT32 matrix_r_free_matrix( const UINT32 matrixr_md_type, const UINT32 m
 {
     if ( MD_MATRIXR != matrixr_md_type )
     {
-        sys_log(LOGSTDOUT,"error:matrix_r_free_matrix: invalid matrixr_md_type = %ld\n", matrixr_md_type);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT,"error:matrix_r_free_matrix: invalid matrixr_md_type = %ld\n", matrixr_md_type);
         exit(0);
     }
     if ( MM_MATRIX != type )
     {
-        sys_log(LOGSTDOUT,"error:matrix_r_free_matrix: invalid type = %ld\n",type);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT,"error:matrix_r_free_matrix: invalid type = %ld\n",type);
         exit(0);
     }
 
@@ -593,7 +593,7 @@ UINT32 matrix_r_new_matrix_skeleton(const UINT32 matrixr_md_id, const UINT32 row
 
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_new_matrix_skeleton: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_new_matrix_skeleton: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -658,7 +658,7 @@ UINT32 matrix_r_new_matrix(const UINT32 matrixr_md_id, const UINT32 row_num, con
 {
     if( NULL_PTR == ppmatrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_new_matrix: ppmatrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_new_matrix: ppmatrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -695,7 +695,7 @@ UINT32 matrix_r_clear_matrix(const UINT32 matrixr_md_id, MATRIX *matrix)
 
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_clear_matrix: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_clear_matrix: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -733,7 +733,7 @@ UINT32 matrix_r_clean_matrix(const UINT32 matrixr_md_id, MATRIX *matrix)
 
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_clean_matrix: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_clean_matrix: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -873,7 +873,7 @@ static UINT32 matrix_r_set_block(const UINT32 matrixr_md_id, const UINT32 row_no
 
     if( row_no >= MATRIX_GET_ROW_NUM(matrix) )
     {
-        sys_log(LOGSTDOUT, "error:matrix_r_set_block: row_no %ld overflow where matrix is (%ld, %ld)\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT, "error:matrix_r_set_block: row_no %ld overflow where matrix is (%ld, %ld)\n",
                          row_no,
                          MATRIX_GET_ROW_NUM(matrix),
                          MATRIX_GET_COL_NUM(matrix));
@@ -882,7 +882,7 @@ static UINT32 matrix_r_set_block(const UINT32 matrixr_md_id, const UINT32 row_no
 
     if( col_no >= MATRIX_GET_COL_NUM(matrix) )
     {
-        sys_log(LOGSTDOUT, "error:matrix_r_set_block: col_no %ld overflow where matrix is (%ld, %ld)\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT, "error:matrix_r_set_block: col_no %ld overflow where matrix is (%ld, %ld)\n",
                          col_no,
                          MATRIX_GET_ROW_NUM(matrix),
                          MATRIX_GET_COL_NUM(matrix));
@@ -1030,7 +1030,7 @@ static UINT32 matrix_r_insert_rows_data_from_row(const UINT32 matrixr_md_id, con
     {
         if(position >= max_data_num)
         {
-            sys_log(LOGSTDERR, "error:matrix_r_insert_rows_data_from_row: max_data_num = %ld is not enough to fill the matrix (%ld, %ld)\n",
+            dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR, "error:matrix_r_insert_rows_data_from_row: max_data_num = %ld is not enough to fill the matrix (%ld, %ld)\n",
                             max_data_num,
                             MATRIX_GET_ROW_NUM(matrix),
                             MATRIX_GET_COL_NUM(matrix));
@@ -1077,7 +1077,7 @@ UINT32 matrix_r_insert_data_by_row(const UINT32 matrixr_md_id, const REAL *pdata
 {
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_insert_data_by_row: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_insert_data_by_row: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -1106,7 +1106,7 @@ UINT32 matrix_r_insert_data_by_tbl(const UINT32 matrixr_md_id, const REAL **ppda
 {
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_insert_data_by_tbl: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_insert_data_by_tbl: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -1445,14 +1445,14 @@ static EC_BOOL matrix_r_block_cmp(const UINT32 matrixr_md_id, const MATRIX_BLOCK
     sub_row_num = MATRIX_BLOCK_GET_ROW_NUM(matrix_block_1);
     sub_col_num = MATRIX_BLOCK_GET_COL_NUM(matrix_block_1);
 #if 0
-    sys_log(LOGSTDOUT, "matrix_r_block_cmp: cmp type (%ld, %ld) <---> (%ld, %ld)\n",
+    dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_block_cmp: cmp type (%ld, %ld) <---> (%ld, %ld)\n",
                     sub_row_num, sub_col_num,
                     MATRIX_BLOCK_GET_ROW_NUM(rotated_flag_2, matrix_block_2), MATRIX_BLOCK_GET_COL_NUM(rotated_flag_2, matrix_block_2));
 
 #endif
     if( sub_row_num != MATRIX_BLOCK_GET_ROW_NUM(matrix_block_2) )
     {
-        sys_log(LOGSTDOUT, "matrix_r_block_cmp: type mismatched (%ld, %ld) <---> (%ld, %ld)\n",
+        dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_block_cmp: type mismatched (%ld, %ld) <---> (%ld, %ld)\n",
                         sub_row_num, sub_col_num,
                         MATRIX_BLOCK_GET_ROW_NUM(matrix_block_2), MATRIX_BLOCK_GET_COL_NUM(matrix_block_2));
         return (EC_FALSE);
@@ -1460,7 +1460,7 @@ static EC_BOOL matrix_r_block_cmp(const UINT32 matrixr_md_id, const MATRIX_BLOCK
 
     if( sub_col_num != MATRIX_BLOCK_GET_COL_NUM(matrix_block_2) )
     {
-        sys_log(LOGSTDOUT, "matrix_r_block_cmp: type mismatched (%ld, %ld) <---> (%ld, %ld)\n",
+        dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_block_cmp: type mismatched (%ld, %ld) <---> (%ld, %ld)\n",
                         sub_row_num, sub_col_num,
                         MATRIX_BLOCK_GET_ROW_NUM(matrix_block_2), MATRIX_BLOCK_GET_COL_NUM(matrix_block_2));
         return (EC_FALSE);
@@ -1486,17 +1486,17 @@ static EC_BOOL matrix_r_block_cmp(const UINT32 matrixr_md_id, const MATRIX_BLOCK
         {
             if((*data_addr_1) > (*data_addr_2))
             {
-                sys_log(LOGSTDOUT, "matrix_r_block_cmp: not equal: [matrix_block %lx, data %lx] %lf > [matrix_block %lx, data %lx], %lf\n",
+                dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_block_cmp: not equal: [matrix_block %lx, data %lx] %lf > [matrix_block %lx, data %lx], %lf\n",
                                 matrix_block_1, data_addr_1, *data_addr_1,
                                 matrix_block_2, data_addr_2, *data_addr_2);
             }
             if((*data_addr_1) < (*data_addr_2))
             {
-                sys_log(LOGSTDOUT, "matrix_r_block_cmp: not equal: [matrix_block %lx, data %lx] %lf < [matrix_block %lx, data %lx], %lf\n",
+                dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_block_cmp: not equal: [matrix_block %lx, data %lx] %lf < [matrix_block %lx, data %lx], %lf\n",
                                 matrix_block_1, data_addr_1, *data_addr_1,
                                 matrix_block_2, data_addr_2, *data_addr_2);
             }
-            sys_log(LOGSTDOUT, "matrix_r_block_cmp: not equal: [matrix_block %lx, data %lx] %lf, [matrix_block %lx, data %lx], %lf: diff = %lf\n",
+            dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_block_cmp: not equal: [matrix_block %lx, data %lx] %lf, [matrix_block %lx, data %lx], %lf: diff = %lf\n",
                             matrix_block_1, data_addr_1, *data_addr_1,
                             matrix_block_2, data_addr_2, *data_addr_2,
                             (*data_addr_1) - (*data_addr_2));
@@ -1925,7 +1925,7 @@ static UINT32 matrix_r_shrink_single_row(const UINT32 matrixr_md_id, const REAL 
 
     if(EC_TRUE == REAL_ISZERO(matrixr_md->real_md_id,(*r_data_addr)))
     {
-        sys_log(LOGSTDOUT, "error:matrix_r_shrink_single_row: r_data_addr is zero!\n", (*r_data_addr));
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT, "error:matrix_r_shrink_single_row: r_data_addr is zero!\n", (*r_data_addr));
         return ((UINT32)(-1));
     }
 
@@ -2038,7 +2038,7 @@ static UINT32 matrix_r_shrink_single_col(const UINT32 matrixr_md_id, const REAL 
     matrixr_md = MATRIXR_MD_GET(matrixr_md_id);
     if(EC_TRUE == REAL_ISZERO(matrixr_md->real_md_id,(*r_data_addr)))
     {
-        sys_log(LOGSTDOUT, "error:matrix_r_shrink_single_col: r_data_addr is zero!\n", (*r_data_addr));
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDOUT, "error:matrix_r_shrink_single_col: r_data_addr is zero!\n", (*r_data_addr));
         return ((UINT32)(-1));
     }
 
@@ -2371,7 +2371,7 @@ UINT32 matrix_r_block_mul(const UINT32 matrixr_md_id,
         return matrix_r_block_mul_self_front(matrixr_md_id, src_matrix_block_1, des_matrix_block);
     }
 
-    //sys_log(LOGSTDOUT, "matrix_r_block_mul: src_rotated_flag_1 %lx, src_rotated_flag_2 %lx, des_rotated_flag %lx\n", src_rotated_flag_1, src_rotated_flag_2, des_rotated_flag);
+    //dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_block_mul: src_rotated_flag_1 %lx, src_rotated_flag_2 %lx, des_rotated_flag %lx\n", src_rotated_flag_1, src_rotated_flag_2, des_rotated_flag);
 
     sub_row_num = MATRIX_BLOCK_GET_ROW_NUM(src_matrix_block_1);
     sub_col_num = MATRIX_BLOCK_GET_COL_NUM(src_matrix_block_2);
@@ -2379,7 +2379,7 @@ UINT32 matrix_r_block_mul(const UINT32 matrixr_md_id,
     if( MATRIX_BLOCK_GET_COL_NUM(src_matrix_block_1)
      != MATRIX_BLOCK_GET_ROW_NUM(src_matrix_block_2) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_block_mul: not matchable blocks where src_matrix_block_1 row_num = %ld, col_num = %ld, but src_matrix_block_2 row_num = %ld, col_num = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_block_mul: not matchable blocks where src_matrix_block_1 row_num = %ld, col_num = %ld, but src_matrix_block_2 row_num = %ld, col_num = %ld\n",
                 MATRIX_BLOCK_GET_ROW_NUM(src_matrix_block_1),
                 MATRIX_BLOCK_GET_COL_NUM(src_matrix_block_1),
                 MATRIX_BLOCK_GET_ROW_NUM(src_matrix_block_2),
@@ -2515,13 +2515,13 @@ UINT32 matrix_r_get_row_num(const UINT32 matrixr_md_id, const MATRIX *matrix, UI
 {
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_get_row_num: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_get_row_num: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == row_num )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_get_row_num: row_num is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_get_row_num: row_num is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2548,13 +2548,13 @@ UINT32 matrix_r_get_col_num(const UINT32 matrixr_md_id, const MATRIX *matrix, UI
 {
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_get_col_num: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_get_col_num: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == col_num )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_get_col_num: col_num is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_get_col_num: col_num is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2582,19 +2582,19 @@ UINT32 matrix_r_get_type(const UINT32 matrixr_md_id, const MATRIX *matrix, UINT3
 {
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_get_type: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_get_type: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == row_num )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_get_type: row_num is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_get_type: row_num is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == col_num )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_get_type: col_num is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_get_type: col_num is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2622,13 +2622,13 @@ UINT32 matrix_r_get_row_blocks_num(const UINT32 matrixr_md_id, const MATRIX *mat
 {
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_get_row_blocks_num: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_get_row_blocks_num: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == row_blocks_num )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_get_row_blocks_num: row_blocks_num is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_get_row_blocks_num: row_blocks_num is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2655,13 +2655,13 @@ UINT32 matrix_r_get_col_blocks_num(const UINT32 matrixr_md_id, const MATRIX *mat
 {
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_get_col_blocks_num: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_get_col_blocks_num: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == col_blocks_num )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_get_col_blocks_num: col_blocks_num is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_get_col_blocks_num: col_blocks_num is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2701,14 +2701,14 @@ UINT32 matrix_r_clone(const UINT32 matrixr_md_id, const MATRIX *src_matrix, MATR
     if( NULL_PTR == src_matrix )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:matrix_r_clone: src_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_clone: src_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:matrix_r_clone: des_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_clone: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2765,7 +2765,7 @@ UINT32 matrix_r_rotate(const UINT32 matrixr_md_id, MATRIX *matrix)
     if( NULL_PTR == matrix )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:matrix_r_rotate: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_rotate: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2805,7 +2805,7 @@ UINT32 matrix_r_set_zero(const UINT32 matrixr_md_id, MATRIX *matrix)
     if( NULL_PTR == matrix )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:matrix_r_set_zero: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_set_zero: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2848,7 +2848,7 @@ UINT32 matrix_r_set_one(const UINT32 matrixr_md_id, MATRIX *matrix)
     if( NULL_PTR == matrix )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:matrix_r_set_one: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_set_one: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -2867,13 +2867,13 @@ UINT32 matrix_r_set_one(const UINT32 matrixr_md_id, MATRIX *matrix)
 
     if( row_num != col_num )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_set_one: not valid n x n matrix: row_num = %ld, col_num = %ld\n", row_num, col_num);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_set_one: not valid n x n matrix: row_num = %ld, col_num = %ld\n", row_num, col_num);
         return ((UINT32)(-1));
     }
 
     if( 0 == row_num )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_set_one: not valid matrix: row_num = %ld, col_num = %ld\n", row_num, col_num);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_set_one: not valid matrix: row_num = %ld, col_num = %ld\n", row_num, col_num);
         return ((UINT32)(-1));
     }
 
@@ -3038,7 +3038,7 @@ UINT32 matrix_r_xchg_rows(const UINT32 matrixr_md_id, const UINT32 row_no_1, con
     if( NULL_PTR == matrix )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:matrix_r_xchg_rows: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_xchg_rows: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -3090,7 +3090,7 @@ UINT32 matrix_r_xchg_cols(const UINT32 matrixr_md_id, const UINT32 col_no_1, con
     if( NULL_PTR == matrix )
     {
         /*do nothing*/
-        sys_log(LOGSTDERR,"error:matrix_r_xchg_cols: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_xchg_cols: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -3137,7 +3137,7 @@ EC_BOOL matrix_r_is_zero(const UINT32 matrixr_md_id, const MATRIX *matrix)
 
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_is_zero: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_is_zero: matrix is null pointer\n");
         return (EC_TRUE);
     }
 
@@ -3182,7 +3182,7 @@ EC_BOOL matrix_r_is_one(const UINT32 matrixr_md_id, const MATRIX *matrix)
 
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_is_one: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_is_one: matrix is null pointer\n");
         return (EC_TRUE);
     }
 
@@ -3201,7 +3201,7 @@ EC_BOOL matrix_r_is_one(const UINT32 matrixr_md_id, const MATRIX *matrix)
 
     if( row_num != col_num )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_is_one: not valid n x n matrix: row_num = %ld, col_num = %ld\n", row_num, col_num);
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_is_one: not valid n x n matrix: row_num = %ld, col_num = %ld\n", row_num, col_num);
         return ((UINT32)(-1));
     }
 
@@ -3248,13 +3248,13 @@ EC_BOOL matrix_r_cmp(const UINT32 matrixr_md_id, const MATRIX *matrix_1, const M
 
     if( NULL_PTR == matrix_1 )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_cmp: matrix_1 is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_cmp: matrix_1 is null pointer\n");
         return (EC_TRUE);
     }
 
     if( NULL_PTR == matrix_2 )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_cmp: matrix_2 is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_cmp: matrix_2 is null pointer\n");
         return (EC_TRUE);
     }
 
@@ -3333,13 +3333,13 @@ UINT32 matrix_r_neg(const UINT32 matrixr_md_id, const MATRIX *src_matrix, MATRIX
 
     if( NULL_PTR == src_matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_neg: src_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_neg: src_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_neg: des_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_neg: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -3436,19 +3436,19 @@ UINT32 matrix_r_s_mul(const UINT32 matrixr_md_id, const REAL *s_data_addr, const
 
     if( NULL_PTR == s_data_addr )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_s_mul: s_data_addr is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_s_mul: s_data_addr is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_s_mul: src_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_s_mul: src_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_s_mul: des_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_s_mul: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -3516,13 +3516,13 @@ UINT32 matrix_r_adc(const UINT32 matrixr_md_id, const MATRIX *src_matrix, MATRIX
 
     if( NULL_PTR == src_matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_adc: src_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_adc: src_matrix is null pointer\n");
         return (0);
     }
 
     if( NULL_PTR == des_matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_adc: des_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_adc: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -3539,7 +3539,7 @@ UINT32 matrix_r_adc(const UINT32 matrixr_md_id, const MATRIX *src_matrix, MATRIX
     if(  MATRIX_GET_ROW_NUM(src_matrix)
       != MATRIX_GET_ROW_NUM(des_matrix) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_adc: not matchable matrix: row num of src_matrix = %ld, row num of des_matrix = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_adc: not matchable matrix: row num of src_matrix = %ld, row num of des_matrix = %ld\n",
                         MATRIX_GET_ROW_NUM(src_matrix),
                         MATRIX_GET_ROW_NUM(des_matrix));
         return ((UINT32)(-1));
@@ -3548,7 +3548,7 @@ UINT32 matrix_r_adc(const UINT32 matrixr_md_id, const MATRIX *src_matrix, MATRIX
     if(  MATRIX_GET_COL_NUM(src_matrix)
       != MATRIX_GET_COL_NUM(des_matrix) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_adc: not matchable matrix: col num of src_matrix = %ld, col num of des_matrix = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_adc: not matchable matrix: col num of src_matrix = %ld, col num of des_matrix = %ld\n",
                         MATRIX_GET_COL_NUM(src_matrix),
                         MATRIX_GET_COL_NUM(des_matrix));
         return ((UINT32)(-1));
@@ -3585,19 +3585,19 @@ UINT32 matrix_r_add(const UINT32 matrixr_md_id, const MATRIX *src_matrix_1, cons
 
     if( NULL_PTR == src_matrix_1 )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_add: src_matrix_1 is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_add: src_matrix_1 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_matrix_2 )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_add: src_matrix_2 is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_add: src_matrix_2 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_add: des_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_add: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -3624,7 +3624,7 @@ UINT32 matrix_r_add(const UINT32 matrixr_md_id, const MATRIX *src_matrix_1, cons
     if(  MATRIX_GET_ROW_NUM(src_matrix_1)
       != MATRIX_GET_ROW_NUM(src_matrix_2) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_add: not matchable matrix: row num of src_matrix_1 = %ld, row num of src_matrix_2 = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_add: not matchable matrix: row num of src_matrix_1 = %ld, row num of src_matrix_2 = %ld\n",
                         MATRIX_GET_ROW_NUM(src_matrix_1),
                         MATRIX_GET_ROW_NUM(src_matrix_2));
         return ((UINT32)(-1));
@@ -3633,7 +3633,7 @@ UINT32 matrix_r_add(const UINT32 matrixr_md_id, const MATRIX *src_matrix_1, cons
     if(  MATRIX_GET_COL_NUM(src_matrix_1)
       != MATRIX_GET_COL_NUM(src_matrix_2) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_add: not matchable matrix: col num of src_matrix_1 = %ld, col num of src_matrix_2 = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_add: not matchable matrix: col num of src_matrix_1 = %ld, col num of src_matrix_2 = %ld\n",
                         MATRIX_GET_COL_NUM(src_matrix_1),
                         MATRIX_GET_COL_NUM(src_matrix_2));
         return ((UINT32)(-1));
@@ -3678,13 +3678,13 @@ UINT32 matrix_r_sbb(const UINT32 matrixr_md_id, const MATRIX *src_matrix, MATRIX
 
     if( NULL_PTR == src_matrix)
     {
-        sys_log(LOGSTDERR,"error:matrix_r_sbb: src_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_sbb: src_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix)
     {
-        sys_log(LOGSTDERR,"error:matrix_r_sbb: des_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_sbb: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -3706,7 +3706,7 @@ UINT32 matrix_r_sbb(const UINT32 matrixr_md_id, const MATRIX *src_matrix, MATRIX
     if(  MATRIX_GET_ROW_NUM(src_matrix)
       != MATRIX_GET_ROW_NUM(des_matrix) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_sbb: not matchable matrix: row num of src_matrix = %ld, row num of des_matrix = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_sbb: not matchable matrix: row num of src_matrix = %ld, row num of des_matrix = %ld\n",
                         MATRIX_GET_ROW_NUM(src_matrix),
                         MATRIX_GET_ROW_NUM(des_matrix));
         return ((UINT32)(-1));
@@ -3715,7 +3715,7 @@ UINT32 matrix_r_sbb(const UINT32 matrixr_md_id, const MATRIX *src_matrix, MATRIX
     if(  MATRIX_GET_COL_NUM(src_matrix)
       != MATRIX_GET_COL_NUM(des_matrix) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_sbb: not matchable matrix: col num of src_matrix = %ld, col num of des_matrix = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_sbb: not matchable matrix: col num of src_matrix = %ld, col num of des_matrix = %ld\n",
                         MATRIX_GET_COL_NUM(src_matrix),
                         MATRIX_GET_COL_NUM(des_matrix));
         return ((UINT32)(-1));
@@ -3752,23 +3752,23 @@ UINT32 matrix_r_sub(const UINT32 matrixr_md_id, const MATRIX *src_matrix_1, cons
 
     if( NULL_PTR == src_matrix_1 )
     {
-        //sys_log(LOGSTDERR,"error:matrix_r_sub: src_matrix_1 is null pointer\n");
+        //dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_sub: src_matrix_1 is null pointer\n");
         //return matrix_r_neg(matrixr_md_id, src_matrix_2, des_matrix);
-        sys_log(LOGSTDERR,"error:matrix_r_sub: src_matrix_1 is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_sub: src_matrix_1 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_matrix_2 )
     {
-        //sys_log(LOGSTDERR,"error:matrix_r_sub: src_matrix_2 is null pointer\n");
+        //dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_sub: src_matrix_2 is null pointer\n");
         //return matrix_r_clone(matrixr_md_id, src_matrix_1, des_matrix);
-        sys_log(LOGSTDERR,"error:matrix_r_sub: src_matrix_2 is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_sub: src_matrix_2 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix)
     {
-        sys_log(LOGSTDERR,"error:matrix_r_sub: des_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_sub: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -3795,7 +3795,7 @@ UINT32 matrix_r_sub(const UINT32 matrixr_md_id, const MATRIX *src_matrix_1, cons
     if(  MATRIX_GET_ROW_NUM(src_matrix_1)
       != MATRIX_GET_ROW_NUM(src_matrix_2) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_sub: not matchable matrix: row num of src_matrix_1 = %ld, row num of src_matrix_2 = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_sub: not matchable matrix: row num of src_matrix_1 = %ld, row num of src_matrix_2 = %ld\n",
                         MATRIX_GET_ROW_NUM(src_matrix_1),
                         MATRIX_GET_ROW_NUM(src_matrix_1));
         return ((UINT32)(-1));
@@ -3804,7 +3804,7 @@ UINT32 matrix_r_sub(const UINT32 matrixr_md_id, const MATRIX *src_matrix_1, cons
     if(  MATRIX_GET_COL_NUM(src_matrix_1)
       != MATRIX_GET_COL_NUM(src_matrix_2) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_sub: not matchable matrix: col num of src_matrix_1 = %ld, col num of src_matrix_2 = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_sub: not matchable matrix: col num of src_matrix_1 = %ld, col num of src_matrix_2 = %ld\n",
                         MATRIX_GET_COL_NUM(src_matrix_1),
                         MATRIX_GET_COL_NUM(src_matrix_2));
         return ((UINT32)(-1));
@@ -3843,7 +3843,7 @@ UINT32 matrix_r_squ_self(const UINT32 matrixr_md_id, MATRIX *matrix)
 {
     if( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_squ_self: matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_squ_self: matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -3860,7 +3860,7 @@ UINT32 matrix_r_squ_self(const UINT32 matrixr_md_id, MATRIX *matrix)
     if( MATRIX_GET_ROW_NUM(matrix)
      != MATRIX_GET_COL_NUM(matrix) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_squ_self: not valid n x n matrix: row num = %ld, col num = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_squ_self: not valid n x n matrix: row num = %ld, col num = %ld\n",
                         MATRIX_GET_ROW_NUM(matrix),
                         MATRIX_GET_COL_NUM(matrix));
         return ((UINT32)(-1));
@@ -3879,13 +3879,13 @@ UINT32 matrix_r_squ(const UINT32 matrixr_md_id, const MATRIX *src_matrix, MATRIX
 {
     if( NULL_PTR == src_matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_squ: src_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_squ: src_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_squ: des_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_squ: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -3902,7 +3902,7 @@ UINT32 matrix_r_squ(const UINT32 matrixr_md_id, const MATRIX *src_matrix, MATRIX
     if(  MATRIX_GET_COL_NUM(src_matrix)
       != MATRIX_GET_ROW_NUM(src_matrix) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_squ: not valid n x n matrix: row num = %ld, col num = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_squ: not valid n x n matrix: row num = %ld, col num = %ld\n",
                         MATRIX_GET_ROW_NUM(src_matrix),
                         MATRIX_GET_COL_NUM(src_matrix));
         return ((UINT32)(-1));
@@ -3921,13 +3921,13 @@ UINT32 matrix_r_mul_self_rear(const UINT32 matrixr_md_id, const MATRIX *src_matr
 {
     if( NULL_PTR == src_matrix)
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul_self_rear: src_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul_self_rear: src_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix)
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul_self_rear: des_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul_self_rear: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -3944,7 +3944,7 @@ UINT32 matrix_r_mul_self_rear(const UINT32 matrixr_md_id, const MATRIX *src_matr
     if(  MATRIX_GET_COL_NUM(des_matrix)
       != MATRIX_GET_ROW_NUM(src_matrix) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul_self_rear: not matchable matrix: col num of des_matrix = %ld, row num of src_matrix = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul_self_rear: not matchable matrix: col num of des_matrix = %ld, row num of src_matrix = %ld\n",
                         MATRIX_GET_COL_NUM(des_matrix),
                         MATRIX_GET_ROW_NUM(src_matrix));
         return ((UINT32)(-1));
@@ -3963,13 +3963,13 @@ UINT32 matrix_r_mul_self_front(const UINT32 matrixr_md_id, const MATRIX *src_mat
 {
     if( NULL_PTR == src_matrix)
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul_self_front: src_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul_self_front: src_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix)
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul_self_front: des_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul_self_front: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -3986,7 +3986,7 @@ UINT32 matrix_r_mul_self_front(const UINT32 matrixr_md_id, const MATRIX *src_mat
     if(  MATRIX_GET_COL_NUM(src_matrix)
       != MATRIX_GET_ROW_NUM(des_matrix) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul_self_rear: not matchable matrix: col num of src_matrix = %ld, row num of des_matrix = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul_self_rear: not matchable matrix: col num of src_matrix = %ld, row num of des_matrix = %ld\n",
                         MATRIX_GET_COL_NUM(src_matrix),
                         MATRIX_GET_ROW_NUM(des_matrix));
         return ((UINT32)(-1));
@@ -4025,19 +4025,19 @@ UINT32 matrix_r_mul(const UINT32 matrixr_md_id, const MATRIX *src_matrix_1, cons
 
     if( NULL_PTR == src_matrix_1 )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul: src_matrix_1 is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul: src_matrix_1 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_matrix_2 )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul: src_matrix_2 is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul: src_matrix_2 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix)
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul: des_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -4054,7 +4054,7 @@ UINT32 matrix_r_mul(const UINT32 matrixr_md_id, const MATRIX *src_matrix_1, cons
     if(  MATRIX_GET_COL_NUM(src_matrix_1)
       != MATRIX_GET_ROW_NUM(src_matrix_2) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul: not matchable matrix: col num of src_matrix_1 = %ld, row num of src_matrix_2 = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul: not matchable matrix: col num of src_matrix_1 = %ld, row num of src_matrix_2 = %ld\n",
                         MATRIX_GET_COL_NUM(src_matrix_1),
                         MATRIX_GET_ROW_NUM(src_matrix_2));
         return ((UINT32)(-1));
@@ -4128,19 +4128,19 @@ UINT32 matrix_r_mul_p(const UINT32 matrixr_md_id, const MATRIX *src_matrix_1, co
 
     if( NULL_PTR == src_matrix_1 )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul_p: src_matrix_1 is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul_p: src_matrix_1 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_matrix_2 )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul_p: src_matrix_2 is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul_p: src_matrix_2 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix)
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul_p: des_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul_p: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -4159,7 +4159,7 @@ UINT32 matrix_r_mul_p(const UINT32 matrixr_md_id, const MATRIX *src_matrix_1, co
     if(  MATRIX_GET_COL_NUM(src_matrix_1)
       != MATRIX_GET_ROW_NUM(src_matrix_2) )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_mul_p: not matchable matrix: col num of src_matrix_1 = %ld, row num of src_matrix_2 = %ld\n",
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_mul_p: not matchable matrix: col num of src_matrix_1 = %ld, row num of src_matrix_2 = %ld\n",
                         MATRIX_GET_COL_NUM(src_matrix_1),
                         MATRIX_GET_ROW_NUM(src_matrix_2));
         return ((UINT32)(-1));
@@ -4242,14 +4242,14 @@ UINT32 matrix_r_block_mul_vector_block(const UINT32 matrixr_md_id,
     vectorr_md_id = matrixr_md->vectorr_md_id;
     real_md_id = matrixr_md->real_md_id;
 
-    //sys_log(LOGSTDOUT, "matrix_r_block_mul_vector_block: src_matrix_block rotated_flag = %d\n", MATRIX_BLOCK_GET_ROTATED_FLAG(src_matrix_block));
+    //dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_block_mul_vector_block: src_matrix_block rotated_flag = %d\n", MATRIX_BLOCK_GET_ROTATED_FLAG(src_matrix_block));
 
     row_num = MATRIX_BLOCK_GET_ROW_NUM(src_matrix_block);
     col_num = MATRIX_BLOCK_GET_COL_NUM(src_matrix_block);
 
     if( col_num != VECTOR_BLOCK_GET_NUM(src_vector_block))
     {
-        sys_log(LOGSTDERR,
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,
            "error:matrix_r_block_mul_vector_block: not matchable matrix block and vector block: col num of src_matrix_block = %ld, row num of src_vector_block = %ld\n",
            MATRIX_BLOCK_GET_COL_NUM(src_matrix_block),
            VECTOR_BLOCK_GET_NUM(src_vector_block));
@@ -4291,14 +4291,14 @@ UINT32 matrix_r_block_mul_vector_block(const UINT32 matrixr_md_id,
             REAL_MUL(real_md_id, (*src_matrix_data_addr), (*src_vector_data_addr), (*tmp_data_addr));
             REAL_ADC(real_md_id, (*tmp_data_addr), (*des_vector_data_addr));
 #if 0
-            sys_log(LOGSTDOUT, "[%d, %d] * [%d]: (+) %.0f * %.0f => %.0f\n", row_idx, col_idx, col_idx,
+            dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "[%d, %d] * [%d]: (+) %.0f * %.0f => %.0f\n", row_idx, col_idx, col_idx,
                             (*src_matrix_data_addr), (*src_vector_data_addr), (*des_vector_data_addr));
 #endif
         }
     }
     free_static_mem(MD_MATRIXR, matrixr_md_id, MM_REAL, tmp_data_addr, LOC_MATRIXR_0043);
 
-    //sys_log(LOGSTDOUT, "matrix_r_block_mul_vector_block: des_vector_block num = %d\n", VECTOR_BLOCK_GET_NUM(des_vector_block));
+    //dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_block_mul_vector_block: des_vector_block num = %d\n", VECTOR_BLOCK_GET_NUM(des_vector_block));
 
     return (0);
 }
@@ -4335,19 +4335,19 @@ UINT32 matrix_r_matrix_mul_vector(const UINT32 matrixr_md_id, const MATRIX *src_
 
     if( NULL_PTR == src_matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_matrix_mul_vector: src_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_matrix_mul_vector: src_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_vector )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_matrix_mul_vector: src_vector is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_matrix_mul_vector: src_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_vector )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_matrix_mul_vector: des_vector is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_matrix_mul_vector: des_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -4369,7 +4369,7 @@ UINT32 matrix_r_matrix_mul_vector(const UINT32 matrixr_md_id, const MATRIX *src_
     /*src_vector must be col vector*/
     if( 1 != src_vector_rotated_flag )
     {
-        sys_log(LOGSTDERR,
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,
            "error:matrix_r_matrix_mul_vector: invalid vector type: rotated_flag of src_vector = %ld\n", src_vector_rotated_flag);
         return ((UINT32)(-1));
     }
@@ -4377,7 +4377,7 @@ UINT32 matrix_r_matrix_mul_vector(const UINT32 matrixr_md_id, const MATRIX *src_
     src_matrix_rotated_flag = MATRIX_GET_ROTATED_FLAG(src_matrix);
     if( MATRIX_GET_COL_NUM(src_matrix) != VECTOR_GET_NUM(src_vector) )
     {
-        sys_log(LOGSTDERR,
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,
            "error:matrix_r_matrix_mul_vector: not matchable matrix and vector: col num of src_matrix = %ld, row num of src_vector = %ld\n",
            MATRIX_GET_COL_NUM(src_matrix),
            VECTOR_GET_NUM(src_vector));
@@ -4453,19 +4453,19 @@ UINT32 matrix_r_matrix_mul_vector_p(const UINT32 matrixr_md_id, const MATRIX *sr
 
     if( NULL_PTR == src_matrix )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_matrix_mul_vector_p: src_matrix is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_matrix_mul_vector_p: src_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_vector )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_matrix_mul_vector_p: src_vector is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_matrix_mul_vector_p: src_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_vector )
     {
-        sys_log(LOGSTDERR,"error:matrix_r_matrix_mul_vector_p: des_vector is null pointer\n");
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,"error:matrix_r_matrix_mul_vector_p: des_vector is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -4482,7 +4482,7 @@ UINT32 matrix_r_matrix_mul_vector_p(const UINT32 matrixr_md_id, const MATRIX *sr
     matrixr_md = MATRIXR_MD_GET(matrixr_md_id);
     vectorr_md_id = matrixr_md->vectorr_md_id;
 
-    //sys_log(LOGSTDOUT, "matrix_r_matrix_mul_vector_p: matrixr_md_id = %d, matrixr_md->mod_mgr:\n", matrixr_md_id);
+    //dbg_log(SEC_0018_MATRIXR, 5)(LOGSTDOUT, "matrix_r_matrix_mul_vector_p: matrixr_md_id = %d, matrixr_md->mod_mgr:\n", matrixr_md_id);
     //mod_mgr_print(LOGSTDOUT, &(matrixr_md->mod_mgr));
 
     src_vector_rotated_flag = VECTOR_GET_ROTATED_FLAG(src_vector);
@@ -4490,7 +4490,7 @@ UINT32 matrix_r_matrix_mul_vector_p(const UINT32 matrixr_md_id, const MATRIX *sr
     /*src_vector must be col vector*/
     if( 1 != src_vector_rotated_flag )
     {
-        sys_log(LOGSTDERR,
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,
            "error:matrix_r_matrix_mul_vector_p: invalid vector type: rotated_flag of src_vector = %ld\n", src_vector_rotated_flag);
         return ((UINT32)(-1));
     }
@@ -4498,7 +4498,7 @@ UINT32 matrix_r_matrix_mul_vector_p(const UINT32 matrixr_md_id, const MATRIX *sr
     src_matrix_rotated_flag = MATRIX_GET_ROTATED_FLAG(src_matrix);
     if( MATRIX_GET_COL_NUM(src_matrix) != VECTOR_GET_NUM(src_vector) )
     {
-        sys_log(LOGSTDERR,
+        dbg_log(SEC_0018_MATRIXR, 0)(LOGSTDERR,
            "error:matrix_r_matrix_mul_vector_p: not matchable matrix and vector: col num of src_matrix = %ld, row num of src_vector = %ld\n",
            MATRIX_GET_COL_NUM(src_matrix),
            VECTOR_GET_NUM(src_vector));

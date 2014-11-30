@@ -20,6 +20,7 @@ extern "C"{
 
 #define CMPI_ULONGLONG      ((UINT32)(8))
 #define CMPI_ULONG          ((UINT32)(9))
+#define CMPI_U32            ((UINT32)(7))
 #define CMPI_USHORT         ((UINT32)(5))
 #define CMPI_UCHAR          ((UINT32)(2))
 #define CMPI_REAL           ((UINT32)(11))

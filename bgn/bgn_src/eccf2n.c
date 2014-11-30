@@ -157,22 +157,22 @@ UINT32 ecc_f2n_start( const BIGINT *f_x,
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == f_x )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_start: fx is NULL_PTR.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_start: fx is NULL_PTR.\n");
         dbg_exit(MD_ECCF2N, ERR_MODULE_ID);
     }
     if ( NULL_PTR == curve )
     {
-         sys_log(LOGSTDOUT,"error:ecc_f2n_start: curve is NULL_PTR.\n");
+         dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_start: curve is NULL_PTR.\n");
          dbg_exit(MD_ECCF2N, ERR_MODULE_ID);
     }
     if ( NULL_PTR == order )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_start: order is NULL_PTR.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_start: order is NULL_PTR.\n");
         dbg_exit(MD_ECCF2N, ERR_MODULE_ID);
     }
     if ( NULL_PTR == base_point )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_start: base_point is NULL_PTR.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_start: base_point is NULL_PTR.\n");
         dbg_exit(MD_ECCF2N, ERR_MODULE_ID);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -262,27 +262,27 @@ UINT32 ecc_f2n_start( const BIGINT *f_x,
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == eccf2n_f )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_start: ec_f2n_f is NULL_PTR.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_start: ec_f2n_f is NULL_PTR.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == eccf2n_curve )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_start: ec_f2n_curve is NULL_PTR.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_start: ec_f2n_curve is NULL_PTR.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == eccf2n_cofactor )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_start: eccf2n_cofactor is NULL_PTR.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_start: eccf2n_cofactor is NULL_PTR.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == eccf2n_order )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_start: ec_f2n_order is NULL_PTR.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_start: ec_f2n_order is NULL_PTR.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == eccf2n_base_point )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_start: ec_f2n_base_point is NULL_PTR.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_start: ec_f2n_base_point is NULL_PTR.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -382,7 +382,7 @@ void ecc_f2n_end(const UINT32 eccf2n_md_id)
 
     if ( MAX_NUM_OF_ECCF2N_MD < eccf2n_md_id )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_end: eccf2n_md_id = %ld is overflow.\n",eccf2n_md_id);
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_end: eccf2n_md_id = %ld is overflow.\n",eccf2n_md_id);
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 
@@ -397,7 +397,7 @@ void ecc_f2n_end(const UINT32 eccf2n_md_id)
 
     if ( 0 == eccf2n_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_end: eccf2n_md_id = %ld is not started.\n",eccf2n_md_id);
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_end: eccf2n_md_id = %ld is not started.\n",eccf2n_md_id);
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 
@@ -472,12 +472,12 @@ static void ecc_f2n_compute_z(const UINT32 eccf2n_md_id, const BIGINT *x, BIGINT
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
     if ( NULL_PTR == x )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_compute_z: x is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_compute_z: x is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == z )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_compute_z: z is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_compute_z: z is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ENC_DEC_DEBUG_SWITCH */
@@ -540,12 +540,12 @@ static void ecc_f2n_compute_gz(const UINT32 eccf2n_md_id, const BIGINT *z, const
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
     if ( NULL_PTR == z )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_compute_gz: z is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_compute_gz: z is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == gz )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_compute_gz: gz is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_compute_gz: gz is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ENC_DEC_DEBUG_SWITCH */
@@ -609,17 +609,17 @@ static void ecc_f2n_compute_trace(const UINT32 eccf2n_md_id, const BIGINT *z, co
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
     if ( NULL_PTR == z )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_compute_trace: z is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_compute_trace: z is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == gz )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_compute_trace: gz is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_compute_trace: gz is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == trace )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_compute_trace: trace is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_compute_trace: trace is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ENC_DEC_DEBUG_SWITCH */
@@ -680,12 +680,12 @@ static EC_BOOL ecc_f2n_x_is_on_curve(const UINT32 eccf2n_md_id, const BIGINT * x
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
     if ( NULL_PTR == x )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_x_is_on_curve: x is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_x_is_on_curve: x is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == gz )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_x_is_on_curve: gz is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_x_is_on_curve: gz is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ENC_DEC_DEBUG_SWITCH */
@@ -755,12 +755,12 @@ UINT32 ecc_f2n_get_public_key(const UINT32 eccf2n_md_id, const BIGINT *privateke
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == privatekey)
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_get_public_key: privatekey is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_get_public_key: privatekey is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == publickey)
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_get_public_key: publickey is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_get_public_key: publickey is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -784,18 +784,18 @@ UINT32 ecc_f2n_get_public_key(const UINT32 eccf2n_md_id, const BIGINT *privateke
 
     if( bgn_f2n_cmp(bgnf2n_md_id, privatekey, eccf2n_order) >= 0 )
     {  /* >=N; error */
-        sys_log(LOGSTDOUT,"error:ecc_f2n_get_public_key: private key > ec order.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_get_public_key: private key > ec order.\n");
 
-        sys_log(LOGSTDOUT,"private key:\n");
+        dbg_log(SEC_0096_ECCF2N, 5)(LOGSTDOUT,"private key:\n");
         print_bigint(LOGSTDOUT,privatekey);
 
-        sys_log(LOGSTDOUT,"ec order:\n");
+        dbg_log(SEC_0096_ECCF2N, 5)(LOGSTDOUT,"ec order:\n");
         print_bigint(LOGSTDOUT,eccf2n_order);
         return ((UINT32)(-1));
     }
     else if( EC_TRUE == bgn_f2n_is_zero(bgnf2n_md_id, privatekey) )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_get_public_key: private key = 0 \n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_get_public_key: private key = 0 \n");
         return ((UINT32)(-1));
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -816,7 +816,7 @@ const UINT32 ecc_f2n_random_generator_default( BIGINT * random)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == random)
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_random_generator_default: random is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_random_generator_default: random is null.\n");
         return ((UINT32)(-1));
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -858,7 +858,7 @@ void ecc_f2n_rnd_private_key(const UINT32 eccf2n_md_id, BIGINT * privatekey)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == privatekey)
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_rnd_private_key: privatekey is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_rnd_private_key: privatekey is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -921,7 +921,7 @@ UINT32 ecc_f2n_generate_keypair(const UINT32 eccf2n_md_id, ECC_KEYPAIR *keypair)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == keypair)
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_generate_keypair: keypair is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_generate_keypair: keypair is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -1009,12 +1009,12 @@ int ecc_f2n_encoding(const UINT32 eccf2n_md_id, const UINT8 * message,const UINT
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
     if ( NULL_PTR == message )
     {
-        sys_log(LOGSTDOUT,"error:test_ecc_f2n_encryption: message is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:test_ecc_f2n_encryption: message is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == msgpoint )
     {
-        sys_log(LOGSTDOUT,"error:test_ecc_f2n_encryption: msgpoint is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:test_ecc_f2n_encryption: msgpoint is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ENC_DEC_DEBUG_SWITCH */
@@ -1160,7 +1160,7 @@ int ecc_f2n_encoding(const UINT32 eccf2n_md_id, const UINT8 * message,const UINT
             if ( EC_TRUE == ec_f2n_point_is_infinit(ecf2n_md_id, R))
             {
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
-                sys_log(LOGSTDOUT,"test_ecc_f2n_encryption: after %d times searching before encoding success!\n",j);
+                dbg_log(SEC_0096_ECCF2N, 5)(LOGSTDOUT,"test_ecc_f2n_encryption: after %d times searching before encoding success!\n",j);
 #endif /* ENC_DEC_DEBUG_SWITCH */
 
                 break;
@@ -1182,7 +1182,7 @@ int ecc_f2n_encoding(const UINT32 eccf2n_md_id, const UINT8 * message,const UINT
 
     if( j_max == j )
     {
-        sys_log(LOGSTDOUT,"error:test_ecc_f2n_encryption: encoding failure!");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:test_ecc_f2n_encryption: encoding failure!");
         return ( -1);
     }
 
@@ -1236,12 +1236,12 @@ void ecc_f2n_decoding(const UINT32 eccf2n_md_id, const EC_CURVE_POINT * msgpoint
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
     if ( NULL_PTR == message )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_decoding: message is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_decoding: message is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == msgpoint )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_decoding: msgpoint is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_decoding: msgpoint is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ENC_DEC_DEBUG_SWITCH */
@@ -1362,22 +1362,22 @@ void ecc_f2n_encryption(const UINT32 eccf2n_md_id,
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
     if ( NULL_PTR == publickey )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_encryption: publickey is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_encryption: publickey is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == msgpoint )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_encryption: msgpoint is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_encryption: msgpoint is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_encryption: c1 is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_encryption: c1 is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == c2 )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_encryption: c2 is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_encryption: c2 is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ENC_DEC_DEBUG_SWITCH */
@@ -1449,22 +1449,22 @@ void ecc_f2n_decryption(const UINT32 eccf2n_md_id,
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
     if ( NULL_PTR == privatekey )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_decryption: privatekey is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_decryption: privatekey is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == msgpoint )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_decryption: msgpoint is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_decryption: msgpoint is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_decryption: c1 is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_decryption: c1 is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == c2 )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_decryption: c2 is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_decryption: c2 is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ENC_DEC_DEBUG_SWITCH */
@@ -1509,24 +1509,24 @@ const UINT32 ecc_f2n_do_hash_default(const UINT8 *message,const UINT32 messagele
 #if ( SWITCH_ON == ECDSA_DEBUG_SWITCH )
     if ( NULL_PTR == message )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_do_hash_default: message is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_do_hash_default: message is null.\n");
         return ((UINT32)(-1));
     }
     if ( NULL_PTR == hash )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_do_hash_default: hash is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_do_hash_default: hash is null.\n");
         return ((UINT32)(-1));
     }
 #endif /* ECDSA_DEBUG_SWITCH */
 
-    sys_log(LOGSTDOUT,"\n");
-    sys_log(LOGSTDOUT,"ecc_f2n_do_hash_default: --------------------------------------------\n");
-    sys_log(LOGSTDOUT,"ecc_f2n_do_hash_default: this function is only a debug interface.    \n");
-    sys_log(LOGSTDOUT,"ecc_f2n_do_hash_default: so, it always returns the constant value.   \n");
-    sys_log(LOGSTDOUT,"ecc_f2n_do_hash_default: do not worry since it will be replaced with \n");
-    sys_log(LOGSTDOUT,"ecc_f2n_do_hash_default: user's defined interface.                   \n");
-    sys_log(LOGSTDOUT,"ecc_f2n_do_hash_default: --------------------------------------------\n");
-    sys_log(LOGSTDOUT,"\n");
+    dbg_log(SEC_0096_ECCF2N, 5)(LOGSTDOUT,"\n");
+    dbg_log(SEC_0096_ECCF2N, 5)(LOGSTDOUT,"ecc_f2n_do_hash_default: --------------------------------------------\n");
+    dbg_log(SEC_0096_ECCF2N, 5)(LOGSTDOUT,"ecc_f2n_do_hash_default: this function is only a debug interface.    \n");
+    dbg_log(SEC_0096_ECCF2N, 5)(LOGSTDOUT,"ecc_f2n_do_hash_default: so, it always returns the constant value.   \n");
+    dbg_log(SEC_0096_ECCF2N, 5)(LOGSTDOUT,"ecc_f2n_do_hash_default: do not worry since it will be replaced with \n");
+    dbg_log(SEC_0096_ECCF2N, 5)(LOGSTDOUT,"ecc_f2n_do_hash_default: user's defined interface.                   \n");
+    dbg_log(SEC_0096_ECCF2N, 5)(LOGSTDOUT,"ecc_f2n_do_hash_default: --------------------------------------------\n");
+    dbg_log(SEC_0096_ECCF2N, 5)(LOGSTDOUT,"\n");
 
     for ( index = 0; index < INTMAX; index ++ )
     {
@@ -1598,17 +1598,17 @@ UINT32  ecc_f2n_signate(const UINT32 eccf2n_md_id,
 #if ( SWITCH_ON == ECDSA_DEBUG_SWITCH )
     if ( NULL_PTR == privatekey )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_signate: privatekey is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_signate: privatekey is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == message )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_signate: message is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_signate: message is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == signature )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_signate: signature is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_signate: signature is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ECDSA_DEBUG_SWITCH */
@@ -1726,7 +1726,7 @@ UINT32  ecc_f2n_signate(const UINT32 eccf2n_md_id,
     /* if counter exceeds the threshold, then return failure */
     if ( MAX_LOOP_LEN_OF_SIGNATURE <= counter )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_signate: signate times exceed the threshold.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_signate: signate times exceed the threshold.\n");
         return ((UINT32)(-1));
     }
 
@@ -1789,17 +1789,17 @@ EC_BOOL ecc_f2n_verify(const UINT32 eccf2n_md_id,
 #if ( SWITCH_ON == ECDSA_DEBUG_SWITCH )
     if ( NULL_PTR == message )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_verify: message is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_verify: message is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == signature )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_verify: signature is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_verify: signature is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
     if ( NULL_PTR == publickey )
     {
-        sys_log(LOGSTDOUT,"error:ecc_f2n_verify: publickey is null.\n");
+        dbg_log(SEC_0096_ECCF2N, 0)(LOGSTDOUT,"error:ecc_f2n_verify: publickey is null.\n");
         dbg_exit(MD_ECCF2N, eccf2n_md_id);
     }
 #endif /* ECDSA_DEBUG_SWITCH */

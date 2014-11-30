@@ -65,12 +65,24 @@ static EC_BOOL clist_null_default_with_modi(const UINT32 modi, void *data)
 {
     return (EC_TRUE);
 }
+
 static EC_BOOL clist_cmp_default(const void *data_1, const void *data_2)
 {
     if(data_1 == data_2)
     {
         return (EC_TRUE);
     }
+    return (EC_FALSE);
+}
+
+static EC_BOOL clist_walker_default(const void *data_1, const void *data_2)
+{
+    if(data_1 <= data_2)
+    {
+        //dbg_log(SEC_0044_CLIST, 9)(LOGSTDOUT, "[DEBUG] clist_walker_default: %p <= %p => true\n", data_1, data_2);
+        return (EC_TRUE);
+    }
+    //dbg_log(SEC_0044_CLIST, 9)(LOGSTDOUT, "[DEBUG] clist_walker_default: %p > %p => false\n", data_1, data_2);
     return (EC_FALSE);
 }
 
@@ -140,7 +152,7 @@ void *clist_codec_get(const CLIST *clist, const UINT32 choice)
             return (void *)clist->data_free;
     }
 
-    sys_log(LOGSTDOUT, "error:clist_codec_get: invalid choice %ld\n", choice);
+    dbg_log(SEC_0044_CLIST, 0)(LOGSTDOUT, "error:clist_codec_get: invalid choice %ld\n", choice);
     return (NULL_PTR);
 }
 
@@ -261,6 +273,7 @@ CLIST_DATA * clist_push_back(CLIST *clist, const void *data)
 {
     CLIST_DATA *clist_data;
 
+    //sys_log(LOGSTDOUT, "[DEBUG] clist_push_back: push data %p to list %p\n", data, clist);
     CLIST_LOCK(clist, LOC_CLIST_0015);
 
     clist_data = clist_data_malloc_default();
@@ -664,7 +677,7 @@ void clist_print(LOG *log, const CLIST *clist, void (*print)(LOG *, const void *
     {
         data = CLIST_DATA_DATA(clist_data);
 
-        sys_log(log, "No. %ld: ", pos ++);
+        sys_log(log, "No. %ld: [%p]", pos ++, clist_data);
 
         if(0 != print)
         {
@@ -713,7 +726,7 @@ void clist_print_level(LOG *log, const CLIST *clist, const UINT32 level, void (*
     return;
 }
 
-void clist_sprint(CSTRING *cstring, const CLIST *clist, void (*sprint)(CSTRING *, const void *))
+void clist_print_plain(LOG *log, const CLIST *clist, void (*print)(LOG *, const void *))
 {
     CLIST_DATA *clist_data;
     void *data;
@@ -723,9 +736,64 @@ void clist_sprint(CSTRING *cstring, const CLIST *clist, void (*sprint)(CSTRING *
     CLIST_LOCK(clist, LOC_CLIST_0075);
     if(EC_TRUE == CLIST_IS_EMPTY(clist))
     {
+        CLIST_UNLOCK(clist, LOC_CLIST_0076);
+        return;
+    }
+
+    pos = 0;
+    CLIST_LOOP_NEXT(clist, clist_data)
+    {
+        data = CLIST_DATA_DATA(clist_data);
+
+        if(0 != print)
+        {
+            (print)( log, data );
+        }
+    }
+    CLIST_UNLOCK(clist, LOC_CLIST_0077);
+    return;
+}
+
+void clist_print_plain_level(LOG *log, const CLIST *clist, const UINT32 level, void (*print)(LOG *, const void *, const UINT32))
+{
+    CLIST_DATA *clist_data;
+    void *data;
+
+    UINT32 pos;
+
+    CLIST_LOCK(clist, LOC_CLIST_0078);
+    if(EC_TRUE == CLIST_IS_EMPTY(clist))
+    {
+        CLIST_UNLOCK(clist, LOC_CLIST_0079);
+        return;
+    }
+
+    pos = 0;
+    CLIST_LOOP_NEXT(clist, clist_data)
+    {
+        data = CLIST_DATA_DATA(clist_data);
+        if(0 != print)
+        {
+            (print)( log, data, level );
+        }
+    }
+    CLIST_UNLOCK(clist, LOC_CLIST_0080);
+    return;
+}
+
+void clist_sprint(CSTRING *cstring, const CLIST *clist, void (*sprint)(CSTRING *, const void *))
+{
+    CLIST_DATA *clist_data;
+    void *data;
+
+    UINT32 pos;
+
+    CLIST_LOCK(clist, LOC_CLIST_0081);
+    if(EC_TRUE == CLIST_IS_EMPTY(clist))
+    {
         cstring_format(cstring, "(null)\n");
 
-        CLIST_UNLOCK(clist, LOC_CLIST_0076);
+        CLIST_UNLOCK(clist, LOC_CLIST_0082);
         return;
     }
     pos = 0;
@@ -744,7 +812,7 @@ void clist_sprint(CSTRING *cstring, const CLIST *clist, void (*sprint)(CSTRING *
             cstring_format(cstring, " %lx\n", data);
         }
     }
-    CLIST_UNLOCK(clist, LOC_CLIST_0077);
+    CLIST_UNLOCK(clist, LOC_CLIST_0083);
     return;
 }
 
@@ -761,10 +829,10 @@ void *clist_vote(const CLIST *clist, EC_BOOL (*voter)(void *, void *))
     CLIST_DATA *clist_data_cur;
     CLIST_DATA *clist_data_best;
 
-    CLIST_LOCK(clist, LOC_CLIST_0078);
+    CLIST_LOCK(clist, LOC_CLIST_0084);
     if(EC_TRUE == CLIST_IS_EMPTY(clist))
     {
-        CLIST_UNLOCK(clist, LOC_CLIST_0079);
+        CLIST_UNLOCK(clist, LOC_CLIST_0085);
         return (void *)0;
     }
 
@@ -777,7 +845,7 @@ void *clist_vote(const CLIST *clist, EC_BOOL (*voter)(void *, void *))
             clist_data_best = clist_data_cur;
         }
     }
-    CLIST_UNLOCK(clist, LOC_CLIST_0080);
+    CLIST_UNLOCK(clist, LOC_CLIST_0086);
     return CLIST_DATA_DATA(clist_data_best);
 }
 
@@ -785,10 +853,10 @@ CLIST_DATA * clist_search_front(const CLIST *clist, const void *data, EC_BOOL (*
 {
     CLIST_DATA *clist_data;
 
-    CLIST_LOCK(clist, LOC_CLIST_0081);
+    CLIST_LOCK(clist, LOC_CLIST_0087);
     if(EC_TRUE == CLIST_IS_EMPTY(clist))
     {
-        CLIST_UNLOCK(clist, LOC_CLIST_0082);
+        CLIST_UNLOCK(clist, LOC_CLIST_0088);
         return (NULL_PTR);
     }
 
@@ -801,11 +869,11 @@ CLIST_DATA * clist_search_front(const CLIST *clist, const void *data, EC_BOOL (*
     {
         if(EC_TRUE == cmp(CLIST_DATA_DATA(clist_data), data))
         {
-            CLIST_UNLOCK(clist, LOC_CLIST_0083);
+            CLIST_UNLOCK(clist, LOC_CLIST_0089);
             return clist_data;
         }
     }
-    CLIST_UNLOCK(clist, LOC_CLIST_0084);
+    CLIST_UNLOCK(clist, LOC_CLIST_0090);
     return (NULL_PTR);
 }
 
@@ -813,10 +881,10 @@ CLIST_DATA * clist_search_back(const CLIST *clist, const void *data, EC_BOOL (*c
 {
     CLIST_DATA *clist_data;
 
-    CLIST_LOCK(clist, LOC_CLIST_0085);
+    CLIST_LOCK(clist, LOC_CLIST_0091);
     if(EC_TRUE == CLIST_IS_EMPTY(clist))
     {
-        CLIST_UNLOCK(clist, LOC_CLIST_0086);
+        CLIST_UNLOCK(clist, LOC_CLIST_0092);
         return (NULL_PTR);
     }
 
@@ -829,11 +897,11 @@ CLIST_DATA * clist_search_back(const CLIST *clist, const void *data, EC_BOOL (*c
     {
         if(EC_TRUE == cmp(CLIST_DATA_DATA(clist_data), data))
         {
-            CLIST_UNLOCK(clist, LOC_CLIST_0087);
+            CLIST_UNLOCK(clist, LOC_CLIST_0093);
             return clist_data;
         }
     }
-    CLIST_UNLOCK(clist, LOC_CLIST_0088);
+    CLIST_UNLOCK(clist, LOC_CLIST_0094);
     return (NULL_PTR);
 }
 
@@ -841,10 +909,10 @@ void * clist_search_data_front(const CLIST *clist, const void *data, EC_BOOL (*c
 {
     CLIST_DATA *clist_data;
 
-    CLIST_LOCK(clist, LOC_CLIST_0089);
+    CLIST_LOCK(clist, LOC_CLIST_0095);
     if(EC_TRUE == CLIST_IS_EMPTY(clist))
     {
-        CLIST_UNLOCK(clist, LOC_CLIST_0090);
+        CLIST_UNLOCK(clist, LOC_CLIST_0096);
         return (NULL_PTR);
     }
 
@@ -857,11 +925,11 @@ void * clist_search_data_front(const CLIST *clist, const void *data, EC_BOOL (*c
     {
         if(EC_TRUE == cmp(CLIST_DATA_DATA(clist_data), data))
         {
-            CLIST_UNLOCK(clist, LOC_CLIST_0091);
+            CLIST_UNLOCK(clist, LOC_CLIST_0097);
             return CLIST_DATA_DATA(clist_data);
         }
     }
-    CLIST_UNLOCK(clist, LOC_CLIST_0092);
+    CLIST_UNLOCK(clist, LOC_CLIST_0098);
     return (NULL_PTR);
 }
 
@@ -869,10 +937,10 @@ void * clist_search_data_back(const CLIST *clist, const void *data, EC_BOOL (*cm
 {
     CLIST_DATA *clist_data;
 
-    CLIST_LOCK(clist, LOC_CLIST_0093);
+    CLIST_LOCK(clist, LOC_CLIST_0099);
     if(EC_TRUE == CLIST_IS_EMPTY(clist))
     {
-        CLIST_UNLOCK(clist, LOC_CLIST_0094);
+        CLIST_UNLOCK(clist, LOC_CLIST_0100);
         return (NULL_PTR);
     }
 
@@ -885,11 +953,11 @@ void * clist_search_data_back(const CLIST *clist, const void *data, EC_BOOL (*cm
     {
         if(EC_TRUE == cmp(CLIST_DATA_DATA(clist_data), data))
         {
-            CLIST_UNLOCK(clist, LOC_CLIST_0095);
+            CLIST_UNLOCK(clist, LOC_CLIST_0101);
             return CLIST_DATA_DATA(clist_data);
         }
     }
-    CLIST_UNLOCK(clist, LOC_CLIST_0096);
+    CLIST_UNLOCK(clist, LOC_CLIST_0102);
     return (NULL_PTR);
 }
 
@@ -902,15 +970,15 @@ CLIST_DATA *clist_insert_front(CLIST *clist, CLIST_DATA *clist_data, const void 
         return (NULL_PTR);
     }
 
-    CLIST_LOCK(clist, LOC_CLIST_0097);
+    CLIST_LOCK(clist, LOC_CLIST_0103);
     clist_data_new = clist_data_malloc_default();
     if(clist_data_new)
     {
         CLIST_DATA_DATA(clist_data_new) = (void *)data;
-        list_base_add(CLIST_DATA_NODE(clist_data_new), CLIST_DATA_NODE(clist_data));
+        list_base_add_tail(CLIST_DATA_NODE(clist_data_new), CLIST_DATA_NODE(clist_data));
         clist->size ++;
     }
-    CLIST_UNLOCK(clist, LOC_CLIST_0098);
+    CLIST_UNLOCK(clist, LOC_CLIST_0104);
     return clist_data_new;
 }
 
@@ -923,15 +991,15 @@ CLIST_DATA *clist_insert_back(CLIST *clist, CLIST_DATA *clist_data, const void *
         return (NULL_PTR);
     }
 
-    CLIST_LOCK(clist, LOC_CLIST_0099);
+    CLIST_LOCK(clist, LOC_CLIST_0105);
     clist_data_new = clist_data_malloc_default();
     if(clist_data_new)
     {
         CLIST_DATA_DATA(clist_data_new) = (void *)data;
-        list_base_add_tail(CLIST_DATA_NODE(clist_data_new), CLIST_DATA_NODE(clist_data));
+        list_base_add(CLIST_DATA_NODE(clist_data_new), CLIST_DATA_NODE(clist_data));
         clist->size ++;
     }
-    CLIST_UNLOCK(clist, LOC_CLIST_0100);
+    CLIST_UNLOCK(clist, LOC_CLIST_0106);
     return clist_data_new;
 }
 
@@ -939,13 +1007,13 @@ void *clist_rmv(CLIST *clist, CLIST_DATA *clist_data)
 {
     void *data;
 
-    CLIST_LOCK(clist, LOC_CLIST_0101);
+    CLIST_LOCK(clist, LOC_CLIST_0107);
     data = CLIST_DATA_DATA(clist_data);
     CLIST_DATA_DEL(clist_data);
     clist_data_free_default(clist_data);
     clist->size --;
 
-    CLIST_UNLOCK(clist, LOC_CLIST_0102);
+    CLIST_UNLOCK(clist, LOC_CLIST_0108);
     return (data);
 }
 
@@ -954,10 +1022,10 @@ void *clist_del(CLIST *clist, const void *data, EC_BOOL (*cmp)(const void *, con
     CLIST_DATA *clist_data;
     void *cur_data;
 
-    CLIST_LOCK(clist, LOC_CLIST_0103);
+    CLIST_LOCK(clist, LOC_CLIST_0109);
     if(EC_TRUE == CLIST_IS_EMPTY(clist))
     {
-        CLIST_UNLOCK(clist, LOC_CLIST_0104);
+        CLIST_UNLOCK(clist, LOC_CLIST_0110);
         return (NULL_PTR);
     }
 
@@ -975,11 +1043,11 @@ void *clist_del(CLIST *clist, const void *data, EC_BOOL (*cmp)(const void *, con
             clist_data_free_default(clist_data);
             clist->size --;
 
-            CLIST_UNLOCK(clist, LOC_CLIST_0105);
+            CLIST_UNLOCK(clist, LOC_CLIST_0111);
             return (cur_data);
         }
     }
-    CLIST_UNLOCK(clist, LOC_CLIST_0106);
+    CLIST_UNLOCK(clist, LOC_CLIST_0112);
     return (NULL_PTR);
 }
 
@@ -992,7 +1060,7 @@ void *clist_erase(CLIST *clist, CLIST_DATA *clist_data)
         return (NULL_PTR);
     }
 
-    CLIST_LOCK(clist, LOC_CLIST_0107);
+    CLIST_LOCK(clist, LOC_CLIST_0113);
     CLIST_DATA_DEL(clist_data);
     data = CLIST_DATA_DATA(clist_data);
 
@@ -1002,8 +1070,28 @@ void *clist_erase(CLIST *clist, CLIST_DATA *clist_data)
     /*the solution maybe discard size field and count size by run-through the clist*/
     clist->size --;
 
-    CLIST_UNLOCK(clist, LOC_CLIST_0108);
+    CLIST_UNLOCK(clist, LOC_CLIST_0114);
     return data;
+}
+
+/*move from current position to tail*/
+EC_BOOL clist_move_back(CLIST *clist, CLIST_DATA *clist_data)
+{
+    CLIST_LOCK(clist, LOC_CLIST_0115);
+    CLIST_DATA_DEL(clist_data);
+    CLIST_DATA_ADD_BACK(clist, clist_data);
+    CLIST_UNLOCK(clist, LOC_CLIST_0116);
+    return (EC_TRUE);
+}
+
+/*move from current position to head*/
+EC_BOOL clist_move_front(CLIST *clist, CLIST_DATA *clist_data)
+{
+    CLIST_LOCK(clist, LOC_CLIST_0117);
+    CLIST_DATA_DEL(clist_data);
+    CLIST_DATA_ADD_FRONT(clist, clist_data);
+    CLIST_UNLOCK(clist, LOC_CLIST_0118);
+    return (EC_TRUE);
 }
 
 void clist_clean(CLIST *clist, void (*cleaner)(void *))
@@ -1017,7 +1105,7 @@ void clist_clean(CLIST *clist, void (*cleaner)(void *))
         cleaner = clist_null_default;
     }
 
-    CLIST_LOCK(clist, LOC_CLIST_0109);
+    CLIST_LOCK(clist, LOC_CLIST_0119);
     while( EC_FALSE == CLIST_IS_EMPTY(clist) )
     {
         clist_data = CLIST_LAST_NODE(clist);
@@ -1031,7 +1119,7 @@ void clist_clean(CLIST *clist, void (*cleaner)(void *))
 
     clist->size = 0;
 
-    CLIST_UNLOCK(clist, LOC_CLIST_0110);
+    CLIST_UNLOCK(clist, LOC_CLIST_0120);
     return;
 }
 
@@ -1053,7 +1141,7 @@ void clist_clean_with_modi(CLIST *clist, const UINT32 modi, EC_BOOL (*cleaner)(c
         }
     }
 
-    CLIST_LOCK(clist, LOC_CLIST_0111);
+    CLIST_LOCK(clist, LOC_CLIST_0121);
     while( EC_FALSE == CLIST_IS_EMPTY(clist) )
     {
         clist_data = CLIST_LAST_NODE(clist);
@@ -1067,7 +1155,7 @@ void clist_clean_with_modi(CLIST *clist, const UINT32 modi, EC_BOOL (*cleaner)(c
 
     clist->size = 0;
 
-    CLIST_UNLOCK(clist, LOC_CLIST_0112);
+    CLIST_UNLOCK(clist, LOC_CLIST_0122);
     return;
 }
 
@@ -1140,9 +1228,9 @@ void clist_bubble_sort(CLIST *clist, EC_BOOL (*cmp)(const void *, const void *))
 
     CLIST_HEAD_INIT(&clist_t);
     
-    CLIST_LOCK(clist, LOC_CLIST_0113);
+    CLIST_LOCK(clist, LOC_CLIST_0123);
     __clist_move(clist, &clist_t);
-    CLIST_UNLOCK(clist, LOC_CLIST_0114);
+    CLIST_UNLOCK(clist, LOC_CLIST_0124);
 
     while(NULL_PTR != (clist_data = __clist_get_most_small_no_lock(&clist_t, cmp)))
     {
@@ -1160,9 +1248,9 @@ void clist_bubble_sort_with_modi(CLIST *clist, const UINT32 modi, EC_BOOL (*cmp)
 
     CLIST_HEAD_INIT(&clist_t);
     
-    CLIST_LOCK(clist, LOC_CLIST_0115);
+    CLIST_LOCK(clist, LOC_CLIST_0125);
     __clist_move(clist, &clist_t);
-    CLIST_UNLOCK(clist, LOC_CLIST_0116);
+    CLIST_UNLOCK(clist, LOC_CLIST_0126);
 
     while(NULL_PTR != (clist_data = __clist_get_most_small_with_modi_no_lock(&clist_t, modi, cmp)))
     {
@@ -1194,20 +1282,20 @@ EC_BOOL clist_loop(CLIST *clist,
 
     if(0 == func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:clist_loop: func_para_num must be larger than 1\n");
+        dbg_log(SEC_0044_CLIST, 0)(LOGSTDOUT, "error:clist_loop: func_para_num must be larger than 1\n");
         return (EC_FALSE);
     }
 
     if(MAX_NUM_OF_FUNC_PARAS < func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:clist_loop: func_para_num %ld overflow which must be smaller than %ld\n", 
+        dbg_log(SEC_0044_CLIST, 0)(LOGSTDOUT, "error:clist_loop: func_para_num %ld overflow which must be smaller than %ld\n", 
                            func_para_num, MAX_NUM_OF_FUNC_PARAS);
         return (EC_FALSE);
     }
 
     if(clist_data_pos >= func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:clist_loop: invalid setting where clist_data_pos %ld >= func_para_num %ld\n", 
+        dbg_log(SEC_0044_CLIST, 0)(LOGSTDOUT, "error:clist_loop: invalid setting where clist_data_pos %ld >= func_para_num %ld\n", 
                            clist_data_pos, func_para_num);
         return (EC_FALSE);
     }
@@ -1219,7 +1307,7 @@ EC_BOOL clist_loop(CLIST *clist,
     }
     va_end(ap);
 
-    CLIST_LOCK(clist, LOC_CLIST_0117);
+    CLIST_LOCK(clist, LOC_CLIST_0127);
     CLIST_LOOP_NEXT(clist, clist_data)
     {
         void *data;
@@ -1229,8 +1317,8 @@ EC_BOOL clist_loop(CLIST *clist,
 
         if(EC_FALSE == dbg_caller(handler_func_addr, func_para_num, func_para_value, (UINT32 *)handler_retval_addr))
         {
-            sys_log(LOGSTDOUT, "error:clist_loop: dbg_caller failed\n");
-            CLIST_UNLOCK(clist, LOC_CLIST_0118);
+            dbg_log(SEC_0044_CLIST, 0)(LOGSTDOUT, "error:clist_loop: dbg_caller failed\n");
+            CLIST_UNLOCK(clist, LOC_CLIST_0128);
             return (EC_FALSE);
         }
 
@@ -1238,15 +1326,43 @@ EC_BOOL clist_loop(CLIST *clist,
         && NULL_PTR != handler_retval_addr
         && EC_FALSE == handler_retval_checker(handler_retval_addr))
         {
-            CLIST_UNLOCK(clist, LOC_CLIST_0119);
+            CLIST_UNLOCK(clist, LOC_CLIST_0129);
             return (EC_FALSE);
         }
     }
-    CLIST_UNLOCK(clist, LOC_CLIST_0120);
+    CLIST_UNLOCK(clist, LOC_CLIST_0130);
 
     return ( EC_TRUE );
 }
 
+
+/**
+*
+* assume in list: a_1 > a_2 > a_3 > ... > a_n, given b, insert it to list in order
+*  a_i > a_j  <--> walker(a_i, a_j) = EC_TRUE
+*
+**/
+CLIST_DATA *clist_walk_and_insert(CLIST *clist, const void *data, EC_BOOL (*walker)(const void *, const void *))
+{
+    CLIST_DATA *clist_data;
+
+    if(NULL_PTR == walker)
+    {
+        walker = clist_walker_default;
+    }
+
+    CLIST_LOCK(clist, LOC_CLIST_0131);
+    CLIST_LOOP_NEXT(clist, clist_data)
+    {
+        if(EC_FALSE == walker(CLIST_DATA_DATA(clist_data), data))
+        {   
+            break;
+        }
+    }
+    clist_data = clist_insert_front_no_lock(clist, clist_data, data);
+    CLIST_UNLOCK(clist, LOC_CLIST_0132);
+    return (clist_data);
+}
 
 /*--------------------------------- no lock interface ---------------------------------*/
 CLIST *clist_new_no_lock(const UINT32 mm_type, const UINT32 location)
@@ -1272,7 +1388,7 @@ void clist_free_with_modi_no_lock(CLIST *clist, const UINT32 modi)
 {
     clist_clean_with_modi_no_lock(clist, modi, clist->data_free);
 
-    SAFE_CLIST_FREE(clist, LOC_CLIST_0121);
+    SAFE_CLIST_FREE(clist, LOC_CLIST_0133);
     return;
 }
 
@@ -1774,7 +1890,7 @@ CLIST_DATA *clist_insert_front_no_lock(CLIST *clist, CLIST_DATA *clist_data, con
     if(clist_data_new)
     {
         CLIST_DATA_DATA(clist_data_new) = (void *)data;
-        list_base_add(CLIST_DATA_NODE(clist_data_new), CLIST_DATA_NODE(clist_data));
+        list_base_add_tail(CLIST_DATA_NODE(clist_data_new), CLIST_DATA_NODE(clist_data));
         clist->size ++;
     }
     return clist_data_new;
@@ -1793,7 +1909,7 @@ CLIST_DATA *clist_insert_back_no_lock(CLIST *clist, CLIST_DATA *clist_data, cons
     if(clist_data_new)
     {
         CLIST_DATA_DATA(clist_data_new) = (void *)data;
-        list_base_add_tail(CLIST_DATA_NODE(clist_data_new), CLIST_DATA_NODE(clist_data));
+        list_base_add(CLIST_DATA_NODE(clist_data_new), CLIST_DATA_NODE(clist_data));
         clist->size ++;
     }
 
@@ -1863,6 +1979,22 @@ void *clist_erase_no_lock(CLIST *clist, CLIST_DATA *clist_data)
     return data;
 }
 
+
+/*move from current position to tail*/
+EC_BOOL clist_move_back_no_lock(CLIST *clist, CLIST_DATA *clist_data)
+{
+    CLIST_DATA_DEL(clist_data);
+    CLIST_DATA_ADD_BACK(clist, clist_data);
+    return (EC_TRUE);
+}
+
+/*move from current position to head*/
+EC_BOOL clist_move_front_no_lock(CLIST *clist, CLIST_DATA *clist_data)
+{
+    CLIST_DATA_DEL(clist_data);
+    CLIST_DATA_ADD_FRONT(clist, clist_data);
+    return (EC_TRUE);
+}
 
 void clist_clean_no_lock(CLIST *clist, void (*cleaner)(void *))
 {
@@ -1981,20 +2113,20 @@ EC_BOOL clist_loop_no_lock(CLIST *clist,
 
     if(0 == func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:clist_loop_no_lock: func_para_num must be larger than 1\n");
+        dbg_log(SEC_0044_CLIST, 0)(LOGSTDOUT, "error:clist_loop_no_lock: func_para_num must be larger than 1\n");
         return (EC_FALSE);
     }
 
     if(MAX_NUM_OF_FUNC_PARAS < func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:clist_loop_no_lock: func_para_num %ld overflow which must be smaller than %ld\n", 
+        dbg_log(SEC_0044_CLIST, 0)(LOGSTDOUT, "error:clist_loop_no_lock: func_para_num %ld overflow which must be smaller than %ld\n", 
                            func_para_num, MAX_NUM_OF_FUNC_PARAS);
         return (EC_FALSE);
     }
 
     if(clist_data_pos >= func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:clist_loop_no_lock: invalid setting where clist_data_pos %ld >= func_para_num %ld\n", 
+        dbg_log(SEC_0044_CLIST, 0)(LOGSTDOUT, "error:clist_loop_no_lock: invalid setting where clist_data_pos %ld >= func_para_num %ld\n", 
                            clist_data_pos, func_para_num);
         return (EC_FALSE);
     }
@@ -2015,7 +2147,7 @@ EC_BOOL clist_loop_no_lock(CLIST *clist,
 
         if(EC_FALSE == dbg_caller(handler_func_addr, func_para_num, func_para_value, (UINT32 *)handler_retval_addr))
         {
-            sys_log(LOGSTDOUT, "error:clist_loop_no_lock: dbg_caller failed\n");
+            dbg_log(SEC_0044_CLIST, 0)(LOGSTDOUT, "error:clist_loop_no_lock: dbg_caller failed\n");
             return (EC_FALSE);
         }
 
@@ -2028,6 +2160,33 @@ EC_BOOL clist_loop_no_lock(CLIST *clist,
     }
 
     return ( EC_TRUE );
+}
+
+/**
+*
+* assume in list: a_1 > a_2 > a_3 > ... > a_n, given b, insert it to list in order
+*  a_i > a_j  <--> walker(a_i, a_j) = EC_TRUE
+*
+**/
+CLIST_DATA *clist_walk_and_insert_no_lock(CLIST *clist, const void *data, EC_BOOL (*walker)(const void *, const void *))
+{
+    CLIST_DATA *clist_data;
+
+    if(NULL_PTR == walker)
+    {
+        walker = clist_walker_default;
+    }
+
+    CLIST_LOOP_NEXT(clist, clist_data)
+    {
+        if(EC_FALSE == walker(CLIST_DATA_DATA(clist_data), data))
+        {   
+            break;
+        }
+    }
+
+    clist_data = clist_insert_front_no_lock(clist, clist_data, data);
+    return (clist_data);
 }
 
 EC_BOOL clist_self_check_no_lock(CLIST *clist)
@@ -2045,7 +2204,7 @@ EC_BOOL clist_self_check_no_lock(CLIST *clist)
 
     if(size != count)
     {
-        sys_log(LOGSTDOUT, "error:clist_self_check_no_lock: size = %ld but count = %ld\n", size, count);
+        dbg_log(SEC_0044_CLIST, 0)(LOGSTDOUT, "error:clist_self_check_no_lock: size = %ld but count = %ld\n", size, count);
         return (EC_FALSE);
     }
     return (EC_TRUE);

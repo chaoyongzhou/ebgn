@@ -37,13 +37,22 @@ typedef struct _CRB_NODE
 #define CRB_NODE_IS_BLACK(node)         (CRB_BLACK == CRB_NODE_COLOR(node))
 
 typedef int  (*CRB_DATA_CMP)(const void *, const void *);
+
 typedef void (*CRB_DATA_FREE)(void *);
 typedef void (*CRB_DATA_PRINT)(LOG *, const void *);
 
+typedef EC_BOOL (*CRB_DATA_IS_EQUAL)(const void *, const void *);
+typedef EC_BOOL (*CRB_DATA_HANDLE)(const void *, void *);
+
+typedef void *(*CRB_DATA_NEW)();
+typedef EC_BOOL (*CRB_DATA_FLUSH)(const void *, int, UINT32 *);
+typedef EC_BOOL (*CRB_DATA_LOAD)(void *, int, UINT32 *);
+typedef EC_BOOL (*CRB_DATA_CLONE)(const void *, void *);
+
 typedef struct
 {
-    uint16_t            node_num;    
-    uint16_t            rsvd[3];
+    uint32_t            node_num;    
+    uint32_t            rsvd;
     struct _CRB_NODE   *rb_node; 
     CRB_DATA_CMP        data_cmp_func;
     CRB_DATA_FREE       data_free_func;
@@ -70,9 +79,9 @@ void crb_node_print_level(LOG *log, const CRB_TREE *crbtree, const CRB_NODE *nod
 
 EC_BOOL crb_tree_is_empty(const CRB_TREE *crbtree);
 
-uint16_t crb_tree_node_count(const CRB_TREE *crbtree);
+uint32_t crb_tree_node_count(const CRB_TREE *crbtree);
 
-uint16_t crb_tree_node_num(const CRB_TREE *crbtree);
+uint32_t crb_tree_node_num(const CRB_TREE *crbtree);
 
 /*
  * This function returns the first node_pos (in sort order); of the tree.
@@ -103,6 +112,8 @@ CRB_NODE * crb_tree_insert(CRB_TREE *crbtree, CRB_NODE *new_node);
 
 EC_BOOL crb_tree_delete(CRB_TREE *crbtree, CRB_NODE *node);
 
+CRB_NODE *crb_tree_lookup_data(const CRB_TREE *crbtree, const void *data);
+
 CRB_NODE *crb_tree_search_data(const CRB_TREE *crbtree, const void *data);
 
 CRB_NODE * crb_tree_insert_data(CRB_TREE *crbtree, const void *data);
@@ -116,6 +127,8 @@ EC_BOOL crb_tree_init(CRB_TREE *crbtree, CRB_DATA_CMP data_cmp, CRB_DATA_FREE da
 void crb_tree_clean(CRB_TREE *crbtree);
 
 void crb_tree_free(CRB_TREE *crbtree);
+
+EC_BOOL crb_tree_cmp(const CRB_TREE *crbtree_1st, const CRB_TREE *crbtree_2nd, EC_BOOL (*cmp)(const void *, const void *));
 
 void crb_tree_print(LOG *log, const CRB_TREE *crbtree);
 
@@ -133,6 +146,23 @@ void crb_postorder_print(LOG *log, const CRB_TREE *crbtree);
 /*visit the root node first: root -> left -> right*/
 void crb_preorder_print_level(LOG *log, const CRB_TREE *crbtree, const uint16_t level);
 
+/*walk through: left -> root -> right*/
+EC_BOOL crb_inorder_walk(const CRB_TREE *crbtree, EC_BOOL (*walker)(const void *, void *), void *arg);
+
+/*walk through: left -> right -> root*/
+EC_BOOL crb_postorder_walk(const CRB_TREE *crbtree, EC_BOOL (*walker)(const void *, void *), void *arg);
+
+/*walk through: root -> left -> right*/
+EC_BOOL crb_preorder_walk(const CRB_TREE *crbtree, EC_BOOL (*walker)(const void *, void *), void *arg);
+
+/*walk through: left -> root -> right*/
+EC_BOOL crb_inorder_flush(const CRB_TREE *crbtree, int fd, UINT32 *offset, EC_BOOL (*flush)(const void *, int, UINT32 *));
+EC_BOOL crb_tree_flush(const CRB_TREE *crbtree, int fd, UINT32 *offset, EC_BOOL (*flush)(const void *, int, UINT32 *));
+
+EC_BOOL crb_tree_load(CRB_TREE *crbtree, int fd, UINT32 *offset, void *(*data_new)(), EC_BOOL (*data_load)(void *, int, UINT32 *));
+
+EC_BOOL crb_inorder_clone(const CRB_TREE *crbtree_src, CRB_TREE *crbtree_des, void *(*data_new)(), EC_BOOL (*data_clone)(const void *, void *));
+EC_BOOL crb_tree_clone(const CRB_TREE *crbtree_src, CRB_TREE *crbtree_des, void *(*data_new)(), EC_BOOL (*data_clone)(const void *, void *));
 
 #endif    /* _CRB_H */
 

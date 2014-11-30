@@ -26,12 +26,14 @@ extern "C"{
 
 #include "type.h"
 #include "clist.h"
-#include "croutine.h"
+#include "cmutex.h"
 #include "crb.h"
 #include "cpgrb.h"
 #include "cpgb.h"
 #include "cpgd.h"
 #include "cpgv.h"
+
+#define CRFSDN_DB_NAME      ((const char *)"dn_cfg.dat")
 
 #define CRFSDN_NODE_NAME_MAX_SIZE       (256)
 
@@ -45,25 +47,17 @@ extern "C"{
 #define CRFSDN_NODE_O_RDWR             ((UINT32)O_RDWR  )
 #define CRFSDN_NODE_O_CREATE           ((UINT32)O_CREAT )
 
-#define CRFSDN_PATH_LAYOUT_DIR0_NBITS    ( 8)
-#define CRFSDN_PATH_LAYOUT_DIR1_NBITS    ( 8)
-#define CRFSDN_PATH_LAYOUT_DIR2_NBITS    ( 8)
-#define CRFSDN_PATH_LAYOUT_DIR3_NBITS    ( 8)
+#define CRFSDN_PATH_LAYOUT_DIR0_NBITS    ( 16)
+#define CRFSDN_PATH_LAYOUT_DIR1_NBITS    ( 16)
 
-#define CRFSDN_PATH_LAYOUT_DIR0_ABITS    (24) /*bit alignment*/
-#define CRFSDN_PATH_LAYOUT_DIR1_ABITS    (16) /*bit alignment*/
-#define CRFSDN_PATH_LAYOUT_DIR2_ABITS    ( 8) /*bit alignment*/
-#define CRFSDN_PATH_LAYOUT_DIR3_ABITS    ( 0) /*bit alignment*/
+#define CRFSDN_PATH_LAYOUT_DIR0_ABITS    (16) /*bit alignment*/
+#define CRFSDN_PATH_LAYOUT_DIR1_ABITS    (0) /*bit alignment*/
 
 #define CRFSDN_PATH_LAYOUT_DIR0_MASK     (((UINT32)(UINT32_ONE << CRFSDN_PATH_LAYOUT_DIR0_NBITS)) - 1)
 #define CRFSDN_PATH_LAYOUT_DIR1_MASK     (((UINT32)(UINT32_ONE << CRFSDN_PATH_LAYOUT_DIR1_NBITS)) - 1)
-#define CRFSDN_PATH_LAYOUT_DIR2_MASK     (((UINT32)(UINT32_ONE << CRFSDN_PATH_LAYOUT_DIR2_NBITS)) - 1)
-#define CRFSDN_PATH_LAYOUT_DIR3_MASK     (((UINT32)(UINT32_ONE << CRFSDN_PATH_LAYOUT_DIR3_NBITS)) - 1)
 
 #define CRFSDN_PATH_LAYOUT_DIR0_NO(path_id)     (((path_id) >> CRFSDN_PATH_LAYOUT_DIR0_ABITS) & CRFSDN_PATH_LAYOUT_DIR0_MASK)
 #define CRFSDN_PATH_LAYOUT_DIR1_NO(path_id)     (((path_id) >> CRFSDN_PATH_LAYOUT_DIR1_ABITS) & CRFSDN_PATH_LAYOUT_DIR1_MASK)
-#define CRFSDN_PATH_LAYOUT_DIR2_NO(path_id)     (((path_id) >> CRFSDN_PATH_LAYOUT_DIR2_ABITS) & CRFSDN_PATH_LAYOUT_DIR2_MASK)
-#define CRFSDN_PATH_LAYOUT_DIR3_NO(path_id)     (((path_id) >> CRFSDN_PATH_LAYOUT_DIR3_ABITS) & CRFSDN_PATH_LAYOUT_DIR3_MASK)
 
 typedef struct
 {
@@ -81,13 +75,19 @@ typedef struct
 #define CRFSDN_NODE_FLAG_READ_BIT            ((UINT32)0x10)/*trick!*/
 #define CRFSDN_NODE_FLAG_UNDEF               ((UINT32)0x00)
 
+#define CRFSDN_EXPIRED_IN_NSEC               ((uint32_t) 5 * 60) /*300 seconds*/
+
 /*memory cached block info*/
 typedef struct
 {  
     UINT32          id;        /*id = disk_no | block_no*/
     UINT32          flags;
 
-    CROUTINE_MUTEX  cmutex;     /*cmutex for node read/write*/
+    CMUTEX          cmutex;     /*cmutex for node read/write*/
+    ctime_t         atime;      /*last access time (in seconds)*/
+#if (32 == WORDSIZE)
+    uint32_t        rsvd;
+#endif
     
     int             block_fd;   /* block fd */
     uint16_t        reader_num;
@@ -97,6 +97,7 @@ typedef struct
 #define CRFSDN_NODE_ID(crfsdn_node)                       ((crfsdn_node)->id)
 #define CRFSDN_NODE_FLAGS(crfsdn_node)                    ((crfsdn_node)->flags)
 #define CRFSDN_NODE_CMUTEX(crfsdn_node)                   (&((crfsdn_node)->cmutex))
+#define CRFSDN_NODE_ATIME(crfsdn_node)                    ((crfsdn_node)->atime)
 #define CRFSDN_NODE_FD(crfsdn_node)                       ((crfsdn_node)->block_fd)
 #define CRFSDN_NODE_READER_NUM(crfsdn_node)               ((crfsdn_node)->reader_num)
 #define CRFSDN_NODE_ACCESS_NUM(crfsdn_node)               ((crfsdn_node)->access_num)
@@ -115,10 +116,10 @@ typedef struct
 
 
 #if 1
-#define CRFSDN_NODE_CMUTEX_INIT(crfsdn_node, location)    (croutine_mutex_init(CRFSDN_NODE_CMUTEX(crfsdn_node), CMUTEX_PROCESS_PRIVATE, location))
-#define CRFSDN_NODE_CMUTEX_CLEAN(crfsdn_node, location)   (croutine_mutex_clean(CRFSDN_NODE_CMUTEX(crfsdn_node), location))
-#define CRFSDN_NODE_CMUTEX_LOCK(crfsdn_node, location)    (croutine_mutex_lock(CRFSDN_NODE_CMUTEX(crfsdn_node), location))
-#define CRFSDN_NODE_CMUTEX_UNLOCK(crfsdn_node, location)  (croutine_mutex_unlock(CRFSDN_NODE_CMUTEX(crfsdn_node), location))
+#define CRFSDN_NODE_CMUTEX_INIT(crfsdn_node, location)    (cmutex_init(CRFSDN_NODE_CMUTEX(crfsdn_node), CMUTEX_PROCESS_PRIVATE, location))
+#define CRFSDN_NODE_CMUTEX_CLEAN(crfsdn_node, location)   (cmutex_clean(CRFSDN_NODE_CMUTEX(crfsdn_node), location))
+#define CRFSDN_NODE_CMUTEX_LOCK(crfsdn_node, location)    (cmutex_lock(CRFSDN_NODE_CMUTEX(crfsdn_node), location))
+#define CRFSDN_NODE_CMUTEX_UNLOCK(crfsdn_node, location)  (cmutex_unlock(CRFSDN_NODE_CMUTEX(crfsdn_node), location))
 #endif
 
 typedef struct
@@ -139,9 +140,9 @@ typedef struct
 
 typedef struct
 {
-    CROUTINE_RWLOCK    rwlock;
+    CRWLOCK            rwlock;
     CRB_TREE           open_nodes;  /*open nodes to read or write, item is CRFSDN_NODE*/
-    CROUTINE_MUTEX     cmutex;      /*cmutex for open nodes*/
+    CMUTEX             cmutex;      /*cmutex for open nodes which was accessed by do_slave thread and task_brd_cbtimer_do thread*/
     CLIST              cached_nodes;/*cached nodes to read or write, item is CRFSDN_NODE*/
 
     uint8_t           *root_dname;
@@ -157,16 +158,16 @@ typedef struct
 
 #define CRFSDN_OPEN_NODE(_crfsdn, node_id)                 (crfsdn_node_fetch((_crfsdn), (node_id)))
 
-#if 0
-#define CRFSDN_CRWLOCK_INIT(crfsdn, location)       (croutine_rwlock_init(CRFSDN_CRWLOCK(crfsdn), CMUTEX_PROCESS_PRIVATE, location))
-#define CRFSDN_CRWLOCK_CLEAN(crfsdn, location)      (croutine_rwlock_clean(CRFSDN_CRWLOCK(crfsdn), location))
+#if 1
+#define CRFSDN_CRWLOCK_INIT(crfsdn, location)       (crwlock_init(CRFSDN_CRWLOCK(crfsdn), CMUTEX_PROCESS_PRIVATE, location))
+#define CRFSDN_CRWLOCK_CLEAN(crfsdn, location)      (crwlock_clean(CRFSDN_CRWLOCK(crfsdn), location))
 
-#define CRFSDN_CRWLOCK_RDLOCK(crfsdn, location)     (croutine_rwlock_rdlock(CRFSDN_CRWLOCK(crfsdn), location))
-#define CRFSDN_CRWLOCK_WRLOCK(crfsdn, location)     (croutine_rwlock_wrlock(CRFSDN_CRWLOCK(crfsdn), location))
-#define CRFSDN_CRWLOCK_UNLOCK(crfsdn, location)     (croutine_rwlock_unlock(CRFSDN_CRWLOCK(crfsdn), location))
+#define CRFSDN_CRWLOCK_RDLOCK(crfsdn, location)     (crwlock_rdlock(CRFSDN_CRWLOCK(crfsdn), location))
+#define CRFSDN_CRWLOCK_WRLOCK(crfsdn, location)     (crwlock_wrlock(CRFSDN_CRWLOCK(crfsdn), location))
+#define CRFSDN_CRWLOCK_UNLOCK(crfsdn, location)     (crwlock_unlock(CRFSDN_CRWLOCK(crfsdn), location))
 #endif
 
-#if 1
+#if 0
 #define CRFSDN_CRWLOCK_INIT(crfsdn, location)  do{\
     sys_log(LOGSTDOUT, "[DEBUG] CRFSDN_CRWLOCK_INIT: CRFSDN_CRWLOCK %p, at %s:%ld\n", CRFSDN_CRWLOCK(crfsdn), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
     croutine_rwlock_init(CRFSDN_CRWLOCK(crfsdn), CMUTEX_PROCESS_PRIVATE, location);\
@@ -194,12 +195,20 @@ typedef struct
 }while(0)
 #endif
 
-#if 1
+#if 0
 #define CRFSDN_CMUTEX_INIT(crfsdn, location)         (croutine_mutex_init(CRFSDN_CMUTEX(crfsdn), CMUTEX_PROCESS_PRIVATE, location))
 #define CRFSDN_CMUTEX_CLEAN(crfsdn, location)        (croutine_mutex_clean(CRFSDN_CMUTEX(crfsdn), location))
 #define CRFSDN_CMUTEX_LOCK(crfsdn, location)         (croutine_mutex_lock(CRFSDN_CMUTEX(crfsdn), location))
 #define CRFSDN_CMUTEX_UNLOCK(crfsdn, location)       (croutine_mutex_unlock(CRFSDN_CMUTEX(crfsdn), location))
 #endif
+
+#if 1
+#define CRFSDN_CMUTEX_INIT(crfsdn, location)         (cmutex_init(CRFSDN_CMUTEX(crfsdn), CMUTEX_PROCESS_PRIVATE, location))
+#define CRFSDN_CMUTEX_CLEAN(crfsdn, location)        (cmutex_clean(CRFSDN_CMUTEX(crfsdn), location))
+#define CRFSDN_CMUTEX_LOCK(crfsdn, location)         (cmutex_lock(CRFSDN_CMUTEX(crfsdn), location))
+#define CRFSDN_CMUTEX_UNLOCK(crfsdn, location)       (cmutex_unlock(CRFSDN_CMUTEX(crfsdn), location))
+#endif
+
 
 CRFSDN_NODE *crfsdn_node_new();
 
@@ -254,6 +263,8 @@ EC_BOOL crfsdn_flush_cache_node(CRFSDN *crfsdn, CRFSDN_CACHE_NODE *crfsdn_cache_
 
 void crfsdn_flush_cache_nodes(CRFSDN **crfsdn, EC_BOOL *terminate_flag);
 
+EC_BOOL crfsdn_expire_open_nodes(CRFSDN *crfsdn);
+
 CRFSDN *crfsdn_create(const char *root_dname);
 
 EC_BOOL crfsdn_add_disk(CRFSDN *crfsdn, const uint16_t disk_no);
@@ -285,6 +296,8 @@ EC_BOOL crfsdn_exist(const char *root_dname);
 CRFSDN *crfsdn_open(const char *root_dir);
 
 EC_BOOL crfsdn_close(CRFSDN *crfsdn);
+
+EC_BOOL crfsdn_fetch_block_fd(CRFSDN *crfsdn, const uint16_t disk_no, const uint16_t block_no, int *block_fd);
 
 /*random access for reading, the offset is for the whole 64M page-block */
 EC_BOOL crfsdn_read_o(CRFSDN *crfsdn, const uint16_t disk_no, const uint16_t block_no, const UINT32 offset, const UINT32 data_max_len, UINT8 *data_buff, UINT32 *data_len);

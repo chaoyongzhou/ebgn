@@ -65,7 +65,7 @@ btreeInitTraversal(const BTree *tree)
     {
         return NULL;
     }
-    MEM_CHECK(trav = (BTreeTraversal *)SAFE_MALLOC(sizeof(BTreeTraversal), LOC_BTREE_0001));
+    MEM_CHECK(trav = (BTreeTraversal *)SAFE_MALLOC(sizeof(BTreeTraversal), LOC_BTREE_0138));
     memset(trav, 0, sizeof(BTreeTraversal));
 
     trav->tree = (BTree *)tree;
@@ -85,7 +85,7 @@ btreeDestroyTraversal(BTreeTraversal *trav)
         btreeDestroyNode(trav->node);
         trav->node = NULL;
     }
-    SAFE_FREE(trav, LOC_BTREE_0002);
+    SAFE_FREE(trav, LOC_BTREE_0139);
 
     return NULL;
 }
@@ -107,7 +107,7 @@ btreeGetFirstOffset(BTreeTraversal *trav)
     trav->node = btreeReadNode(trav->tree, trav->tree->leftLeaf);
     if (trav->node == NULL)
     {
-        sys_log(LOGSTDOUT, "error:btreeGetFirstOffset: read left leaf node from offset %d failed\n", trav->tree->leftLeaf);
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeGetFirstOffset: read left leaf node from offset %d failed\n", trav->tree->leftLeaf);
         return (0);
     }
     trav->pos = 1;
@@ -127,7 +127,7 @@ btreeGetNextOffset(BTreeTraversal *trav)
     /*comment: dead loop!!!*/
     if (trav->node == NULL)
     {
-        //sys_log(LOGSTDOUT,"#####################################\n");
+        //dbg_log(SEC_0130_BTREE, 5)(LOGSTDOUT,"#####################################\n");
         //return btreeGetNextOffset(trav);
         return 0;
     }
@@ -147,7 +147,7 @@ btreeGetNextOffset(BTreeTraversal *trav)
         trav->node = btreeReadNode(trav->tree, nextNodeOffset);
         if (trav->node == NULL)
         {
-            sys_log(LOGSTDOUT, "error:btreeGetNextOffset: read next node from offset %d failed\n", nextNodeOffset);
+            dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeGetNextOffset: read next node from offset %d failed\n", nextNodeOffset);
             return (0);
         }
         trav->pos = 0;
@@ -175,7 +175,7 @@ btreeGetLastOffset(BTreeTraversal *trav)
         trav->node = btreeReadNode(trav->tree, trav->tree->root);
         if (trav->node == NULL)
         {
-            sys_log(LOGSTDOUT, "error:btreeGetLastOffset: read root node from offset %d failed\n", trav->tree->root);
+            dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeGetLastOffset: read root node from offset %d failed\n", trav->tree->root);
             return (0);
         }
         return btreeGetLastOffset(trav);
@@ -192,7 +192,7 @@ btreeGetLastOffset(BTreeTraversal *trav)
     trav->node = btreeReadNode(trav->tree, nextNodeOffset);
     if (trav->node == NULL)
     {
-        sys_log(LOGSTDOUT, "error:btreeGetLastOffset: read next node from offset %d failed\n", nextNodeOffset);
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeGetLastOffset: read next node from offset %d failed\n", nextNodeOffset);
         return (0);
     }
     return btreeGetLastOffset(trav);
@@ -207,7 +207,7 @@ btreePrettyPrint(LOG *log, BTree *tree, offset_t rootOffset, uint8_t i, uint8_t 
     rootNode = btreeReadNode(tree, rootOffset);
     if (rootNode == NULL)
     {
-        sys_log(LOGSTDOUT, "error:btreePrettyPrint: read root node from offset %d failed\n", rootOffset);
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreePrettyPrint: read root node from offset %d failed\n", rootOffset);
         return ;
     }
 
@@ -280,14 +280,14 @@ uint8_t btreeCollectAllOffset(BTree *tree, offset_t **offset_list, uint32_t *off
 
     if (tree == NULL)
     {
-        sys_log(LOGSTDOUT, "error:btreeCollectAllOffset: tree is null\n");
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeCollectAllOffset: tree is null\n");
         return 0;
     }
 
-    offset_ptr = (offset_t *)SAFE_MALLOC(tree->size * sizeof(offset_t), LOC_BTREE_0003);
+    offset_ptr = (offset_t *)SAFE_MALLOC(tree->size * sizeof(offset_t), LOC_BTREE_0140);
     if(NULL == offset_ptr)
     {
-        sys_log(LOGSTDOUT, "error:btreeCollectAllOffset: alloc %ld offset_t failed\n", tree->size);
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeCollectAllOffset: alloc %ld offset_t failed\n", tree->size);
         return 0;
     }
 
@@ -307,7 +307,7 @@ uint8_t btreeCollectAllOffset(BTree *tree, offset_t **offset_list, uint32_t *off
     /*check consistency*/
     if(pos != tree->size)
     {
-        sys_log(LOGSTDOUT, "error:btreeCollectAllOffset: found inconsistency where tree size %ld but collected %ld offset\n",
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeCollectAllOffset: found inconsistency where tree size %ld but collected %ld offset\n",
                            tree->size, pos);
     }
 

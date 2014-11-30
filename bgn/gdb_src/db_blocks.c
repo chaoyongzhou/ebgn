@@ -73,7 +73,7 @@ gdbNewBlock(GDatabase *db, uint8_t blockType, void *extra)
     {
         return NULL;
     }
-    MEM_CHECK(block = (GdbBlock *)SAFE_MALLOC(sizeof(GdbBlock), LOC_DB_0001));
+    MEM_CHECK(block = (GdbBlock *)SAFE_MALLOC(sizeof(GdbBlock), LOC_DB_0079));
     memset(block, 0, sizeof(GdbBlock));
 
     block->type     = blockType;
@@ -106,7 +106,7 @@ gdbDestroyBlockNoLock(GdbBlock *block)
     }
     if (gdbCacheRemoveBlockNoLock(block->db, block) > 0)
     {
-        sys_log(LOGSTDNULL, "[DEBUG] gdbDestroyBlockNoLock: rmv cached block %lx with detail %lx and offset %d, db %lx, refCount %d\n",
+        dbg_log(SEC_0131_DB, 9)(LOGSTDNULL, "[DEBUG] gdbDestroyBlockNoLock: rmv cached block %lx with detail %lx and offset %d, db %lx, refCount %d\n",
                             block, block->detail, block->offset, block->db, block->refCount);
         return;
     }
@@ -120,21 +120,21 @@ gdbDestroyBlockNoLock(GdbBlock *block)
         }
         else
         {
-            SAFE_FREE(block->detail, LOC_DB_0002);
+            SAFE_FREE(block->detail, LOC_DB_0080);
         }
     }
 
     if (GDB_IS_DIRTY(block))
     {
-        sys_log(LOGSTDOUT, "error:gdbDestroyBlockNoLock: Dirty node at offset %d has not been written to disk.\n",
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbDestroyBlockNoLock: Dirty node at offset %d has not been written to disk.\n",
                             block->offset);
     }
 
     if (block->chain != NULL)
     {
-        SAFE_FREE(block->chain, LOC_DB_0003);
+        SAFE_FREE(block->chain, LOC_DB_0081);
     }
-    SAFE_FREE(block, LOC_DB_0004);
+    SAFE_FREE(block, LOC_DB_0082);
 }
 
 void
@@ -148,7 +148,7 @@ gdbDestroyBlock(GdbBlock *block)
     }
     if (gdbCacheRemoveBlock(block->db, block) > 0)
     {
-        sys_log(LOGSTDNULL, "[DEBUG] gdbDestroyBlock: rmv cached block %lx with detail %lx and offset %d, db %lx, refCount %d\n",
+        dbg_log(SEC_0131_DB, 9)(LOGSTDNULL, "[DEBUG] gdbDestroyBlock: rmv cached block %lx with detail %lx and offset %d, db %lx, refCount %d\n",
                             block, block->detail, block->offset, block->db, block->refCount);
         return;
     }
@@ -162,21 +162,21 @@ gdbDestroyBlock(GdbBlock *block)
         }
         else
         {
-            SAFE_FREE(block->detail, LOC_DB_0005);
+            SAFE_FREE(block->detail, LOC_DB_0083);
         }
     }
 
     if (GDB_IS_DIRTY(block))
     {
-        sys_log(LOGSTDOUT, "error:gdbDestroyBlock: Dirty node at offset %d has not been written to disk.\n",
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbDestroyBlock: Dirty node at offset %d has not been written to disk.\n",
                             block->offset);
     }
 
     if (block->chain != NULL)
     {
-        SAFE_FREE(block->chain, LOC_DB_0006);
+        SAFE_FREE(block->chain, LOC_DB_0084);
     }
-    SAFE_FREE(block, LOC_DB_0007);
+    SAFE_FREE(block, LOC_DB_0085);
 }
 
 GdbBlock *
@@ -209,13 +209,13 @@ gdbReadBlockHeaderNoLock(GDatabase *db, offset_t offset, uint8_t blockType)
 #endif
     /* Seek to the offset of the block. */
     rawFileSeek(db->idxRawFile, offset, SEEK_SET);
-    if (rawFileRead(db->idxRawFile, offset, header, GDB_BLOCK_HEADER_SIZE, 1, LOC_DB_0008) != 1)
+    if (rawFileRead(db->idxRawFile, offset, header, GDB_BLOCK_HEADER_SIZE, 1, LOC_DB_0086) != 1)
     {
         return NULL;
     }
 
     /* Allocate memory for the block. */
-    MEM_CHECK(block = (GdbBlock *)SAFE_MALLOC(sizeof(GdbBlock), LOC_DB_0009));
+    MEM_CHECK(block = (GdbBlock *)SAFE_MALLOC(sizeof(GdbBlock), LOC_DB_0087));
     memset(block, 0, sizeof(GdbBlock));
 
     block->db = db;
@@ -227,7 +227,7 @@ gdbReadBlockHeaderNoLock(GDatabase *db, offset_t offset, uint8_t blockType)
     if (!GDB_VALID_BLOCK_TYPE(block->type) ||
         (blockType != GDB_BLOCK_ANY && blockType != block->type))
     {
-        SAFE_FREE(block, LOC_DB_0010);
+        SAFE_FREE(block, LOC_DB_0088);
 
         return NULL;
     }
@@ -245,13 +245,13 @@ gdbReadBlockHeaderNoLock(GDatabase *db, offset_t offset, uint8_t blockType)
 
     GDB_CLEAR_DIRTY(block);
 
-    sys_log(LOGSTDNULL, "[DEBUG] gdbReadBlockHeaderNoLock: add cached block %lx with detail %lx and offset %d, db %lx\n",
+    dbg_log(SEC_0131_DB, 9)(LOGSTDNULL, "[DEBUG] gdbReadBlockHeaderNoLock: add cached block %lx with detail %lx and offset %d, db %lx\n",
                         block, block->detail, block->offset, block->db);
 
     block_cached = gdbCacheAddBlockNoLock(block->db, block);
     if(block_cached != block)
     {
-        sys_log(LOGSTDNULL, "warn:gdbReadBlockHeaderNoLock: add block %lx to cache but return cached block %lx\n", block, block_cached);
+        dbg_log(SEC_0131_DB, 1)(LOGSTDNULL, "warn:gdbReadBlockHeaderNoLock: add block %lx to cache but return cached block %lx\n", block, block_cached);
         gdbDestroyBlockNoLock(block);
         return block_cached;
     }
@@ -263,9 +263,9 @@ GdbBlock *
 gdbReadBlockHeader(GDatabase *db, offset_t offset, uint8_t blockType)
 {
     GdbBlock *block;
-    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0011);
+    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0089);
     block = gdbReadBlockHeaderNoLock(db, offset, blockType);
-    gdbUnlockFreeBlockList(db, LOC_DB_0012);
+    gdbUnlockFreeBlockList(db, LOC_DB_0090);
     return block;
 }
 
@@ -295,13 +295,13 @@ gdbWriteBlockHeader(GdbBlock *block)
 
     /* Write the header to disk. */
     rawFileSeek(db->idxRawFile, block->offset, SEEK_SET);
-    rawFileWrite(db->idxRawFile, block->offset, header, GDB_BLOCK_HEADER_SIZE, 1, LOC_DB_0013);
+    rawFileWrite(db->idxRawFile, block->offset, header, GDB_BLOCK_HEADER_SIZE, 1, LOC_DB_0091);
 
     GDB_CLEAR_DIRTY(block);
 
     if (block->inList == 0)
     {
-        sys_log(LOGSTDNULL, "[DEBUG] gdbWriteBlockHeader: add cached block %lx with detail %lx and offset %d, db %lx\n",
+        dbg_log(SEC_0131_DB, 9)(LOGSTDNULL, "[DEBUG] gdbWriteBlockHeader: add cached block %lx with detail %lx and offset %d, db %lx\n",
                             block, block->detail, block->offset, block->db);
         gdbCacheAddBlock(block->db, block);
     }
@@ -321,20 +321,20 @@ gdbReadBlock(GDatabase *db, offset_t offset, uint8_t blockType,
 
     if (db == NULL)
     {
-        sys_log(LOGSTDOUT, "error:gdbReadBlock: db is null\n");
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbReadBlock: db is null\n");
         return NULL;
     }
 
     if (!GDB_VALID_OFFSET(offset))
     {
-        sys_log(LOGSTDOUT, "error:gdbReadBlock: invalid offset %d < DB_FREE_BLOCK_LIST_OFFSET\n",
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbReadBlock: invalid offset %d < DB_FREE_BLOCK_LIST_OFFSET\n",
                            offset, DB_FREE_BLOCK_LIST_OFFSET);
         return NULL;
     }
 
     if(blockType != GDB_BLOCK_ANY && !GDB_VALID_BLOCK_TYPE(blockType))
     {
-        sys_log(LOGSTDOUT, "error:gdbReadBlock: blockType %d != GDB_BLOCK_ANY(%d) and not belong to (%d, %d)\n",
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbReadBlock: blockType %d != GDB_BLOCK_ANY(%d) and not belong to (%d, %d)\n",
                            blockType, GDB_BLOCK_ANY, GDB_BLOCK_MIN_TYPE, GDB_BLOCK_MAX_TYPE);
         return NULL;
     }
@@ -349,11 +349,11 @@ gdbReadBlock(GDatabase *db, offset_t offset, uint8_t blockType,
 #if 1
     /*comment: the code segment CANNOT move to gdbReadBlockHeader(NoLock) because when gdbReadBlockHeader(NoLock) return back*/
     /*it will be hard to determine it comes from cached list or new created*/
-    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0014);
+    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0092);
     if ((block = gdbCacheGetBlockNoLock(db, offset)) != NULL)
     {
-        gdbUnlockFreeBlockList(db, LOC_DB_0015);
-        sys_log(LOGSTDNULL, "[DEBUG] gdbReadBlock: get cached block %lx with detail %lx and offset %d (vs %d), db %lx (vs %lx)\n",
+        gdbUnlockFreeBlockList(db, LOC_DB_0093);
+        dbg_log(SEC_0131_DB, 9)(LOGSTDNULL, "[DEBUG] gdbReadBlock: get cached block %lx with detail %lx and offset %d (vs %d), db %lx (vs %lx)\n",
                             block, block->detail, block->offset, offset, block->db, db);
         if (blockType == GDB_BLOCK_ANY || blockType == block->type)
         {
@@ -361,7 +361,7 @@ gdbReadBlock(GDatabase *db, offset_t offset, uint8_t blockType,
         }
         else
         {
-            sys_log(LOGSTDOUT, "error:gdbReadBlock: invalid blockType %d or mismatch block type %d\n",
+            dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbReadBlock: invalid blockType %d or mismatch block type %d\n",
                                 blockType, block->type);
             return NULL;
         }
@@ -372,8 +372,8 @@ gdbReadBlock(GDatabase *db, offset_t offset, uint8_t blockType,
     block = gdbReadBlockHeaderNoLock(db, offset, blockType);
     if (block == NULL)
     {
-        gdbUnlockFreeBlockList(db, LOC_DB_0016);
-        sys_log(LOGSTDOUT, "error:gdbReadBlock: Unable to read block at %d\n", offset);
+        gdbUnlockFreeBlockList(db, LOC_DB_0094);
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbReadBlock: Unable to read block at %d\n", offset);
         return NULL;
     }
 
@@ -383,7 +383,7 @@ gdbReadBlock(GDatabase *db, offset_t offset, uint8_t blockType,
     block->chainCount = gdbGetNeededBlockCount(block->dataSize, block->multiple);
 
     /* Build the chain array. */
-    MEM_CHECK(block->chain = (offset_t *)SAFE_MALLOC(block->chainCount * sizeof(offset_t), LOC_DB_0017));
+    MEM_CHECK(block->chain = (offset_t *)SAFE_MALLOC(block->chainCount * sizeof(offset_t), LOC_DB_0095));
     memset(block->chain, 0, block->chainCount * sizeof(offset_t));
 
     block->chain[0] = offset;
@@ -391,16 +391,16 @@ gdbReadBlock(GDatabase *db, offset_t offset, uint8_t blockType,
     typeIndex = block->type - 1;
 
     /* Create the buffer. */
-    MEM_CHECK(buffer = (uint8_t *)SAFE_MALLOC(block->dataSize, LOC_DB_0018));
+    MEM_CHECK(buffer = (uint8_t *)SAFE_MALLOC(block->dataSize, LOC_DB_0096));
 
     /* Read in the first block. */
     dataSize = (block->dataSize < block->multiple - GDB_BLOCK_HEADER_SIZE ?
                block->dataSize : block->multiple - GDB_BLOCK_HEADER_SIZE);
 
     rawFileSeek(db->idxRawFile, __offset, SEEK_SET);
-    if (rawFileRead(db->idxRawFile, __offset, buffer, dataSize, 1, LOC_DB_0019) != 1)
+    if (rawFileRead(db->idxRawFile, __offset, buffer, dataSize, 1, LOC_DB_0097) != 1)
     {
-        sys_log(LOGSTDOUT, "error:gdbReadBlock: Unable to read %d bytes from %s at offset %d where cur_size %d\n",
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbReadBlock: Unable to read %d bytes from %s at offset %d where cur_size %d\n",
                             dataSize,db->idxRawFile->file_name, __offset,rawFileCurSize(db->idxRawFile));
         exit(1);
     }
@@ -429,15 +429,15 @@ gdbReadBlock(GDatabase *db, offset_t offset, uint8_t blockType,
             prevOffset = nextOffset;
 
             rawFileSeek(db->idxRawFile, __offset, SEEK_SET);
-            rawFileRead(db->idxRawFile, __offset, &nextOffset, sizeof(offset_t), 1, LOC_DB_0020);
-            sys_log(LOGSTDNULL, "[DEBUG] gdbReadBlock: fp %lx: read nextOffset %d at offset %d\n", db->idxRawFile, gdb_ntoh_offset(nextOffset), __offset);
+            rawFileRead(db->idxRawFile, __offset, &nextOffset, sizeof(offset_t), 1, LOC_DB_0098);
+            dbg_log(SEC_0131_DB, 9)(LOGSTDNULL, "[DEBUG] gdbReadBlock: fp %lx: read nextOffset %d at offset %d\n", db->idxRawFile, gdb_ntoh_offset(nextOffset), __offset);
             __offset += sizeof(offset_t);
 
             nextOffset = gdb_ntoh_offset(nextOffset);
 
             if (prevOffset == nextOffset)
             {
-                sys_log(LOGSTDOUT, "error:gdbReadBlock: Infinite loop detected in database blocks in %s! Report this!\n",
+                dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbReadBlock: Infinite loop detected in database blocks in %s! Report this!\n",
                                     db->filename);
                 abort();
             }
@@ -450,7 +450,7 @@ gdbReadBlock(GDatabase *db, offset_t offset, uint8_t blockType,
             dataSize = (block->dataSize - pos < blockDataSize ?
                         block->dataSize - pos : blockDataSize);
             rawFileSeek(db->idxRawFile, __offset, SEEK_SET);
-            rawFileRead(db->idxRawFile, __offset, buffer + pos, 1, dataSize, LOC_DB_0021);
+            rawFileRead(db->idxRawFile, __offset, buffer + pos, 1, dataSize, LOC_DB_0099);
             __offset += dataSize;
 
             pos += blockDataSize;
@@ -465,7 +465,7 @@ gdbReadBlock(GDatabase *db, offset_t offset, uint8_t blockType,
         /* Call the specific block type's read function. */
         block->detail = blockTypeInfo[typeIndex].readBlock(block, buffer, extra);
 
-        SAFE_FREE(buffer, LOC_DB_0022);
+        SAFE_FREE(buffer, LOC_DB_0100);
     }
     else
     {
@@ -473,7 +473,7 @@ gdbReadBlock(GDatabase *db, offset_t offset, uint8_t blockType,
         block->detail = buffer;
     }
 
-    gdbUnlockFreeBlockList(db, LOC_DB_0023);
+    gdbUnlockFreeBlockList(db, LOC_DB_0101);
     return block;
 }
 
@@ -515,7 +515,7 @@ gdbWriteBlock(GdbBlock *block)
 
     if (buffer == NULL)
     {
-        sys_log(LOGSTDOUT, "error:gdbWriteBlock: buffer == NULL\n");
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbWriteBlock: buffer == NULL\n");
         exit(1);
     }
 
@@ -530,7 +530,7 @@ gdbWriteBlock(GdbBlock *block)
     else if (block->chainCount < oldChainCount)
     {
         /* The number of needed blocks is shorter than before. */
-        MEM_CHECK(block->chain = (offset_t *)SAFE_MALLOC(block->chainCount * sizeof(offset_t), LOC_DB_0024));
+        MEM_CHECK(block->chain = (offset_t *)SAFE_MALLOC(block->chainCount * sizeof(offset_t), LOC_DB_0102));
         memcpy(block->chain, oldChain, block->chainCount * sizeof(offset_t));
     }
     else if (block->chainCount > oldChainCount)
@@ -539,7 +539,7 @@ gdbWriteBlock(GdbBlock *block)
         uint32_t j;
 
         /* The number of needed blocks is longer than before. */
-        MEM_CHECK(block->chain = (offset_t *)SAFE_MALLOC(block->chainCount * sizeof(offset_t), LOC_DB_0025));
+        MEM_CHECK(block->chain = (offset_t *)SAFE_MALLOC(block->chainCount * sizeof(offset_t), LOC_DB_0103));
 
         newChain = gdbReserveBlockChain(db, block->chainCount - oldChainCount, block->type);
 
@@ -549,7 +549,7 @@ gdbWriteBlock(GdbBlock *block)
         {
             block->chain[i] = newChain[j];
         }
-        SAFE_FREE(newChain, LOC_DB_0026);
+        SAFE_FREE(newChain, LOC_DB_0104);
     }
 
     /*
@@ -574,7 +574,7 @@ gdbWriteBlock(GdbBlock *block)
     /* Write the first block. */
     dataSize = (block->dataSize < block->multiple - GDB_BLOCK_HEADER_SIZE ?
                 block->dataSize : block->multiple - GDB_BLOCK_HEADER_SIZE);
-    rawFileWrite(db->idxRawFile, __offset, buffer, 1, dataSize, LOC_DB_0027);
+    rawFileWrite(db->idxRawFile, __offset, buffer, 1, dataSize, LOC_DB_0105);
     __offset += dataSize;
 
     if (block->dataSize < block->multiple - GDB_BLOCK_HEADER_SIZE)
@@ -588,7 +588,7 @@ gdbWriteBlock(GdbBlock *block)
     {
         uint8_t *blockBuffer;
 
-        MEM_CHECK(blockBuffer = (uint8_t *)SAFE_MALLOC(block->multiple, LOC_DB_0028));
+        MEM_CHECK(blockBuffer = (uint8_t *)SAFE_MALLOC(block->multiple, LOC_DB_0106));
 
         pos = block->multiple - GDB_BLOCK_HEADER_SIZE;
 
@@ -605,7 +605,7 @@ gdbWriteBlock(GdbBlock *block)
             /* Reset the block buffer. */
             memset(blockBuffer, 0, block->multiple);
 
-            sys_log(LOGSTDNULL, "[DEBUG] gdbWriteBlock: fp %lx: write nextOffset %d at offset %d\n", db->idxRawFile, nextOffset, __offset);
+            dbg_log(SEC_0131_DB, 9)(LOGSTDNULL, "[DEBUG] gdbWriteBlock: fp %lx: write nextOffset %d at offset %d\n", db->idxRawFile, nextOffset, __offset);
             /* Write to it. */
             nextOffset = gdb_hton_offset(nextOffset);
 
@@ -620,13 +620,13 @@ gdbWriteBlock(GdbBlock *block)
                 rawFileSeek(db->idxRawFile, block->chain[i], SEEK_SET);
                 __offset = block->chain[i];
             }
-            rawFileWrite(db->idxRawFile, __offset, blockBuffer, 1, block->multiple, LOC_DB_0029);
+            rawFileWrite(db->idxRawFile, __offset, blockBuffer, 1, block->multiple, LOC_DB_0107);
             __offset += block->multiple;
 
             pos += block->multiple - sizeof(offset_t);
         }
 
-        SAFE_FREE(blockBuffer, LOC_DB_0030);
+        SAFE_FREE(blockBuffer, LOC_DB_0108);
     }
 
     if (oldChainCount != 0)
@@ -639,13 +639,13 @@ gdbWriteBlock(GdbBlock *block)
 
         if (oldChainCount != block->chainCount)
         {
-            SAFE_FREE(oldChain, LOC_DB_0031);
+            SAFE_FREE(oldChain, LOC_DB_0109);
         }
     }
 
     if (buffer != block->detail)
     {
-        SAFE_FREE(buffer, LOC_DB_0032);
+        SAFE_FREE(buffer, LOC_DB_0110);
     }
 }
 
@@ -661,12 +661,12 @@ gdbBlockTypeAt(GDatabase *db, offset_t offset)
     }
     if ((block = gdbCacheGetBlock(db, offset)) != NULL)
     {
-        sys_log(LOGSTDNULL, "[DEBUG] gdbBlockTypeAt: get cached block %lx with detail %lx and block %d (vs %d), db %lx (vs %lx)\n",
+        dbg_log(SEC_0131_DB, 9)(LOGSTDNULL, "[DEBUG] gdbBlockTypeAt: get cached block %lx with detail %lx and block %d (vs %d), db %lx (vs %lx)\n",
                             block, block->detail, block->offset, offset, block->db, db);
         return block->type;
     }
     rawFileSeek(db->idxRawFile, offset, SEEK_SET);
-    if (rawFileRead(db->idxRawFile, offset, &type, 1, 1, LOC_DB_0033) != 1)
+    if (rawFileRead(db->idxRawFile, offset, &type, 1, 1, LOC_DB_0111) != 1)
     {
         return GDB_BLOCK_ANY; /* Um. Kind of an error? */
     }
@@ -693,17 +693,17 @@ gdbReserveBlockChain(GDatabase *db, uint16_t count, uint8_t blockType)
     blockSize = blockTypeInfo[blockType - 1].multiple;
 
     /* Create the chain. */
-    MEM_CHECK(chain = (offset_t *)SAFE_MALLOC(count * sizeof(offset_t), LOC_DB_0034));
+    MEM_CHECK(chain = (offset_t *)SAFE_MALLOC(count * sizeof(offset_t), LOC_DB_0112));
 
     /* Lock the free block list. */
-    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0035);
+    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0113);
 
     /* Get the free block list. */
     result = gdbGetFreeBlockList(db, &freeBlocks, &blockCount);
 
     if (result == 0)
     {
-        gdbUnlockFreeBlockList(db, LOC_DB_0036);
+        gdbUnlockFreeBlockList(db, LOC_DB_0114);
         gdbFreeBlockList(freeBlocks);
 
         //rawFileSeek(db->idxRawFile, 0L, SEEK_END);
@@ -723,7 +723,7 @@ gdbReserveBlockChain(GDatabase *db, uint16_t count, uint8_t blockType)
     j = 0;
 
     /* Create the new array of free blocks. */
-    MEM_CHECK(newFreeBlocks = (GdbFreeBlock *)SAFE_MALLOC(blockCount * sizeof(GdbFreeBlock), LOC_DB_0037));
+    MEM_CHECK(newFreeBlocks = (GdbFreeBlock *)SAFE_MALLOC(blockCount * sizeof(GdbFreeBlock), LOC_DB_0115));
     memset(newFreeBlocks, 0, blockCount * sizeof(GdbFreeBlock));
 
     for (i = 0; i < blockCount; i++)
@@ -749,7 +749,7 @@ gdbReserveBlockChain(GDatabase *db, uint16_t count, uint8_t blockType)
         {
             gdbWriteFreeBlockList(db, newFreeBlocks, newListCount);
         }
-        gdbUnlockFreeBlockList(db, LOC_DB_0038);
+        gdbUnlockFreeBlockList(db, LOC_DB_0116);
 
         gdbFreeBlockList(newFreeBlocks);
         gdbFreeBlockList(freeBlocks);
@@ -774,7 +774,7 @@ gdbReserveBlockChain(GDatabase *db, uint16_t count, uint8_t blockType)
     gdbWriteFreeBlockList(db, newFreeBlocks, newListCount);
 
     /* Unlock the list. */
-    gdbUnlockFreeBlockList(db, LOC_DB_0039);
+    gdbUnlockFreeBlockList(db, LOC_DB_0117);
 
     /* Free up the memory for the lists. */
     gdbFreeBlockList(newFreeBlocks);
@@ -806,7 +806,7 @@ gdbFreeBlockChain(GDatabase *db, offset_t *chain, uint16_t count,
     blockSize = blockTypeInfo[blockType - 1].multiple;
 
     /* Lock the free block list. */
-    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0040);
+    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0118);
 
     /* Get the free block list. */
     result = gdbGetFreeBlockList(db, &freeBlocks, &blockCount);
@@ -815,7 +815,7 @@ gdbFreeBlockChain(GDatabase *db, offset_t *chain, uint16_t count,
     {
         count = DMIN(count, DB_FREE_BLOCK_MAX_NUM); /*DO NOT OVERFLOW!*/
         /* Block list is empty. */
-        MEM_CHECK(freeBlocks = (GdbFreeBlock *)SAFE_MALLOC(count * sizeof(GdbFreeBlock), LOC_DB_0041));
+        MEM_CHECK(freeBlocks = (GdbFreeBlock *)SAFE_MALLOC(count * sizeof(GdbFreeBlock), LOC_DB_0119));
 
         for (i = 0; i < count; i++)
         {
@@ -825,7 +825,7 @@ gdbFreeBlockChain(GDatabase *db, offset_t *chain, uint16_t count,
 
         gdbWriteFreeBlockList(db, freeBlocks, count);
 
-        gdbUnlockFreeBlockList(db, LOC_DB_0042);
+        gdbUnlockFreeBlockList(db, LOC_DB_0120);
 
         gdbFreeBlockList(freeBlocks);
 
@@ -835,7 +835,7 @@ gdbFreeBlockChain(GDatabase *db, offset_t *chain, uint16_t count,
     count = DMIN(count, DB_FREE_BLOCK_MAX_NUM - blockCount); /*DO NOT OVERFLOW!*/
     if(0 == count)
     {
-        gdbUnlockFreeBlockList(db, LOC_DB_0043);
+        gdbUnlockFreeBlockList(db, LOC_DB_0121);
         gdbFreeBlockList(freeBlocks);
         return;
     }
@@ -843,7 +843,7 @@ gdbFreeBlockChain(GDatabase *db, offset_t *chain, uint16_t count,
     /* We're going to add the block to the list by re-creating the list. */
     tempBlocks = freeBlocks;
 
-    MEM_CHECK(freeBlocks = (GdbFreeBlock *)SAFE_MALLOC((blockCount + count) * sizeof(GdbFreeBlock), LOC_DB_0044));
+    MEM_CHECK(freeBlocks = (GdbFreeBlock *)SAFE_MALLOC((blockCount + count) * sizeof(GdbFreeBlock), LOC_DB_0122));
     memcpy(freeBlocks, tempBlocks, blockCount * sizeof(GdbFreeBlock));
 
     for (i = blockCount, j = 0; i < blockCount + count; i++, j++)
@@ -860,7 +860,7 @@ gdbFreeBlockChain(GDatabase *db, offset_t *chain, uint16_t count,
 
     gdbWriteFreeBlockList(db, freeBlocks, blockCount);
 
-    gdbUnlockFreeBlockList(db, LOC_DB_0045);
+    gdbUnlockFreeBlockList(db, LOC_DB_0123);
     gdbFreeBlockList(freeBlocks);
 
     return;
@@ -884,7 +884,7 @@ gdbReserveBlock(GDatabase *db, uint8_t blockType)
     }
     offset = chain[0];
 
-    SAFE_FREE(chain, LOC_DB_0046);
+    SAFE_FREE(chain, LOC_DB_0124);
 
     return offset;
 }

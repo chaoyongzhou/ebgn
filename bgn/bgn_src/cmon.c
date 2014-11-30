@@ -599,8 +599,8 @@ UINT32 cmon_start()
 
     cmon_md->usedcounter = 1;
 
-    sys_log(LOGSTDOUT, "cmon_start: start CMON module #%ld\n", cmon_md_id);
-    //sys_log(LOGSTDOUT, "========================= cmon_start: CMON table info:\n");
+    dbg_log(SEC_0043_CMON, 5)(LOGSTDOUT, "cmon_start: start CMON module #%ld\n", cmon_md_id);
+    //dbg_log(SEC_0043_CMON, 3)(LOGSTDOUT, "========================= cmon_start: CMON table info:\n");
     //cmon_print_module_status(cmon_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -619,7 +619,7 @@ void cmon_end(const UINT32 cmon_md_id)
     cmon_md = CMON_MD_GET(cmon_md_id);
     if(NULL_PTR == cmon_md)
     {
-        sys_log(LOGSTDOUT,"error:cmon_end: cmon_md_id = %ld not exist.\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT,"error:cmon_end: cmon_md_id = %ld not exist.\n", cmon_md_id);
         dbg_exit(MD_CMON, cmon_md_id);
     }
 
@@ -632,7 +632,7 @@ void cmon_end(const UINT32 cmon_md_id)
 
     if ( 0 == cmon_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:cmon_end: cmon_md_id = %ld is not started.\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT,"error:cmon_end: cmon_md_id = %ld is not started.\n", cmon_md_id);
         dbg_exit(MD_CMON, cmon_md_id);
     }
 
@@ -647,12 +647,12 @@ void cmon_end(const UINT32 cmon_md_id)
 
     cmon_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "cmon_end: stop CMON module #%ld\n", cmon_md_id);
+    dbg_log(SEC_0043_CMON, 5)(LOGSTDOUT, "cmon_end: stop CMON module #%ld\n", cmon_md_id);
     cbc_md_free(MD_CMON, cmon_md_id);
 
     breathing_static_mem();
 
-    //sys_log(LOGSTDOUT, "========================= cmon_end: CMON table info:\n");
+    //dbg_log(SEC_0043_CMON, 3)(LOGSTDOUT, "========================= cmon_end: CMON table info:\n");
     //cmon_print_module_status(cmon_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -683,15 +683,15 @@ UINT32 cmon_set_mod_mgr(const UINT32 cmon_md_id, const MOD_MGR * src_mod_mgr)
     cmon_md = CMON_MD_GET(cmon_md_id);
     des_mod_mgr = cmon_md->mod_mgr;
 
-    sys_log(LOGSTDOUT, "cmon_set_mod_mgr: md_id %d, input src_mod_mgr %lx\n", cmon_md_id, src_mod_mgr);
+    dbg_log(SEC_0043_CMON, 5)(LOGSTDOUT, "cmon_set_mod_mgr: md_id %d, input src_mod_mgr %lx\n", cmon_md_id, src_mod_mgr);
     mod_mgr_print(LOGSTDOUT, src_mod_mgr);
 
     /*figure out mod_nodes with tcid belong to set of node_tcid_vec and node_tcid_vec*/
     mod_mgr_limited_clone(cmon_md_id, src_mod_mgr, des_mod_mgr);
 
-    sys_log(LOGSTDOUT, "====================================cmon_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
+    dbg_log(SEC_0043_CMON, 5)(LOGSTDOUT, "====================================cmon_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
     mod_mgr_print(LOGSTDOUT, des_mod_mgr);
-    sys_log(LOGSTDOUT, "====================================cmon_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
+    dbg_log(SEC_0043_CMON, 5)(LOGSTDOUT, "====================================cmon_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
 
     return (0);
 }
@@ -809,7 +809,7 @@ CMON_MAP *cmon_map_fetch(const UINT32 cmon_md_id, const UINT32 cmon_oid)
         }
     }
 
-    sys_log(LOGSTDOUT, "error:cmon_map_fetch: undefined cmon_oid %ld\n", cmon_oid);
+    dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_map_fetch: undefined cmon_oid %ld\n", cmon_oid);
     return (NULL_PTR);
 }
 
@@ -924,7 +924,7 @@ UINT32 cmon_obj_clean_0(const UINT32 cmon_md_id, CMON_OBJ * cmon_obj)
     }
     else
     {
-        sys_log(LOGSTDOUT, "warn:cmon_obj_clean_0: cmon_obj %lx: CMON_OBJ_MAP is null\n", cmon_obj);
+        dbg_log(SEC_0043_CMON, 1)(LOGSTDOUT, "warn:cmon_obj_clean_0: cmon_obj %lx: CMON_OBJ_MAP is null\n", cmon_obj);
     }
     return (0);
 }
@@ -1033,7 +1033,7 @@ CMON_OBJ * cmon_obj_new(const UINT32 cmon_md_id, const UINT32 cmon_oid)
     cmon_map = cmon_map_fetch(cmon_md_id, cmon_oid);
     if(NULL_PTR == cmon_map)
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_new: cmon_md_id = %ld, invalid cmon_oid %ld\n", cmon_md_id, cmon_oid);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_new: cmon_md_id = %ld, invalid cmon_oid %ld\n", cmon_md_id, cmon_oid);
         return (NULL_PTR);
     }
 
@@ -1141,13 +1141,13 @@ UINT32 cmon_obj_set_uint32(const UINT32 cmon_md_id, const UINT32 data, const UIN
 
     if(NULL_PTR == CMON_OBJ_MAP(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_set_uint32: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_set_uint32: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
         return ((UINT32)-1);
     }
 
     if(MM_UINT32 != CMON_OBJ_DATA_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_set_uint32: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_set_uint32: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
@@ -1176,13 +1176,13 @@ UINT32 cmon_obj_set_real(const UINT32 cmon_md_id, const REAL * data, const UINT3
 
     if(NULL_PTR == CMON_OBJ_MAP(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_set_real: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_set_real: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
         return ((UINT32)-1);
     }
 
     if(MM_REAL != CMON_OBJ_DATA_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_set_real: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_set_real: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
@@ -1213,13 +1213,13 @@ UINT32 cmon_obj_set_crank_thread_stat(const UINT32 cmon_md_id, const CRANK_THREA
 
     if(NULL_PTR == CMON_OBJ_MAP(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_set_crank_thread_stat: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_set_crank_thread_stat: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
         return ((UINT32)-1);
     }
 
     if(MM_CRANK_THREAD_STAT != CMON_OBJ_DATA_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_set_crank_thread_stat: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_set_crank_thread_stat: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
@@ -1252,20 +1252,20 @@ UINT32 cmon_obj_push_uint32(const UINT32 cmon_md_id, const UINT32 data, const UI
 
     if(NULL_PTR == CMON_OBJ_MAP(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_uint32: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_uint32: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
         return ((UINT32)-1);
     }
 
     if(MM_CVECTOR != CMON_OBJ_DATA_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_uint32: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_uint32: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
 
     if(MM_UINT32 != CMON_OBJ_ITEM_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_uint32: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_uint32: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_ITEM_TYPE(cmon_obj), CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
@@ -1295,20 +1295,20 @@ UINT32 cmon_obj_push_real(const UINT32 cmon_md_id, const REAL * data, const UINT
 
     if(NULL_PTR == CMON_OBJ_MAP(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_real: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_real: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
         return ((UINT32)-1);
     }
 
     if(MM_CVECTOR != CMON_OBJ_DATA_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_real: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_real: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
 
     if(MM_REAL != CMON_OBJ_ITEM_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_real: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_real: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_ITEM_TYPE(cmon_obj), CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
@@ -1337,20 +1337,20 @@ UINT32 cmon_obj_push_csys_cpu_stat(const UINT32 cmon_md_id, const CSYS_CPU_STAT 
 
     if(NULL_PTR == CMON_OBJ_MAP(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_csys_cpu_stat: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_csys_cpu_stat: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
         return ((UINT32)-1);
     }
 
     if(MM_CVECTOR != CMON_OBJ_DATA_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_csys_cpu_stat: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_csys_cpu_stat: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
 
     if(MM_CSYS_CPU_STAT != CMON_OBJ_ITEM_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_csys_cpu_stat: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_csys_cpu_stat: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_ITEM_TYPE(cmon_obj), CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
@@ -1379,20 +1379,20 @@ UINT32 cmon_obj_push_taskc_node(const UINT32 cmon_md_id, const TASKC_NODE * task
 
     if(NULL_PTR == CMON_OBJ_MAP(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_taskc_node: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_taskc_node: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
         return ((UINT32)-1);
     }
 
     if(MM_CVECTOR != CMON_OBJ_DATA_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_taskc_node: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_taskc_node: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
 
     if(MM_TASKC_NODE != CMON_OBJ_ITEM_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_taskc_node: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_taskc_node: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_ITEM_TYPE(cmon_obj), CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
@@ -1421,20 +1421,20 @@ UINT32 cmon_obj_push_csocket_cnode(const UINT32 cmon_md_id, const CSOCKET_CNODE 
 
     if(NULL_PTR == CMON_OBJ_MAP(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_csocket_cnode: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_csocket_cnode: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
         return ((UINT32)-1);
     }
 
     if(MM_CVECTOR != CMON_OBJ_DATA_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_csocket_cnode: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_csocket_cnode: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
 
     if(MM_CSOCKET_CNODE != CMON_OBJ_ITEM_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_csocket_cnode: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_csocket_cnode: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_ITEM_TYPE(cmon_obj), CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
@@ -1463,20 +1463,20 @@ UINT32 cmon_obj_push_cproc_module_stat(const UINT32 cmon_md_id, const CPROC_MODU
 
     if(NULL_PTR == CMON_OBJ_MAP(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_cproc_module_stat: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_cproc_module_stat: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
         return ((UINT32)-1);
     }
 
     if(MM_CVECTOR != CMON_OBJ_DATA_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_cproc_module_stat: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_cproc_module_stat: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
 
     if(MM_CPROC_MODULE_STAT != CMON_OBJ_ITEM_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_cproc_module_stat: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_cproc_module_stat: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_ITEM_TYPE(cmon_obj), CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
@@ -1505,20 +1505,20 @@ UINT32 cmon_obj_push_csys_eth_stat(const UINT32 cmon_md_id, const CSYS_ETH_STAT 
 
     if(NULL_PTR == CMON_OBJ_MAP(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_csys_eth_stat: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_csys_eth_stat: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
         return ((UINT32)-1);
     }
 
     if(MM_CVECTOR != CMON_OBJ_DATA_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_csys_eth_stat: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_csys_eth_stat: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
 
     if(MM_CSYS_ETH_STAT != CMON_OBJ_ITEM_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_csys_eth_stat: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_csys_eth_stat: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_ITEM_TYPE(cmon_obj), CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
@@ -1547,20 +1547,20 @@ UINT32 cmon_obj_push_csys_dsk_stat(const UINT32 cmon_md_id, const CSYS_DSK_STAT 
 
     if(NULL_PTR == CMON_OBJ_MAP(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_csys_dsk_stat: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_csys_dsk_stat: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
         return ((UINT32)-1);
     }
 
     if(MM_CVECTOR != CMON_OBJ_DATA_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_csys_dsk_stat: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_csys_dsk_stat: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
 
     if(MM_CSYS_DSK_STAT != CMON_OBJ_ITEM_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_csys_dsk_stat: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_csys_dsk_stat: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_ITEM_TYPE(cmon_obj), CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
@@ -1590,20 +1590,20 @@ UINT32 cmon_obj_push_crank_task_report_node(const UINT32 cmon_md_id, const TASK_
 
     if(NULL_PTR == CMON_OBJ_MAP(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_crank_task_report_node: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_crank_task_report_node: cmon_md_id = %ld, not initialize cmon_map\n", cmon_md_id);
         return ((UINT32)-1);
     }
 
     if(MM_CVECTOR != CMON_OBJ_DATA_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_crank_task_report_node: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_crank_task_report_node: cmon_md_id = %ld, invalid data type %ld where cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
 
     if(MM_TASK_REPORT_NODE != CMON_OBJ_ITEM_TYPE(cmon_obj))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_push_crank_task_report_node: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_push_crank_task_report_node: cmon_md_id = %ld, invalid item type where data type %ld and cmon_oid %ld\n",
                            cmon_md_id, CMON_OBJ_ITEM_TYPE(cmon_obj), CMON_OBJ_DATA_TYPE(cmon_obj), CMON_OBJ_OID(cmon_obj));
         return ((UINT32)-1);
     }
@@ -1664,14 +1664,14 @@ UINT32 cmon_obj_meas(const UINT32 cmon_md_id, CMON_OBJ * cmon_obj)
 #endif/*CMON_DEBUG_SWITCH*/
 
     cmon_map = CMON_OBJ_MAP(cmon_obj);
-    //sys_log(LOGSTDOUT, ">>> cmon_obj_meas was called\n");
+    //dbg_log(SEC_0043_CMON, 5)(LOGSTDOUT, ">>> cmon_obj_meas was called\n");
 
     return CMON_MAP_OBJ_MEAS_FUNC(cmon_map)(cmon_md_id, cmon_obj);
 }
 
 UINT32 cmon_obj_meas_default(const UINT32 cmon_md_id, CMON_OBJ * cmon_obj)
 {
-    sys_log(LOGSTDOUT, "warn: measurement function of cmon_oid %ld was not implemented yet\n", CMON_OBJ_OID(cmon_obj));
+    dbg_log(SEC_0043_CMON, 1)(LOGSTDOUT, "warn: measurement function of cmon_oid %ld was not implemented yet\n", CMON_OBJ_OID(cmon_obj));
     return ((UINT32)-1);
 }
 
@@ -2044,13 +2044,13 @@ UINT32 cmon_obj_meas_cpu_vec(const UINT32 cmon_md_id, CMON_OBJ * cmon_obj)
     }
 #endif/*CMON_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, "[DEBUG] cmon_obj_meas_cpu_vec was called\n");
+    dbg_log(SEC_0043_CMON, 9)(LOGSTDOUT, "[DEBUG] cmon_obj_meas_cpu_vec was called\n");
 
     csys_cpu_stat_vec = csys_cpu_stat_vec_new();
     csys_cpu_stat_vec_get(csys_cpu_stat_vec);
 
     csys_cpu_stat_num = csys_cpu_stat_vec_size(csys_cpu_stat_vec);
-    sys_log(LOGSTDOUT, "[DEBUG] cmon_obj_meas_cpu_vec: csys_cpu_stat_num %ld\n", csys_cpu_stat_num);
+    dbg_log(SEC_0043_CMON, 9)(LOGSTDOUT, "[DEBUG] cmon_obj_meas_cpu_vec: csys_cpu_stat_num %ld\n", csys_cpu_stat_num);
     for(csys_cpu_stat_pos = 0; csys_cpu_stat_pos < csys_cpu_stat_num; csys_cpu_stat_pos ++)
     {
         CSYS_CPU_STAT *csys_cpu_stat;
@@ -2094,7 +2094,7 @@ UINT32 cmon_obj_meas_sys_cpu_avg_load(const UINT32 cmon_md_id, CMON_OBJ * cmon_o
     csys_cpu_avg_stat_get(csys_cpu_avg_stat);
 
     cpu_avg_load = CSYS_CPU_AVG_STAT_01_MIN(csys_cpu_avg_stat);/*okay, current implementation is to repport 1min result*/
-    //sys_log(LOGSTDOUT, "info:cmon_obj_meas_sys_cpu_avg_load: cpu_avg_load = %.2f\n", cpu_avg_load);
+    //dbg_log(SEC_0043_CMON, 3)(LOGSTDOUT, "info:cmon_obj_meas_sys_cpu_avg_load: cpu_avg_load = %.2f\n", cpu_avg_load);
 
     csys_cpu_avg_stat_free(csys_cpu_avg_stat);
 
@@ -2191,7 +2191,7 @@ UINT32 cmon_obj_meas_proc_module_vec(const UINT32 cmon_md_id, CMON_OBJ * cmon_ob
     }
 #endif/*CMON_DEBUG_SWITCH*/
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cmon_obj_meas_proc_module_vec was called\n");
+    //dbg_log(SEC_0043_CMON, 9)(LOGSTDOUT, "[DEBUG] cmon_obj_meas_proc_module_vec was called\n");
 
     cproc_module_stat_vec = cproc_module_stat_vec_new();
     cproc_module_stat_vec_get(cproc_module_stat_vec);
@@ -3781,9 +3781,9 @@ UINT32 cmon_obj_report_crank_task_report_vec(const UINT32 cmon_md_id, CMON_OBJ *
         task_report_node_clone(task_report_node_meas, task_report_node_report);
     }
 
-    //sys_log(LOGSTDOUT, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+    //dbg_log(SEC_0043_CMON, 5)(LOGSTDOUT, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
     //cvector_print(LOGSTDOUT, task_report_vec_report, (CVECTOR_DATA_PRINT)task_report_node_print);
-    //sys_log(LOGSTDOUT, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
+    //dbg_log(SEC_0043_CMON, 5)(LOGSTDOUT, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
 
     return (0);
 }
@@ -3989,7 +3989,7 @@ UINT32 cmon_obj_vec_bind(const UINT32 cmon_md_id, CMON_OBJ_VEC * cmon_obj_vec)
 
     if(NULL_PTR != CMON_OBJ_VEC_MERGE_VEC(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_bind: cmon_obj_vec already binded a merge vec\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_bind: cmon_obj_vec already binded a merge vec\n");
         return ((UINT32)-1);
     }
 
@@ -4082,7 +4082,7 @@ CMON_OBJ * cmon_obj_vec_get(const UINT32 cmon_md_id, const UINT32 cmon_obj_pos, 
         dbg_exit(MD_CMON, cmon_md_id);
     }
 #endif/*CMON_DEBUG_SWITCH*/
-    //sys_log(LOGSTDOUT, "cmon_obj_vec_get: cmon_obj_vec = %lx\n", cmon_obj_vec);
+    //dbg_log(SEC_0043_CMON, 5)(LOGSTDOUT, "cmon_obj_vec_get: cmon_obj_vec = %lx\n", cmon_obj_vec);
     cmon_obj = (CMON_OBJ *)cvector_get(CMON_OBJ_VEC(cmon_obj_vec), cmon_obj_pos);
 
     return (cmon_obj);
@@ -4229,7 +4229,7 @@ UINT32 cmon_obj_vec_purge(const UINT32 cmon_md_id, CMON_OBJ_VEC * cmon_obj_vec)
         cmon_obj = (CMON_OBJ *)cvector_get(CMON_OBJ_VEC(cmon_obj_vec), cmon_obj_pos);
         if(EC_FALSE == cmon_obj_is_connected(cmon_md_id, cmon_obj))
         {
-            sys_log(LOGSTDNULL, "[DEBUG] cmon_obj_vec_purge: tcid %s comm %ld rank %ld modi %ld was broken\n",
+            dbg_log(SEC_0043_CMON, 9)(LOGSTDNULL, "[DEBUG] cmon_obj_vec_purge: tcid %s comm %ld rank %ld modi %ld was broken\n",
                                 MOD_NODE_TCID_STR(CMON_OBJ_MOD_NODE(cmon_obj)),
                                 MOD_NODE_COMM(CMON_OBJ_MOD_NODE(cmon_obj)),
                                 MOD_NODE_RANK(CMON_OBJ_MOD_NODE(cmon_obj)),
@@ -4287,10 +4287,10 @@ UINT32 cmon_obj_vec_meas(const UINT32 cmon_md_id, const UINT32 time_to_live, CMO
     cmon_md = CMON_MD_GET(cmon_md_id);
     mod_mgr = cmon_md->mod_mgr;
 
-    //sys_log(LOGSTDOUT, "cmon_obj_vec_meas: cmon_obj_vec = %lx\n", cmon_obj_vec);
+    //dbg_log(SEC_0043_CMON, 5)(LOGSTDOUT, "cmon_obj_vec_meas: cmon_obj_vec = %lx\n", cmon_obj_vec);
     send_mod_node = MOD_MGR_LOCAL_MOD(mod_mgr);
 
-    //sys_log(LOGSTDOUT, "######## cmon_obj_vec_size = %ld\n", cmon_obj_vec_size(cmon_md_id, cmon_obj_vec));
+    //dbg_log(SEC_0043_CMON, 5)(LOGSTDOUT, "######## cmon_obj_vec_size = %ld\n", cmon_obj_vec_size(cmon_md_id, cmon_obj_vec));
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
 
@@ -4507,7 +4507,7 @@ UINT32 cmon_obj_vec_merge_calc(const UINT32 cmon_md_id, CMON_OBJ_VEC *cmon_obj_v
 
     if(NULL_PTR == CMON_OBJ_VEC_MERGE_VEC(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "warn:cmon_obj_vec_merge_calc: merge vec is null\n");
+        dbg_log(SEC_0043_CMON, 1)(LOGSTDOUT, "warn:cmon_obj_vec_merge_calc: merge vec is null\n");
         return (0);
     }
 
@@ -4744,13 +4744,13 @@ UINT32 cmon_obj_vec_merge_taskc_node_vec(const UINT32 cmon_md_id, CMON_OBJ_MERGE
     /*support one and only one vec mounting*/
     if(0 == cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_taskc_node_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_taskc_node_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
         return (0);
     }
 
     if(1 < cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_taskc_node_vec: cmon_obj_merge mount more than one vecs\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_taskc_node_vec: cmon_obj_merge mount more than one vecs\n");
         return ((UINT32)-1);
     }
 
@@ -4799,13 +4799,13 @@ UINT32 cmon_obj_vec_merge_csocket_cnode_vec(const UINT32 cmon_md_id, CMON_OBJ_ME
     /*support one and only one vec mounting*/
     if(0 == cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_csocket_cnode_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_csocket_cnode_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
         return (0);
     }
 
     if(1 < cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_csocket_cnode_vec: cmon_obj_merge mount more than one vecs\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_csocket_cnode_vec: cmon_obj_merge mount more than one vecs\n");
         return ((UINT32)-1);
     }
 
@@ -4854,13 +4854,13 @@ UINT32 cmon_obj_vec_merge_cpu_vec(const UINT32 cmon_md_id, CMON_OBJ_MERGE *cmon_
     /*support one and only one vec mounting*/
     if(0 == cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_cpu_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_cpu_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
         return (0);
     }
 
     if(1 < cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_cpu_vec: cmon_obj_merge mount more than one vecs\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_cpu_vec: cmon_obj_merge mount more than one vecs\n");
         return ((UINT32)-1);
     }
 
@@ -4909,13 +4909,13 @@ UINT32 cmon_obj_vec_merge_mm_man_occupy_node_vec(const UINT32 cmon_md_id, CMON_O
     /*support one and only one vec mounting*/
     if(0 == cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_mm_man_occupy_node_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_mm_man_occupy_node_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
         return (0);
     }
 
     if(1 < cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_mm_man_occupy_node_vec: cmon_obj_merge mount more than one vecs\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_mm_man_occupy_node_vec: cmon_obj_merge mount more than one vecs\n");
         return ((UINT32)-1);
     }
 
@@ -4964,13 +4964,13 @@ UINT32 cmon_obj_vec_merge_mm_man_load_node_vec(const UINT32 cmon_md_id, CMON_OBJ
     /*support one and only one vec mounting*/
     if(0 == cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_mm_man_load_node_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_mm_man_load_node_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
         return (0);
     }
 
     if(1 < cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_mm_man_load_node_vec: cmon_obj_merge mount more than one vecs\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_mm_man_load_node_vec: cmon_obj_merge mount more than one vecs\n");
         return ((UINT32)-1);
     }
 
@@ -5021,13 +5021,13 @@ UINT32 cmon_obj_vec_merge_module_vec(const UINT32 cmon_md_id, CMON_OBJ_MERGE *cm
     /*support one and only one vec mounting*/
     if(0 == cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_module_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_module_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
         return (0);
     }
 #if 0
     if(1 < cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_module_vec: cmon_obj_merge mount more than one vecs\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_module_vec: cmon_obj_merge mount more than one vecs\n");
         return ((UINT32)-1);
     }
 #endif
@@ -5093,13 +5093,13 @@ UINT32 cmon_obj_vec_merge_csys_eth_stat_vec(const UINT32 cmon_md_id, CMON_OBJ_ME
     /*support one and only one vec mounting*/
     if(0 == cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_csys_eth_stat_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_csys_eth_stat_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
         return (0);
     }
 
     if(1 < cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_csys_eth_stat_vec: cmon_obj_merge mount more than one vecs\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_csys_eth_stat_vec: cmon_obj_merge mount more than one vecs\n");
         return ((UINT32)-1);
     }
 
@@ -5148,13 +5148,13 @@ UINT32 cmon_obj_vec_merge_csys_dsk_stat_vec(const UINT32 cmon_md_id, CMON_OBJ_ME
     /*support one and only one vec mounting*/
     if(0 == cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_csys_dsk_stat_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_csys_dsk_stat_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
         return (0);
     }
 
     if(1 < cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_csys_dsk_stat_vec: cmon_obj_merge mount more than one vecs\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_csys_dsk_stat_vec: cmon_obj_merge mount more than one vecs\n");
         return ((UINT32)-1);
     }
 
@@ -5199,13 +5199,13 @@ UINT32 cmon_obj_vec_merge_crank_task_report_vec(const UINT32 cmon_md_id, CMON_OB
     /*support one and only one vec mounting*/
     if(0 == cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_crank_task_report_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_crank_task_report_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
         return (0);
     }
 #if 1
     if(1 < cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_crank_task_report_vec: cmon_obj_merge mount more than one vecs\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_crank_task_report_vec: cmon_obj_merge mount more than one vecs\n");
         return ((UINT32)-1);
     }
 #endif
@@ -5258,13 +5258,13 @@ UINT32 cmon_obj_vec_merge_csys_task_report_vec(const UINT32 cmon_md_id, CMON_OBJ
     /*support one and only one vec mounting*/
     if(0 == cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_csys_task_report_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_csys_task_report_vec: cmon_obj_pos_vec of cmon_obj_merge has nothing\n");
         return (0);
     }
 #if 0
     if(1 < cvector_size(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "error:cmon_obj_vec_merge_csys_task_report_vec: cmon_obj_merge mount more than one vecs\n");
+        dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_vec_merge_csys_task_report_vec: cmon_obj_merge mount more than one vecs\n");
         return ((UINT32)-1);
     }
 #endif
@@ -5321,7 +5321,7 @@ UINT32 cmon_obj_vec_merge_print(const UINT32 cmon_md_id, const CMON_OBJ_VEC *cmo
 
     if(NULL_PTR == CMON_OBJ_VEC_MERGE_VEC(cmon_obj_vec))
     {
-        sys_log(LOGSTDOUT, "warn:cmon_obj_vec_merge_print: merge vec is null\n");
+        dbg_log(SEC_0043_CMON, 1)(LOGSTDOUT, "warn:cmon_obj_vec_merge_print: merge vec is null\n");
         return (0);
     }
 
@@ -6119,7 +6119,7 @@ UINT32 cmon_obj_merge_result_clean(const UINT32 cmon_md_id, CMON_OBJ_MERGE * cmo
             crank_thread_stat_clean(CMON_OBJ_MERGE_RESULT_CRANK_THREAD_STAT(cmon_obj_merge));
             break;
         default:
-            sys_log(LOGSTDOUT, "error:cmon_obj_merge_result_clean:unknow CMON_MAP_MERGE_VEC_ITEM_TYPE %ld\n",
+            dbg_log(SEC_0043_CMON, 0)(LOGSTDOUT, "error:cmon_obj_merge_result_clean:unknow CMON_MAP_MERGE_VEC_ITEM_TYPE %ld\n",
                                 CMON_MAP_MERGE_VEC_ITEM_TYPE(cmon_map));
     }
 

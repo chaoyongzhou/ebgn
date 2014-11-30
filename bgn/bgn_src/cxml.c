@@ -48,7 +48,8 @@ extern "C"{
 
 #define XML_SKIP_TEXT_NODE(cur) if(XML_IS_TEXT_NODE(cur))  { continue; }
 
-#define XML_RANK_SEPARATOR ((char *)":;, \t\n\r")
+#define XML_RANK_SEPARATOR       ((char *)":;, \t\n\r")
+#define XML_CLUSTER_SEPARATOR    ((char *)":;, \t\n\r")
 
 
 static EC_BOOL __cxml_parse_tag_uint32(xmlNodePtr node, const char *tag, UINT32 *data)
@@ -79,6 +80,7 @@ static EC_BOOL __cxml_parse_tag_tcid(xmlNodePtr node, const char *tag, UINT32 *t
         
         attr_val = xmlGetProp(node, (const xmlChar*)tag);
         (*tcid) = c_ipv4_to_word((char *)attr_val);
+        //dbg_log(SEC_0046_CXML, 9)(LOGSTDOUT, "[DEBUG] __cxml_parse_tag_tcid: %s -> %ld -> %s\n", attr_val, (*tcid), c_word_to_ipv4(*tcid));
         xmlFree(attr_val);
         
         return (EC_TRUE);
@@ -212,7 +214,7 @@ static EC_BOOL __cxml_parse_tag_mac_addr(xmlNodePtr node, const char *tag, UINT8
 
         if(EC_FALSE == str_to_mac_addr((char *)attr_val, mac_addr))
         {
-            sys_log(LOGSTDOUT, "error:__cxml_parse_tag_mac_addr: invalid mac addr %s\n", (char *)attr_val);
+            dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:__cxml_parse_tag_mac_addr: invalid mac addr %s\n", (char *)attr_val);
             xmlFree(attr_val);
 
             return (EC_FALSE);
@@ -285,7 +287,7 @@ static EC_BOOL __cxml_parse_mcast_type(xmlNodePtr node, const char *tag, UINT32 
         }
         else
         {
-            sys_log(LOGSTDOUT, "error:__cxml_parse_mcast_type: invalid type %s\n", (char *)attr_val);
+            dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:__cxml_parse_mcast_type: invalid type %s\n", (char *)attr_val);
             xmlFree(attr_val);
             return (EC_FALSE);
         }
@@ -318,10 +320,14 @@ static EC_BOOL __cxml_parse_cluster_model(xmlNodePtr node, const char *tag, UINT
         else if(0 == strcasecmp((char *)attr_val, "hsbgt"))
         {
             (*cluster_model) = MODEL_TYPE_HSBGT_CONNEC;
-        }          
+        }     
+        else if(0 == strcasecmp((char *)attr_val, "hsrfs"))
+        {
+            (*cluster_model) = MODEL_TYPE_HSRFS_CONNEC;
+        }        
         else
         {
-            sys_log(LOGSTDOUT, "error:__cxml_parse_cluster_model: invalid type %s\n", (char *)attr_val);
+            dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:__cxml_parse_cluster_model: invalid type %s\n", (char *)attr_val);
             xmlFree(attr_val);
             return (EC_FALSE);
         }
@@ -334,21 +340,21 @@ static EC_BOOL __cxml_parse_cluster_model(xmlNodePtr node, const char *tag, UINT
 
 static EC_BOOL __cxml_parse_cluster_extra(xmlNodePtr node, const char *tag, CMAP *extras)
 {
-    //sys_log(LOGSTDOUT, "[DEBUG] __cxml_parse_cluster_extra: check tag %s\n", tag);
+    //dbg_log(SEC_0046_CXML, 9)(LOGSTDOUT, "[DEBUG] __cxml_parse_cluster_extra: check tag %s\n", tag);
     if(xmlHasProp(node, (const xmlChar*)tag))
     {
         xmlChar *attr_val;
         CSTRING *key;
         CSTRING *val;
 
-        //sys_log(LOGSTDOUT, "[DEBUG] __cxml_parse_cluster_extra: check tag %s [DONE]\n", tag);
+        //dbg_log(SEC_0046_CXML, 9)(LOGSTDOUT, "[DEBUG] __cxml_parse_cluster_extra: check tag %s [DONE]\n", tag);
         
         attr_val = xmlGetProp(node, (const xmlChar*)tag);
         
         key = cstring_new((const UINT8 *)tag, LOC_CXML_0001);
         if(NULL_PTR == key)
         {
-            sys_log(LOGSTDOUT, "error:__cxml_parse_cluster_extra: new key cstring failed\n");
+            dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:__cxml_parse_cluster_extra: new key cstring failed\n");
             xmlFree(attr_val);
             return (EC_FALSE);
         }
@@ -356,7 +362,7 @@ static EC_BOOL __cxml_parse_cluster_extra(xmlNodePtr node, const char *tag, CMAP
         val = cstring_new((const UINT8 *)attr_val, LOC_CXML_0002);
         if(NULL_PTR == val)
         {
-            sys_log(LOGSTDOUT, "error:__cxml_parse_cluster_extra: new val cstring failed\n");
+            dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:__cxml_parse_cluster_extra: new val cstring failed\n");
             cstring_free(key);
             xmlFree(attr_val);
             return (EC_FALSE);
@@ -364,7 +370,7 @@ static EC_BOOL __cxml_parse_cluster_extra(xmlNodePtr node, const char *tag, CMAP
         
         if(EC_FALSE == cmap_add(extras, (void *)key, (void *)val, LOC_CXML_0003))
         {
-            sys_log(LOGSTDOUT, "error:__cxml_parse_cluster_extra: add extra failed\n");
+            dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:__cxml_parse_cluster_extra: add extra failed\n");
             cstring_free(key);
             cstring_free(val);
             xmlFree(attr_val);
@@ -375,7 +381,7 @@ static EC_BOOL __cxml_parse_cluster_extra(xmlNodePtr node, const char *tag, CMAP
         return (EC_TRUE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] __cxml_parse_cluster_extra: check tag %s [FAIL]\n", tag);
+    //dbg_log(SEC_0046_CXML, 9)(LOGSTDOUT, "[DEBUG] __cxml_parse_cluster_extra: check tag %s [FAIL]\n", tag);
     return (EC_FALSE);
 }
 
@@ -396,7 +402,7 @@ static EC_BOOL __cxml_parse_bcast_dhcp_type(xmlNodePtr node, const char *tag, UI
         }
         else
         {
-            sys_log(LOGSTDOUT, "error:__cxml_parse_bcast_dhcp_type: invalid type %s\n", (char *)attr_val);
+            dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:__cxml_parse_bcast_dhcp_type: invalid type %s\n", (char *)attr_val);
             xmlFree(attr_val);
             return (EC_FALSE);
         }
@@ -453,7 +459,7 @@ static EC_BOOL __cxml_parse_tag_uint32_range(char *attr_val, CVECTOR *uint32_vec
     return (EC_TRUE);
 }
 
-static EC_BOOL __cxml_parse_tag_uint32_vec(xmlNodePtr node, const char *tag, CVECTOR *uint32_vec)
+static EC_BOOL __cxml_parse_tag_uint32_vec(xmlNodePtr node, const char *tag, const char *separator, CVECTOR *uint32_vec)
 {
     ASSERT(MM_UINT32 == uint32_vec->data_mm_type);
     
@@ -467,7 +473,7 @@ static EC_BOOL __cxml_parse_tag_uint32_vec(xmlNodePtr node, const char *tag, CVE
         
         attr_val = xmlGetProp(node, (const xmlChar*)tag);
 
-        field_num = c_str_split((char *)attr_val, XML_RANK_SEPARATOR, fields, sizeof(fields)/sizeof(fields[0]));
+        field_num = c_str_split((char *)attr_val, separator, fields, sizeof(fields)/sizeof(fields[0]));
         for(field_pos = 0; field_pos < field_num; field_pos ++)
         {
             if(NULL_PTR != strchr((char *)fields[field_pos], '-'))
@@ -491,13 +497,19 @@ static EC_BOOL __cxml_parse_tag_uint32_vec(xmlNodePtr node, const char *tag, CVE
 
 static EC_BOOL __cxml_parse_tag_rank_vec(xmlNodePtr node, const char *tag, CVECTOR *rank_vec)
 {
-    __cxml_parse_tag_uint32_vec(node, tag, rank_vec);
+    __cxml_parse_tag_uint32_vec(node, tag, XML_RANK_SEPARATOR, rank_vec);
     if(0 == cvector_size(rank_vec))
     {
         UINT32 rank;
         rank = 0;/*default*/
         cvector_push(rank_vec, (void *)rank);
     }
+    return (EC_TRUE);
+}
+
+static EC_BOOL __cxml_parse_tag_cluster_vec(xmlNodePtr node, const char *tag, CVECTOR *cluster_vec)
+{
+    __cxml_parse_tag_uint32_vec(node, tag, XML_CLUSTER_SEPARATOR, cluster_vec);
     return (EC_TRUE);
 }
 
@@ -510,7 +522,7 @@ static EC_BOOL __cxml_parse_any_of_tags(xmlNodePtr node, const char *tags_str, v
 
     if(strlen(tags_str) >= sizeof(buf)/sizeof(buf[0]))
     {
-        sys_log(LOGSTDOUT, "error:__cxml_parse_any_of_tags: tags str '%s' overflow\n", tags_str);
+        dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:__cxml_parse_any_of_tags: tags str '%s' overflow\n", tags_str);
         return (EC_FALSE);
     }
 
@@ -538,7 +550,7 @@ static EC_BOOL __cxml_parse_all_of_tags(xmlNodePtr node, const char *tags_str, v
 
     if(strlen(tags_str) >= sizeof(buf)/sizeof(buf[0]))
     {
-        sys_log(LOGSTDOUT, "error:__cxml_parse_all_of_tags: tags str '%s' overflow\n", tags_str);
+        dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:__cxml_parse_all_of_tags: tags str '%s' overflow\n", tags_str);
         return (EC_FALSE);
     }
 
@@ -554,6 +566,93 @@ static EC_BOOL __cxml_parse_all_of_tags(xmlNodePtr node, const char *tags_str, v
     return (EC_FALSE);
 }
 
+static EC_BOOL __cxml_parse_log_level(xmlNodePtr node, char *log_level_str, UINT32 *log_level_tab, const UINT32 log_level_tab_size)
+{
+    char  *fields[2];
+    int    field_num;
+    UINT32 log_level;
+    
+    /*fields[field_pos] format is: ALL:9 or 1-100:5 or 1:4 etc.*/
+    field_num = c_str_split((char *)log_level_str, (const char *)":", fields, sizeof(fields)/sizeof(fields[0]));
+    ASSERT(2 == field_num);
+
+    //sys_log(LOGSTDOUT, "[DEBUG] __cxml_parse_log_level: log_level_str: %s\n", log_level_str);
+
+    log_level = c_str_to_word(fields[ 1 ]);
+    //sys_log(LOGSTDOUT, "[DEBUG] __cxml_parse_log_level: log_level: %ld\n", log_level);
+
+    if(0 == strcasecmp(fields[ 0 ], (const char *)"all"))
+    {
+        dbg_log(SEC_0046_CXML, 9)(LOGSTDOUT, "[DEBUG] __cxml_parse_log_level: set all to log level %ld\n", log_level);
+        log_level_tab_set_all(log_level_tab, log_level_tab_size, log_level);
+        return (EC_TRUE);
+    }
+    
+    if(NULL_PTR != strchr((char *)fields[ 0 ], '-'))
+    {
+        CVECTOR sector_vec;
+        UINT32  sector_pos;
+
+        cvector_init(&sector_vec, 0, MM_UINT32, CVECTOR_LOCK_DISABLE, LOC_CXML_0004);
+        
+        __cxml_parse_tag_uint32_range(fields[ 0 ], &sector_vec);
+
+        for(sector_pos = 0; sector_pos < cvector_size(&sector_vec); sector_pos ++)
+        {
+            UINT32 log_sector;
+
+            log_sector = (UINT32)cvector_get_no_lock(&sector_vec, sector_pos);
+            log_level_set(log_level_tab, log_level_tab_size, log_sector, log_level);
+        }
+        
+        cvector_clean_no_lock(&sector_vec, NULL_PTR, LOC_CXML_0005);
+    }
+    else
+    {
+        UINT32 log_sector;
+        
+        log_sector = c_str_to_word(fields[ 0 ]);
+        log_level_set(log_level_tab, log_level_tab_size, log_sector, log_level);
+    }
+    return (EC_TRUE);
+}
+
+static EC_BOOL __cxml_parse_tag_log_level_tab(xmlNodePtr node, const char *tag, UINT32 *log_level_tab, const UINT32 log_level_tab_size)
+{  
+    if(xmlHasProp(node, (const xmlChar*)tag))
+    {
+        xmlChar *attr_val;
+        
+        char **fields;
+        int field_num;
+        int field_pos;
+
+        dbg_log(SEC_0046_CXML, 9)(LOGSTDOUT, "[DEBUG] __cxml_parse_tag_log_level_tab: parse %s\n", tag);
+
+        fields = (char **)safe_malloc(log_level_tab_size * sizeof(char *), LOC_CXML_0006);
+        if(NULL_PTR == fields)
+        {
+            dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:__cxml_parse_tag_log_level_tab: malloc %ld char pointer failed\n", log_level_tab_size);
+            return (EC_FALSE);
+        }
+
+        attr_val = xmlGetProp(node, (const xmlChar*)tag);
+
+        field_num = c_str_split((char *)attr_val, (const char *)", \t\r\n", fields, log_level_tab_size);
+        for(field_pos = 0; field_pos < field_num; field_pos ++)
+        {
+            dbg_log(SEC_0046_CXML, 9)(LOGSTDOUT, "[DEBUG] __cxml_parse_tag_log_level_tab: parse %s, %s\n", tag, (char *)fields[field_pos]);
+            __cxml_parse_log_level(node, (char *)fields[field_pos], log_level_tab, log_level_tab_size);
+        }
+
+        safe_free(fields, LOC_CXML_0007);
+        xmlFree(attr_val);
+        return (EC_TRUE);
+    }
+    
+    return (EC_FALSE);
+}
+
 xmlDocPtr cxml_new(const UINT8 *xml_doc_name)
 {
     xmlDocPtr xml_doc_ptr;
@@ -561,7 +660,7 @@ xmlDocPtr cxml_new(const UINT8 *xml_doc_name)
     xml_doc_ptr = xmlParseFile((const char *)xml_doc_name);
     if(NULL_PTR == xml_doc_ptr)
     {
-        sys_log(LOGSTDOUT, "cxml_new: failed to parse %s\n", (const char *)xml_doc_name);
+        dbg_log(SEC_0046_CXML, 5)(LOGSTDOUT, "cxml_new: failed to parse %s\n", (const char *)xml_doc_name);
         return ((xmlDocPtr)0);
     }
     return (xml_doc_ptr);
@@ -574,7 +673,7 @@ xmlNodePtr cxml_get_root(xmlDocPtr xml_doc_ptr)
     xml_node_ptr = xmlDocGetRootElement(xml_doc_ptr);
     if(NULL_PTR == xml_node_ptr)
     {
-        sys_log(LOGSTDOUT, "cxml_get_root: empty document\n");
+        dbg_log(SEC_0046_CXML, 5)(LOGSTDOUT, "cxml_get_root: empty document\n");
         return ((xmlNodePtr)0);
     }
     return (xml_node_ptr);
@@ -599,7 +698,7 @@ EC_BOOL cxml_parse_tasks_cfg(xmlNodePtr node, TASKS_CFG *tasks_cfg)
     __cxml_parse_any_of_tags(node, (const char *)"srvport:sport:port"      , &(TASKS_CFG_SRVPORT(tasks_cfg)), (CXML_PARSE_TAG)__cxml_parse_tag_srv_port);
     __cxml_parse_any_of_tags(node, (const char *)"csrvport:cport"          , &(TASKS_CFG_CSRVPORT(tasks_cfg)), (CXML_PARSE_TAG)__cxml_parse_tag_srv_port);
 
-    __cxml_parse_tag_uint32_vec(node, (const char *)"cluster", TASKS_CFG_CLUSTER_VEC(tasks_cfg));
+    __cxml_parse_tag_cluster_vec(node, (const char *)"cluster", TASKS_CFG_CLUSTER_VEC(tasks_cfg));
 
     for(cur = node->xmlChildrenNode; NULL_PTR != cur; cur = cur->next)
     {
@@ -608,18 +707,18 @@ EC_BOOL cxml_parse_tasks_cfg(xmlNodePtr node, TASKS_CFG *tasks_cfg)
         if(0 == xmlStrcmp(cur->name, (const xmlChar*)"taskr"))
         {
             TASKR_CFG *taskr_cfg;
-            //sys_log(LOGSTDOUT,"cxml_parse_tasks_cfg: [%s]\n", cur->name);
+            //dbg_log(SEC_0046_CXML, 5)(LOGSTDOUT,"cxml_parse_tasks_cfg: [%s]\n", cur->name);
 
             taskr_cfg = taskr_cfg_new();
             if(NULL_PTR == taskr_cfg)
             {
-                sys_log(LOGSTDOUT, "error:cxml_parse_tasks_cfg: new taskr_cfg failed\n");
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_tasks_cfg: new taskr_cfg failed\n");
                 return (EC_FALSE);
             }
             if(EC_FALSE == cxml_parse_taskr_cfg(cur, taskr_cfg))
             {
                 taskr_cfg_free(taskr_cfg);
-                sys_log(LOGSTDOUT, "error:cxml_parse_tasks_cfg: parse taskr_cfg failed\n");
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_tasks_cfg: parse taskr_cfg failed\n");
                 return (EC_FALSE);
             }
             cvector_push(TASKS_CFG_TASKR_CFG_VEC(tasks_cfg), (void *)taskr_cfg);
@@ -630,27 +729,27 @@ EC_BOOL cxml_parse_tasks_cfg(xmlNodePtr node, TASKS_CFG *tasks_cfg)
     if(CMPI_ERROR_TCID == TASKS_CFG_TCID(tasks_cfg))
     {
         TASKS_CFG_TCID(tasks_cfg)  = TASKS_CFG_SRVIPADDR(tasks_cfg);
-        sys_log(LOGSTDNULL, "warn:cxml_parse_tasks_cfg: set tcid to %s same as ipaddr due to no tcid configuration\n",
+        dbg_log(SEC_0046_CXML, 1)(LOGSTDNULL, "warn:cxml_parse_tasks_cfg: set tcid to %s same as ipaddr due to no tcid configuration\n",
                             TASKS_CFG_TCID_STR(tasks_cfg));
     }
 
     if(CMPI_ERROR_IPADDR == TASKS_CFG_SRVIPADDR(tasks_cfg))
     {
         TASKS_CFG_SRVIPADDR(tasks_cfg)  = TASKS_CFG_TCID(tasks_cfg);
-        sys_log(LOGSTDNULL, "warn:cxml_parse_tasks_cfg: set srvipaddr to %s same as tcid default due to no srvipaddr configuration\n",
+        dbg_log(SEC_0046_CXML, 1)(LOGSTDNULL, "warn:cxml_parse_tasks_cfg: set srvipaddr to %s same as tcid default due to no srvipaddr configuration\n",
                             TASKS_CFG_SRVIPADDR_STR(tasks_cfg));
     }
 
     if(CMPI_ERROR_MASK == TASKS_CFG_MASKI(tasks_cfg))
     {
         TASKS_CFG_MASKI(tasks_cfg) = BITS_TO_MASK(TASKS_CFG_DEFAULT_MASKI);
-        sys_log(LOGSTDNULL, "warn:cxml_parse_tasks_cfg: set maski to default %s\n", TASKS_CFG_MASKI_STR(tasks_cfg));
+        dbg_log(SEC_0046_CXML, 1)(LOGSTDNULL, "warn:cxml_parse_tasks_cfg: set maski to default %s\n", TASKS_CFG_MASKI_STR(tasks_cfg));
     }
 
     if(CMPI_ERROR_MASK == TASKS_CFG_MASKE(tasks_cfg))
     {
         TASKS_CFG_MASKE(tasks_cfg) = BITS_TO_MASK(TASKS_CFG_DEFAULT_MASKE);
-        sys_log(LOGSTDNULL, "warn:cxml_parse_tasks_cfg: set maske to default %s\n", TASKS_CFG_MASKE_STR(tasks_cfg));
+        dbg_log(SEC_0046_CXML, 1)(LOGSTDNULL, "warn:cxml_parse_tasks_cfg: set maske to default %s\n", TASKS_CFG_MASKE_STR(tasks_cfg));
     }
 
     return (EC_TRUE);
@@ -671,7 +770,7 @@ EC_BOOL cxml_parse_task_cfg(xmlNodePtr node, TASK_CFG *task_cfg, const UINT32 de
 
     if(0 != xmlStrcmp(node->name, (const xmlChar*)"taskConfig"))
     {
-        sys_log(LOGSTDNULL, "error:cxml_parse_task_cfg: found no taskConfig\n");
+        dbg_log(SEC_0046_CXML, 9)(LOGSTDNULL, "error:cxml_parse_task_cfg: found no taskConfig\n");
         return (EC_FALSE);
     }
 
@@ -681,18 +780,18 @@ EC_BOOL cxml_parse_task_cfg(xmlNodePtr node, TASK_CFG *task_cfg, const UINT32 de
         if(0 == xmlStrcmp(cur->name, (const xmlChar*)"tasks"))
         {
             TASKS_CFG *tasks_cfg;
-            //sys_log(LOGSTDOUT,"cxml_parse_task_cfg: [%s]\n", cur->name);
+            //dbg_log(SEC_0046_CXML, 5)(LOGSTDOUT,"cxml_parse_task_cfg: [%s]\n", cur->name);
 
             tasks_cfg = tasks_cfg_new();
             if(NULL_PTR == tasks_cfg)
             {
-                sys_log(LOGSTDOUT, "error:cxml_parse_task_cfg: new tasks_cfg failed\n");
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_task_cfg: new tasks_cfg failed\n");
                 return (EC_FALSE);
             }
             
             if(EC_FALSE == cxml_parse_tasks_cfg(cur, tasks_cfg))
             {
-                sys_log(LOGSTDOUT, "error:cxml_parse_task_cfg: parse tasks_cfg failed\n");
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_task_cfg: parse tasks_cfg failed\n");
                 tasks_cfg_free(tasks_cfg);
                 return (EC_FALSE);
             }
@@ -702,7 +801,7 @@ EC_BOOL cxml_parse_task_cfg(xmlNodePtr node, TASK_CFG *task_cfg, const UINT32 de
                 TASKS_CFG_SRVPORT(tasks_cfg) = default_tasks_cfg_port;
             }
 
-            CVECTOR_LOCK(TASK_CFG_TASKS_CFG_VEC(task_cfg), LOC_CXML_0004);
+            CVECTOR_LOCK(TASK_CFG_TASKS_CFG_VEC(task_cfg), LOC_CXML_0008);
             if(CVECTOR_ERR_POS == cvector_search_front_no_lock(TASK_CFG_TASKS_CFG_VEC(task_cfg), (void *)tasks_cfg, (CVECTOR_DATA_CMP)tasks_cfg_cmp))
             {
                 cvector_push_no_lock(TASK_CFG_TASKS_CFG_VEC(task_cfg), (void *)tasks_cfg);
@@ -711,7 +810,7 @@ EC_BOOL cxml_parse_task_cfg(xmlNodePtr node, TASK_CFG *task_cfg, const UINT32 de
             {
                 tasks_cfg_free(tasks_cfg);
             }
-            CVECTOR_UNLOCK(TASK_CFG_TASKS_CFG_VEC(task_cfg), LOC_CXML_0005);
+            CVECTOR_UNLOCK(TASK_CFG_TASKS_CFG_VEC(task_cfg), LOC_CXML_0009);
             continue;
         }
     }
@@ -748,12 +847,12 @@ EC_BOOL cxml_parse_cluster_cfg(xmlNodePtr node, CLUSTER_CFG *cluster_cfg)
             cluster_node_cfg = cluster_node_cfg_new();
             if(NULL_PTR == cluster_node_cfg)
             {
-                sys_log(LOGSTDOUT, "error:cxml_parse_cluster_cfg: new cluster_node_cfg failed\n");
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_cluster_cfg: new cluster_node_cfg failed\n");
                 return (EC_FALSE);
             }
             if(EC_FALSE == cxml_parse_cluster_node_cfg(cur, cluster_node_cfg))
             {
-                sys_log(LOGSTDOUT, "error:cxml_parse_cluster_cfg: parse cluster_node_cfg failed\n");
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_cluster_cfg: parse cluster_node_cfg failed\n");
                 cluster_node_cfg_free(cluster_node_cfg);
                 return (EC_FALSE);
             }
@@ -768,7 +867,7 @@ EC_BOOL cxml_parse_cluster_cfg_vec(xmlNodePtr node, CVECTOR *cluster_cfg_vec)
 {
     xmlNodePtr cur;
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cxml_parse_cluster_cfg_vec: enter\n");
+    //dbg_log(SEC_0046_CXML, 9)(LOGSTDOUT, "[DEBUG] cxml_parse_cluster_cfg_vec: enter\n");
     
     for(cur = node->xmlChildrenNode; NULL_PTR != cur; cur = cur->next)
     {
@@ -780,25 +879,25 @@ EC_BOOL cxml_parse_cluster_cfg_vec(xmlNodePtr node, CVECTOR *cluster_cfg_vec)
             cluster_cfg = cluster_cfg_new();
             if(NULL_PTR == cluster_cfg)
             {
-                sys_log(LOGSTDOUT, "error:cxml_parse_cluster_cfg_vec: new cluster_cfg failed\n");
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_cluster_cfg_vec: new cluster_cfg failed\n");
                 return (EC_FALSE);
             }
             
             if(EC_FALSE == cxml_parse_cluster_cfg(cur, cluster_cfg))
             {
-                sys_log(LOGSTDOUT, "error:cxml_parse_cluster_cfg_vec: parse cluster_cfg failed\n");
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_cluster_cfg_vec: parse cluster_cfg failed\n");
                 cluster_cfg_free(cluster_cfg);
                 return (EC_FALSE);
             }
 
             if(CVECTOR_ERR_POS != cvector_search_front(cluster_cfg_vec, (void *)cluster_cfg, (CVECTOR_DATA_CMP)cluster_cfg_check_duplicate))
             {
-                sys_log(LOGSTDOUT, "error:cxml_parse_cluster_cfg_vec: found cluster id=%ld or name=%s duplicate\n",
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_cluster_cfg_vec: found cluster id=%ld or name=%s duplicate\n",
                                     CLUSTER_CFG_ID(cluster_cfg), (char *)CLUSTER_CFG_NAME_STR(cluster_cfg));
                 cluster_cfg_free(cluster_cfg);
                 return (EC_FALSE);
             }
-            //sys_log(LOGSTDOUT, "[DEBUG]cxml_parse_cluster_cfg_vec: cluster_cfg is\n");
+            //dbg_log(SEC_0046_CXML, 9)(LOGSTDOUT, "[DEBUG]cxml_parse_cluster_cfg_vec: cluster_cfg is\n");
             //cluster_cfg_print_xml(LOGSTDOUT, cluster_cfg, 0);
             cvector_push(cluster_cfg_vec, (void *)cluster_cfg);
             continue;
@@ -830,10 +929,10 @@ EC_BOOL cxml_parse_udp_mcast_cfg(xmlNodePtr node, MCAST_CFG *mcast_cfg)
 {
     xmlNodePtr cur;
 
-    sys_log(LOGSTDNULL,"cxml_parse_udp_mcast_cfg: [%s]\n", node->name);
+    dbg_log(SEC_0046_CXML, 5)(LOGSTDNULL,"cxml_parse_udp_mcast_cfg: [%s]\n", node->name);
     if(0 != xmlStrcmp(node->name, (const xmlChar*)"udpMulticastConfig"))
     {
-        sys_log(LOGSTDNULL, "error:cxml_parse_udp_mcast_cfg: found no udpMulticastConfig\n");
+        dbg_log(SEC_0046_CXML, 9)(LOGSTDNULL, "error:cxml_parse_udp_mcast_cfg: found no udpMulticastConfig\n");
         return (EC_FALSE);
     }
 
@@ -930,6 +1029,7 @@ EC_BOOL cxml_parse_cparacfg_log_cfg(xmlNodePtr node, CPARACFG *cparacfg)
 {
     __cxml_parse_tag_uint32(node, (const char *)"logMaxRecords", &(CPARACFG_FILE_LOG_MAX_RECORDS(cparacfg)));
     __cxml_parse_tag_switch(node, (const char *)"logNameWithDataSwitch", &(CPARACFG_FILE_LOG_NAME_WITH_DATE_SWITCH(cparacfg)));
+    __cxml_parse_tag_log_level_tab(node, (const char *)"logLevel", CPARACFG_LOG_LEVEL_TAB(cparacfg), SEC_NONE_END);
     
     return (EC_TRUE);
 }
@@ -987,52 +1087,16 @@ EC_BOOL cxml_parse_cparacfg_para_cfg(xmlNodePtr node, CPARACFG *cparacfg)
     return (EC_TRUE);
 }
 
-EC_BOOL cxml_parse_cparacfg_of_specific0(xmlNodePtr node, CPARACFG *cparacfg, const UINT32 tcid, const UINT32 rank)
-{
-    xmlNodePtr cur;
-
-    sys_log(LOGSTDNULL,"cxml_parse_cparacfg_of_specific: [%s]\n", node->name);
-
-    for(cur = node->xmlChildrenNode; NULL_PTR != cur; cur = cur->next)
-    {
-        XML_SKIP_TEXT_NODE(cur);
-        if(0 == xmlStrcmp(cur->name, (const xmlChar*)"paraConfig"))
-        {
-            UINT32 cur_tcid;
-            UINT32 cur_rank;
-
-            if(EC_FALSE == cxml_parse_cparacfg_tcid_rank(cur, &cur_tcid, &cur_rank))
-            {
-                sys_log(LOGSTDNULL, "error:cxml_parse_cparacfg_of_specific: no tcid or rank in sysConfig\n");
-                continue;
-            }
-
-            if(
-                (CMPI_ANY_TCID == cur_tcid || tcid == cur_tcid)
-             && (CMPI_ANY_RANK == cur_rank || rank == cur_rank)
-             )
-            {
-                CPARACFG_TCID(cparacfg) = tcid;
-                CPARACFG_RANK(cparacfg) = rank;
-                return cxml_parse_cparacfg_para_cfg(cur, cparacfg);
-            }
-        }
-    }
-
-    sys_log(LOGSTDOUT, "error:cxml_parse_cparacfg_of_specific: no sysConfig for tcid %s rank %ld\n", c_word_to_ipv4(tcid), rank);
-    return (EC_FALSE);
-}
-
 EC_BOOL cxml_parse_cparacfg_of_specific(xmlNodePtr node, CPARACFG *cparacfg, const UINT32 tcid, const UINT32 rank)
 {
     UINT32 cur_tcid;
     UINT32 cur_rank;
 
-    sys_log(LOGSTDNULL,"cxml_parse_cparacfg_of_specific: [%s]\n", node->name);
+    dbg_log(SEC_0046_CXML, 5)(LOGSTDNULL,"cxml_parse_cparacfg_of_specific: [%s]\n", node->name);
 
     if(EC_FALSE == cxml_parse_cparacfg_tcid_rank(node, &cur_tcid, &cur_rank))
     {
-        sys_log(LOGSTDNULL, "error:cxml_parse_cparacfg_of_specific: no tcid or rank in sysConfig\n");
+        dbg_log(SEC_0046_CXML, 9)(LOGSTDNULL, "error:cxml_parse_cparacfg_of_specific: no tcid or rank in sysConfig\n");
         return (EC_FALSE);
     }
 
@@ -1046,8 +1110,101 @@ EC_BOOL cxml_parse_cparacfg_of_specific(xmlNodePtr node, CPARACFG *cparacfg, con
         return cxml_parse_cparacfg_para_cfg(node, cparacfg);
     }
 
-    sys_log(LOGSTDNULL, "error:cxml_parse_cparacfg_of_specific: no sysConfig for tcid %s rank %ld\n", c_word_to_ipv4(tcid), rank);
+    dbg_log(SEC_0046_CXML, 9)(LOGSTDNULL, "error:cxml_parse_cparacfg_of_specific: no sysConfig for tcid %s rank %ld\n", c_word_to_ipv4(tcid), rank);
     return (EC_FALSE);
+}
+
+EC_BOOL cxml_parse_para_cfgx(xmlNodePtr node, CVECTOR *paras_cfg)
+{
+    UINT32 tcid;
+    CVECTOR rank_vec;
+    UINT32  pos;
+
+    __cxml_parse_tag_tcid(node, (const char *)"tcid", &tcid);
+
+    cvector_init(&rank_vec, 0, MM_UINT32, CVECTOR_LOCK_ENABLE, LOC_CXML_0010);
+    __cxml_parse_tag_rank_vec(node, (const char *)"rank", &rank_vec);
+    
+    for(pos = 0; pos < cvector_size(&rank_vec); pos ++)
+    {
+        UINT32 rank;
+        UINT32 cparacfg_pos;
+        CPARACFG *cparacfg;
+
+        rank = (UINT32)cvector_get_no_lock(&rank_vec, pos);
+        dbg_log(SEC_0046_CXML, 9)(LOGSTDOUT, "[DEBUG] cxml_parse_para_cfg: parse cparacfg of tcid %s rank %ld\n", c_word_to_ipv4(tcid), rank);
+        
+        cparacfg = cparacfg_new(tcid, rank);
+        if(NULL_PTR == cparacfg)
+        {
+            dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_para_cfg: new cparacfg failed\n");
+            cvector_clean_no_lock(&rank_vec, NULL_PTR, LOC_CXML_0011);    
+            return (EC_FALSE);
+        }
+
+        /*init cparacfg log level table*/
+        if(CMPI_LOCAL_TCID == tcid && CMPI_LOCAL_RANK == rank)
+        {
+            /*copy from g_log_level table ...*/
+            log_level_export(CPARACFG_LOG_LEVEL_TAB(cparacfg), SEC_NONE_END);            
+        }
+        else
+        {
+            log_level_tab_init(CPARACFG_LOG_LEVEL_TAB(cparacfg), SEC_NONE_END, LOG_ERR_DBG_LEVEL);
+        }
+                
+        if(EC_FALSE == cxml_parse_cparacfg_para_cfg(node, cparacfg))
+        {
+            dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_para_cfg: parse cparacfg failed\n");
+            cparacfg_free(cparacfg);
+            cvector_clean_no_lock(&rank_vec, NULL_PTR, LOC_CXML_0012);    
+            return (EC_FALSE);
+        }
+
+        CVECTOR_LOCK(paras_cfg, LOC_CXML_0013);
+        cparacfg_pos = cvector_search_front_no_lock(paras_cfg, (void *)cparacfg, (CVECTOR_DATA_CMP)cparacfg_cmp);
+        if(CVECTOR_ERR_POS == cparacfg_pos)
+        {
+            cvector_push_no_lock(paras_cfg, (void *)cparacfg);
+        }
+        else
+        {
+            CPARACFG *cparacfg_old;
+            cparacfg_old = (CPARACFG *)cvector_get_no_lock(paras_cfg, cparacfg_pos);
+
+            dbg_log(SEC_0046_CXML, 1)(LOGSTDOUT, "info:cxml_parse_para_cfg: renew cparacfg of tcid %s, rank %ld\n", 
+                                      c_word_to_ipv4(tcid), rank);
+
+            dbg_log(SEC_0046_CXML, 9)(LOGSTDOUT, "[DEBUG] cxml_parse_para_cfg: clone [%p -> %p]\n", cparacfg, cparacfg_old);
+            
+            cparacfg_clone(cparacfg, cparacfg_old);
+            log_level_import_from(CPARACFG_LOG_LEVEL_TAB(cparacfg), CPARACFG_LOG_LEVEL_TAB(cparacfg_old), SEC_NONE_END);
+
+            cparacfg_free(cparacfg);
+        }
+        CVECTOR_UNLOCK(paras_cfg, LOC_CXML_0014);
+    }
+    cvector_clean_no_lock(&rank_vec, NULL_PTR, LOC_CXML_0015);    
+
+    return (EC_TRUE);
+
+}
+
+static CPARACFG *__cxml_parse_para_cfg_search_cparacfg_no_lock(CVECTOR *paras_cfg, const UINT32 tcid, const UINT32 rank)
+{
+    UINT32 pos;
+
+    for(pos = 0; pos < cvector_size(paras_cfg); pos ++)
+    {
+        CPARACFG *cparacfg;
+        
+        cparacfg = (CPARACFG *)cvector_get_no_lock(paras_cfg, pos);
+        if(tcid == CPARACFG_TCID(cparacfg) && rank == CPARACFG_RANK(cparacfg))
+        {
+            return (cparacfg);
+        }
+    }
+    return (NULL_PTR);
 }
 
 EC_BOOL cxml_parse_para_cfg(xmlNodePtr node, CVECTOR *paras_cfg)
@@ -1056,46 +1213,61 @@ EC_BOOL cxml_parse_para_cfg(xmlNodePtr node, CVECTOR *paras_cfg)
     CVECTOR rank_vec;
     UINT32  pos;
 
-    //sys_log(LOGSTDNULL,"cxml_parse_para_cfg: [%s]\n", node->name);
-
     __cxml_parse_tag_tcid(node, (const char *)"tcid", &tcid);
 
-    cvector_init(&rank_vec, 0, MM_UINT32, CVECTOR_LOCK_ENABLE, LOC_CXML_0006);
+    cvector_init(&rank_vec, 0, MM_UINT32, CVECTOR_LOCK_ENABLE, LOC_CXML_0016);
     __cxml_parse_tag_rank_vec(node, (const char *)"rank", &rank_vec);
+
+    CVECTOR_LOCK(paras_cfg, LOC_CXML_0017);
     for(pos = 0; pos < cvector_size(&rank_vec); pos ++)
     {
-        UINT32 rank;
+        UINT32    rank;
         CPARACFG *cparacfg;
 
         rank = (UINT32)cvector_get_no_lock(&rank_vec, pos);
-        cparacfg = cparacfg_new(tcid, rank);
-        if(NULL_PTR == cparacfg)
-        {
-            sys_log(LOGSTDOUT, "error:cxml_parse_para_cfg: new cparacfg failed\n");
-            cvector_clean(&rank_vec, NULL_PTR, LOC_CXML_0007);    
-            return (EC_FALSE);
-        }
-        
-        if(EC_FALSE == cxml_parse_cparacfg_para_cfg(node, cparacfg))
-        {
-            sys_log(LOGSTDOUT, "error:cxml_parse_para_cfg: parse cparacfg failed\n");
-            cparacfg_free(cparacfg);
-            cvector_clean(&rank_vec, NULL_PTR, LOC_CXML_0008);    
-            return (EC_FALSE);
-        }
+        dbg_log(SEC_0046_CXML, 9)(LOGSTDOUT, "[DEBUG] cxml_parse_para_cfg: parse cparacfg of tcid %s rank %ld\n", c_word_to_ipv4(tcid), rank);
 
-        CVECTOR_LOCK(paras_cfg, LOC_CXML_0009);
-        if(CVECTOR_ERR_POS == cvector_search_front_no_lock(paras_cfg, (void *)cparacfg, (CVECTOR_DATA_CMP)cparacfg_cmp))
+        cparacfg = __cxml_parse_para_cfg_search_cparacfg_no_lock(paras_cfg, tcid, rank);
+        if(NULL_PTR != cparacfg)
         {
-            cvector_push_no_lock(paras_cfg, (void *)cparacfg);
-        }
+            /*CPARACFG_LOG_LEVEL_TAB(cparacfg) keep unchanged before paring*/
+            
+            if(EC_FALSE == cxml_parse_cparacfg_para_cfg(node, cparacfg))
+            {
+                CVECTOR_UNLOCK(paras_cfg, LOC_CXML_0018);
+                
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_para_cfg: parse cparacfg failed\n");
+                cvector_clean_no_lock(&rank_vec, NULL_PTR, LOC_CXML_0019);    
+                return (EC_FALSE);
+            }
+        }        
         else
         {
-            cparacfg_free(cparacfg);
+            cparacfg = cparacfg_new(tcid, rank);
+            if(NULL_PTR == cparacfg)
+            {
+                CVECTOR_UNLOCK(paras_cfg, LOC_CXML_0020);
+                
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_para_cfg: new cparacfg failed\n");
+                cvector_clean_no_lock(&rank_vec, NULL_PTR, LOC_CXML_0021);    
+                return (EC_FALSE);
+            }
+            /*CPARACFG_LOG_LEVEL_TAB(cparacfg) was set to default*/
+            if(EC_FALSE == cxml_parse_cparacfg_para_cfg(node, cparacfg))
+            {
+                CVECTOR_UNLOCK(paras_cfg, LOC_CXML_0022);
+                
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_para_cfg: parse cparacfg failed\n");
+                cparacfg_free(cparacfg);
+                cvector_clean_no_lock(&rank_vec, NULL_PTR, LOC_CXML_0023);    
+                return (EC_FALSE);
+            }
+            
+            cvector_push_no_lock(paras_cfg, (void *)cparacfg);
         }
-        CVECTOR_UNLOCK(paras_cfg, LOC_CXML_0010);
     }
-    cvector_clean(&rank_vec, NULL_PTR, LOC_CXML_0011);    
+    CVECTOR_UNLOCK(paras_cfg, LOC_CXML_0024);    
+    cvector_clean_no_lock(&rank_vec, NULL_PTR, LOC_CXML_0025);    
 
     return (EC_TRUE);
 
@@ -1141,13 +1313,13 @@ EC_BOOL cxml_parse_macip_cfg_vec(xmlNodePtr node, CVECTOR *macip_cfg_vec)
             macip_cfg = macip_cfg_new();
             if(NULL_PTR == macip_cfg)
             {
-                sys_log(LOGSTDOUT, "error:cxml_parse_macip_cfg_vec: new macip_cfg failed\n");
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_macip_cfg_vec: new macip_cfg failed\n");
                 return (EC_FALSE);
             }
 
             if(EC_FALSE == cxml_parse_macip_cfg(cur, macip_cfg))
             {
-                sys_log(LOGSTDOUT, "error:cxml_parse_macip_cfg_vec: parse one macip_cfg failed\n");
+                dbg_log(SEC_0046_CXML, 0)(LOGSTDOUT, "error:cxml_parse_macip_cfg_vec: parse one macip_cfg failed\n");
                 macip_cfg_free(macip_cfg);
             }
             else
@@ -1172,13 +1344,13 @@ EC_BOOL cxml_parse_sys_cfg(xmlNodePtr node, SYS_CFG *sys_cfg)
 {
     xmlNodePtr cur;
 
-    //sys_log(LOGSTDOUT,"cxml_parse_sys_cfg: node [%s]\n", node->name);
+    //dbg_log(SEC_0046_CXML, 5)(LOGSTDOUT,"cxml_parse_sys_cfg: node [%s]\n", node->name);
 
     for(cur = node->xmlChildrenNode; NULL_PTR != cur; cur = cur->next)
     {
         XML_SKIP_TEXT_NODE(cur);
 
-        //sys_log(LOGSTDOUT,"cxml_parse_sys_cfg: cur [%s]\n", cur->name);
+        //dbg_log(SEC_0046_CXML, 5)(LOGSTDOUT,"cxml_parse_sys_cfg: cur [%s]\n", cur->name);
 
         if(0 == xmlStrcmp(cur->name, (const xmlChar*)"taskConfig"))
         {

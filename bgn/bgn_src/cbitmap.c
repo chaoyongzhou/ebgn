@@ -51,7 +51,7 @@ EC_BOOL  cbitmap_init(CBITMAP *cbitmap, const UINT32 max_bits)
     CBITMAP_CACHE(cbitmap) = (UINT32 *)SAFE_MALLOC(max_bytes, LOC_CBITMAP_0002);
     if(NULL_PTR == CBITMAP_CACHE(cbitmap))
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_init: alloc %ld bytes failed\n", max_bytes);
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_init: alloc %ld bytes failed\n", max_bytes);
         CBITMAP_MAX_BITS(cbitmap) = 0;
         CBITMAP_CUR_BITS(cbitmap) = 0;
         return (EC_FALSE);
@@ -99,7 +99,7 @@ EC_BOOL  cbitmap_set(CBITMAP *cbitmap, const UINT32 bit_pos)
 
     if(bit_pos >= CBITMAP_MAX_BITS(cbitmap))
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_set: bit pos %ld > max bits %ld\n",
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_set: bit pos %ld > max bits %ld\n",
                             bit_pos, CBITMAP_MAX_BITS(cbitmap));
         return (EC_FALSE);
     }
@@ -110,7 +110,7 @@ EC_BOOL  cbitmap_set(CBITMAP *cbitmap, const UINT32 bit_pos)
 
     if(CBITMAP_WORD(cbitmap, word_offset) & e)
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_set: bit pos %ld was already set\n", bit_pos);
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_set: bit pos %ld was already set\n", bit_pos);
         return (EC_FALSE);
     }
 
@@ -127,7 +127,7 @@ EC_BOOL  cbitmap_unset(CBITMAP *cbitmap, const UINT32 bit_pos)
 
     if(bit_pos >= CBITMAP_MAX_BITS(cbitmap))
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_unset: bit pos %ld > max bits %ld\n",
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_unset: bit pos %ld > max bits %ld\n",
                             bit_pos, CBITMAP_MAX_BITS(cbitmap));
         return (EC_FALSE);
     }
@@ -139,7 +139,7 @@ EC_BOOL  cbitmap_unset(CBITMAP *cbitmap, const UINT32 bit_pos)
 
     if(0 == (CBITMAP_WORD(cbitmap, word_offset) & e))
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_unset: bit pos %ld was not set\n", bit_pos);
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_unset: bit pos %ld was not set\n", bit_pos);
         return (EC_FALSE);
     }
 
@@ -156,7 +156,7 @@ EC_BOOL  cbitmap_check(const CBITMAP *cbitmap, const UINT32 bit_pos)
 
     if(bit_pos >= CBITMAP_MAX_BITS(cbitmap))
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_check: bit pos %ld > max bits %ld\n",
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_check: bit pos %ld > max bits %ld\n",
                             bit_pos, CBITMAP_MAX_BITS(cbitmap));
         return (EC_FALSE);
     }
@@ -202,7 +202,7 @@ EC_BOOL  cbitmap_reserve(CBITMAP *cbitmap, UINT32 *bit_pos)
 
     if(EC_TRUE == cbitmap_is_full(cbitmap))
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_reserve: bitmap is full\n");
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_reserve: bitmap is full\n");
         return (EC_FALSE);
     }
 
@@ -280,14 +280,14 @@ CBITMAP *cbitmap_fcreate(const UINT32 max_bits, const UINT8 *fname)
     cbitmap = cbitmap_new(max_bits);
     if(NULL_PTR == cbitmap)
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_file_create: new cbitmap failed\n");
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_file_create: new cbitmap failed\n");
         return (NULL_PTR);
     }
 
     fd = c_file_open((char *)fname, O_RDWR | O_CREAT, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT,"error:cbitmap_file_create: create %s failed\n", fname);
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT,"error:cbitmap_file_create: create %s failed\n", fname);
         cbitmap_free(cbitmap);
         return (NULL_PTR);
     }
@@ -295,7 +295,7 @@ CBITMAP *cbitmap_fcreate(const UINT32 max_bits, const UINT8 *fname)
 /*
     if(EC_FALSE == cbitmap_flush(cbitmap, fname))
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_file_create:flush cbitmap failed\n");
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_file_create:flush cbitmap failed\n");
         cbitmap_free(cbitmap);
         return (NULL_PTR);
     }
@@ -314,7 +314,7 @@ EC_BOOL  cbitmap_flush(const CBITMAP *cbitmap, const UINT8 *fname)
     fd = c_file_open((char *)fname, O_RDWR, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT,"error:cbitmap_flush: open %s failed\n", fname);
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT,"error:cbitmap_flush: open %s failed\n", fname);
         return (EC_FALSE);
     }
 
@@ -350,7 +350,7 @@ CBITMAP *cbitmap_fload(const UINT8 *fname)
     fd = c_file_open((char *)fname, O_RDWR, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT,"error:cbitmap_fload: open %s failed\n", fname);
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT,"error:cbitmap_fload: open %s failed\n", fname);
         return (NULL_PTR);
     }
 
@@ -363,7 +363,7 @@ CBITMAP *cbitmap_fload(const UINT8 *fname)
     cbitmap = cbitmap_new(max_bits);
     if(NULL_PTR == cbitmap)
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_fload: new cbitmap with max bits %ld failed\n", max_bits);
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_fload: new cbitmap with max bits %ld failed\n", max_bits);
         c_file_close(fd);
         return (NULL_PTR);
     }
@@ -395,7 +395,7 @@ EC_BOOL  cbitmap_dump(const CBITMAP *cbitmap, UINT8 **buf, UINT32 *len)
     (*buf) = (UINT8 *)SAFE_MALLOC((*len), LOC_CBITMAP_0005);
     if(NULL_PTR == (*buf))
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_dump: alloc %ld bytes failed\n", (*len));
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_dump: alloc %ld bytes failed\n", (*len));
         return (EC_FALSE);
     }
 
@@ -432,7 +432,7 @@ CBITMAP *cbitmap_load(const UINT8 *buf, const UINT32 len)
 
     if(2 * sizeof(UINT32) > len)
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_load: buf len %ld is invalid\n", len);
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_load: buf len %ld is invalid\n", len);
         return (NULL_PTR);
     }
 
@@ -449,7 +449,7 @@ CBITMAP *cbitmap_load(const UINT8 *buf, const UINT32 len)
     max_words = (max_bits + WORDSIZE - 1) / WORDSIZE;
     if(len != (sizeof(UINT32) + sizeof(UINT32) + max_words * sizeof(UINT32)))
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_load: mismatched buf len %ld to expected len %ld\n",
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_load: mismatched buf len %ld to expected len %ld\n",
                            len, (sizeof(UINT32) + sizeof(UINT32) + max_words * sizeof(UINT32)));
         return (NULL_PTR);
     }
@@ -457,7 +457,7 @@ CBITMAP *cbitmap_load(const UINT8 *buf, const UINT32 len)
     cbitmap = cbitmap_new(max_bits);
     if(NULL_PTR == cbitmap)
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_load: new cbitmap with max bits %ld failed\n", max_bits);
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_load: new cbitmap with max bits %ld failed\n", max_bits);
         return (NULL_PTR);
     }
 
@@ -478,7 +478,7 @@ void cbitmap_print(LOG *log, const CBITMAP *cbitmap)
     UINT32 max_words;
     UINT32 word_offset;
 
-    sys_log(LOGSTDOUT, "cbitmap %lx: max bits %ld, cur bits %ld\n",
+    dbg_log(SEC_0089_CBITMAP, 5)(LOGSTDOUT, "cbitmap %lx: max bits %ld, cur bits %ld\n",
                         cbitmap, CBITMAP_MAX_BITS(cbitmap), CBITMAP_CUR_BITS(cbitmap));
 
     max_words = (CBITMAP_MAX_BITS(cbitmap) + WORDSIZE - 1) / WORDSIZE;
@@ -489,10 +489,10 @@ void cbitmap_print(LOG *log, const CBITMAP *cbitmap)
 
         word = CBITMAP_WORD(cbitmap, word_offset);
 #if (32 == WORDSIZE)
-        sys_log(LOGSTDOUT, "word %8ld# [%08lx] ", word_offset, word);
+        dbg_log(SEC_0089_CBITMAP, 5)(LOGSTDOUT, "word %8ld# [%08lx] ", word_offset, word);
 #endif/*(32 == WORDSIZE)*/
 #if (64 == WORDSIZE)
-        sys_log(LOGSTDOUT, "word %8ld# [%016lx] ", word_offset, word);
+        dbg_log(SEC_0089_CBITMAP, 5)(LOGSTDOUT, "word %8ld# [%016lx] ", word_offset, word);
 #endif/*(64 == WORDSIZE)*/
 
         for(bit_offset = 0; bit_offset < WORDSIZE; bit_offset ++, word >>= 1)
@@ -517,7 +517,7 @@ CBITMAP *cbitmap_dfs_create(const UINT32 max_bits, const CSTRING *fname_cstr, co
     cbitmap = cbitmap_new(max_bits);
     if(NULL_PTR == cbitmap)
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_dfs_create: new cbitmap failed\n");
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_dfs_create: new cbitmap failed\n");
         return (NULL_PTR);
     }
 
@@ -525,7 +525,7 @@ CBITMAP *cbitmap_dfs_create(const UINT32 max_bits, const CSTRING *fname_cstr, co
 
     if(EC_FALSE == cdfs_truncate(cdfs_md_id, fname_cstr, size, replica_num))
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_dfs_create: truncate %s with %ld bytes and %ld replicas failed\n",
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_dfs_create: truncate %s with %ld bytes and %ld replicas failed\n",
                             (char *)cstring_get_str(fname_cstr), size, replica_num);
         cbitmap_free(cbitmap);
         return (NULL_PTR);
@@ -548,7 +548,7 @@ EC_BOOL  cbitmap_dfs_flush(const CBITMAP *cbitmap, const CSTRING *fname_cstr, co
     cbytes = cbytes_new(len);
     if(NULL_PTR == cbytes)
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_dfs_flush: new cbytes with len %ld bytes failed\n", len);
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_dfs_flush: new cbytes with len %ld bytes failed\n", len);
         return (EC_FALSE);
     }
 
@@ -567,7 +567,7 @@ EC_BOOL  cbitmap_dfs_flush(const CBITMAP *cbitmap, const CSTRING *fname_cstr, co
 
     if((UINT32)counter > len)/*debug*/
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_dfs_flush: counter %d != len %ld\n", counter, len);
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_dfs_flush: counter %d != len %ld\n", counter, len);
         cbytes_free(cbytes, LOC_CBITMAP_0006);
         return (EC_FALSE);
     }
@@ -577,7 +577,7 @@ EC_BOOL  cbitmap_dfs_flush(const CBITMAP *cbitmap, const CSTRING *fname_cstr, co
 
     if(EC_FALSE == cdfs_update(cdfs_md_id, fname_cstr, cbytes))
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_dfs_flush:flush cbitmap with %ld bytes to %s failed\n",
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_dfs_flush:flush cbitmap with %ld bytes to %s failed\n",
                             CBITMAP_MAX_BYTES(cbitmap), (char *)cstring_get_str(fname_cstr));
         cbytes_free(cbytes, LOC_CBITMAP_0007);
         return (EC_FALSE);
@@ -601,13 +601,13 @@ CBITMAP *cbitmap_dfs_load(const CSTRING *fname_cstr, const UINT32 cdfs_md_id)
     cbytes = cbytes_new(0);
     if(NULL_PTR == cbytes)
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_dfs_load: new cdfs buff failed\n");
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_dfs_load: new cdfs buff failed\n");
         return (NULL_PTR);
     }
 
     if(EC_FALSE == cdfs_read(cdfs_md_id, fname_cstr, cbytes))
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_dfs_load: read from %s failed\n", (char *)cstring_get_str(fname_cstr));
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_dfs_load: read from %s failed\n", (char *)cstring_get_str(fname_cstr));
         cbytes_free(cbytes, LOC_CBITMAP_0009);
         return (NULL_PTR);
     }
@@ -620,7 +620,7 @@ CBITMAP *cbitmap_dfs_load(const CSTRING *fname_cstr, const UINT32 cdfs_md_id)
     cbitmap = cbitmap_new(max_bits);
     if(NULL_PTR == cbitmap)
     {
-        sys_log(LOGSTDOUT, "error:cbitmap_dfs_load: new cbitmap with max bits %ld failed\n", max_bits);
+        dbg_log(SEC_0089_CBITMAP, 0)(LOGSTDOUT, "error:cbitmap_dfs_load: new cbitmap with max bits %ld failed\n", max_bits);
         cbytes_free(cbytes, LOC_CBITMAP_0010);
         return (NULL_PTR);
     }

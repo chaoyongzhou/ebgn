@@ -101,10 +101,10 @@ void api_ui_task0 ()
     /* installing help command */
     api_ui_help_init();
 
-    sys_log(LOGSTDOUT, "api_ui_task0:beg =========================================================================\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "api_ui_task0:beg =========================================================================\n");
     print_static_mem_status(LOGSTDOUT);
     print_static_mem_diag_info(LOGSTDOUT);
-    sys_log(LOGSTDOUT, "api_ui_task0:end =========================================================================\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "api_ui_task0:end =========================================================================\n");
 
     /* Check for a message from the ubsUIShell */
     for(;;)
@@ -117,7 +117,7 @@ void api_ui_task0 ()
 
         ui_command[API_UI_TASK_COMMANDSIZE] = 0;
         ui_command[strlen(ui_command) - 1] = '\0';
-        sys_log(LOGSTDOUT, "[%s]\n", ui_command);
+        dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "[%s]\n", ui_command);
 #if 0
         if(strcmp(ui_command, "exit") == 0 || strcmp(ui_command,"quit") == 0)
         {
@@ -193,7 +193,7 @@ void api_ui_task ()
 
         ui_command[API_UI_TASK_COMMANDSIZE] = 0;
         ui_command[strlen(ui_command) - 1] = '\0';
-        sys_log(LOGSTDOUT, "[%s]\n", ui_command);
+        dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "[%s]\n", ui_command);
 
         /* Replease newline character of the ui command
          * with null character so that we dont process
@@ -267,7 +267,7 @@ void api_ui_add_to_new_node_list(API_UI_CNODE** start_ptr, API_UI_NODE** node_pt
         start_ptr = &((*start_ptr)->next);
     }
 
-    (*start_ptr) = (API_UI_CNODE*) api_ui_malloc(sizeof(API_UI_CNODE), LOC_API_0083);
+    (*start_ptr) = (API_UI_CNODE*) api_ui_malloc(sizeof(API_UI_CNODE), LOC_API_0456);
 
     if ((*start_ptr) != NULL_PTR)
     {
@@ -323,7 +323,7 @@ API_UI_ERR api_ui_cleanup(API_UI_ERR err, char* copy_cmd_str, API_UI_CNODE* new_
             }
 
             *(tmp_ptr->node_ptr) = node->right;
-            api_ui_free(node, LOC_API_0084);
+            api_ui_free(node, LOC_API_0457);
 
             tmp_ptr = tmp_ptr->next;
         }
@@ -333,11 +333,11 @@ API_UI_ERR api_ui_cleanup(API_UI_ERR err, char* copy_cmd_str, API_UI_CNODE* new_
     {
         tmp_ptr = new_node_list;
         new_node_list = tmp_ptr->next;
-        api_ui_free(tmp_ptr, LOC_API_0085);
+        api_ui_free(tmp_ptr, LOC_API_0458);
     }
 
     /* Free the copy of the command string */
-    api_ui_free(copy_cmd_str, LOC_API_0086);
+    api_ui_free(copy_cmd_str, LOC_API_0459);
 
     return err;
 }
@@ -367,21 +367,21 @@ API_UI_ELEM* api_ui_create_elem(const char* word, const char* help, API_UI_ELEM_
 
     size = strlen(word) + 1; /* Don't forget '\0' */
 
-    copy_word = (char*) api_ui_malloc(sizeof(char) * size, LOC_API_0087);
+    copy_word = (char*) api_ui_malloc(sizeof(char) * size, LOC_API_0460);
 
     if (NULL_PTR == copy_word)
     {
-        sys_log(LOGSTDOUT, "api_ui_create_elem - Failed to allocate mamory");
+        dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "api_ui_create_elem - Failed to allocate mamory");
         return returnValue;
     }
 
     strcpy(copy_word,word);
 
-    returnValue = (API_UI_ELEM*) api_ui_malloc(sizeof(API_UI_ELEM), LOC_API_0088);
+    returnValue = (API_UI_ELEM*) api_ui_malloc(sizeof(API_UI_ELEM), LOC_API_0461);
 
     if (NULL_PTR == returnValue)
     {
-        sys_log(LOGSTDOUT, "api_ui_create_elem - Failed to allocate memory for returnValue");
+        dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "api_ui_create_elem - Failed to allocate memory for returnValue");
         return returnValue;
     }
 
@@ -416,7 +416,7 @@ API_UI_NODE* api_ui_create_node(API_UI_ELEM* element, API_UI_SECURITY_LEVEL sl)
 {
     API_UI_NODE* new_node;
 
-    new_node = (API_UI_NODE*)api_ui_malloc(sizeof(API_UI_NODE), LOC_API_0089);
+    new_node = (API_UI_NODE*)api_ui_malloc(sizeof(API_UI_NODE), LOC_API_0462);
 
     if (new_node != NULL_PTR)
     {
@@ -447,8 +447,8 @@ API_UI_NODE* api_ui_create_node(API_UI_ELEM* element, API_UI_SECURITY_LEVEL sl)
  *---------------------------------------------------------------------------*/
 void api_ui_delete_elem(API_UI_ELEM* element)
 {
-    api_ui_free((void*)element->word, LOC_API_0090);
-    api_ui_free(element, LOC_API_0091);
+    api_ui_free((void*)element->word, LOC_API_0463);
+    api_ui_free(element, LOC_API_0464);
 }
 
 /*---------------------------------------------------------------------------
@@ -628,7 +628,7 @@ API_UI_ERR api_ui_arg_list_item(API_UI_ELEM* list, const char* item_name,int val
     new_item = api_ui_create_elem(item_name,help_str, API_UI_ELEM_TYPE_LIST_ITEM);
     if(new_item == NULL_PTR)
     {
-       sys_log(LOGSTDOUT, "api_ui_arg_list_item - api_ui_create_elem failed for item_name:%s", item_name);
+       dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "api_ui_arg_list_item - api_ui_create_elem failed for item_name:%s", item_name);
        return API_EUI_PMEM_ALLOC_FAILED;
     }
 
@@ -668,7 +668,7 @@ API_UI_ELEM *api_ui_arg_range(const char *arg_name, const char *help_str,int low
 
     if(returnValue == NULL_PTR)
     {
-       sys_log(LOGSTDOUT, "api_ui_arg_range - api_ui_create_elem failed for arg_name:%s",arg_name);
+       dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "api_ui_arg_range - api_ui_create_elem failed for arg_name:%s",arg_name);
        return returnValue;
     }
 
@@ -848,12 +848,12 @@ API_UI_ERR api_ui_common_define (API_UI_SECURITY_LEVEL sl, API_UI_HANDLER handle
     API_UI_CNODE* new_node_list = NULL_PTR;
 
     /* Copy the cmd_str */
-    copy = (char*) api_ui_malloc(sizeof(char) * (strlen(cmd_str) + 1), LOC_API_0092);
+    copy = (char*) api_ui_malloc(sizeof(char) * (strlen(cmd_str) + 1), LOC_API_0465);
 
     if (NULL_PTR == copy)
     {
         /* Free mutex */
-        sys_log(LOGSTDOUT, "Unable to allocate memory for UI command: %s", cmd_str);
+        dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "Unable to allocate memory for UI command: %s", cmd_str);
         return API_EUI_PMEM_ALLOC_FAILED;
     }
 
@@ -866,7 +866,7 @@ API_UI_ERR api_ui_common_define (API_UI_SECURITY_LEVEL sl, API_UI_HANDLER handle
     if (NULL_PTR == token)
     {
         /* Free mutex */
-        sys_log(LOGSTDOUT, "Invalid token for UI command: %s", cmd_str);
+        dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "Invalid token for UI command: %s", cmd_str);
         return API_EUI_INVALID_TOKEN;
     }
 
@@ -1126,7 +1126,7 @@ API_UI_ERR api_ui_secure_define (API_UI_SECURITY_LEVEL sl, API_UI_HANDLER handle
         && (API_UI_SECURITY_TESTER != sl)
         && (API_UI_SECURITY_ENGINEER  != sl))
     {
-        sys_log(LOGSTDOUT, "api_ui_secure_define - Command has not been added to UI command tree "
+        dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "api_ui_secure_define - Command has not been added to UI command tree "
                           "due to wrong security level");
         return result;
     }

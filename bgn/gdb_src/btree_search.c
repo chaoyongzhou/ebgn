@@ -22,7 +22,7 @@ __search(BTree *tree, offset_t rootOffset, const uint8_t *key, int (*keyCompare)
     rootNode = btreeReadNode(tree, rootOffset);
     if(NULL == rootNode)
     {
-        sys_log(LOGSTDOUT, "error:__search: read node failed at offset %d\n", rootOffset);
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:__search: read node failed at offset %d\n", rootOffset);
         return 0;
     }
 
@@ -42,7 +42,7 @@ __search(BTree *tree, offset_t rootOffset, const uint8_t *key, int (*keyCompare)
             return 1;
         }
 
-        sys_log(LOGSTDOUT, "error:__search: on leaf i = %d, keyCount %d\n", i, rootNode->keyCount);
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:__search: on leaf i = %d, keyCount %d\n", i, rootNode->keyCount);
 
         btreeDestroyNode(rootNode);
 
@@ -64,13 +64,13 @@ btreeSearch(BTree *tree, const uint8_t *key, int (*keyCompare)(const uint8_t *, 
 
     if (tree == NULL)
     {
-        sys_log(LOGSTDOUT, "error:btreeSearch: tree is null\n");
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeSearch: tree is null\n");
         return 0;
     }
 
     if (key == NULL)
     {
-        sys_log(LOGSTDOUT, "error:btreeSearch: key is null\n");
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeSearch: key is null\n");
         return 0;
     }
 
@@ -81,11 +81,11 @@ btreeSearch(BTree *tree, const uint8_t *key, int (*keyCompare)(const uint8_t *, 
     tree->root     = btreeGetRootNode(tree);
     tree->leftLeaf = btreeGetLeftLeaf(tree);
 #endif
-    sys_log(LOGSTDNULL, "[DEBUG] btreeSearch: tree %lx, root offset %d, left leaf offset %d\n", tree, tree->root, tree->leftLeaf);
+    dbg_log(SEC_0130_BTREE, 9)(LOGSTDNULL, "[DEBUG] btreeSearch: tree %lx, root offset %d, left leaf offset %d\n", tree, tree->root, tree->leftLeaf);
 
     if (btreeIsEmpty(tree) == 1)
     {
-        sys_log(LOGSTDOUT, "error:btreeSearch: btree is empty\n");
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeSearch: btree is empty\n");
         return 0;
     }
 
@@ -94,7 +94,7 @@ btreeSearch(BTree *tree, const uint8_t *key, int (*keyCompare)(const uint8_t *, 
     {
         return filePos;
     }
-    sys_log(LOGSTDOUT, "error:btreeSearch: searched nothing\n");
+    dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeSearch: searched nothing\n");
     return 0;
 }
 
@@ -108,7 +108,7 @@ __match(BTree *tree, offset_t rootOffset, const uint8_t *key, OffsetList *offset
     rootNode = btreeReadNode(tree, rootOffset);
     if(NULL == rootNode)
     {
-        sys_log(LOGSTDOUT, "error:__match: read root node from offset %d failed\n", rootOffset);
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:__match: read root node from offset %d failed\n", rootOffset);
         return ;
     }
 
@@ -121,7 +121,7 @@ __match(BTree *tree, offset_t rootOffset, const uint8_t *key, OffsetList *offset
     {
         for(; i < rootNode->keyCount && keyCompare(rootNode->keys[i], key) == 0; i ++)
         {
-            //sys_log(LOGSTDOUT,"__match: [0] got offset %d\n", rootNode->children[i]);
+            //dbg_log(SEC_0130_BTREE, 5)(LOGSTDOUT,"__match: [0] got offset %d\n", rootNode->children[i]);
             offsetListAdd(offsetList, rootNode->children[i]);
         }
 

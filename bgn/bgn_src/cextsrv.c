@@ -49,7 +49,7 @@ EC_BOOL cextclnt_recv(CEXTCLNT *cextclnt, UINT8 **in_buff, UINT32 *in_buff_size)
 
     if(EC_FALSE == csocket_recv_uint32(CEXTCLNT_SOCKFD(cextclnt), &data_size))
     {
-        sys_log(LOGSTDOUT, "error:cextclnt_recv: recv data size from client %s on sockfd %d failed\n",
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextclnt_recv: recv data size from client %s on sockfd %d failed\n",
                             CEXTCLNT_IPADDR_STR(cextclnt), CEXTCLNT_SOCKFD(cextclnt));
         return (EC_FALSE);
     }
@@ -57,13 +57,13 @@ EC_BOOL cextclnt_recv(CEXTCLNT *cextclnt, UINT8 **in_buff, UINT32 *in_buff_size)
     data_buff = (UINT8 *)SAFE_MALLOC(data_size, LOC_CEXTSRV_0001);
     if(NULL_PTR == data_buff)
     {
-        sys_log(LOGSTDOUT, "error:cextclnt_recv: alloc %ld bytes failed\n", data_size);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextclnt_recv: alloc %ld bytes failed\n", data_size);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == csocket_recv(CEXTCLNT_SOCKFD(cextclnt), data_buff, data_size))
     {
-        sys_log(LOGSTDOUT, "error:cextclnt_recv: recv %ld bytes from client %s on sockfd %d failed\n",
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextclnt_recv: recv %ld bytes from client %s on sockfd %d failed\n",
                             data_size, CEXTCLNT_IPADDR_STR(cextclnt), CEXTCLNT_SOCKFD(cextclnt));
         SAFE_FREE(data_buff, LOC_CEXTSRV_0002);
         return (EC_FALSE);
@@ -79,36 +79,37 @@ EC_BOOL cextclnt_send(CEXTCLNT *cextclnt, const UINT8 *out_buff, const UINT32 ou
 {
     if(EC_FALSE == csocket_send_uint32(CEXTCLNT_SOCKFD(cextclnt), out_buff_size))
     {
-        sys_log(LOGSTDOUT, "error:cextclnt_send: send data size %ld to client %s on sockfd %d failed\n",
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextclnt_send: send data size %ld to client %s on sockfd %d failed\n",
                             out_buff_size, CEXTCLNT_IPADDR_STR(cextclnt), CEXTCLNT_SOCKFD(cextclnt));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == csocket_send(CEXTCLNT_SOCKFD(cextclnt), out_buff, out_buff_size))
     {
-        sys_log(LOGSTDOUT, "error:cextclnt_send: send %ld bytes to client %s on sockfd %d failed\n",
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextclnt_send: send %ld bytes to client %s on sockfd %d failed\n",
                             out_buff_size, CEXTCLNT_IPADDR_STR(cextclnt), CEXTCLNT_SOCKFD(cextclnt));
         return (EC_FALSE);
     }
     return (EC_TRUE);
 }
 
-CEXTSRV *cextsrv_new(const UINT32 srv_port, const int srv_sockfd)
+CEXTSRV *cextsrv_new(const UINT32 srv_ipaddr, const UINT32 srv_port, const int srv_sockfd)
 {
     CEXTSRV *cextsrv;
 
     cextsrv = (CEXTSRV *)SAFE_MALLOC(sizeof(CEXTSRV), LOC_CEXTSRV_0003);
     if(NULL_PTR == cextsrv)
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_new: new cextsrv failed\n");
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_new: new cextsrv failed\n");
         return (NULL_PTR);
     }
-    cextsrv_init(cextsrv, srv_port, srv_sockfd);
+    cextsrv_init(cextsrv, srv_ipaddr, srv_port, srv_sockfd);
     return (cextsrv);
 }
 
-EC_BOOL cextsrv_init(CEXTSRV *cextsrv, const UINT32 srv_port, const int srv_sockfd)
+EC_BOOL cextsrv_init(CEXTSRV *cextsrv, const UINT32 srv_ipaddr, const UINT32 srv_port, const int srv_sockfd)
 {
+    CEXTSRV_IPADDR(cextsrv)  = srv_ipaddr;
     CEXTSRV_PORT(cextsrv)    = srv_port;
     CEXTSRV_SOCKFD(cextsrv)  = srv_sockfd;
 
@@ -125,6 +126,7 @@ EC_BOOL cextsrv_clean(CEXTSRV *cextsrv)
         CEXTSRV_SOCKFD(cextsrv)  = CMPI_ERROR_SOCKFD;
     }
 
+    CEXTSRV_IPADDR(cextsrv)  = CMPI_ERROR_IPADDR;
     CEXTSRV_PORT(cextsrv)    = CMPI_ERROR_SRVPORT;
 
     CEXTSRV_CMUTEX_CLEAN(cextsrv, LOC_CEXTSRV_0005);
@@ -142,26 +144,26 @@ EC_BOOL cextsrv_free(CEXTSRV *cextsrv)
     return (EC_TRUE);
 }
 
-CEXTSRV * cextsrv_start(const UINT32 srv_port)
+CEXTSRV * cextsrv_start(const UINT32 srv_ipaddr, const UINT32 srv_port)
 {
     CEXTSRV *cextsrv;
     int srv_sockfd;
 
-    if(EC_FALSE == csocket_srv_start(srv_port, CSOCKET_IS_BLOCK_MODE, &srv_sockfd))
+    if(EC_FALSE == csocket_srv_start(srv_ipaddr, srv_port, CSOCKET_IS_BLOCK_MODE, &srv_sockfd))
     {
-        sys_log(LOGSTDERR, "error:cextsrv_start: failed to listen on port %ld\n", srv_port);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDERR, "error:cextsrv_start: failed to listen on port %ld\n", srv_port);
         return (NULL_PTR);
     }
 
-    cextsrv = cextsrv_new(srv_port, srv_sockfd);
+    cextsrv = cextsrv_new(srv_ipaddr, srv_port, srv_sockfd);
     if(NULL_PTR == cextsrv)
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_start: new cextsrv failed, close srv sockfd %d\n", srv_sockfd);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_start: new cextsrv failed, close srv sockfd %d\n", srv_sockfd);
         csocket_close(srv_sockfd);
         return (NULL_PTR);
     }
 
-    sys_log(LOGSTDOUT, "cextsrv_start: start srv sockfd %d on port %ld\n", srv_sockfd, srv_port);
+    dbg_log(SEC_0069_CEXTSRV, 5)(LOGSTDOUT, "cextsrv_start: start srv sockfd %d on port %s:%ld\n", srv_sockfd, c_word_to_ipv4(srv_ipaddr), srv_port);
     return (cextsrv);
 }
 
@@ -184,7 +186,7 @@ EC_BOOL cextsrv_req_encode(CEXTSRV *cextsrv, UINT8 *out_buff, const UINT32 out_b
 
     if(0 != dbg_fetch_func_addr_node_by_index(task_req_func->func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_req_encode: failed to fetch func addr node by func id %lx\n", task_req_func->func_id);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_req_encode: failed to fetch func addr node by func id %lx\n", task_req_func->func_id);
         return (EC_FALSE);
     }
 
@@ -211,7 +213,7 @@ EC_BOOL cextsrv_req_encode_size(CEXTSRV *cextsrv, const TASK_FUNC *task_req_func
 
     if(0 != dbg_fetch_func_addr_node_by_index(task_req_func->func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_req_encode_size: failed to fetch func addr node by func id %lx\n", task_req_func->func_id);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_req_encode_size: failed to fetch func addr node by func id %lx\n", task_req_func->func_id);
         return (EC_FALSE);
     }
 
@@ -241,14 +243,14 @@ EC_BOOL cextsrv_req_decode(CEXTSRV *cextsrv, const UINT8 *in_buff, const UINT32 
 
     if(0 != dbg_fetch_func_addr_node_by_index(task_req_func->func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_req_decode: failed to fetch func addr node by func id %lx\n", task_req_func->func_id);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_req_decode: failed to fetch func addr node by func id %lx\n", task_req_func->func_id);
         return (EC_FALSE);
     }
 
     type_conv_item = dbg_query_type_conv_item_by_type(func_addr_node->func_ret_type);
     if( NULL_PTR == type_conv_item )
     {
-        sys_log(LOGSTDOUT,"error:cextsrv_req_decode: ret type %ld conv item is not defined\n", func_addr_node->func_ret_type);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT,"error:cextsrv_req_decode: ret type %ld conv item is not defined\n", func_addr_node->func_ret_type);
         return (EC_FALSE);
     }
     if(EC_TRUE == TYPE_CONV_ITEM_VAR_POINTER_FLAG(type_conv_item))
@@ -261,7 +263,7 @@ EC_BOOL cextsrv_req_decode(CEXTSRV *cextsrv, const UINT8 *in_buff, const UINT32 
                                               &(task_req_func->func_para_num), (FUNC_PARA *)task_req_func->func_para,
                                               func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_req_decode: decode func paras failed\n");
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_req_decode: decode func paras failed\n");
 
         if(EC_TRUE == TYPE_CONV_ITEM_VAR_POINTER_FLAG(type_conv_item) && 0 != task_req_func->func_ret_val)
         {
@@ -288,7 +290,7 @@ EC_BOOL cextsrv_rsp_encode(CEXTSRV *cextsrv, UINT8 *out_buff, const UINT32 out_b
 
     if(0 != dbg_fetch_func_addr_node_by_index(task_rsp_func->func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_rsp_encode: failed to fetch func addr node by func id %lx\n", task_rsp_func->func_id);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_rsp_encode: failed to fetch func addr node by func id %lx\n", task_rsp_func->func_id);
         return (EC_FALSE);
     }
 
@@ -297,7 +299,7 @@ EC_BOOL cextsrv_rsp_encode(CEXTSRV *cextsrv, UINT8 *out_buff, const UINT32 out_b
         type_conv_item = dbg_query_type_conv_item_by_type(func_addr_node->func_ret_type);
         if( NULL_PTR == type_conv_item )
         {
-            sys_log(LOGSTDOUT,"error:cextsrv_rsp_encode: ret type %ld conv item is not defined\n", func_addr_node->func_ret_type);
+            dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT,"error:cextsrv_rsp_encode: ret type %ld conv item is not defined\n", func_addr_node->func_ret_type);
             return (EC_FALSE);
         }
 
@@ -336,7 +338,7 @@ EC_BOOL cextsrv_rsp_encode_size(CEXTSRV *cextsrv, const TASK_FUNC *task_rsp_func
 
     if(0 != dbg_fetch_func_addr_node_by_index(task_rsp_func->func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_rsp_encode_size: failed to fetch func addr node by func id %lx\n", task_rsp_func->func_id);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_rsp_encode_size: failed to fetch func addr node by func id %lx\n", task_rsp_func->func_id);
         return (EC_FALSE);
     }
 
@@ -345,7 +347,7 @@ EC_BOOL cextsrv_rsp_encode_size(CEXTSRV *cextsrv, const TASK_FUNC *task_rsp_func
         type_conv_item = dbg_query_type_conv_item_by_type(func_addr_node->func_ret_type);
         if( NULL_PTR == type_conv_item )
         {
-            sys_log(LOGSTDOUT,"error:cextsrv_rsp_encode_size: ret type %ld conv item is not defined\n", func_addr_node->func_ret_type);
+            dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT,"error:cextsrv_rsp_encode_size: ret type %ld conv item is not defined\n", func_addr_node->func_ret_type);
             return (EC_FALSE);
         }
         dbg_tiny_caller(3,
@@ -376,7 +378,7 @@ EC_BOOL cextsrv_rsp_decode(CEXTSRV *cextsrv, const UINT8 *in_buff, const UINT32 
 
     if(0 != dbg_fetch_func_addr_node_by_index(task_req_func->func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_rsp_decode: failed to fetch func addr node by func id %lx\n", task_req_func->func_id);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_rsp_decode: failed to fetch func addr node by func id %lx\n", task_req_func->func_id);
         return (EC_FALSE);
     }
 
@@ -384,14 +386,14 @@ EC_BOOL cextsrv_rsp_decode(CEXTSRV *cextsrv, const UINT8 *in_buff, const UINT32 
     {
         if(0 == task_req_func->func_ret_val)
         {
-            sys_log(LOGSTDOUT, "error:cextsrv_rsp_decode: func id %lx func_ret_val should not be null\n", task_req_func->func_id);
+            dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_rsp_decode: func id %lx func_ret_val should not be null\n", task_req_func->func_id);
             exit(0);/*coding bug, user should fix it*/
         }
 
         type_conv_item = dbg_query_type_conv_item_by_type(func_addr_node->func_ret_type);
         if( NULL_PTR == type_conv_item )
         {
-            sys_log(LOGSTDOUT,"error:cextsrv_rsp_decode: ret type %ld conv item is not defined\n",
+            dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT,"error:cextsrv_rsp_decode: ret type %ld conv item is not defined\n",
                     func_addr_node->func_ret_type);
             return (EC_FALSE);
         }
@@ -410,7 +412,7 @@ EC_BOOL cextsrv_rsp_decode(CEXTSRV *cextsrv, const UINT8 *in_buff, const UINT32 
                               (FUNC_PARA *)task_req_func->func_para,
                               func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_rsp_decode: decode rsp func paras failed\n");
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_rsp_decode: decode rsp func paras failed\n");
         return (EC_FALSE);
     }
 
@@ -426,7 +428,7 @@ EC_BOOL cextsrv_req_clean(TASK_FUNC *task_req_func)
 
     if(0 != dbg_fetch_func_addr_node_by_index(task_req_func->func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_req_clean: failed to fetch func addr node by func id %lx\n", task_req_func->func_id);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_req_clean: failed to fetch func addr node by func id %lx\n", task_req_func->func_id);
         return (EC_FALSE);
     }
 
@@ -435,7 +437,7 @@ EC_BOOL cextsrv_req_clean(TASK_FUNC *task_req_func)
         type_conv_item = dbg_query_type_conv_item_by_type(func_addr_node->func_ret_type);
         if( NULL_PTR == type_conv_item )
         {
-            sys_log(LOGSTDOUT,"error:cextsrv_req_clean: ret type %ld conv item is not defined\n", func_addr_node->func_ret_type);
+            dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT,"error:cextsrv_req_clean: ret type %ld conv item is not defined\n", func_addr_node->func_ret_type);
             return (EC_FALSE);
         }
 
@@ -455,7 +457,7 @@ EC_BOOL cextsrv_req_clean(TASK_FUNC *task_req_func)
         type_conv_item = dbg_query_type_conv_item_by_type(func_addr_node->func_para_type[ para_idx ]);
         if( NULL_PTR == type_conv_item )
         {
-            sys_log(LOGSTDOUT,"error:cextsrv_req_clean: para %ld type %ld conv item is not defined\n",
+            dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT,"error:cextsrv_req_clean: para %ld type %ld conv item is not defined\n",
                                 para_idx, func_addr_node->func_para_type[ para_idx ]);
             return (EC_FALSE);
         }
@@ -477,7 +479,7 @@ EC_BOOL cextsrv_rsp_clean(TASK_FUNC *task_rsp_func)
 
     if(0 != dbg_fetch_func_addr_node_by_index(task_rsp_func->func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_rsp_clean: failed to fetch func addr node by func id %lx\n", task_rsp_func->func_id);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_rsp_clean: failed to fetch func addr node by func id %lx\n", task_rsp_func->func_id);
         return (EC_FALSE);
     }
 
@@ -486,7 +488,7 @@ EC_BOOL cextsrv_rsp_clean(TASK_FUNC *task_rsp_func)
         type_conv_item = dbg_query_type_conv_item_by_type(func_addr_node->func_ret_type);
         if( NULL_PTR == type_conv_item )
         {
-            sys_log(LOGSTDOUT,"error:cextsrv_rsp_clean: ret type %ld conv item is not defined\n", func_addr_node->func_ret_type);
+            dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT,"error:cextsrv_rsp_clean: ret type %ld conv item is not defined\n", func_addr_node->func_ret_type);
             return (EC_FALSE);
         }
         if(EC_TRUE == TYPE_CONV_ITEM_VAR_POINTER_FLAG(type_conv_item) && 0 != task_rsp_func->func_ret_val)
@@ -505,7 +507,7 @@ EC_BOOL cextsrv_rsp_clean(TASK_FUNC *task_rsp_func)
         type_conv_item = dbg_query_type_conv_item_by_type(func_addr_node->func_para_type[ para_idx ]);
         if( NULL_PTR == type_conv_item )
         {
-            sys_log(LOGSTDOUT,"error:cextsrv_rsp_clean: para %ld type %ld conv item is not defined\n",
+            dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT,"error:cextsrv_rsp_clean: para %ld type %ld conv item is not defined\n",
                                 para_idx, func_addr_node->func_para_type[ para_idx ]);
             return (EC_FALSE);
         }
@@ -534,7 +536,7 @@ EC_BOOL cextsrv_process0(CEXTSRV *cextsrv, CEXTCLNT *cextclnt)
 
     if(EC_FALSE == cextclnt_recv(cextclnt, &in_buff, &in_buff_len))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_process: recv data from client %s on sockfd %d failed\n",
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_process: recv data from client %s on sockfd %d failed\n",
                             CEXTCLNT_IPADDR_STR(cextclnt), CEXTCLNT_SOCKFD(cextclnt));
         return (EC_FALSE);
     }
@@ -544,7 +546,7 @@ EC_BOOL cextsrv_process0(CEXTSRV *cextsrv, CEXTCLNT *cextclnt)
 
     if(EC_FALSE == cextsrv_req_decode(cextsrv, in_buff, in_buff_len, &task_req_func))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_process: decode req from client %s on sockfd %d failed\n",
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_process: decode req from client %s on sockfd %d failed\n",
                             CEXTCLNT_IPADDR_STR(cextclnt), CEXTCLNT_SOCKFD(cextclnt));
         SAFE_FREE(in_buff, LOC_CEXTSRV_0014);
         cextsrv_req_clean(&task_req_func);
@@ -554,7 +556,7 @@ EC_BOOL cextsrv_process0(CEXTSRV *cextsrv, CEXTCLNT *cextclnt)
 
     if(0 != dbg_fetch_func_addr_node_by_index(task_req_func.func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_process: failed to fetch func addr node by func id %lx\n", task_req_func.func_id);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_process: failed to fetch func addr node by func id %lx\n", task_req_func.func_id);
         cextsrv_req_clean(&task_req_func);
         return (EC_FALSE);
     }
@@ -583,7 +585,7 @@ EC_BOOL cextsrv_process0(CEXTSRV *cextsrv, CEXTCLNT *cextclnt)
 
     if(EC_FALSE == cextsrv_rsp_encode_size(cextsrv, &task_rsp_func, &out_buff_len))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_process: encode size rsp to client %s on sockfd %d failed\n",
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_process: encode size rsp to client %s on sockfd %d failed\n",
                             CEXTCLNT_IPADDR_STR(cextclnt), CEXTCLNT_SOCKFD(cextclnt));
         cextsrv_req_clean(&task_req_func);
         cextsrv_rsp_clean(&task_rsp_func);
@@ -593,7 +595,7 @@ EC_BOOL cextsrv_process0(CEXTSRV *cextsrv, CEXTCLNT *cextclnt)
     out_buff = (UINT8 *)SAFE_MALLOC(out_buff_len, LOC_CEXTSRV_0016);
     if(NULL_PTR == out_buff)
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_process: alloc %ld bytes for out buff to client %s on sockfd %d failed\n",
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_process: alloc %ld bytes for out buff to client %s on sockfd %d failed\n",
                             out_buff_len, CEXTCLNT_IPADDR_STR(cextclnt), CEXTCLNT_SOCKFD(cextclnt));
         cextsrv_req_clean(&task_req_func);
         cextsrv_rsp_clean(&task_rsp_func);
@@ -602,7 +604,7 @@ EC_BOOL cextsrv_process0(CEXTSRV *cextsrv, CEXTCLNT *cextclnt)
 
     if(EC_FALSE == cextsrv_rsp_encode(cextsrv, out_buff, out_buff_len, &out_buff_len, &task_rsp_func))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_process: encode rsp to client %s on sockfd %d failed\n",
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_process: encode rsp to client %s on sockfd %d failed\n",
                             CEXTCLNT_IPADDR_STR(cextclnt), CEXTCLNT_SOCKFD(cextclnt));
         cextsrv_req_clean(&task_req_func);
         cextsrv_rsp_clean(&task_rsp_func);
@@ -612,7 +614,7 @@ EC_BOOL cextsrv_process0(CEXTSRV *cextsrv, CEXTCLNT *cextclnt)
 
     if(EC_FALSE == cextclnt_send(cextclnt, out_buff, out_buff_len))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_process: send rsp to client %s on sockfd %d failed\n",
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_process: send rsp to client %s on sockfd %d failed\n",
                             CEXTCLNT_IPADDR_STR(cextclnt), CEXTCLNT_SOCKFD(cextclnt));
         cextsrv_req_clean(&task_req_func);
         cextsrv_rsp_clean(&task_rsp_func);
@@ -638,14 +640,14 @@ EC_BOOL cextsrv_process(CEXTSRV *cextsrv, CEXTCLNT *cextclnt)
     task_func_init(&task_req_func);
     if(EC_FALSE == csocket_task_req_func_recv(CEXTCLNT_SOCKFD(cextclnt), &task_req_func))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_process: recv req from client %s on sockfd %d failed\n",
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_process: recv req from client %s on sockfd %d failed\n",
                             CEXTCLNT_IPADDR_STR(cextclnt), CEXTCLNT_SOCKFD(cextclnt));
         return (EC_FALSE);
     }
 
     if(0 != dbg_fetch_func_addr_node_by_index(task_req_func.func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_process: failed to fetch func addr node by func id %lx\n", task_req_func.func_id);
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_process: failed to fetch func addr node by func id %lx\n", task_req_func.func_id);
         cextsrv_req_clean(&task_req_func);
         return (EC_FALSE);
     }
@@ -676,7 +678,7 @@ EC_BOOL cextsrv_process(CEXTSRV *cextsrv, CEXTCLNT *cextclnt)
 
     if(EC_FALSE == csocket_task_rsp_func_send(CEXTCLNT_SOCKFD(cextclnt), &task_rsp_func))
     {
-        sys_log(LOGSTDOUT, "error:cextsrv_process: send rsp to client %s on sockfd %d failed\n",
+        dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_process: send rsp to client %s on sockfd %d failed\n",
                             CEXTCLNT_IPADDR_STR(cextclnt), CEXTCLNT_SOCKFD(cextclnt));
 
         cextsrv_req_clean(&task_req_func);
@@ -702,27 +704,27 @@ EC_BOOL cextsrv_thread(CEXTSRV *cextsrv)
 
         cextclnt_init(&cextclnt);
 
-        sys_log(LOGSTDOUT, "[DEBUG] cextsrv_thread: accept blocking...\n");
+        dbg_log(SEC_0069_CEXTSRV, 9)(LOGSTDOUT, "[DEBUG] cextsrv_thread: accept blocking...\n");
 
         CEXTSRV_CMUTEX_LOCK(cextsrv, LOC_CEXTSRV_0020);
-        if(EC_FALSE == csocket_accept(CEXTSRV_SOCKFD(cextsrv), &cextclnt_sockfd, &cextclnt_ipaddr))
+        if(EC_FALSE == csocket_accept(CEXTSRV_SOCKFD(cextsrv), &cextclnt_sockfd, CSOCKET_IS_BLOCK_MODE, &cextclnt_ipaddr))
         {
             CEXTSRV_CMUTEX_UNLOCK(cextsrv, LOC_CEXTSRV_0021);
-            sys_log(LOGSTDOUT, "error:cextsrv_thread: accept on sockfd %d failed\n", CEXTSRV_SOCKFD(cextsrv));
+            dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_thread: accept on sockfd %d failed\n", CEXTSRV_SOCKFD(cextsrv));
             continue;
         }
         CEXTSRV_CMUTEX_UNLOCK(cextsrv, LOC_CEXTSRV_0022);
-        sys_log(LOGSTDOUT, "[DEBUG] cextsrv_thread: accept successfully\n");
+        dbg_log(SEC_0069_CEXTSRV, 9)(LOGSTDOUT, "[DEBUG] cextsrv_thread: accept successfully\n");
 
         CEXTCLNT_SOCKFD(&cextclnt) = cextclnt_sockfd;
         CEXTCLNT_IPADDR(&cextclnt) = cextclnt_ipaddr;
 
-        sys_log(LOGSTDOUT, "[DEBUG] cextsrv_thread: accept connection from client %s on sockfd %d\n",
+        dbg_log(SEC_0069_CEXTSRV, 9)(LOGSTDOUT, "[DEBUG] cextsrv_thread: accept connection from client %s on sockfd %d\n",
                             c_word_to_ipv4(CEXTCLNT_IPADDR(&cextclnt)), CEXTCLNT_SOCKFD(&cextclnt));
 
         if(EC_FALSE == cextsrv_process(cextsrv, &cextclnt))
         {
-            sys_log(LOGSTDOUT, "error:cextsrv_thread: process request from client %s on client sockfd %d failed\n",
+            dbg_log(SEC_0069_CEXTSRV, 0)(LOGSTDOUT, "error:cextsrv_thread: process request from client %s on client sockfd %d failed\n",
                                 c_word_to_ipv4(CEXTCLNT_IPADDR(&cextclnt)), CEXTCLNT_SOCKFD(&cextclnt));
             cextclnt_clean(&cextclnt);
             continue;

@@ -150,22 +150,22 @@ UINT32 ecc_fp_start( const BIGINT *p,
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == p )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_start: p is NULL_PTR.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_start: p is NULL_PTR.\n");
         dbg_exit(MD_ECCFP, ERR_MODULE_ID);
     }
     if ( NULL_PTR == curve )
     {
-         sys_log(LOGSTDOUT,"error:ecc_fp_start: curve is NULL_PTR.\n");
+         dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_start: curve is NULL_PTR.\n");
          dbg_exit(MD_ECCFP, ERR_MODULE_ID);
     }
     if ( NULL_PTR == order )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_start: order is NULL_PTR.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_start: order is NULL_PTR.\n");
         dbg_exit(MD_ECCFP, ERR_MODULE_ID);
     }
     if ( NULL_PTR == base_point )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_start: base_point is NULL_PTR.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_start: base_point is NULL_PTR.\n");
         dbg_exit(MD_ECCFP, ERR_MODULE_ID);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -251,22 +251,22 @@ UINT32 ecc_fp_start( const BIGINT *p,
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == eccfp_p )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_start: ec_fp_f is NULL_PTR.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_start: ec_fp_f is NULL_PTR.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == eccfp_curve )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_start: ec_fp_curve is NULL_PTR.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_start: ec_fp_curve is NULL_PTR.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == eccfp_order )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_start: ec_fp_order is NULL_PTR.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_start: ec_fp_order is NULL_PTR.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == eccfp_base_point )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_start: ec_fp_base_point is NULL_PTR.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_start: ec_fp_base_point is NULL_PTR.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -356,7 +356,7 @@ void ecc_fp_end(const UINT32 eccfp_md_id)
 
     if ( MAX_NUM_OF_ECCFP_MD < eccfp_md_id )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_end: eccfp_md_id = %ld is overflow.\n",eccfp_md_id);
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_end: eccfp_md_id = %ld is overflow.\n",eccfp_md_id);
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
 
@@ -371,7 +371,7 @@ void ecc_fp_end(const UINT32 eccfp_md_id)
 
     if ( 0 == eccfp_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_end: eccfp_md_id = %ld is not started.\n",eccfp_md_id);
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_end: eccfp_md_id = %ld is not started.\n",eccfp_md_id);
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
 
@@ -440,12 +440,12 @@ UINT32 ecc_fp_get_public_key(const UINT32 eccfp_md_id, const BIGINT *privatekey,
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == privatekey)
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_get_public_key: privatekey is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_get_public_key: privatekey is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == publickey)
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_get_public_key: publickey is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_get_public_key: publickey is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -469,18 +469,18 @@ UINT32 ecc_fp_get_public_key(const UINT32 eccfp_md_id, const BIGINT *privatekey,
 
     if( bgn_fp_cmp(bgnfp_md_id, privatekey, eccfp_order) >= 0 )
     {  /* >=N; error */
-        sys_log(LOGSTDOUT,"error:ecc_fp_get_public_key: private key > ec order.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_get_public_key: private key > ec order.\n");
 
-        sys_log(LOGSTDOUT,"private key:\n");
+        dbg_log(SEC_0063_ECCFP, 5)(LOGSTDOUT,"private key:\n");
         print_bigint(LOGSTDOUT,privatekey);
 
-        sys_log(LOGSTDOUT,"ec order:\n");
+        dbg_log(SEC_0063_ECCFP, 5)(LOGSTDOUT,"ec order:\n");
         print_bigint(LOGSTDOUT,eccfp_order);
         return ((UINT32)(-1));
     }
     else if( EC_TRUE == bgn_fp_is_zero(bgnfp_md_id, privatekey) )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_get_public_key: private key = 0 \n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_get_public_key: private key = 0 \n");
         return ((UINT32)(-1));
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -502,7 +502,7 @@ const UINT32 ecc_fp_random_generator_default( BIGINT * rnd_num)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == rnd_num)
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_random_generator_default: random is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_random_generator_default: random is null.\n");
         return ((UINT32)(-1));
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -545,7 +545,7 @@ void ecc_fp_rnd_private_key(const UINT32 eccfp_md_id, BIGINT * privatekey)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == privatekey)
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_rnd_private_key: privatekey is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_rnd_private_key: privatekey is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -611,7 +611,7 @@ UINT32 ecc_fp_generate_keypair(const UINT32 eccfp_md_id, ECC_KEYPAIR *keypair)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == keypair)
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_generate_keypair: keypair is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_generate_keypair: keypair is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -691,12 +691,12 @@ int ecc_fp_encoding(const UINT32 eccfp_md_id, const UINT8 * message,const UINT32
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
     if ( NULL_PTR == message )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_encoding: message is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_encoding: message is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == msgpoint )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_encoding: msgpoint is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_encoding: msgpoint is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
 #endif /* ENC_DEC_DEBUG_SWITCH */
@@ -834,7 +834,7 @@ int ecc_fp_encoding(const UINT32 eccfp_md_id, const UINT8 * message,const UINT32
 
     if( j_max == j )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_encoding: encoding failure!");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_encoding: encoding failure!");
 
 #if ( SWITCH_ON == STATIC_MEMORY_SWITCH )
         free_static_mem(MD_ECCFP, eccfp_md_id, MM_BIGINT, msg, LOC_ECCFP_0019);
@@ -846,7 +846,7 @@ int ecc_fp_encoding(const UINT32 eccfp_md_id, const UINT8 * message,const UINT32
     }
 
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
-    sys_log(LOGSTDOUT,"ecc_fp_encoding: after %d times searching before encoding success!\n",j);
+    dbg_log(SEC_0063_ECCFP, 5)(LOGSTDOUT,"ecc_fp_encoding: after %d times searching before encoding success!\n",j);
 #endif /* ENC_DEC_DEBUG_SWITCH */
 
     /* msgpoint's x */
@@ -911,12 +911,12 @@ void ecc_fp_decoding(const UINT32 eccfp_md_id, const EC_CURVE_POINT * msgpoint, 
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
     if ( NULL_PTR == message )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_decoding: message is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_decoding: message is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == msgpoint )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_decoding: msgpoint is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_decoding: msgpoint is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
 #endif /* ENC_DEC_DEBUG_SWITCH */
@@ -1037,22 +1037,22 @@ void ecc_fp_encryption(const UINT32 eccfp_md_id,
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
     if ( NULL_PTR == publickey )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_encryption: publickey is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_encryption: publickey is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == msgpoint )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_encryption: msgpoint is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_encryption: msgpoint is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_encryption: c1 is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_encryption: c1 is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == c2 )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_encryption: c2 is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_encryption: c2 is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
 #endif /* ENC_DEC_DEBUG_SWITCH */
@@ -1123,22 +1123,22 @@ void ecc_fp_decryption(const UINT32 eccfp_md_id,
 #if ( SWITCH_ON == ENC_DEC_DEBUG_SWITCH )
     if ( NULL_PTR == privatekey )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_decryption: privatekey is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_decryption: privatekey is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == msgpoint )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_decryption: msgpoint is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_decryption: msgpoint is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_decryption: c1 is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_decryption: c1 is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == c2 )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_decryption: c2 is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_decryption: c2 is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
 #endif /* ENC_DEC_DEBUG_SWITCH */
@@ -1183,24 +1183,24 @@ const UINT32 ecc_fp_do_hash_default0(const UINT8 *message,const UINT32 messagele
 #if ( SWITCH_ON == ECDSA_DEBUG_SWITCH )
     if ( NULL_PTR == message )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_do_hash_default: message is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_do_hash_default: message is null.\n");
         return ((UINT32)(-1));
     }
     if ( NULL_PTR == hash )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_do_hash_default: hash is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_do_hash_default: hash is null.\n");
         return ((UINT32)(-1));
     }
 #endif /* ECDSA_DEBUG_SWITCH */
 
-    sys_log(LOGSTDOUT,"\n");
-    sys_log(LOGSTDOUT,"ecc_fp_do_hash_default: --------------------------------------------\n");
-    sys_log(LOGSTDOUT,"ecc_fp_do_hash_default: this function is only a debug  interface.   \n");
-    sys_log(LOGSTDOUT,"ecc_fp_do_hash_default: so, it always returns the constant value.   \n");
-    sys_log(LOGSTDOUT,"ecc_fp_do_hash_default: do not worry since it will be replaced with \n");
-    sys_log(LOGSTDOUT,"ecc_fp_do_hash_default: user's defined interface.                   \n");
-    sys_log(LOGSTDOUT,"ecc_fp_do_hash_default: --------------------------------------------\n");
-    sys_log(LOGSTDOUT,"\n");
+    dbg_log(SEC_0063_ECCFP, 5)(LOGSTDOUT,"\n");
+    dbg_log(SEC_0063_ECCFP, 5)(LOGSTDOUT,"ecc_fp_do_hash_default: --------------------------------------------\n");
+    dbg_log(SEC_0063_ECCFP, 5)(LOGSTDOUT,"ecc_fp_do_hash_default: this function is only a debug  interface.   \n");
+    dbg_log(SEC_0063_ECCFP, 5)(LOGSTDOUT,"ecc_fp_do_hash_default: so, it always returns the constant value.   \n");
+    dbg_log(SEC_0063_ECCFP, 5)(LOGSTDOUT,"ecc_fp_do_hash_default: do not worry since it will be replaced with \n");
+    dbg_log(SEC_0063_ECCFP, 5)(LOGSTDOUT,"ecc_fp_do_hash_default: user's defined interface.                   \n");
+    dbg_log(SEC_0063_ECCFP, 5)(LOGSTDOUT,"ecc_fp_do_hash_default: --------------------------------------------\n");
+    dbg_log(SEC_0063_ECCFP, 5)(LOGSTDOUT,"\n");
 
     for ( index = 0; index < INTMAX; index ++ )
     {
@@ -1228,12 +1228,12 @@ const UINT32 ecc_fp_do_hash_default(const UINT8 *message,const UINT32 messagelen
 #if ( SWITCH_ON == ECDSA_DEBUG_SWITCH )
     if ( NULL_PTR == message )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_do_hash_default: message is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_do_hash_default: message is null.\n");
         return ((UINT32)(-1));
     }
     if ( NULL_PTR == hash )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_do_hash_default: hash is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_do_hash_default: hash is null.\n");
         return ((UINT32)(-1));
     }
 #endif /* ECDSA_DEBUG_SWITCH */
@@ -1341,17 +1341,17 @@ UINT32  ecc_fp_signate(const UINT32 eccfp_md_id,
 #if ( SWITCH_ON == ECDSA_DEBUG_SWITCH )
     if ( NULL_PTR == privatekey )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_signate: privatekey is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_signate: privatekey is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == message )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_signate: message is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_signate: message is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == signature )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_signate: signature is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_signate: signature is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
 #endif /* ECDSA_DEBUG_SWITCH */
@@ -1471,7 +1471,7 @@ UINT32  ecc_fp_signate(const UINT32 eccfp_md_id,
     /* if counter exceeds the threshold, then return failure */
     if ( MAX_LOOP_LEN_OF_SIGNATURE <= counter )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_signate: signate times exceed the threshold.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_signate: signate times exceed the threshold.\n");
         return ((UINT32)(-1));
     }
 
@@ -1534,17 +1534,17 @@ EC_BOOL ecc_fp_verify(const UINT32 eccfp_md_id,
 #if ( SWITCH_ON == ECDSA_DEBUG_SWITCH )
     if ( NULL_PTR == message )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_verify: message is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_verify: message is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == signature )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_verify: signature is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_verify: signature is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
     if ( NULL_PTR == publickey )
     {
-        sys_log(LOGSTDOUT,"error:ecc_fp_verify: publickey is null.\n");
+        dbg_log(SEC_0063_ECCFP, 0)(LOGSTDOUT,"error:ecc_fp_verify: publickey is null.\n");
         dbg_exit(MD_ECCFP, eccfp_md_id);
     }
 #endif /* ECDSA_DEBUG_SWITCH */

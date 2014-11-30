@@ -79,7 +79,7 @@ void test_case_cbgt_insert_one(const UINT32 cbgt_md_id, const char *table_name, 
     cbytes_mount(&val_bytes       , strlen(val)       , (UINT8 *)val       );
 
     ASSERT(EC_TRUE == cbgt_insert(cbgt_md_id, &table_name_bytes, &row_bytes, &colf_bytes, &colq_bytes, &val_bytes));
-    sys_log(LOGSTDOUT, "[test_case_cbgt_insert_one] inserted (%s:%s:%s) in table %s ==> done\n",
+    dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "[test_case_cbgt_insert_one] inserted (%s:%s:%s) in table %s ==> done\n",
                         row, colf, colq, table_name);
     return;
 }
@@ -99,7 +99,7 @@ void test_case_cbgt_search_one(const UINT32 cbgt_md_id, const char *table_name, 
     cbytes_init(&val_bytes);
 
     ASSERT(EC_TRUE == cbgt_search(cbgt_md_id, &table_name_bytes, &row_bytes, &colf_bytes, &colq_bytes, &val_bytes));
-    sys_log(LOGSTDOUT, "[test_case_cbgt_search_one] searched (%s:%s:%s) in table %s ==> val %.*s\n",
+    dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "[test_case_cbgt_search_one] searched (%s:%s:%s) in table %s ==> val %.*s\n",
                         row, colf, colq, table_name, cbytes_len(&val_bytes), cbytes_buf(&val_bytes));
     return;
 }
@@ -120,7 +120,7 @@ void test_case_cbgt_fetch_one(const UINT32 cbgt_md_id, const char *table_name, c
     cbytes_init(&val_bytes);
 
     ASSERT(EC_TRUE == cbgt_fetch(cbgt_md_id, &table_name_bytes, &row_bytes, &colf_bytes, &colq_bytes, &val_bytes));
-    sys_log(LOGSTDOUT, "[test_case_cbgt_fetch_one] fetched (%s:%s:%s) in table %s ==> %.*s\n",
+    dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "[test_case_cbgt_fetch_one] fetched (%s:%s:%s) in table %s ==> %.*s\n",
                         row, colf, colq, table_name, cbytes_len(&val_bytes), cbytes_buf(&val_bytes));
     cbytes_clean(&val_bytes, 0);
     return;
@@ -139,7 +139,7 @@ void test_case_cbgt_delete_one(const UINT32 cbgt_md_id, const char *table_name, 
     cbytes_mount(&colq_bytes      , strlen(colq)      , (UINT8 *)colq      );
 
     ASSERT(EC_TRUE == cbgt_delete(cbgt_md_id, &table_name_bytes, &row_bytes, &colf_bytes, &colq_bytes));
-    sys_log(LOGSTDOUT, "[test_case_cbgt_delete_one] deleted (%s:%s:%s) in table %s\n",
+    dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "[test_case_cbgt_delete_one] deleted (%s:%s:%s) in table %s\n",
                         row, colf, colq, table_name);
     return;
 }
@@ -244,9 +244,9 @@ void test_case_cbgt_insert_group(const UINT32 cbgt_md_id, const char *table_name
                 cvector_push(bytes_vec, (void *)colq_bytes);
                 cvector_push(bytes_vec, (void *)val_bytes);
 
-                //sys_log(LOGCONSOLE, "test_case_cbgt_insert_group: [TRY ] insert %s %s:%s:%s %s\n", table_name, row, colf, colq, val);
+                //dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "test_case_cbgt_insert_group: [TRY ] insert %s %s:%s:%s %s\n", table_name, row, colf, colq, val);
                 ASSERT(EC_TRUE == cbgt_insert(cbgt_md_id, &table_name_bytes, row_bytes, colf_bytes, colq_bytes, val_bytes));
-                sys_log(LOGCONSOLE, "test_case_cbgt_insert_group: [SUCC] insert %s %s:%s:%s %s\n", table_name, row, colf, colq, val);
+                dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "test_case_cbgt_insert_group: [SUCC] insert %s %s:%s:%s %s\n", table_name, row, colf, colq, val);
             }
         }
     }
@@ -254,7 +254,7 @@ void test_case_cbgt_insert_group(const UINT32 cbgt_md_id, const char *table_name
     cvector_clean_with_location(bytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, 0);
     cvector_free(bytes_vec, 0);
 
-    sys_log(LOGCONSOLE, "test_case_cbgt_insert_group: end\n");
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "test_case_cbgt_insert_group: end\n");
 
     return;
 }
@@ -358,7 +358,7 @@ void test_case_cbgt_insert_group_p(const UINT32 cbgt_md_id, const char *table_na
                 if(EC_TRUE == ret[ colq_idx ])
                 {
 #if 0
-                    sys_log(LOGSTDNULL, "[DEBUG] test_case_cbgt_insert_group_p: [SUCC] insert %s %s:%s:colq-%08ld-%08ld-%08ld val-%08ld-%08ld-%08ld\n",
+                    dbg_log(SEC_0137_DEMO, 9)(LOGSTDNULL, "[DEBUG] test_case_cbgt_insert_group_p: [SUCC] insert %s %s:%s:colq-%08ld-%08ld-%08ld val-%08ld-%08ld-%08ld\n",
                                         table_name, row, colf,
                                         row_idx, colf_idx, colq_idx,
                                         row_idx, colf_idx, colq_idx);
@@ -367,7 +367,7 @@ void test_case_cbgt_insert_group_p(const UINT32 cbgt_md_id, const char *table_na
                 else
                 {
                     continue_flag = EC_FALSE;
-                    sys_log(LOGCONSOLE, "[DEBUG] test_case_cbgt_insert_group_p: [FAIL] insert %s %s:%s:colq-%08ld-%08ld-%08ld val-%08ld-%08ld-%08ld\n",
+                    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_cbgt_insert_group_p: [FAIL] insert %s %s:%s:colq-%08ld-%08ld-%08ld val-%08ld-%08ld-%08ld\n",
                                         table_name, row, colf,
                                         row_idx, colf_idx, colq_idx,
                                         row_idx, colf_idx, colq_idx);
@@ -382,17 +382,17 @@ void test_case_cbgt_insert_group_p(const UINT32 cbgt_md_id, const char *table_na
 
         if(EC_TRUE == continue_flag)
         {
-            sys_log(LOGCONSOLE, "[DEBUG] test_case_cbgt_insert_group_p: [SUCC] row tag %ld, row no. %ld\n", row_tag, row_idx);
+            dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_cbgt_insert_group_p: [SUCC] row tag %ld, row no. %ld\n", row_tag, row_idx);
         }
         else
         {
-            sys_log(LOGCONSOLE, "[DEBUG] test_case_cbgt_insert_group_p: [FAIL] row tag %ld, row no. %ld\n", row_tag, row_idx);
+            dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_cbgt_insert_group_p: [FAIL] row tag %ld, row no. %ld\n", row_tag, row_idx);
         }
 
         cbytes_free(row_bytes, 0);
     }
 
-    sys_log(LOGCONSOLE, "[DEBUG] test_case_cbgt_insert_group_p: row tag %ld end\n", row_tag);
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_cbgt_insert_group_p: row tag %ld end\n", row_tag);
 
     return;
 }
@@ -498,7 +498,7 @@ void test_case_cbgt_fetch_group_p(const UINT32 cbgt_md_id, const char *table_nam
                 if(EC_TRUE == ret[ colq_idx ] && EC_TRUE == cbytes_cmp(&__val_bytes, &(val_bytes[colq_idx])))
                 {
 #if 0                
-                    sys_log(LOGSTDNULL, "[DEBUG] test_case_cbgt_fetch_group_p: [SUCC] fetch %s %s:%s:colq-%08ld-%08ld-%08ld => %.*s\n",
+                    dbg_log(SEC_0137_DEMO, 9)(LOGSTDNULL, "[DEBUG] test_case_cbgt_fetch_group_p: [SUCC] fetch %s %s:%s:colq-%08ld-%08ld-%08ld => %.*s\n",
                                         table_name, row, colf,
                                         row_idx, colf_idx, colq_idx,
                                         cbytes_len(&(val_bytes[colq_idx])), (char *)cbytes_buf(&(val_bytes[colq_idx])));
@@ -507,7 +507,7 @@ void test_case_cbgt_fetch_group_p(const UINT32 cbgt_md_id, const char *table_nam
                 else
                 {
                     //continue_flag = EC_FALSE;
-                    sys_log(LOGCONSOLE, "[DEBUG] test_case_cbgt_fetch_group_p: [FAIL] fetch %s %s:%s:colq-%08ld-%08ld-%08ld => %.*s\n",
+                    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_cbgt_fetch_group_p: [FAIL] fetch %s %s:%s:colq-%08ld-%08ld-%08ld => %.*s\n",
                                         table_name, row, colf,
                                         row_idx, colf_idx, colq_idx,
                                         cbytes_len(&(val_bytes[colq_idx])), (char *)cbytes_buf(&(val_bytes[colq_idx])));
@@ -524,18 +524,18 @@ void test_case_cbgt_fetch_group_p(const UINT32 cbgt_md_id, const char *table_nam
 
         if(EC_TRUE == continue_flag)
         {
-            sys_log(LOGCONSOLE, "[DEBUG] test_case_cbgt_fetch_group_p: [SUCC] row tag %ld, row no. %ld\n", row_tag, row_idx);
+            dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_cbgt_fetch_group_p: [SUCC] row tag %ld, row no. %ld\n", row_tag, row_idx);
         }
         else
         {
-            sys_log(LOGCONSOLE, "[DEBUG] test_case_cbgt_fetch_group_p: [FAIL] row tag %ld, row no. %ld\n", row_tag, row_idx);
+            dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_cbgt_fetch_group_p: [FAIL] row tag %ld, row no. %ld\n", row_tag, row_idx);
         }
 
         cbytes_free(row_bytes, 0);
     }
 
 
-    sys_log(LOGCONSOLE, "[DEBUG] test_case_cbgt_fetch_group_p: row tag %ld end\n", row_tag);
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_cbgt_fetch_group_p: row tag %ld end\n", row_tag);
 
     return;
 }
@@ -619,14 +619,14 @@ void test_case_cbgt_delete_group_p(const UINT32 cbgt_md_id, const char *table_na
             {
                 if(EC_TRUE == ret[ colq_idx ])
                 {
-                    sys_log(LOGSTDNULL, "[DEBUG] test_case_cbgt_delete_group_p: [SUCC] delete %s %s:%s:colq-%08ld-%08ld-%08ld\n",
+                    dbg_log(SEC_0137_DEMO, 9)(LOGSTDNULL, "[DEBUG] test_case_cbgt_delete_group_p: [SUCC] delete %s %s:%s:colq-%08ld-%08ld-%08ld\n",
                                         table_name, row, colf,
                                         row_idx, colf_idx, colq_idx);
                 }
                 else
                 {
                     //continue_flag = EC_FALSE;
-                    sys_log(LOGCONSOLE, "[DEBUG] test_case_cbgt_delete_group_p: [FAIL] delete %s %s:%s:colq-%08ld-%08ld-%08ld\n",
+                    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_cbgt_delete_group_p: [FAIL] delete %s %s:%s:colq-%08ld-%08ld-%08ld\n",
                                         table_name, row, colf,
                                         row_idx, colf_idx, colq_idx);
                 }
@@ -642,15 +642,15 @@ void test_case_cbgt_delete_group_p(const UINT32 cbgt_md_id, const char *table_na
 
         if(EC_TRUE == continue_flag)
         {
-            sys_log(LOGCONSOLE, "[DEBUG] test_case_cbgt_delete_group_p: [SUCC] row tag %ld, row no. %ld\n", row_tag, row_idx);
+            dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_cbgt_delete_group_p: [SUCC] row tag %ld, row no. %ld\n", row_tag, row_idx);
         }
         else
         {
-            sys_log(LOGCONSOLE, "[DEBUG] test_case_cbgt_delete_group_p: [FAIL] row tag %ld, row no. %ld\n", row_tag, row_idx);
+            dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_cbgt_delete_group_p: [FAIL] row tag %ld, row no. %ld\n", row_tag, row_idx);
         }
     }
 
-    sys_log(LOGCONSOLE, "[DEBUG] test_case_cbgt_delete_group_p: row tag %ld end\n", row_tag);
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_cbgt_delete_group_p: row tag %ld end\n", row_tag);
 
     return;
 }
@@ -692,7 +692,7 @@ void test_case_cbgt_insert(const UINT32 cbgt_md_id)
     test_case_cbgt_insert_one(cbgt_md_id, "hansoul", "row-A", "colf-2", "colq-2-8", "val-2-1-8");
     test_case_cbgt_insert_one(cbgt_md_id, "hansoul", "row-A", "colf-2", "colq-2-9", "val-2-1-9");
 
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cbgt_insert: ============================ user data inserted ====================\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cbgt_insert: ============================ user data inserted ====================\n");
 
     return;
 }
@@ -732,7 +732,7 @@ void test_case_cbgt_search(const UINT32 cbgt_md_id)
     test_case_cbgt_search_one(cbgt_md_id, "hansoul", "row-A", "colf-2", "colq-2-1");
     test_case_cbgt_search_one(cbgt_md_id, "hansoul", "row-A", "colf-2", "colq-2-0");
 
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cbgt_search: ============================ user data searched ====================\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cbgt_search: ============================ user data searched ====================\n");
 
     return;
 }
@@ -772,7 +772,7 @@ void test_case_cbgt_fetch(const UINT32 cbgt_md_id)
     test_case_cbgt_fetch_one(cbgt_md_id, "hansoul", "row-A", "colf-2", "colq-2-1");
     test_case_cbgt_fetch_one(cbgt_md_id, "hansoul", "row-A", "colf-2", "colq-2-0");
 
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cbgt_fetch: ============================ user data fetched ====================\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cbgt_fetch: ============================ user data fetched ====================\n");
 
     return;
 }
@@ -812,7 +812,7 @@ void test_case_cbgt_delete(const UINT32 cbgt_md_id)
     test_case_cbgt_delete_one(cbgt_md_id, "hansoul", "row-A", "colf-2", "colq-2-1");
     test_case_cbgt_delete_one(cbgt_md_id, "hansoul", "row-A", "colf-2", "colq-2-0");
 
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cbgt_delete: ============================ user data deleted ====================\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cbgt_delete: ============================ user data deleted ====================\n");
 
     return;
 }
@@ -878,26 +878,26 @@ EC_BOOL __test_cbgt_root_runner()
 
     ASSERT(ERR_MODULE_ID != cbgt_md_id);    
 #if 1
-    sys_log(LOGSTDOUT, "[DEBUG] __test_cbgt_root_runner: ============================ root server started ====================\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] __test_cbgt_root_runner: ============================ root server started ====================\n");
     test_case_cbgt_create_table_on_root(cbgt_md_id, "hansoul", 3, "colf-0", "colf-1", "colf-2");
 
     g_cbtree_key_cmp_counter = 0;
     g_do_slave_usleep_counter = 0;
     __test_cbgt_insert_client_1_runner();    
-    //sys_log(LOGCONSOLE, "[DEBUG] __test_cbgt_root_runner: after insert, g_cbtree_key_cmp_counter = %ld\n", g_cbtree_key_cmp_counter);
-    //sys_log(LOGCONSOLE, "[DEBUG] __test_cbgt_root_runner: after insert, g_do_slave_usleep_counter = %ld\n", g_do_slave_usleep_counter);
+    //dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] __test_cbgt_root_runner: after insert, g_cbtree_key_cmp_counter = %ld\n", g_cbtree_key_cmp_counter);
+    //dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] __test_cbgt_root_runner: after insert, g_do_slave_usleep_counter = %ld\n", g_do_slave_usleep_counter);
 #endif
     //g_cbtree_key_cmp_counter = 0;
     //g_do_slave_usleep_counter = 0;
     //__test_cbgt_delete_client_1_runner();    
-    //sys_log(LOGCONSOLE, "[DEBUG] __test_cbgt_root_runner: after delete, g_cbtree_key_cmp_counter = %ld\n", g_cbtree_key_cmp_counter);
-    //sys_log(LOGCONSOLE, "[DEBUG] __test_cbgt_root_runner: after insert, g_do_slave_usleep_counter = %ld\n", g_do_slave_usleep_counter);
+    //dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] __test_cbgt_root_runner: after delete, g_cbtree_key_cmp_counter = %ld\n", g_cbtree_key_cmp_counter);
+    //dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] __test_cbgt_root_runner: after insert, g_do_slave_usleep_counter = %ld\n", g_do_slave_usleep_counter);
 
     g_cbtree_key_cmp_counter = 0;
     g_do_slave_usleep_counter = 0;
     __test_cbgt_fetch_client_1_runner();
-    sys_log(LOGCONSOLE, "[DEBUG] __test_cbgt_root_runner: after fetch, g_cbtree_key_cmp_counter = %ld\n", g_cbtree_key_cmp_counter);
-    sys_log(LOGCONSOLE, "[DEBUG] __test_cbgt_root_runner: after insert, g_do_slave_usleep_counter = %ld\n", g_do_slave_usleep_counter);
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] __test_cbgt_root_runner: after fetch, g_cbtree_key_cmp_counter = %ld\n", g_cbtree_key_cmp_counter);
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] __test_cbgt_root_runner: after insert, g_do_slave_usleep_counter = %ld\n", g_do_slave_usleep_counter);
     return (EC_TRUE);
 }
 
@@ -914,12 +914,12 @@ EC_BOOL __test_cbgt_insert_client_1_runner()
 
     ASSERT(ERR_MODULE_ID != cbgt_md_id);
 
-    sys_log(LOGCONSOLE, "[DEBUG] __test_cbgt_insert_client_1_runner: ============================ user client started ====================\n");
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] __test_cbgt_insert_client_1_runner: ============================ user client started ====================\n");
     //sys_log_switch_off();
     test_case_cbgt_insert_group_p(cbgt_md_id, "hansoul", 10101021);    
     cbgt_end(cbgt_md_id);
     //sys_log_switch_on();
-    sys_log(LOGCONSOLE, "[DEBUG] __test_cbgt_insert_client_1_runner: ============================ user client stopped ====================\n");
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] __test_cbgt_insert_client_1_runner: ============================ user client stopped ====================\n");
 
     return (EC_TRUE);
 }
@@ -937,7 +937,7 @@ EC_BOOL __test_cbgt_insert_client_2_runner()
 
     ASSERT(ERR_MODULE_ID != cbgt_md_id);
 
-    sys_log(LOGSTDOUT, "[DEBUG] __test_cbgt_insert_client_2_runner: ============================ user client started ====================\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] __test_cbgt_insert_client_2_runner: ============================ user client started ====================\n");
 
     test_case_cbgt_insert_group_p(cbgt_md_id, "hansoul", 10101022);
     cbgt_end(cbgt_md_id);
@@ -958,12 +958,12 @@ EC_BOOL __test_cbgt_fetch_client_1_runner()
 
     ASSERT(ERR_MODULE_ID != cbgt_md_id);
 
-    sys_log(LOGCONSOLE, "[DEBUG] __test_cbgt_fetch_client_1_runner: ============================ user client started ====================\n");
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] __test_cbgt_fetch_client_1_runner: ============================ user client started ====================\n");
     //sys_log_switch_off();
     test_case_cbgt_fetch_group_p(cbgt_md_id, "hansoul", 10101021);    
     cbgt_end(cbgt_md_id);
     //sys_log_switch_on();
-    sys_log(LOGCONSOLE, "[DEBUG] __test_cbgt_fetch_client_1_runner: ============================ user client stopped ====================\n");
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] __test_cbgt_fetch_client_1_runner: ============================ user client stopped ====================\n");
     
     return (EC_TRUE);
 }
@@ -981,7 +981,7 @@ EC_BOOL __test_cbgt_fetch_client_2_runner()
 
     ASSERT(ERR_MODULE_ID != cbgt_md_id);
 
-    sys_log(LOGSTDOUT, "[DEBUG] __test_cbgt_fetch_client_2_runner: ============================ user client started ====================\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] __test_cbgt_fetch_client_2_runner: ============================ user client started ====================\n");
 
     test_case_cbgt_fetch_group_p(cbgt_md_id, "hansoul", 10101022);
     cbgt_end(cbgt_md_id);
@@ -1002,7 +1002,7 @@ EC_BOOL __test_cbgt_delete_client_1_runner()
     
     ASSERT(ERR_MODULE_ID != cbgt_md_id);
 
-    sys_log(LOGSTDOUT, "[DEBUG] __test_cbgt_delete_client_1_runner: ============================ user client started ====================\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] __test_cbgt_delete_client_1_runner: ============================ user client started ====================\n");
 
     test_case_cbgt_delete_group_p(cbgt_md_id, "hansoul", 10101021);
     cbgt_end(cbgt_md_id);
@@ -1023,7 +1023,7 @@ EC_BOOL __test_cbgt_delete_client_2_runner()
 
     ASSERT(ERR_MODULE_ID != cbgt_md_id);
 
-    sys_log(LOGSTDOUT, "[DEBUG] __test_cbgt_delete_client_2_runner: ============================ user client started ====================\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] __test_cbgt_delete_client_2_runner: ============================ user client started ====================\n");
 
     test_case_cbgt_delete_group_p(cbgt_md_id, "hansoul", 10101022);
     cbgt_end(cbgt_md_id);
@@ -1083,7 +1083,7 @@ int main_cbgt(int argc, char **argv)
     task_brd_default_init(argc, argv);
     if(EC_FALSE == task_brd_default_check_validity())
     {
-        sys_log(LOGSTDOUT, "error:main_cbgt: validity checking failed\n");
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:main_cbgt: validity checking failed\n");
         task_brd_default_abort();
         return (-1);
     }

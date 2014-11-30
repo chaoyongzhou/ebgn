@@ -204,7 +204,7 @@ void bgn_z2_end(const UINT32 bgnz2_md_id)
 
     if ( MAX_NUM_OF_BGNZ2_MD < bgnz2_md_id )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_end: bgnz2_md_id = %ld is overflow.\n",bgnz2_md_id);
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_end: bgnz2_md_id = %ld is overflow.\n",bgnz2_md_id);
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 
@@ -219,7 +219,7 @@ void bgn_z2_end(const UINT32 bgnz2_md_id)
 
     if ( 0 == bgnz2_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_end: bgnz2_md_id = %ld is not started.\n",bgnz2_md_id);
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_end: bgnz2_md_id = %ld is not started.\n",bgnz2_md_id);
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 
@@ -270,12 +270,12 @@ int bgn_z2_cmp(const UINT32 bgnz2_md_id,const BIGINT * a,const BIGINT *b)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_cmp: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_cmp: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_cmp: b is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_cmp: b is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -307,12 +307,12 @@ void bgn_z2_clone(const UINT32 bgnz2_md_id,const BIGINT * src,BIGINT * des)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_clone: src is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_clone: src is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_clone: des is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_clone: des is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -348,7 +348,7 @@ EC_BOOL bgn_z2_is_zero(const UINT32 bgnz2_md_id,const BIGINT* src)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_is_zero: src is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_is_zero: src is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -382,7 +382,7 @@ EC_BOOL bgn_z2_is_one(const UINT32 bgnz2_md_id,const BIGINT* src)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_is_one: src is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_is_one: src is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -416,7 +416,7 @@ EC_BOOL bgn_z2_is_odd(const UINT32 bgnz2_md_id,const BIGINT *src)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_is_odd: src is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_is_odd: src is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -448,7 +448,7 @@ void bgn_z2_set_zero(const UINT32 bgnz2_md_id,BIGINT * a)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_set_zero: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_set_zero: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -480,7 +480,7 @@ void bgn_z2_set_one(const UINT32 bgnz2_md_id,BIGINT * a)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_set_one: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_set_one: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -514,7 +514,7 @@ void bgn_z2_set_word(const UINT32 bgnz2_md_id,BIGINT *a,const UINT32 n)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_set_word: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_set_word: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -552,12 +552,12 @@ UINT32 bgn_z2_parse_bits(const UINT32 bgnz2_md_id,const BIGINT *k,UINT32 *s)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == k )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_parse_bits: k is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_parse_bits: k is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == s )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_parse_bits: s is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_parse_bits: s is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -606,12 +606,12 @@ int bgn_z2_naf(const UINT32 bgnz2_md_id,const BIGINT *k,int *s)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == k )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_naf: k is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_naf: k is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == s )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_naf: s is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_naf: s is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -649,7 +649,7 @@ UINT32 bgn_z2_deg(const UINT32 bgnz2_md_id,const BIGINT *a)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_deg: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_deg: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -688,7 +688,7 @@ void bgn_z2_set_e(const UINT32 bgnz2_md_id,BIGINT *e,const UINT32 nth)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == e )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_set_e: e is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_set_e: e is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -724,7 +724,7 @@ UINT32 bgn_z2_get_bit(const UINT32 bgnz2_md_id,const BIGINT *a, const UINT32 nth
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_get_bit: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_get_bit: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -758,7 +758,7 @@ void  bgn_z2_set_bit(const UINT32 bgnz2_md_id,BIGINT *a, const UINT32 nthbit)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_set_bit: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_set_bit: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -794,7 +794,7 @@ void  bgn_z2_clear_bit(const UINT32 bgnz2_md_id,BIGINT *a, const UINT32 nthbit)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_clear_bit: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_clear_bit: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -838,27 +838,27 @@ UINT32 bgn_z2_dshr_onewordsize(const UINT32 bgnz2_md_id,const BIGINT *a0,const B
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shr_onewordsize: a0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shr_onewordsize: a0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == a1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shr_onewordsize: a1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shr_onewordsize: a1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shr_onewordsize: c0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shr_onewordsize: c0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shr_onewordsize: c1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shr_onewordsize: c1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( c1 == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shr_onewordsize: address of c0 and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shr_onewordsize: address of c0 and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -891,7 +891,7 @@ UINT32 bgn_z2_dshr_onewordsize(const UINT32 bgnz2_md_id,const BIGINT *a0,const B
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
         if ( INTMAX <= c0_len )
         {
-            sys_log(LOGSTDOUT,"error:bgn_z2_shr_onewordsize: c0_len = %ld overflow.\n",c0_len);
+            dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shr_onewordsize: c0_len = %ld overflow.\n",c0_len);
             dbg_exit(MD_BGNZ2, bgnz2_md_id);
         }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -932,27 +932,27 @@ UINT32 bgn_z2_dshr_lesswordsize(const UINT32 bgnz2_md_id,const BIGINT *a0,const 
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shr_lesswordsize: a0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shr_lesswordsize: a0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == a1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shr_lesswordsize: a1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shr_lesswordsize: a1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shr_lesswordsize: c0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shr_lesswordsize: c0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shr_lesswordsize: c1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shr_lesswordsize: c1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( c1 == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shr_lesswordsize: address of c0 and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shr_lesswordsize: address of c0 and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -985,7 +985,7 @@ UINT32 bgn_z2_dshr_lesswordsize(const UINT32 bgnz2_md_id,const BIGINT *a0,const 
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
         if ( INTMAX < c0_len )
         {
-            sys_log(LOGSTDOUT,"error:bgn_z2_shr_lesswordsize: c0_len = %ld overflow.\n",c0_len);
+            dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shr_lesswordsize: c0_len = %ld overflow.\n",c0_len);
             dbg_exit(MD_BGNZ2, bgnz2_md_id);
         }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1022,27 +1022,27 @@ void bgn_z2_dshr_no_shift_out(const UINT32 bgnz2_md_id,const BIGINT *a0,const BI
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dshr_no_shift_out: a0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dshr_no_shift_out: a0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == a1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dshr_no_shift_out: a1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dshr_no_shift_out: a1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dshr_no_shift_out: c0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dshr_no_shift_out: c0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dshr_no_shift_out: c1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dshr_no_shift_out: c1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( c0 == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dshr_no_shift_out: address of c0 and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dshr_no_shift_out: address of c0 and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1086,27 +1086,27 @@ UINT32 bgn_z2_dshl_onewordsize(const UINT32 bgnz2_md_id,const BIGINT *a0,const B
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shl_onewordsize: a0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shl_onewordsize: a0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == a1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shl_onewordsize: a1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shl_onewordsize: a1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shl_onewordsize: c0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shl_onewordsize: c0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shl_onewordsize: c1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shl_onewordsize: c1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( c1 == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shl_onewordsize: address of c0 and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shl_onewordsize: address of c0 and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1160,27 +1160,27 @@ UINT32 bgn_z2_dshl_lesswordsize(const UINT32 bgnz2_md_id,const BIGINT *a0,const 
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shl_lesswordsize: a0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shl_lesswordsize: a0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == a1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shl_lesswordsize: a1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shl_lesswordsize: a1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shl_lesswordsize: c0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shl_lesswordsize: c0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shl_lesswordsize: c1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shl_lesswordsize: c1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( c1 == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_shl_lesswordsize: address of c0 and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_shl_lesswordsize: address of c0 and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1233,27 +1233,27 @@ void bgn_z2_dshl_no_shift_out(const UINT32 bgnz2_md_id,const BIGINT *a0,const BI
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dshl_no_shift_out: a0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dshl_no_shift_out: a0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == a1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dshl_no_shift_out: a1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dshl_no_shift_out: a1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dshl_no_shift_out: c0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dshl_no_shift_out: c0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dshl_no_shift_out: c1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dshl_no_shift_out: c1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( c0 == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dshl_no_shift_out: address of c0 and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dshl_no_shift_out: address of c0 and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1295,12 +1295,12 @@ UINT32 bgn_z2_sshr_onewordsize(const UINT32 bgnz2_md_id,const BIGINT *a,BIGINT *
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sshr_onewordsize: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sshr_onewordsize: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sshr_onewordsize: c is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sshr_onewordsize: c is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1340,12 +1340,12 @@ UINT32 bgn_z2_sshr_lesswordsize(const UINT32 bgnz2_md_id,const BIGINT *a, const 
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sshr_lesswordsize: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sshr_lesswordsize: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sshr_lesswordsize: c is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sshr_lesswordsize: c is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( WORDSIZE <= nbits )
@@ -1391,12 +1391,12 @@ void bgn_z2_sshr_no_shift_out(const UINT32 bgnz2_md_id,const BIGINT *a, const UI
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sshr_no_shift_out: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sshr_no_shift_out: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sshr_no_shift_out: c is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sshr_no_shift_out: c is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1437,12 +1437,12 @@ UINT32 bgn_z2_sshl_onewordsize(const UINT32 bgnz2_md_id,const BIGINT * a, BIGINT
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sshl_onewordsize: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sshl_onewordsize: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sshl_onewordsize: c is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sshl_onewordsize: c is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1481,12 +1481,12 @@ UINT32 bgn_z2_sshl_lesswordsize(const UINT32 bgnz2_md_id,const BIGINT * a, const
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sshl_lesswordsize: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sshl_lesswordsize: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sshl_lesswordsize: c is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sshl_lesswordsize: c is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( WORDSIZE <= nbits )
@@ -1530,12 +1530,12 @@ void bgn_z2_sshl_no_shift_out(const UINT32 bgnz2_md_id,const BIGINT *a, const UI
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sshl_no_shift_out: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sshl_no_shift_out: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sshl_no_shift_out: c is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sshl_no_shift_out: c is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1577,17 +1577,17 @@ void bgn_z2_add(const UINT32 bgnz2_md_id,const BIGINT* a,const BIGINT * b,BIGINT
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_add: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_add: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_add: b is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_add: b is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_add: c is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_add: c is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1628,12 +1628,12 @@ void bgn_z2_sadd(const UINT32 bgnz2_md_id,const BIGINT *a,const UINT32 b, BIGINT
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sadd: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sadd: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sadd: c is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sadd: c is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1690,28 +1690,28 @@ void bgn_z2_dadd(const UINT32 bgnz2_md_id,const BIGINT *a0,const BIGINT *a1,cons
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dadd: a0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dadd: a0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == a1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dadd: a1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dadd: a1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dadd: b is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dadd: b is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dadd: c0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dadd: c0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dadd: c1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dadd: c1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1719,22 +1719,22 @@ void bgn_z2_dadd(const UINT32 bgnz2_md_id,const BIGINT *a0,const BIGINT *a1,cons
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( a0 == a1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dadd: address of a0 and a1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dadd: address of a0 and a1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( a0 == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dadd: address of a0 and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dadd: address of a0 and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( b == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dadd: address of b and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dadd: address of b and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( c0 == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dadd: address of c0 and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dadd: address of c0 and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1770,17 +1770,17 @@ void bgn_z2_sub(const UINT32 bgnz2_md_id,const BIGINT* a,const BIGINT * b,BIGINT
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sub: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sub: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sub: b is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sub: b is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_sub: c is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_sub: c is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1812,12 +1812,12 @@ void bgn_z2_ssub(const UINT32 bgnz2_md_id,const BIGINT *a,const UINT32 b, BIGINT
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ssub: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ssub: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ssub: c is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ssub: c is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1849,28 +1849,28 @@ void bgn_z2_dsub(const UINT32 bgnz2_md_id,const BIGINT *a0,const BIGINT *a1,cons
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dsub: a0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dsub: a0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == a1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dsub: a1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dsub: a1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dsub: b is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dsub: b is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dsub: c0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dsub: c0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_dsub: c1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_dsub: c1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1910,17 +1910,17 @@ void bgn_z2_add_offset(const UINT32 bgnz2_md_id,const BIGINT *a,const BIGINT *b,
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_add_offset: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_add_offset: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_add_offset: b is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_add_offset: b is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_add_offset: c is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_add_offset: c is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -2004,32 +2004,32 @@ void bgn_z2_squ(const UINT32 bgnz2_md_id,const BIGINT* a,BIGINT * c0,BIGINT *c1)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_squ: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_squ: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_squ: c0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_squ: c0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_squ: c1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_squ: c1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( a == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_squ: address of a and c0 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_squ: address of a and c0 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( a == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_squ: address of a and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_squ: address of a and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( c0 == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_squ: address of c0 and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_squ: address of c0 and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -2154,7 +2154,7 @@ void bgn_z2_premul(const UINT32 bgnz2_md_id,const BIGINT * a)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_premul: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_premul: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -2259,47 +2259,47 @@ void bgn_z2_mul(const UINT32 bgnz2_md_id,const BIGINT* a,const BIGINT * b,BIGINT
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_mul: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_mul: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_mul: b is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_mul: b is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_mul: c0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_mul: c0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_mul: c1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_mul: c1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( a == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_mul: address of a and c0 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_mul: address of a and c0 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( a == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_mul: address of a and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_mul: address of a and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( b == c0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_mul: address of b and c0 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_mul: address of b and c0 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( b == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_mul: address of b and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_mul: address of b and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( c0 == c1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_mul: address of c0 and c1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_mul: address of c0 and c1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -2345,7 +2345,7 @@ void bgn_z2_mul(const UINT32 bgnz2_md_id,const BIGINT* a,const BIGINT * b,BIGINT
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
         if ( INTMAX <= word_offset )
         {
-            sys_log(LOGSTDOUT,"error:bgn_z2_mul: word_offset = %ld overflow\n",word_offset);
+            dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_mul: word_offset = %ld overflow\n",word_offset);
             dbg_exit(MD_BGNZ2, bgnz2_md_id);
         }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -2405,22 +2405,22 @@ void bgn_z2_div(const UINT32 bgnz2_md_id,const BIGINT* a,const BIGINT * b,BIGINT
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_div: a is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_div: a is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_div: b is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_div: b is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == q )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_div: q is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_div: q is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_div: r is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_div: r is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -2429,27 +2429,27 @@ void bgn_z2_div(const UINT32 bgnz2_md_id,const BIGINT* a,const BIGINT * b,BIGINT
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( a == q )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_div: address of a and q conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_div: address of a and q conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( a == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_div: address of a and r conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_div: address of a and r conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( b == q )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_div: address of b and q conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_div: address of b and q conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( b == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_div: address of b and r conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_div: address of b and r conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( q == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_div: address of q and r conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_div: address of q and r conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -2602,33 +2602,33 @@ void bgn_z2_ddiv_1(const UINT32 bgnz2_md_id,const BIGINT* a0,const BIGINT* a1,co
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: a0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: a0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == a1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: a1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: a1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: b is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: b is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == q0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: q0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: q0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 
     if ( NULL_PTR == q1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: q1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: q1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: r is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: r is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -2636,32 +2636,32 @@ void bgn_z2_ddiv_1(const UINT32 bgnz2_md_id,const BIGINT* a0,const BIGINT* a1,co
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( b == q0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: address of b and q0 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: address of b and q0 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( b == q1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: address of b and q1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: address of b and q1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( b == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: address of b and r conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: address of b and r conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( q0 == q1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: address of q0 and q1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: address of q0 and q1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( q0 == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: address of q0 and r conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: address of q0 and r conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( q1 == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: address of q1 and r conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: address of q1 and r conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -2678,7 +2678,7 @@ void bgn_z2_ddiv_1(const UINT32 bgnz2_md_id,const BIGINT* a0,const BIGINT* a1,co
     /* if b = 0, then exit */
     if ( EC_TRUE == bgn_z2_is_zero( bgnz2_md_id, b ) )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_1: b is zero.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_1: b is zero.\n");
 
         dbg_exit(MD_BGNZ2, bgnz2_md_id) ;
     }
@@ -2779,7 +2779,7 @@ void bgn_z2_ddiv_1(const UINT32 bgnz2_md_id,const BIGINT* a0,const BIGINT* a1,co
     free_static_mem(MD_BGNZ2, bgnz2_md_id, MM_BIGINT,t1, LOC_BGNZ2_0026);
 #endif/* STATIC_MEMORY_SWITCH */
 
-    /* sys_log(LOGSTDOUT,"bgn_z2_ddiv_slow: counter = %ld\n",counter); */
+    /* dbg_log(SEC_0116_BGNZ2, 5)(LOGSTDOUT,"bgn_z2_ddiv_slow: counter = %ld\n",counter); */
 
     return ;
 }
@@ -2832,33 +2832,33 @@ void bgn_z2_ddiv_2(const UINT32 bgnz2_md_id,const BIGINT* a0,const BIGINT* a1,co
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: a0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: a0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == a1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: a1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: a1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: b is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: b is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == q0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: q0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: q0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 
     if ( NULL_PTR == q1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: q1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: q1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: r is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: r is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -2866,32 +2866,32 @@ void bgn_z2_ddiv_2(const UINT32 bgnz2_md_id,const BIGINT* a0,const BIGINT* a1,co
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( b == q0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: address of b and q0 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: address of b and q0 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( b == q1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: address of b and q1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: address of b and q1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( b == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: address of b and r conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: address of b and r conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( q0 == q1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: address of q0 and q1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: address of q0 and q1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( q0 == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: address of q0 and r conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: address of q0 and r conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( q1 == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: address of q1 and r conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: address of q1 and r conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -2910,7 +2910,7 @@ void bgn_z2_ddiv_2(const UINT32 bgnz2_md_id,const BIGINT* a0,const BIGINT* a1,co
     /* if b = 0, then exit */
     if ( EC_TRUE == bgn_z2_is_zero( bgnz2_md_id, b ) )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv_2: b is zero.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv_2: b is zero.\n");
 
         dbg_exit(MD_BGNZ2, bgnz2_md_id) ;
     }
@@ -3021,7 +3021,7 @@ void bgn_z2_ddiv_2(const UINT32 bgnz2_md_id,const BIGINT* a0,const BIGINT* a1,co
     free_static_mem(MD_BGNZ2, bgnz2_md_id, MM_BIGINT,t1, LOC_BGNZ2_0038);
 #endif/* STATIC_MEMORY_SWITCH */
 
-    /* sys_log(LOGSTDOUT,"bgn_z2_ddiv_2: counter = %ld\n",counter); */
+    /* dbg_log(SEC_0116_BGNZ2, 5)(LOGSTDOUT,"bgn_z2_ddiv_2: counter = %ld\n",counter); */
 
     return ;
 }
@@ -3039,33 +3039,33 @@ void bgn_z2_ddiv(const UINT32 bgnz2_md_id,const BIGINT* a0,const BIGINT* a1,cons
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv: a0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv: a0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == a1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv: a1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv: a1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv: b is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv: b is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == q0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv: q0 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv: q0 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 
     if ( NULL_PTR == q1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv: q1 is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv: q1 is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( NULL_PTR == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv: r is NULL_PTR.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv: r is NULL_PTR.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -3073,32 +3073,32 @@ void bgn_z2_ddiv(const UINT32 bgnz2_md_id,const BIGINT* a0,const BIGINT* a1,cons
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( b == q0 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv: address of b and q0 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv: address of b and q0 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( b == q1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv: address of b and q1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv: address of b and q1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( b == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv: address of b and r conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv: address of b and r conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( q0 == q1 )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv: address of q0 and q1 conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv: address of q0 and q1 conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( q0 == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv: address of q0 and r conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv: address of q0 and r conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
     if ( q1 == r )
     {
-        sys_log(LOGSTDOUT,"error:bgn_z2_ddiv: address of q1 and r conflict.\n");
+        dbg_log(SEC_0116_BGNZ2, 0)(LOGSTDOUT,"error:bgn_z2_ddiv: address of q1 and r conflict.\n");
         dbg_exit(MD_BGNZ2, bgnz2_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/

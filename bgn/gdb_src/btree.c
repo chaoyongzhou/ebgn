@@ -24,7 +24,7 @@ btreeOpen(GDatabase *db, offset_t offset)
     block = gdbReadBlock(db, offset, GDB_BLOCK_BTREE_HEADER, NULL);
     if (block == NULL)
     {
-        sys_log(LOGSTDOUT, "error:btreeOpen: read btree header gdbblock at offset %d failed\n", offset);
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeOpen: read btree header gdbblock at offset %d failed\n", offset);
         return NULL;
     }
     return (BTree *)block->detail;

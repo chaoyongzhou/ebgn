@@ -107,7 +107,9 @@ EC_BOOL cbtimer_free(CLIST *cbtimer_node_list);
 * when EC_FALSE is returned, unregister it
 *
 **/
-EC_BOOL cbtimer_add(CLIST *cbtimer_node_list, const UINT32 expire_nsec, const UINT32 timeout_nsec, const UINT32 timeout_func_id, ...);
+CBTIMER_NODE *cbtimer_add(CLIST *cbtimer_node_list, const UINT8 *name, const UINT32 expire_nsec, const UINT32 timeout_nsec, const UINT32 timeout_func_id, ...);
+
+EC_BOOL cbtimer_del(CLIST *cbtimer_node_list, const UINT8 *name);
 
 EC_BOOL cbtimer_register(CLIST *cbtimer_node_list, CBTIMER_NODE *cbtimer_node);
 

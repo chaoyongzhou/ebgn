@@ -19,14 +19,14 @@ extern "C"{
 
 UINT32 usr_run_01(const CSTRING *cstring)
 {
-    sys_log(LOGSTDOUT, "usr_run_01: cstring: %s\n", (char *)cstring_get_str(cstring));
+    dbg_log(SEC_0138_CRUN, 5)(LOGSTDOUT, "usr_run_01: cstring: %s\n", (char *)cstring_get_str(cstring));
     return (0);
 }
 
 UINT32 usr_run_02(const CSTRING *cstring_01, const CSTRING *cstring_02, CSTRING *cstring_03)
 {
-    sys_log(LOGSTDOUT, "usr_run_02: cstring_01: %s\n", (char *)cstring_get_str(cstring_01));
-    sys_log(LOGSTDOUT, "usr_run_02: cstring_02: %s\n", (char *)cstring_get_str(cstring_02));
+    dbg_log(SEC_0138_CRUN, 5)(LOGSTDOUT, "usr_run_02: cstring_01: %s\n", (char *)cstring_get_str(cstring_01));
+    dbg_log(SEC_0138_CRUN, 5)(LOGSTDOUT, "usr_run_02: cstring_02: %s\n", (char *)cstring_get_str(cstring_02));
 
     cstring_append_cstr(cstring_01, cstring_03);
     cstring_append_cstr(cstring_02, cstring_03);

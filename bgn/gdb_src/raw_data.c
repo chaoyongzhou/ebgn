@@ -29,7 +29,7 @@ static uint8_t __mkdir(const char *dir_name)
     pstr = strdup(dir_name);
     if(NULL == pstr)
     {
-        sys_log(LOGSTDOUT, "error:__mkdir: strdup failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:__mkdir: strdup failed\n");
         return 0;
     }
 
@@ -53,7 +53,7 @@ static uint8_t __mkdir(const char *dir_name)
 
         if(3 <= loop)
         {
-            sys_log(LOGSTDOUT, "error:__mkdir: create dir %s failed\n", pstr);
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:__mkdir: create dir %s failed\n", pstr);
             pstr[ pos ] = '/';
 
             free(pstr);
@@ -64,7 +64,7 @@ static uint8_t __mkdir(const char *dir_name)
 
     if(0 != access(dir_name, F_OK) && 0 != mkdir(dir_name, 0755))
     {
-        sys_log(LOGSTDOUT, "error:__mkdir: create dir %s failed\n", dir_name);
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:__mkdir: create dir %s failed\n", dir_name);
         free(pstr);
         return 0;
     }
@@ -114,7 +114,7 @@ uint8_t  rawFileExist(const uint8_t *file_name, const word_t cdfs_md_id)
     fname_cstr = cstring_new(file_name, LOC_RAW_0002);
     if(NULL_PTR == fname_cstr)
     {
-        sys_log(LOGSTDOUT, "error:rawFileExist: new file name string failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileExist: new file name string failed\n");
         return RAW_FILE_FAIL;
     }
 
@@ -138,21 +138,21 @@ RawFile *rawFileCreate(const uint8_t *file_name, const uint32_t file_size, const
 #if 0
     if(!__mkbasedir((char *)file_name))
     {
-        sys_log(LOGSTDOUT, "error:rawFileCreate: mkbasedir of file %s failed\n", (char *)file_name);
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileCreate: mkbasedir of file %s failed\n", (char *)file_name);
         return NULL;
     }
 #endif
     fd = c_open((char *)file_name, O_RDWR | O_CREAT, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT,"error:rawFileCreate: create %s failed\n", file_name);
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT,"error:rawFileCreate: create %s failed\n", file_name);
         return NULL;
     }
 
     raw_file = rawFileNew(file_name, fd, O_RDWR | O_CREAT, file_size, cdfs_md_id);
     if(NULL == raw_file)
     {
-        sys_log(LOGSTDOUT, "error:rawFileCreate: new raw file failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileCreate: new raw file failed\n");
         close(fd);
         return NULL;
     }
@@ -172,7 +172,7 @@ RawFile *rawFileCreate(const uint8_t *file_name, const uint32_t file_size, const
     fname_cstr = cstring_new(file_name, LOC_RAW_0003);
     if(NULL_PTR == fname_cstr)
     {
-        sys_log(LOGSTDOUT, "error:rawFileCreate: new file name string failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileCreate: new file name string failed\n");
         return NULL;
     }
 
@@ -180,7 +180,7 @@ RawFile *rawFileCreate(const uint8_t *file_name, const uint32_t file_size, const
     if(NULL == raw_file)
     {
         cstring_free(fname_cstr);
-        sys_log(LOGSTDOUT, "error:rawFileCreate: new raw file failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileCreate: new raw file failed\n");
         return NULL;
     }
 
@@ -196,7 +196,7 @@ RawFile *rawFileCreate(const uint8_t *file_name, const uint32_t file_size, const
     {
         cstring_free(fname_cstr);
         rawFileFree(raw_file);
-        sys_log(LOGSTDOUT, "error:rawFileCreate: truncate %s with size %d and replica %d failed\n",
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileCreate: truncate %s with size %d and replica %d failed\n",
                           (char *)file_name, RAW_CDFS_FILE_MAX_SIZE, RAW_CDFS_FILE_REPLICA_NUM);
         return NULL;
     }
@@ -222,13 +222,13 @@ RawFile * rawFileOpen(const uint8_t *file_name, const int flags, const uint32_t 
             raw_file = rawFileNew(file_name, fd, O_RDWR, file_size, cdfs_md_id);
             if(NULL == raw_file)
             {
-                sys_log(LOGSTDOUT, "error:rawFileOpen: new raw file failed\n");
+                dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileOpen: new raw file failed\n");
                 close(fd);
                 return NULL;
             }
             if(RAW_FILE_SUCC != rawFileLoad(raw_file))
             {
-                sys_log(LOGSTDOUT, "error:rawFileOpen: load %s failed\n", (char *)file_name);
+                dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileOpen: load %s failed\n", (char *)file_name);
                 close(raw_file->fd);
                 raw_file->fd = -1;
 
@@ -245,7 +245,7 @@ RawFile * rawFileOpen(const uint8_t *file_name, const int flags, const uint32_t 
         return rawFileCreate(file_name, file_size, cdfs_md_id);
     }
 
-    //sys_log(LOGSTDOUT, "warn:rawFileOpen: open %s failed which neither exist nor need to create\n", (char *)file_name);
+    //dbg_log(SEC_0132_RAW, 1)(LOGSTDOUT, "warn:rawFileOpen: open %s failed which neither exist nor need to create\n", (char *)file_name);
     return NULL;
 }
 #endif/*(SWITCH_OFF == CBGT_BASED_ON_HSDFS_SWITCH)*/
@@ -265,13 +265,13 @@ RawFile * rawFileOpen(const uint8_t *file_name, const int flags, const uint32_t 
         raw_file = rawFileNew(file_name, -1, O_RDWR, file_size, cdfs_md_id);
         if(NULL == raw_file)
         {
-            sys_log(LOGSTDOUT, "error:rawFileOpen: new raw file failed\n");
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileOpen: new raw file failed\n");
             return NULL;
         }
 
         if(RAW_FILE_SUCC != rawFileLoad(raw_file))
         {
-            sys_log(LOGSTDOUT, "error:rawFileOpen: load %s failed\n", (char *)file_name);
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileOpen: load %s failed\n", (char *)file_name);
             raw_file->fd = -1;
             rawFileFree(raw_file);
             return NULL;
@@ -297,7 +297,7 @@ uint8_t   rawFileLoad(RawFile *raw_file)
 uint8_t   rawFileFlush(RawFile *raw_file)
 {
     MEM_CHECK(raw_file);
-    sys_log(LOGSTDNULL, "[DEBUG] rawFileFlush: file %s (fd %d, flags %d) is %s\n",
+    dbg_log(SEC_0132_RAW, 9)(LOGSTDNULL, "[DEBUG] rawFileFlush: file %s (fd %d, flags %d) is %s\n",
                         (char *)raw_file->file_name, raw_file->fd, raw_file->open_flags,
                         RAWDATA_IS_DIRTY(raw_file->raw_data) ? "dirty" : "not dirty"
                         );
@@ -311,7 +311,7 @@ uint8_t   rawFileClose(RawFile *raw_file)
 
     if(-1 != raw_file->fd)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] rawFileClose: close file %s\n", raw_file->file_name);
+        dbg_log(SEC_0132_RAW, 9)(LOGSTDOUT, "[DEBUG] rawFileClose: close file %s\n", raw_file->file_name);
         ASSERT(0 == close(raw_file->fd));
         raw_file->fd = -1;
     }
@@ -433,13 +433,13 @@ RawFile  *rawFileNew(const uint8_t *file_name, const int fd, const int flags, co
     raw_file = (RawFile *)SAFE_MALLOC(sizeof(RawFile), LOC_RAW_0004);
     if(NULL == raw_file)
     {
-        sys_log(LOGSTDOUT,"error:rawFileNew: new raw file failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT,"error:rawFileNew: new raw file failed\n");
         return NULL;
     }
 
     if(RAW_FILE_FAIL == rawFileInit(raw_file, file_name, fd, flags,  file_size, cdfs_md_id))
     {
-        sys_log(LOGSTDOUT, "error:rawFileNew: init raw file failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileNew: init raw file failed\n");
         SAFE_FREE(raw_file, LOC_RAW_0005);
         return NULL;
     }
@@ -453,7 +453,7 @@ uint8_t   rawFileInit(RawFile *raw_file, const uint8_t *file_name, const int fd,
     raw_data = rawDataNew(file_size, RAW_FILE_HEAD_SIZE);
     if(NULL == raw_data)
     {
-        sys_log(LOGSTDOUT,"error:rawFileInit: new raw data failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT,"error:rawFileInit: new raw data failed\n");
         return RAW_FILE_FAIL;
     }
     raw_file->fd = fd;
@@ -489,7 +489,7 @@ uint8_t   rawFileClean(RawFile *raw_file)
     if(-1 != raw_file->fd)
     {
         /*note: when based on HSDFS mode, prog will never reach here*/
-        sys_log(LOGSTDNULL, "[DEBUG] rawFileClean: close file %s (fd %d)\n", raw_file->file_name, raw_file->fd);
+        dbg_log(SEC_0132_RAW, 9)(LOGSTDNULL, "[DEBUG] rawFileClean: close file %s (fd %d)\n", raw_file->file_name, raw_file->fd);
         ASSERT(0 == close(raw_file->fd));
         raw_file->fd = -1;
     }
@@ -533,7 +533,7 @@ size_t    rawFileRead(RawFile *raw_file, const offset_t offset, void *des, size_
 {
     size_t count;
     count = rawDataRead(raw_file->raw_data, offset, des, size, nmemb);
-    sys_log(LOGSTDNULL, "[DEBUG] rawFileRead: raw_file %lx: read %d bytes at offset %d, %s:%ld\n",
+    dbg_log(SEC_0132_RAW, 9)(LOGSTDNULL, "[DEBUG] rawFileRead: raw_file %lx: read %d bytes at offset %d, %s:%ld\n",
                         raw_file, count * size, offset, MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
     return count;
 }
@@ -544,7 +544,7 @@ size_t    rawFileWrite(RawFile *raw_file, const offset_t offset, const void *src
     count = rawDataWrite(raw_file->raw_data, offset, src, size, nmemb);
     if(0 == count)
     {
-        sys_log(LOGSTDOUT, "error:rawFileWrite: write %d bytes at offset %d to %s failed\n",
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileWrite: write %d bytes at offset %d to %s failed\n",
                             count * size, offset, raw_file->file_name);
     }
     return count;
@@ -554,7 +554,7 @@ size_t    rawFilePuts(RawFile *raw_file, const offset_t offset, const char *src)
 {
     size_t len;
     len = rawDataPuts(raw_file->raw_data, offset, src);
-    sys_log(LOGSTDNULL, "[DEBUG] rawFilePuts: raw_file %lx: put %d bytes at offset %d\n", raw_file, len, offset);
+    dbg_log(SEC_0132_RAW, 9)(LOGSTDNULL, "[DEBUG] rawFilePuts: raw_file %lx: put %d bytes at offset %d\n", raw_file, len, offset);
     return len;
 }
 
@@ -569,7 +569,7 @@ RawData  *rawDataNew(const uint32_t max_size, const uint32_t head_size)
     raw_data = (RawData *)SAFE_MALLOC(sizeof(RawData) + max_size, LOC_RAW_0008);
     if(NULL == raw_data)
     {
-        sys_log(LOGSTDOUT,"error:rawDataNew: new raw file failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT,"error:rawDataNew: new raw file failed\n");
         return NULL;
     }
     rawDataInit(raw_data, max_size, head_size);
@@ -659,7 +659,7 @@ uint8_t   rawDataLoad(RawData *raw_data, const RawFile *raw_file)
     buff = (uint8_t *)SAFE_MALLOC(flen, LOC_RAW_0010);
     if(NULL == buff)
     {
-        sys_log(LOGSTDOUT, "error:rawDataLoad: alloc %d bytes failed\n", flen);
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataLoad: alloc %d bytes failed\n", flen);
         return RAW_FILE_FAIL;
     }
 
@@ -669,13 +669,13 @@ uint8_t   rawDataLoad(RawData *raw_data, const RawFile *raw_file)
     if(RAW_FILE_SUCC != rawDataUnCompress(raw_data, buff, flen))
     {
         SAFE_FREE(buff, LOC_RAW_0011);
-        sys_log(LOGSTDOUT, "error:rawDataLoad: uncompress %ld bytes failed\n", flen);
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataLoad: uncompress %ld bytes failed\n", flen);
         return RAW_FILE_FAIL;
     }
 
     SAFE_FREE(buff, LOC_RAW_0012);
 
-    sys_log(LOGSTDOUT, "[DEBUG] rawDataLoad: uncompress %d bytes => %d bytes, rate = %.2f\n",
+    dbg_log(SEC_0132_RAW, 9)(LOGSTDOUT, "[DEBUG] rawDataLoad: uncompress %d bytes => %d bytes, rate = %.2f\n",
                        flen, raw_data->cur_size, (flen + 0.0)/(raw_data->cur_size + 0.0));
     return RAW_FILE_SUCC;
 }
@@ -694,7 +694,7 @@ uint8_t   rawDataLoad0(RawData *raw_data, const RawFile *raw_file)
     fname_cstr = cstring_new(raw_file->file_name, LOC_RAW_0013);
     if(NULL_PTR == fname_cstr)
     {
-        sys_log(LOGSTDOUT, "error:rawDataLoad: new fname string failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataLoad: new fname string failed\n");
         return RAW_FILE_FAIL;
     }
 
@@ -702,7 +702,7 @@ uint8_t   rawDataLoad0(RawData *raw_data, const RawFile *raw_file)
     if(NULL_PTR == cbytes)
     {
         cstring_free(fname_cstr);
-        sys_log(LOGSTDOUT, "error:rawDataLoad: new cbytes failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataLoad: new cbytes failed\n");
         return RAW_FILE_FAIL;
     }
 
@@ -710,7 +710,7 @@ uint8_t   rawDataLoad0(RawData *raw_data, const RawFile *raw_file)
     {
         cstring_free(fname_cstr);
         cbytes_free(cbytes, LOC_RAW_0014);
-        sys_log(LOGSTDOUT, "error:rawFileOpen: read file %s failed\n", (char *)raw_file->file_name);
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawFileOpen: read file %s failed\n", (char *)raw_file->file_name);
         return RAW_FILE_FAIL;
     }
 
@@ -722,14 +722,14 @@ uint8_t   rawDataLoad0(RawData *raw_data, const RawFile *raw_file)
     {
         cstring_free(fname_cstr);
         cbytes_free(cbytes, LOC_RAW_0015);
-        sys_log(LOGSTDOUT, "error:rawDataLoad: uncompress %ld bytes failed\n", flen);
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataLoad: uncompress %ld bytes failed\n", flen);
         return RAW_FILE_FAIL;
     }
 
     cstring_free(fname_cstr);
     cbytes_free(cbytes, LOC_RAW_0016);
 
-    sys_log(LOGSTDOUT, "[DEBUG] rawDataLoad: uncompress %d bytes => %d bytes, rate = %.2f\n",
+    dbg_log(SEC_0132_RAW, 9)(LOGSTDOUT, "[DEBUG] rawDataLoad: uncompress %d bytes => %d bytes, rate = %.2f\n",
                        flen, raw_data->cur_size, (flen + 0.0)/(raw_data->cur_size + 0.0));
     return RAW_FILE_SUCC;
 }
@@ -745,7 +745,7 @@ uint8_t   rawDataLoad(RawData *raw_data, const RawFile *raw_file)
     fname_cstr = cstring_new(raw_file->file_name, LOC_RAW_0017);
     if(NULL_PTR == fname_cstr)
     {
-        sys_log(LOGSTDOUT, "error:rawDataLoad: new fname string failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataLoad: new fname string failed\n");
         return RAW_FILE_FAIL;
     }
 
@@ -753,7 +753,7 @@ uint8_t   rawDataLoad(RawData *raw_data, const RawFile *raw_file)
     if(NULL_PTR == cbytes)
     {
         cstring_free(fname_cstr);
-        sys_log(LOGSTDOUT, "error:rawDataLoad: new cbytes failed\n");
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataLoad: new cbytes failed\n");
         return RAW_FILE_FAIL;
     }
 
@@ -761,7 +761,7 @@ uint8_t   rawDataLoad(RawData *raw_data, const RawFile *raw_file)
     {
         cstring_free(fname_cstr);
         cbytes_free(cbytes, LOC_RAW_0018);
-        sys_log(LOGSTDOUT, "error:rawDataLoad: read file %s failed\n", (char *)raw_file->file_name);
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataLoad: read file %s failed\n", (char *)raw_file->file_name);
         return RAW_FILE_FAIL;
     }
 
@@ -772,14 +772,14 @@ uint8_t   rawDataLoad(RawData *raw_data, const RawFile *raw_file)
     {
         cstring_free(fname_cstr);
         cbytes_free(cbytes, LOC_RAW_0019);
-        sys_log(LOGSTDOUT, "error:rawDataLoad: uncompress %ld bytes failed\n", flen);
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataLoad: uncompress %ld bytes failed\n", flen);
         return RAW_FILE_FAIL;
     }
 
     cstring_free(fname_cstr);
     cbytes_free(cbytes, LOC_RAW_0020);
 
-    sys_log(LOGSTDOUT, "[DEBUG] rawDataLoad: uncompress %d bytes => %d bytes, rate = %.2f\n",
+    dbg_log(SEC_0132_RAW, 9)(LOGSTDOUT, "[DEBUG] rawDataLoad: uncompress %d bytes => %d bytes, rate = %.2f\n",
                        flen, raw_data->cur_size, (flen + 0.0)/(raw_data->cur_size + 0.0));
     return RAW_FILE_SUCC;
 }
@@ -801,7 +801,7 @@ uint8_t   rawDataFlush(RawData *raw_data, const RawFile *raw_file)
         des_buff = (uint8_t *)SAFE_MALLOC(raw_data->cur_size, LOC_RAW_0021);
         if(NULL == des_buff)
         {
-            sys_log(LOGSTDOUT, "error:rawDataFlush: alloc %d bytes failed\n", raw_data->cur_size);
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataFlush: alloc %d bytes failed\n", raw_data->cur_size);
             return RAW_FILE_FAIL;
         }
         des_len = raw_data->cur_size;
@@ -809,11 +809,11 @@ uint8_t   rawDataFlush(RawData *raw_data, const RawFile *raw_file)
         if(RAW_FILE_SUCC != rawDataCompress(raw_data, des_buff, &des_len))
         {
             SAFE_FREE(des_buff, LOC_RAW_0022);
-            sys_log(LOGSTDOUT, "error:rawDataFlush: compress %d bytes failed\n", raw_data->cur_size);
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataFlush: compress %d bytes failed\n", raw_data->cur_size);
             return RAW_FILE_FAIL;
         }
 
-        sys_log(LOGSTDOUT, "[DEBUG] rawDataFlush: compress %d bytes => %d bytes, rate = %.2f\n",
+        dbg_log(SEC_0132_RAW, 9)(LOGSTDOUT, "[DEBUG] rawDataFlush: compress %d bytes => %d bytes, rate = %.2f\n",
                            raw_data->cur_size, des_len, (des_len + 0.0)/(raw_data->cur_size + 0.0));
 
         /*flush compressed data*/
@@ -822,7 +822,7 @@ uint8_t   rawDataFlush(RawData *raw_data, const RawFile *raw_file)
         if(0 > wrote_len || (uint32_t)wrote_len != des_len)
         {
             SAFE_FREE(des_buff, LOC_RAW_0023);
-            sys_log(LOGSTDOUT, "error:rawDataFlush: expect to write %d bytes but accept %ld bytes only, errno = %d, errstr = %s\n",
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataFlush: expect to write %d bytes but accept %ld bytes only, errno = %d, errstr = %s\n",
                                 des_len, wrote_len, errno, strerror(errno));
             return RAW_FILE_FAIL;
         }
@@ -830,12 +830,12 @@ uint8_t   rawDataFlush(RawData *raw_data, const RawFile *raw_file)
 
         RAWDATA_CLEAR_DIRTY(raw_data);
 
-        sys_log(LOGSTDNULL, "[DEBUG] rawDataFlush: raw data is dirty, flush %d bytes into fd %d where max_size %d\n",
+        dbg_log(SEC_0132_RAW, 9)(LOGSTDNULL, "[DEBUG] rawDataFlush: raw data is dirty, flush %d bytes into fd %d where max_size %d\n",
                             des_len, fd, raw_data->max_size);
     }
     else
     {
-        sys_log(LOGSTDOUT, "[DEBUG] rawDataFlush: raw data is NOT dirty, NOT flush it\n");
+        dbg_log(SEC_0132_RAW, 9)(LOGSTDOUT, "[DEBUG] rawDataFlush: raw data is NOT dirty, NOT flush it\n");
     }
 
     return RAW_FILE_SUCC;
@@ -857,7 +857,7 @@ uint8_t   rawDataFlush0(RawData *raw_data, const RawFile *raw_file)
         fname_cstr = cstring_new(raw_file->file_name, LOC_RAW_0025);
         if(NULL_PTR == fname_cstr)
         {
-            sys_log(LOGSTDOUT, "error:rawDataFlush: new file name string failed\n");
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataFlush: new file name string failed\n");
             return RAW_FILE_FAIL;
         }
 
@@ -867,7 +867,7 @@ uint8_t   rawDataFlush0(RawData *raw_data, const RawFile *raw_file)
         if(NULL == des_buff)
         {
             cstring_free(fname_cstr);
-            sys_log(LOGSTDOUT, "error:rawDataFlush: alloc %d bytes failed\n", raw_data->cur_size + des_offset);
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataFlush: alloc %d bytes failed\n", raw_data->cur_size + des_offset);
             return RAW_FILE_FAIL;
         }
         des_len = raw_data->cur_size;
@@ -876,14 +876,14 @@ uint8_t   rawDataFlush0(RawData *raw_data, const RawFile *raw_file)
         {
             cstring_free(fname_cstr);
             SAFE_FREE(des_buff, LOC_RAW_0027);
-            sys_log(LOGSTDOUT, "error:rawDataFlush: compress %d bytes failed\n", raw_data->cur_size);
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataFlush: compress %d bytes failed\n", raw_data->cur_size);
             return RAW_FILE_FAIL;
         }
 
         counter = 0;
         gdbPutWord(des_buff, &counter, des_len);/*save length at the first word*/
 
-        sys_log(LOGSTDOUT, "[DEBUG] rawDataFlush: compress %d bytes => %d bytes, rate = %.2f\n",
+        dbg_log(SEC_0132_RAW, 9)(LOGSTDOUT, "[DEBUG] rawDataFlush: compress %d bytes => %d bytes, rate = %.2f\n",
                            raw_data->cur_size, des_len, (des_len + 0.0)/(raw_data->cur_size + 0.0));
 
         /*flush first word + compressed data*/
@@ -893,7 +893,7 @@ uint8_t   rawDataFlush0(RawData *raw_data, const RawFile *raw_file)
             cbytes_umount(&cbytes);
             cstring_free(fname_cstr);
             SAFE_FREE(des_buff, LOC_RAW_0028);
-            sys_log(LOGSTDOUT, "error:rawDataFlush: update %s with %ld bytes failed\n",
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataFlush: update %s with %ld bytes failed\n",
                                 (char *)raw_file->file_name, des_len);
             return RAW_FILE_FAIL;
         }
@@ -904,12 +904,12 @@ uint8_t   rawDataFlush0(RawData *raw_data, const RawFile *raw_file)
 
         RAWDATA_CLEAR_DIRTY(raw_data);
 
-        sys_log(LOGSTDNULL, "[DEBUG] rawDataFlush: raw data is dirty, flush %d bytes into file %s where max_size %d\n",
+        dbg_log(SEC_0132_RAW, 9)(LOGSTDNULL, "[DEBUG] rawDataFlush: raw data is dirty, flush %d bytes into file %s where max_size %d\n",
                             des_len, (char *)raw_file->file_name, raw_data->max_size);
     }
     else
     {
-        sys_log(LOGSTDOUT, "[DEBUG] rawDataFlush: raw data is NOT dirty, NOT flush it\n");
+        dbg_log(SEC_0132_RAW, 9)(LOGSTDOUT, "[DEBUG] rawDataFlush: raw data is NOT dirty, NOT flush it\n");
     }
 
     return RAW_FILE_SUCC;
@@ -927,7 +927,7 @@ uint8_t   rawDataFlush(RawData *raw_data, const RawFile *raw_file)
         fname_cstr = cstring_new(raw_file->file_name, LOC_RAW_0030);
         if(NULL_PTR == fname_cstr)
         {
-            sys_log(LOGSTDOUT, "error:rawDataFlush: new file name string failed\n");
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataFlush: new file name string failed\n");
             return RAW_FILE_FAIL;
         }
 
@@ -935,7 +935,7 @@ uint8_t   rawDataFlush(RawData *raw_data, const RawFile *raw_file)
         if(NULL == des_buff)
         {
             cstring_free(fname_cstr);
-            sys_log(LOGSTDOUT, "error:rawDataFlush: alloc %d bytes failed\n", raw_data->cur_size);
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataFlush: alloc %d bytes failed\n", raw_data->cur_size);
             return RAW_FILE_FAIL;
         }
         des_len = raw_data->cur_size;
@@ -944,11 +944,11 @@ uint8_t   rawDataFlush(RawData *raw_data, const RawFile *raw_file)
         {
             cstring_free(fname_cstr);
             SAFE_FREE(des_buff, LOC_RAW_0032);
-            sys_log(LOGSTDOUT, "error:rawDataFlush: compress %d bytes failed\n", raw_data->cur_size);
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataFlush: compress %d bytes failed\n", raw_data->cur_size);
             return RAW_FILE_FAIL;
         }
 
-        sys_log(LOGSTDOUT, "[DEBUG] rawDataFlush: compress %d bytes => %d bytes, rate = %.2f\n",
+        dbg_log(SEC_0132_RAW, 9)(LOGSTDOUT, "[DEBUG] rawDataFlush: compress %d bytes => %d bytes, rate = %.2f\n",
                            raw_data->cur_size, des_len, (des_len + 0.0)/(raw_data->cur_size + 0.0));
 
         /*flush first word + compressed data*/
@@ -958,7 +958,7 @@ uint8_t   rawDataFlush(RawData *raw_data, const RawFile *raw_file)
             cbytes_umount(&cbytes);
             cstring_free(fname_cstr);
             SAFE_FREE(des_buff, LOC_RAW_0033);
-            sys_log(LOGSTDOUT, "error:rawDataFlush: update %s with %ld bytes failed\n",
+            dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataFlush: update %s with %ld bytes failed\n",
                                 (char *)raw_file->file_name, des_len);
             return RAW_FILE_FAIL;
         }
@@ -969,12 +969,12 @@ uint8_t   rawDataFlush(RawData *raw_data, const RawFile *raw_file)
 
         RAWDATA_CLEAR_DIRTY(raw_data);
 
-        sys_log(LOGSTDNULL, "[DEBUG] rawDataFlush: raw data is dirty, flush %d bytes into file %s where max_size %d\n",
+        dbg_log(SEC_0132_RAW, 9)(LOGSTDNULL, "[DEBUG] rawDataFlush: raw data is dirty, flush %d bytes into file %s where max_size %d\n",
                             des_len, (char *)raw_file->file_name, raw_data->max_size);
     }
     else
     {
-        sys_log(LOGSTDOUT, "[DEBUG] rawDataFlush: raw data is NOT dirty, NOT flush it\n");
+        dbg_log(SEC_0132_RAW, 9)(LOGSTDOUT, "[DEBUG] rawDataFlush: raw data is NOT dirty, NOT flush it\n");
     }
 
     return RAW_FILE_SUCC;
@@ -1058,7 +1058,7 @@ uint8_t   rawDataPut8s(RawData *raw_data, const offset_t offset, const uint8_t *
         RAWDATA_SET_DIRTY(raw_data);
         return RAW_FILE_SUCC;
     }
-    sys_log(LOGSTDOUT, "error:rawDataPut8s: offset %d + len %d > max_size %d\n",
+    dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataPut8s: offset %d + len %d > max_size %d\n",
                         offset, len, raw_data->max_size);
     return RAW_FILE_FAIL;
 }
@@ -1079,7 +1079,7 @@ uint8_t   rawDataPut8slen(RawData *raw_data, const offset_t offset, const uint8_
         return RAW_FILE_SUCC;
     }
 
-    sys_log(LOGSTDOUT, "error:rawDataPut8slen: cur_size %d + %d + len %d > max_size %d\n",
+    dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataPut8slen: cur_size %d + %d + len %d > max_size %d\n",
                         raw_data->cur_size, sizeof(uint32_t), len, raw_data->max_size);
     return RAW_FILE_FAIL;
 }
@@ -1088,7 +1088,7 @@ uint8_t   rawDataUpdate8s(RawData *raw_data, const uint32_t offset, const uint8_
 {
     if(offset + len > raw_data->cur_size)
     {
-        sys_log(LOGSTDOUT, "error:rawDataUpdate8s: offset %d + len %d > cur_size %d\n",
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataUpdate8s: offset %d + len %d > cur_size %d\n",
                             offset, len, raw_data->cur_size);
         return RAW_FILE_FAIL;
     }
@@ -1104,7 +1104,7 @@ uint8_t   rawDataUpdate8slen(RawData *raw_data, const uint32_t offset, const uin
 
     if(offset + sizeof(uint32_t) + len > raw_data->cur_size)
     {
-        sys_log(LOGSTDOUT, "error:rawDataUpdate8slen: offset %d + %d + len %d > cur_size %d\n",
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataUpdate8slen: offset %d + %d + len %d > cur_size %d\n",
                             offset, sizeof(uint32_t), len, raw_data->cur_size);
         return RAW_FILE_FAIL;
     }
@@ -1179,7 +1179,7 @@ uint8_t   rawDataGet8slen(const RawData *raw_data, const uint32_t offset, uint8_
 {
     uint32_t data_len;
 
-    //sys_log(LOGSTDOUT,"[DEBUG] rawDataGet8slen: cur_size = %ld, offset = %ld\n", raw_data->cur_size, offset);
+    //dbg_log(SEC_0132_RAW, 9)(LOGSTDOUT,"[DEBUG] rawDataGet8slen: cur_size = %ld, offset = %ld\n", raw_data->cur_size, offset);
 
     if(RAW_FILE_FAIL == rawDataGet32(raw_data, offset, &data_len))
     {
@@ -1204,13 +1204,13 @@ size_t    rawDataRead(RawData *raw_data, const offset_t offset, void *des, size_
 
     if(raw_data->cur_size <= offset)
     {
-        sys_log(LOGSTDOUT, "error:rawDataRead: cur_size %d, but access offset %d overflow\n", raw_data->cur_size, offset);
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataRead: cur_size %d, but access offset %d overflow\n", raw_data->cur_size, offset);
         return 0;
     }
 
     if(raw_data->cur_size < offset + size * nmemb)
     {
-        sys_log(LOGSTDOUT, "error:rawDataRead: cur_size %d, but access offset(%d) + size(%d) * nmemb(%d) = %d  overflow\n",
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataRead: cur_size %d, but access offset(%d) + size(%d) * nmemb(%d) = %d  overflow\n",
                             raw_data->cur_size, offset, size, nmemb, offset + size * nmemb);
     }
 
@@ -1228,7 +1228,7 @@ size_t    rawDataWrite(RawData *raw_data, const offset_t offset, const void *src
 
     if(raw_data->max_size <= offset)
     {
-        sys_log(LOGSTDOUT, "error:rawDataWrite: max_size %d, but access offset %d overflow\n", raw_data->max_size, offset);
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataWrite: max_size %d, but access offset %d overflow\n", raw_data->max_size, offset);
         return 0;
     }
 
@@ -1239,7 +1239,7 @@ size_t    rawDataWrite(RawData *raw_data, const offset_t offset, const void *src
 
     if(raw_data->max_size <= offset + size * nmemb)
     {
-        sys_log(LOGSTDOUT, "error:rawDataWrite: max_size %d, but access offset(%d) + size(%d) * nmemb(%d) = %d  overflow\n",
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataWrite: max_size %d, but access offset(%d) + size(%d) * nmemb(%d) = %d  overflow\n",
                             raw_data->max_size, offset, size, nmemb, offset + size * nmemb);
     }
 
@@ -1261,13 +1261,13 @@ size_t    rawDataPuts(RawData *raw_data, const offset_t offset, const char *src)
 
     if(raw_data->max_size <= offset)
     {
-        sys_log(LOGSTDOUT, "error:rawDataPuts: max_size %d, but access offset %d overflow\n", raw_data->max_size, offset);
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataPuts: max_size %d, but access offset %d overflow\n", raw_data->max_size, offset);
         return 0;
     }
 
     if(raw_data->max_size <= offset + strlen(src))
     {
-        sys_log(LOGSTDOUT, "error:rawDataPuts: max_size %d, but access offset(%d) + strlen(%d) = %d  overflow\n",
+        dbg_log(SEC_0132_RAW, 0)(LOGSTDOUT, "error:rawDataPuts: max_size %d, but access offset(%d) + strlen(%d) = %d  overflow\n",
                             raw_data->max_size, offset, strlen(src), offset + strlen(src));
     }
 

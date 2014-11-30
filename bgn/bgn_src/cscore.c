@@ -23,7 +23,7 @@ extern "C"{
 
 #include "cmisc.h"
 #include "clist.h"
-#include "croutine.h"
+#include "cmutex.h"
 #include "cbytes.h"
 #include "cstring.h"
 
@@ -208,7 +208,7 @@ UINT32 cscore_start()
     cbgt_db_root_dir = cstring_new(g_cscore_bgt_root, LOC_CSCORE_0001);
     if(NULL_PTR == cbgt_db_root_dir)
     {
-        sys_log(LOGSTDOUT, "error:cscore_start: new cstring for bgt root %s failed\n", (char *)g_cscore_bgt_root);
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_start: new cstring for bgt root %s failed\n", (char *)g_cscore_bgt_root);
         cbc_md_free(MD_CSCORE, cscore_md_id);
         return (ERR_MODULE_ID);
     }
@@ -216,7 +216,7 @@ UINT32 cscore_start()
     cbgt_md_id = cbgt_start(CBGT_TYPE_USER_CLIENT, CBGT_ERR_TABLE_ID, NULL_PTR, NULL_PTR, cbgt_db_root_dir, CBGT_O_UNDEF);
     if(ERR_MODULE_ID == cbgt_md_id)
     {
-        sys_log(LOGSTDOUT, "error:cscore_start: start cbgt user client failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_start: start cbgt user client failed\n");
         cstring_free(cbgt_db_root_dir);
         cbc_md_free(MD_CSCORE, cscore_md_id);
         return (ERR_MODULE_ID);
@@ -230,19 +230,19 @@ UINT32 cscore_start()
 
     __cscore_row_no_pool_init(CSCORE_MD_ROW_NO_POOL(cscore_md), CSCORE_MD_DEFAULT_MAX_ROW_NUM);
 
-    cbytes_set(CSCORE_MD_TABLE_NAME(cscore_md)          , CSCORE_MD_DEFAULT_TABLE_NAME_LEN    , (UINT8 *)CSCORE_MD_DEFAULT_TABLE_NAME    );
-    cbytes_set(CSCORE_MD_TABLE_COLF_NAME(cscore_md)     , CSCORE_MD_DEFAULT_COLF_NAME_LEN     , (UINT8 *)CSCORE_MD_DEFAULT_COLF_NAME     );
+    cbytes_set(CSCORE_MD_TABLE_NAME(cscore_md)              , (UINT8 *)CSCORE_MD_DEFAULT_TABLE_NAME    , CSCORE_MD_DEFAULT_TABLE_NAME_LEN);
+    cbytes_set(CSCORE_MD_TABLE_COLF_NAME(cscore_md)          , (UINT8 *)CSCORE_MD_DEFAULT_COLF_NAME    , CSCORE_MD_DEFAULT_COLF_NAME_LEN );
 
-    cbytes_set(CSCORE_MD_TABLE_COLQ_WORD_TEXT(cscore_md), CSCORE_MD_DEFAULT_COLQ_WORD_TEXT_LEN, (UINT8 *)CSCORE_MD_DEFAULT_COLQ_WORD_TEXT);
-    cbytes_set(CSCORE_MD_TABLE_COLQ_DOC_ID(cscore_md)   , CSCORE_MD_DEFAULT_COLQ_DOC_ID_LEN   , (UINT8 *)CSCORE_MD_DEFAULT_COLQ_DOC_ID   );
-    cbytes_set(CSCORE_MD_TABLE_COLQ_DOC_TYPE(cscore_md) , CSCORE_MD_DEFAULT_COLQ_DOC_TYPE_LEN , (UINT8 *)CSCORE_MD_DEFAULT_COLQ_DOC_TYPE );
-    cbytes_set(CSCORE_MD_TABLE_COLQ_DOC_CODE(cscore_md) , CSCORE_MD_DEFAULT_COLQ_DOC_CODE_LEN , (UINT8 *)CSCORE_MD_DEFAULT_COLQ_DOC_CODE );
+    cbytes_set(CSCORE_MD_TABLE_COLQ_WORD_TEXT(cscore_md), (UINT8 *)CSCORE_MD_DEFAULT_COLQ_WORD_TEXT, CSCORE_MD_DEFAULT_COLQ_WORD_TEXT_LEN);
+    cbytes_set(CSCORE_MD_TABLE_COLQ_DOC_ID(cscore_md)   , (UINT8 *)CSCORE_MD_DEFAULT_COLQ_DOC_ID   , CSCORE_MD_DEFAULT_COLQ_DOC_ID_LEN   );
+    cbytes_set(CSCORE_MD_TABLE_COLQ_DOC_TYPE(cscore_md) , (UINT8 *)CSCORE_MD_DEFAULT_COLQ_DOC_TYPE , CSCORE_MD_DEFAULT_COLQ_DOC_TYPE_LEN );
+    cbytes_set(CSCORE_MD_TABLE_COLQ_DOC_CODE(cscore_md) , (UINT8 *)CSCORE_MD_DEFAULT_COLQ_DOC_CODE , CSCORE_MD_DEFAULT_COLQ_DOC_CODE_LEN );
 
 
     cscore_md->usedcounter = 1;
 
-    sys_log(LOGSTDOUT, "cscore_start: start CSCORE module #%ld\n", cscore_md_id);
-    //sys_log(LOGSTDOUT, "========================= cscore_start: CSCORE table info:\n");
+    dbg_log(SEC_0051_CSCORE, 5)(LOGSTDOUT, "cscore_start: start CSCORE module #%ld\n", cscore_md_id);
+    //dbg_log(SEC_0051_CSCORE, 3)(LOGSTDOUT, "========================= cscore_start: CSCORE table info:\n");
     //cscore_print_module_status(cscore_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -261,7 +261,7 @@ void cscore_end(const UINT32 cscore_md_id)
     cscore_md = CSCORE_MD_GET(cscore_md_id);
     if(NULL_PTR == cscore_md)
     {
-        sys_log(LOGSTDOUT,"error:cscore_end: cscore_md_id = %ld not exist.\n", cscore_md_id);
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT,"error:cscore_end: cscore_md_id = %ld not exist.\n", cscore_md_id);
         dbg_exit(MD_CSCORE, cscore_md_id);
     }
     /* if the module is occupied by others,then decrease counter only */
@@ -273,7 +273,7 @@ void cscore_end(const UINT32 cscore_md_id)
 
     if ( 0 == cscore_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:cscore_end: cscore_md_id = %ld is not started.\n", cscore_md_id);
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT,"error:cscore_end: cscore_md_id = %ld is not started.\n", cscore_md_id);
         dbg_exit(MD_CSCORE, cscore_md_id);
     }
 
@@ -306,12 +306,12 @@ void cscore_end(const UINT32 cscore_md_id)
 
     cscore_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "cscore_end: stop CSCORE module #%ld\n", cscore_md_id);
+    dbg_log(SEC_0051_CSCORE, 5)(LOGSTDOUT, "cscore_end: stop CSCORE module #%ld\n", cscore_md_id);
     cbc_md_free(MD_CSCORE, cscore_md_id);
 
     breathing_static_mem();
 
-    //sys_log(LOGSTDOUT, "========================= cscore_end: CSCORE table info:\n");
+    //dbg_log(SEC_0051_CSCORE, 3)(LOGSTDOUT, "========================= cscore_end: CSCORE table info:\n");
     //cscore_print_module_status(cscore_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -354,7 +354,7 @@ UINT32 cscore_reserve_row_no(const UINT32 cscore_md_id)
     CSCORE_ROW_NO_POOL_CMUTEX_LOCK(cscore_row_no_pool, LOC_CSCORE_0009);
     if(CSCORE_ROW_NO_POOL_CUR(cscore_row_no_pool) >= CSCORE_ROW_NO_POOL_END(cscore_row_no_pool))
     {
-        sys_log(LOGSTDOUT, "error:cscore_reserve_row_no: row no pool is burn out\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_reserve_row_no: row no pool is burn out\n");
         CSCORE_ROW_NO_POOL_CMUTEX_UNLOCK(cscore_row_no_pool, LOC_CSCORE_0010);
         return (CSCORE_MD_DEFAULT_ERR_ROW_NO);
     }
@@ -385,14 +385,14 @@ EC_BOOL cscore_release_row_no(const UINT32 cscore_md_id, const UINT32 row_no)
 
     if(CSCORE_MD_DEFAULT_ERR_ROW_NO == row_no)
     {
-        sys_log(LOGSTDOUT, "error:cscore_release_row_no: invalid row no\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_release_row_no: invalid row no\n");
         return (EC_FALSE);
     }
     
     CSCORE_ROW_NO_POOL_CMUTEX_LOCK(cscore_row_no_pool, LOC_CSCORE_0012);
     if(row_no < CSCORE_ROW_NO_POOL_BEG(cscore_row_no_pool) || row_no >= CSCORE_ROW_NO_POOL_END(cscore_row_no_pool))
     {
-        sys_log(LOGSTDOUT, "error:cscore_release_row_no: row no %ld not in range [%ld, %ld)\n",
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_release_row_no: row no %ld not in range [%ld, %ld)\n",
                             row_no,
                             CSCORE_ROW_NO_POOL_BEG(cscore_row_no_pool),
                             CSCORE_ROW_NO_POOL_END(cscore_row_no_pool));
@@ -400,7 +400,7 @@ EC_BOOL cscore_release_row_no(const UINT32 cscore_md_id, const UINT32 row_no)
         return (EC_FALSE);
     }
     //TODO:
-    sys_log(LOGSTDOUT, "warn:cscore_release_row_no: not implemented yet\n");
+    dbg_log(SEC_0051_CSCORE, 1)(LOGSTDOUT, "warn:cscore_release_row_no: not implemented yet\n");
     CSCORE_ROW_NO_POOL_CMUTEX_UNLOCK(cscore_row_no_pool, LOC_CSCORE_0014);
 
     return (EC_TRUE);
@@ -424,13 +424,13 @@ CSDOC *cscore_csdoc_new(const UINT32 cscore_md_id)
     alloc_static_mem(MD_CSCORE, cscore_md_id, MM_CSDOC, &csdoc, LOC_CSCORE_0015);
     if(NULL_PTR == csdoc)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csdoc_new:alloc csdoc failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_new:alloc csdoc failed\n");
         return (NULL_PTR);
     }
 
     if(EC_FALSE == cscore_csdoc_init(cscore_md_id, csdoc))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csdoc_new: init csdoc failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_new: init csdoc failed\n");
         free_static_mem(MD_CSCORE, cscore_md_id, MM_CSDOC, csdoc, LOC_CSCORE_0016);
         return (NULL_PTR);
     }
@@ -538,7 +538,7 @@ EC_BOOL cscore_csdoc_clone(const UINT32 cscore_md_id, const CSDOC *csdoc_src, CS
         CSDOC_CONTENT(csdoc_des) = cbytes_dup(CSDOC_CONTENT(csdoc_src));
         if(NULL_PTR == CSDOC_CONTENT(csdoc_des))
         {
-            sys_log(LOGSTDOUT, "error:cscore_csdoc_clone: dup csdoc content failed\n");
+            dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_clone: dup csdoc content failed\n");
             return (EC_FALSE);
         }
     }    
@@ -601,7 +601,7 @@ EC_BOOL cscore_csdoc_set_name(const UINT32 cscore_md_id, CSDOC *csdoc, const CST
         name_cstr = cstring_new(cstring_get_str(doc_name), LOC_CSCORE_0019);
         if(NULL_PTR == name_cstr)
         {
-            sys_log(LOGSTDOUT, "error:cscore_csdoc_set_name: new cstring failed\n");
+            dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_set_name: new cstring failed\n");
             return (EC_FALSE);
         }
 
@@ -688,7 +688,7 @@ EC_BOOL cscore_csdoc_set_doc_content(const UINT32 cscore_md_id, CSDOC *csdoc, co
         content_bytes = cbytes_new(0);
         if(NULL_PTR == content_bytes)
         {
-            sys_log(LOGSTDOUT, "error:cscore_csdoc_set_doc_content: new cbytes failed\n");
+            dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_set_doc_content: new cbytes failed\n");
             return (EC_FALSE);
         }
 
@@ -750,13 +750,13 @@ CSWORD *cscore_csword_new(const UINT32 cscore_md_id, const UINT32 location)
     alloc_static_mem(MD_CSCORE, cscore_md_id, MM_CSWORD, &csword, location);
     if(NULL_PTR == csword)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_new:alloc csword failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_new:alloc csword failed\n");
         return (NULL_PTR);
     }
 
     if(EC_FALSE == cscore_csword_init(cscore_md_id, csword))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_new: init csword failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_new: init csword failed\n");
         free_static_mem(MD_CSCORE, cscore_md_id, MM_CSWORD, csword, location);
         return (NULL_PTR);
     }
@@ -836,7 +836,7 @@ EC_BOOL cscore_csword_make_by_cbytes_content(const UINT32 cscore_md_id, CSWORD *
     cbytes_clean(CSWORD_CONTENT(csword), LOC_CSCORE_0023);
     if(EC_FALSE == cbytes_clone(word_content, CSWORD_CONTENT(csword)))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_make_by_cbytes_content: clone content failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_make_by_cbytes_content: clone content failed\n");
         return (EC_FALSE);
     }
 
@@ -862,13 +862,13 @@ CSWORD *cscore_csword_make_by_str_content(const UINT32 cscore_md_id, const UINT8
     csword = cscore_csword_new(cscore_md_id, LOC_CSCORE_0024);
     if(NULL_PTR == csword)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_make_by_str_content: new csword failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_make_by_str_content: new csword failed\n");
         return (NULL_PTR);
     }
 
-    if(EC_FALSE == cbytes_set(CSWORD_CONTENT(csword), strlen((char *)word_content_str), word_content_str))
+    if(EC_FALSE == cbytes_set(CSWORD_CONTENT(csword), word_content_str, strlen((char *)word_content_str)))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_make_by_str_content: set word content cbytes from str %s failed\n", 
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_make_by_str_content: set word content cbytes from str %s failed\n", 
                             (char *)word_content_str);
         cscore_csword_free(cscore_md_id, csword);
         return (NULL_PTR);
@@ -896,13 +896,13 @@ CSWORD *cscore_csword_make_by_cstr_content(const UINT32 cscore_md_id, const CSTR
     csword = cscore_csword_new(cscore_md_id, LOC_CSCORE_0025);
     if(NULL_PTR == csword)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_make_by_cstr_content: new csword failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_make_by_cstr_content: new csword failed\n");
         return (NULL_PTR);
     }
 
-    if(EC_FALSE == cbytes_set(CSWORD_CONTENT(csword), cstring_get_len(word_content_cstr), cstring_get_str(word_content_cstr)))
+    if(EC_FALSE == cbytes_set(CSWORD_CONTENT(csword), cstring_get_str(word_content_cstr), cstring_get_len(word_content_cstr)))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_make_by_cstr_content: set word content cbytes from cstr %.s failed\n", 
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_make_by_cstr_content: set word content cbytes from cstr %.s failed\n", 
                             cstring_get_len(word_content_cstr), cstring_get_str(word_content_cstr));
         cscore_csword_free(cscore_md_id, csword);
         return (NULL_PTR);
@@ -955,13 +955,13 @@ CSDOC_WORDS *cscore_csdoc_words_new(const UINT32 cscore_md_id)
     alloc_static_mem(MD_CSCORE, cscore_md_id, MM_CSDOC_WORDS, &csdoc_words, LOC_CSCORE_0027);
     if(NULL_PTR == csdoc_words)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csdoc_words_new:alloc csdoc_words failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_words_new:alloc csdoc_words failed\n");
         return (NULL_PTR);
     }
 
     if(EC_FALSE == cscore_csdoc_words_init(cscore_md_id, csdoc_words))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csdoc_words_new: init csdoc_words failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_words_new: init csdoc_words failed\n");
         free_static_mem(MD_CSCORE, cscore_md_id, MM_CSDOC_WORDS, csdoc_words, LOC_CSCORE_0028);
         return (NULL_PTR);
     }
@@ -1103,7 +1103,7 @@ EC_BOOL cscore_csdoc_words_add_word(const UINT32 cscore_md_id, CSDOC_WORDS *csdo
     csword_des = cscore_csword_new(cscore_md_id, LOC_CSCORE_0031);
     if(NULL_PTR == csword_des)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csdoc_words_add_word: new csword failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_words_add_word: new csword failed\n");
         return (EC_FALSE);
     }
     
@@ -1131,13 +1131,13 @@ CSWORD_DOCS *cscore_csword_docs_new(const UINT32 cscore_md_id)
     alloc_static_mem(MD_CSCORE, cscore_md_id, MM_CSWORD_DOCS, &csword_docs, LOC_CSCORE_0032);
     if(NULL_PTR == csword_docs)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_new:alloc csword_docs failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_new:alloc csword_docs failed\n");
         return (NULL_PTR);
     }
 
     if(EC_FALSE == cscore_csword_docs_init(cscore_md_id, csword_docs))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_new: init csword_docs failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_new: init csword_docs failed\n");
         free_static_mem(MD_CSCORE, cscore_md_id, MM_CSWORD_DOCS, csword_docs, LOC_CSCORE_0033);
         return (NULL_PTR);
     }
@@ -1273,14 +1273,14 @@ static CBYTES *__cscore_new_row_cbytes_by_csword_0(const UINT32 cscore_md_id, co
     chash_algo = CSCORE_CHASH_ALGO_FUNC(cscore_md);
 
     csword_hash_val = chash_algo(cbytes_len(CSWORD_CONTENT(csword)), cbytes_buf(CSWORD_CONTENT(csword)));
-    sys_log(LOGSTDOUT, "[DEBUG] __cscore_new_row_cbytes_by_csword: word = %.*s => hash %ld\n",
+    dbg_log(SEC_0051_CSCORE, 9)(LOGSTDOUT, "[DEBUG] __cscore_new_row_cbytes_by_csword: word = %.*s => hash %ld\n",
                         cbytes_len(CSWORD_CONTENT(csword)), 
                         cbytes_buf(CSWORD_CONTENT(csword)),
                         csword_hash_val);
     row_bytes = cbytes_make_by_word(csword_hash_val);
     if(NULL_PTR == row_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_new_row_cbytes_by_csword: make cbytes by csword hash val %ld failed\n", csword_hash_val);
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_new_row_cbytes_by_csword: make cbytes by csword hash val %ld failed\n", csword_hash_val);
         return (NULL_PTR);
     }
     return (row_bytes);
@@ -1297,7 +1297,7 @@ static CSTRING *__cscore_new_row_cstring_by_csword_0(const UINT32 cscore_md_id, 
     chash_algo = CSCORE_CHASH_ALGO_FUNC(cscore_md);
 
     csword_hash_val = chash_algo(cbytes_len(CSWORD_CONTENT(csword)), cbytes_buf(CSWORD_CONTENT(csword)));
-    sys_log(LOGSTDOUT, "[DEBUG] __cscore_new_row_cstring_by_csword: word %.*s => hash %ld\n",
+    dbg_log(SEC_0051_CSCORE, 9)(LOGSTDOUT, "[DEBUG] __cscore_new_row_cstring_by_csword: word %.*s => hash %ld\n",
                         cbytes_len(CSWORD_CONTENT(csword)),
                         cbytes_buf(CSWORD_CONTENT(csword)),
                         csword_hash_val);
@@ -1305,7 +1305,7 @@ static CSTRING *__cscore_new_row_cstring_by_csword_0(const UINT32 cscore_md_id, 
     row_cstring = cstring_make_by_word(csword_hash_val);
     if(NULL_PTR == row_cstring)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_new_row_cstring_by_csword: make cstring by csword hash val %ld failed\n", csword_hash_val);
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_new_row_cstring_by_csword: make cstring by csword hash val %ld failed\n", csword_hash_val);
         return (NULL_PTR);
     }
     return (row_cstring);
@@ -1318,7 +1318,7 @@ static CBYTES *__cscore_new_row_cbytes_by_csword(const UINT32 cscore_md_id, cons
     row_bytes = cbytes_dup(CSWORD_CONTENT(csword));
     if(NULL_PTR == row_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_new_row_cbytes_by_csword: dup cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_new_row_cbytes_by_csword: dup cbytes failed\n");
         return (NULL_PTR);
     }
     return (row_bytes);
@@ -1331,7 +1331,7 @@ static CSTRING *__cscore_new_row_cstring_by_csword(const UINT32 cscore_md_id, co
     row_cstring = cstring_make_by_bytes(cbytes_len(CSWORD_CONTENT(csword)), cbytes_buf(CSWORD_CONTENT(csword)));
     if(NULL_PTR == row_cstring)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_new_row_cstring_by_csword: make cstring by bytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_new_row_cstring_by_csword: make cstring by bytes failed\n");
         return (NULL_PTR);
     }
     return (row_cstring);
@@ -1344,7 +1344,7 @@ static CBYTES *__cscore_new_ts_cbytes_by_ctimet(const UINT32 cscore_md_id, const
     ts_cbytes = cbytes_make_by_ctimet(ctimet);
     if(NULL_PTR == ts_cbytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_new_ts_cbytes_by_ctimet: make cbytes for ts failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_new_ts_cbytes_by_ctimet: make cbytes for ts failed\n");
         return (NULL_PTR);
     }
 
@@ -1358,7 +1358,7 @@ static CSTRING *__cscore_new_ts_cstring_by_ctimet(const UINT32 cscore_md_id, con
     ts_cstring = cstring_make_by_ctimet(ctimet);
     if(NULL_PTR == ts_cstring)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_new_ts_cstring_by_ctimet: new cstring for ts failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_new_ts_cstring_by_ctimet: new cstring for ts failed\n");
         return (NULL_PTR);
     }
 
@@ -1381,7 +1381,7 @@ static EC_BOOL __cscore_csword_import_word_content_plain(const UINT32 cscore_md_
     cword_content_bytes = cbytes_dup(CSWORD_CONTENT(csword));
     if(NULL_PTR == cword_content_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_word_content_plain: dup cbytes of csword content failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_word_content_plain: dup cbytes of csword content failed\n");
         return (EC_FALSE);
     }
 
@@ -1389,7 +1389,7 @@ static EC_BOOL __cscore_csword_import_word_content_plain(const UINT32 cscore_md_
     ret = __cscore_new_uint32(cscore_md_id);
     if(NULL_PTR == ret)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_word_content_plain: new UINT32 failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_word_content_plain: new UINT32 failed\n");
         cbytes_free(cword_content_bytes, LOC_CSCORE_0041);
         return (EC_FALSE);
     }
@@ -1432,7 +1432,7 @@ static EC_BOOL __cscore_csword_import_doc_id_plain(const UINT32 cscore_md_id, co
     cdoc_id_num_bytes = cbytes_make_by_word(CSDOC_ID(csdoc));
     if(NULL_PTR == cdoc_id_num_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_doc_id_plain: make cbytes for cdoc_id failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_doc_id_plain: make cbytes for cdoc_id failed\n");
         return (EC_FALSE);
     }
 
@@ -1440,7 +1440,7 @@ static EC_BOOL __cscore_csword_import_doc_id_plain(const UINT32 cscore_md_id, co
     ret = __cscore_new_uint32(cscore_md_id);
     if(NULL_PTR == ret)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_doc_id_plain: new UINT32 failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_doc_id_plain: new UINT32 failed\n");
         cbytes_free(cdoc_id_num_bytes, LOC_CSCORE_0042);
         return (EC_FALSE);
     }
@@ -1483,7 +1483,7 @@ static EC_BOOL __cscore_csword_import_doc_type_plain(const UINT32 cscore_md_id, 
     cdoc_type_num_bytes = cbytes_make_by_word(CSDOC_TYPE(csdoc));
     if(NULL_PTR == cdoc_type_num_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_doc_type_plain: make cbytes for cdoc_type failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_doc_type_plain: make cbytes for cdoc_type failed\n");
         return (EC_FALSE);
     }
 
@@ -1491,7 +1491,7 @@ static EC_BOOL __cscore_csword_import_doc_type_plain(const UINT32 cscore_md_id, 
     ret = __cscore_new_uint32(cscore_md_id);
     if(NULL_PTR == ret)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_doc_type_plain: new UINT32 failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_doc_type_plain: new UINT32 failed\n");
         cbytes_free(cdoc_type_num_bytes, LOC_CSCORE_0043);
         return (EC_FALSE);
     }
@@ -1534,7 +1534,7 @@ static EC_BOOL __cscore_csword_import_doc_code_plain(const UINT32 cscore_md_id, 
     cdoc_code_num_bytes = cbytes_make_by_word(CSDOC_CODE(csdoc));
     if(NULL_PTR == cdoc_code_num_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_doc_code_plain: make cbytes for cdoc_code failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_doc_code_plain: make cbytes for cdoc_code failed\n");
         return (EC_FALSE);
     }
 
@@ -1542,7 +1542,7 @@ static EC_BOOL __cscore_csword_import_doc_code_plain(const UINT32 cscore_md_id, 
     ret = __cscore_new_uint32(cscore_md_id);
     if(NULL_PTR == ret)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_doc_code_plain: new UINT32 failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_doc_code_plain: new UINT32 failed\n");
         cbytes_free(cdoc_code_num_bytes, LOC_CSCORE_0044);
         return (EC_FALSE);
     }
@@ -1581,14 +1581,14 @@ static EC_BOOL __cscore_csword_import_plain(const UINT32 cscore_md_id, const CSW
     row_no = cscore_reserve_row_no(cscore_md_id);
     if(CSCORE_MD_DEFAULT_ERR_ROW_NO == row_no)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_plain: reserve row no failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_plain: reserve row no failed\n");
         return (EC_FALSE);
     }
 
     row_bytes = cbytes_make_by_word(row_no);
     if(NULL_PTR == row_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_plain: new row cbytes by row no %ld failed\n", row_no);
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_plain: new row cbytes by row no %ld failed\n", row_no);
         cscore_release_row_no(cscore_md_id, row_no);
         return (EC_FALSE);
     }
@@ -1598,7 +1598,7 @@ static EC_BOOL __cscore_csword_import_plain(const UINT32 cscore_md_id, const CSW
                                                         task_mgr,
                                                         ret_vec, cached_bytes_vec))
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_plain: import word text failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_plain: import word text failed\n");
         cscore_release_row_no(cscore_md_id, row_no);
         cbytes_free(row_bytes, LOC_CSCORE_0045);
         return (EC_FALSE);
@@ -1609,7 +1609,7 @@ static EC_BOOL __cscore_csword_import_plain(const UINT32 cscore_md_id, const CSW
                                                         task_mgr,
                                                         ret_vec, cached_bytes_vec))
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_plain: import doc id failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_plain: import doc id failed\n");
         cscore_release_row_no(cscore_md_id, row_no);
         cbytes_free(row_bytes, LOC_CSCORE_0046);
         return (EC_FALSE);
@@ -1620,7 +1620,7 @@ static EC_BOOL __cscore_csword_import_plain(const UINT32 cscore_md_id, const CSW
                                                             task_mgr,
                                                             ret_vec, cached_bytes_vec))
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_plain: import doc type failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_plain: import doc type failed\n");
         cscore_release_row_no(cscore_md_id, row_no);
         cbytes_free(row_bytes, LOC_CSCORE_0047);
         return (EC_FALSE);
@@ -1631,7 +1631,7 @@ static EC_BOOL __cscore_csword_import_plain(const UINT32 cscore_md_id, const CSW
                                                             task_mgr,
                                                             ret_vec, cached_bytes_vec))
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_import_plain: import doc code failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_import_plain: import doc code failed\n");
         cscore_release_row_no(cscore_md_id, row_no);
         cbytes_free(row_bytes, LOC_CSCORE_0048);
         return (EC_FALSE);
@@ -1662,7 +1662,7 @@ static EC_BOOL __cscore_csword_list_import_plain(const UINT32 cscore_md_id, cons
                                 ret_vec, 
                                 cached_bytes_vec))
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_list_import_plain: csword import plain failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_list_import_plain: csword import plain failed\n");
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -1697,7 +1697,7 @@ EC_BOOL cscore_csdoc_words_import(const UINT32 cscore_md_id, const CSDOC_WORDS *
     mod_mgr = mod_mgr_new(CSCORE_MD_CBGT_MD_ID(cscore_md), LOAD_BALANCING_OBJ);
     if(NULL_PTR == mod_mgr)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csdoc_words_import: new mod_mgr failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_words_import: new mod_mgr failed\n");
 
         cvector_clean_with_modi(&ret_vec, cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_uint32, LOC_CSCORE_0051);
         cvector_clean_with_location(&cached_bytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CSCORE_0052);
@@ -1706,13 +1706,13 @@ EC_BOOL cscore_csdoc_words_import(const UINT32 cscore_md_id, const CSDOC_WORDS *
     }
     
     mod_mgr_incl(CMPI_LOCAL_TCID, CMPI_LOCAL_COMM, CMPI_LOCAL_RANK, CSCORE_MD_CBGT_MD_ID(cscore_md), mod_mgr);
-    sys_log(LOGCONSOLE, "[DEBUG] cscore_csdoc_words_import: mod_mgr is\n");
+    dbg_log(SEC_0051_CSCORE, 0)(LOGCONSOLE, "[DEBUG] cscore_csdoc_words_import: mod_mgr is\n");
     mod_mgr_print(LOGCONSOLE, mod_mgr);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     if(NULL_PTR == task_mgr)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csdoc_words_import: new task_mgr failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_words_import: new task_mgr failed\n");
 
         cvector_clean_with_modi(&ret_vec, cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_uint32, LOC_CSCORE_0053);
         cvector_clean_with_location(&cached_bytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CSCORE_0054);
@@ -1727,7 +1727,7 @@ EC_BOOL cscore_csdoc_words_import(const UINT32 cscore_md_id, const CSDOC_WORDS *
                                                       task_mgr,
                                                       &ret_vec, &cached_bytes_vec))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csdoc_words_import: import csword list failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_words_import: import csword list failed\n");
 
         cvector_clean_with_modi(&ret_vec, cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_uint32, LOC_CSCORE_0055);
         cvector_clean_with_location(&cached_bytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CSCORE_0056);
@@ -1745,7 +1745,7 @@ EC_BOOL cscore_csdoc_words_import(const UINT32 cscore_md_id, const CSDOC_WORDS *
     /*check result*/
     if(EC_FALSE == cvector_check_all_is_true(&ret_vec))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csdoc_words_import: import csdoc_words failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_words_import: import csdoc_words failed\n");
 
         cvector_clean_with_modi(&ret_vec, cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_uint32, LOC_CSCORE_0057);
         cvector_clean_with_location(&cached_bytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CSCORE_0058);
@@ -1776,7 +1776,7 @@ EC_BOOL cscore_csdoc_words_list_import(const UINT32 cscore_md_id, const CLIST *c
 
     if(EC_FALSE == clist_loop_front_with_modi(csdoc_words_clist, cscore_md_id, (CLIST_DATA_MODI_HANDLER)cscore_csdoc_words_import))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csdoc_words_list_import: import csdoc_words list failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csdoc_words_list_import: import csdoc_words list failed\n");
         return (EC_FALSE);
     }
 
@@ -1806,7 +1806,7 @@ static EC_BOOL __cscore_csdoc_export_doc_id_plain(const UINT32 cscore_md_id, con
     ret = __cscore_new_uint32(cscore_md_id);
     if(NULL_PTR == ret)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_id_plain: new ret uint32 failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_id_plain: new ret uint32 failed\n");
         return (EC_FALSE);
     }
     cvector_push_no_lock(ret_vec, (void *)ret);    
@@ -1814,7 +1814,7 @@ static EC_BOOL __cscore_csdoc_export_doc_id_plain(const UINT32 cscore_md_id, con
     val_bytes = cbytes_new(0);
     if(NULL_PTR == val_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_id_plain: new val cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_id_plain: new val cbytes failed\n");
         return (EC_FALSE);
     }
     cvector_push_no_lock(doc_id_cbytes_vec, (void *)val_bytes);
@@ -1827,21 +1827,21 @@ static EC_BOOL __cscore_csdoc_export_doc_id_plain(const UINT32 cscore_md_id, con
     row_bytes  = cbytes_make_by_bytes(kvGetrLenHs(kv)  , kvGetRowHs(kv)      );
     if(NULL_PTR == row_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_id_plain: new row cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_id_plain: new row cbytes failed\n");
         return (EC_FALSE);
     }
     
     colf_bytes = cbytes_make_by_bytes(kvGetcfLenHs(kv) , kvGetColFamilyHs(kv));
     if(NULL_PTR == colf_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_id_plain: new colf cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_id_plain: new colf cbytes failed\n");
         cbytes_free(row_bytes, LOC_CSCORE_0061);
         return (EC_FALSE);
     }    
     colq_bytes = cbytes_make_by_bytes(colq_len         , colq_str            );
     if(NULL_PTR == colq_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_id_plain: new colq cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_id_plain: new colq cbytes failed\n");
         cbytes_free(row_bytes, LOC_CSCORE_0062);
         cbytes_free(colf_bytes, LOC_CSCORE_0063);
         return (EC_FALSE);
@@ -1882,7 +1882,7 @@ static EC_BOOL __cscore_csdoc_export_doc_type_plain(const UINT32 cscore_md_id, c
     ret = __cscore_new_uint32(cscore_md_id);
     if(NULL_PTR == ret)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_type_plain: new ret uint32 failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_type_plain: new ret uint32 failed\n");
         return (EC_FALSE);
     }
     cvector_push_no_lock(ret_vec, (void *)ret);    
@@ -1890,7 +1890,7 @@ static EC_BOOL __cscore_csdoc_export_doc_type_plain(const UINT32 cscore_md_id, c
     val_bytes = cbytes_new(0);
     if(NULL_PTR == val_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_type_plain: new val cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_type_plain: new val cbytes failed\n");
         return (EC_FALSE);
     }
     cvector_push_no_lock(doc_type_cbytes_vec, (void *)val_bytes);
@@ -1903,21 +1903,21 @@ static EC_BOOL __cscore_csdoc_export_doc_type_plain(const UINT32 cscore_md_id, c
     row_bytes  = cbytes_make_by_bytes(kvGetrLenHs(kv)  , kvGetRowHs(kv)      );
     if(NULL_PTR == row_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_type_plain: new row cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_type_plain: new row cbytes failed\n");
         return (EC_FALSE);
     }
     
     colf_bytes = cbytes_make_by_bytes(kvGetcfLenHs(kv) , kvGetColFamilyHs(kv));
     if(NULL_PTR == colf_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_type_plain: new colf cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_type_plain: new colf cbytes failed\n");
         cbytes_free(row_bytes, LOC_CSCORE_0064);
         return (EC_FALSE);
     }    
     colq_bytes = cbytes_make_by_bytes(colq_len         , colq_str            );
     if(NULL_PTR == colq_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_type_plain: new colq cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_type_plain: new colq cbytes failed\n");
         cbytes_free(row_bytes, LOC_CSCORE_0065);
         cbytes_free(colf_bytes, LOC_CSCORE_0066);
         return (EC_FALSE);
@@ -1958,7 +1958,7 @@ static EC_BOOL __cscore_csdoc_export_doc_code_plain(const UINT32 cscore_md_id, c
     ret = __cscore_new_uint32(cscore_md_id);
     if(NULL_PTR == ret)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_code_plain: new ret uint32 failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_code_plain: new ret uint32 failed\n");
         return (EC_FALSE);
     }
     cvector_push_no_lock(ret_vec, (void *)ret);    
@@ -1966,7 +1966,7 @@ static EC_BOOL __cscore_csdoc_export_doc_code_plain(const UINT32 cscore_md_id, c
     val_bytes = cbytes_new(0);
     if(NULL_PTR == val_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_code_plain: new val cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_code_plain: new val cbytes failed\n");
         return (EC_FALSE);
     }
     cvector_push_no_lock(doc_code_cbytes_vec, (void *)val_bytes);
@@ -1979,21 +1979,21 @@ static EC_BOOL __cscore_csdoc_export_doc_code_plain(const UINT32 cscore_md_id, c
     row_bytes  = cbytes_make_by_bytes(kvGetrLenHs(kv)  , kvGetRowHs(kv)      );
     if(NULL_PTR == row_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_code_plain: new row cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_code_plain: new row cbytes failed\n");
         return (EC_FALSE);
     }
     
     colf_bytes = cbytes_make_by_bytes(kvGetcfLenHs(kv) , kvGetColFamilyHs(kv));
     if(NULL_PTR == colf_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_code_plain: new colf cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_code_plain: new colf cbytes failed\n");
         cbytes_free(row_bytes, LOC_CSCORE_0067);
         return (EC_FALSE);
     }    
     colq_bytes = cbytes_make_by_bytes(colq_len         , colq_str            );
     if(NULL_PTR == colq_bytes)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_code_plain: new colq cbytes failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_code_plain: new colq cbytes failed\n");
         cbytes_free(row_bytes, LOC_CSCORE_0068);
         cbytes_free(colf_bytes, LOC_CSCORE_0069);
         return (EC_FALSE);
@@ -2034,7 +2034,7 @@ static EC_BOOL __cscore_csdoc_export_doc_plain(const UINT32 cscore_md_id, const 
 
     if(!(colq_len == CSCORE_MD_DEFAULT_COLQ_WORD_TEXT_LEN && 0 == strncmp((char *)colq_str, CSCORE_MD_DEFAULT_COLQ_WORD_TEXT, colq_len)))
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_plain: colq in kv is %.*s which not matched with %.*s\n",
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_plain: colq in kv is %.*s which not matched with %.*s\n",
                            colq_len, colq_str,
                            CSCORE_MD_DEFAULT_COLQ_WORD_TEXT_LEN, CSCORE_MD_DEFAULT_COLQ_WORD_TEXT);
         return (EC_FALSE);
@@ -2042,19 +2042,19 @@ static EC_BOOL __cscore_csdoc_export_doc_plain(const UINT32 cscore_md_id, const 
 
     if(EC_FALSE == __cscore_csdoc_export_doc_id_plain(cscore_md_id, kv_bytes, task_mgr, ret_vec, doc_id_cbytes_vec, cached_cbytes_vec))
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_plain: export cdoc id failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_plain: export cdoc id failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cscore_csdoc_export_doc_type_plain(cscore_md_id, kv_bytes, task_mgr, ret_vec, doc_type_cbytes_vec, cached_cbytes_vec))
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_plain: export cdoc type failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_plain: export cdoc type failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cscore_csdoc_export_doc_code_plain(cscore_md_id, kv_bytes, task_mgr, ret_vec, doc_code_cbytes_vec, cached_cbytes_vec))
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_export_doc_plain: export cdoc code failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_export_doc_plain: export cdoc code failed\n");
         return (EC_FALSE);
     }    
 
@@ -2076,7 +2076,7 @@ static EC_BOOL __cscore_csdoc_list_export_plain(const UINT32 cscore_md_id, const
 
     if(0 == cvector_size(kv_vec))
     {
-        sys_log(LOGSTDOUT, "warn:__cscore_csdoc_list_export_plain: kv_vec is null, export nothing\n");
+        dbg_log(SEC_0051_CSCORE, 1)(LOGSTDOUT, "warn:__cscore_csdoc_list_export_plain: kv_vec is null, export nothing\n");
         return (EC_TRUE);
     }
 
@@ -2093,7 +2093,7 @@ static EC_BOOL __cscore_csdoc_list_export_plain(const UINT32 cscore_md_id, const
         cached_cbytes_vec = __cscore_new_cbytes_vec(cscore_md_id);
         if(NULL_PTR == cached_cbytes_vec)
         {
-            sys_log(LOGSTDOUT, "error:__cscore_csdoc_list_export_plain: new cbytes vector failed\n");
+            dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_list_export_plain: new cbytes vector failed\n");
             
             cvector_clean_with_modi(&ret_vec   , cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_uint32    , LOC_CSCORE_0073);
             cvector_clean_with_modi(&cached_vec, cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_cbytes_vec, LOC_CSCORE_0074);
@@ -2106,7 +2106,7 @@ static EC_BOOL __cscore_csdoc_list_export_plain(const UINT32 cscore_md_id, const
     mod_mgr = mod_mgr_new(CSCORE_MD_CBGT_MD_ID(cscore_md), LOAD_BALANCING_OBJ);
     if(NULL_PTR == mod_mgr)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_list_export_plain: new mod_mgr failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_list_export_plain: new mod_mgr failed\n");
 
         cvector_clean_with_modi(&ret_vec   , cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_uint32    , LOC_CSCORE_0076);
         cvector_clean_with_modi(&cached_vec, cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_cbytes_vec, LOC_CSCORE_0077);
@@ -2116,13 +2116,13 @@ static EC_BOOL __cscore_csdoc_list_export_plain(const UINT32 cscore_md_id, const
     }
     
     mod_mgr_incl(CMPI_LOCAL_TCID, CMPI_LOCAL_COMM, CMPI_LOCAL_RANK, CSCORE_MD_CBGT_MD_ID(cscore_md), mod_mgr);
-    sys_log(LOGCONSOLE, "[DEBUG] __cscore_csdoc_list_export_plain: mod_mgr is\n");
+    dbg_log(SEC_0051_CSCORE, 0)(LOGCONSOLE, "[DEBUG] __cscore_csdoc_list_export_plain: mod_mgr is\n");
     mod_mgr_print(LOGCONSOLE, mod_mgr);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     if(NULL_PTR == task_mgr)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_list_export_plain: new task_mgr failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_list_export_plain: new task_mgr failed\n");
 
         cvector_clean_with_modi(&ret_vec   , cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_uint32    , LOC_CSCORE_0079);
         cvector_clean_with_modi(&cached_vec, cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_cbytes_vec, LOC_CSCORE_0080);
@@ -2138,7 +2138,7 @@ static EC_BOOL __cscore_csdoc_list_export_plain(const UINT32 cscore_md_id, const
         const CBYTES *kv_bytes;
 
         kv_bytes = (const CBYTES *)cvector_get_no_lock(kv_vec, pos);
-        sys_log(LOGSTDOUT, "[DEBUG] [A]__cscore_csdocs_list_export_plain: %ld: ", pos);
+        dbg_log(SEC_0051_CSCORE, 9)(LOGSTDOUT, "[DEBUG] [A]__cscore_csdocs_list_export_plain: %ld: ", pos);
         kvPrintHs(LOGSTDOUT, cbytes_buf(kv_bytes));
         
         if(EC_FALSE == __cscore_csdoc_export_doc_plain(cscore_md_id, kv_bytes, 
@@ -2150,7 +2150,7 @@ static EC_BOOL __cscore_csdoc_list_export_plain(const UINT32 cscore_md_id, const
                                                         &cbytes_vec
                                                         ))
         {
-            sys_log(LOGSTDOUT, "error:__cscore_csdocs_list_export_plain: export %ld # cdoc failed\n", pos);
+            dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdocs_list_export_plain: export %ld # cdoc failed\n", pos);
 
             cvector_clean_with_modi(&ret_vec, cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_uint32, LOC_CSCORE_0082);
             cvector_clean_with_modi(&cached_vec, cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_cbytes_vec, LOC_CSCORE_0083);
@@ -2170,7 +2170,7 @@ static EC_BOOL __cscore_csdoc_list_export_plain(const UINT32 cscore_md_id, const
     /*check result*/
     if(EC_FALSE == cvector_check_all_is_true(&ret_vec))
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdocs_list_export_plain: export csword_docs failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdocs_list_export_plain: export csword_docs failed\n");
 
         cvector_clean_with_modi(&ret_vec, cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_uint32, LOC_CSCORE_0085);
         cvector_clean_with_modi(&cached_vec, cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_cbytes_vec, LOC_CSCORE_0086);
@@ -2191,13 +2191,13 @@ static EC_BOOL __cscore_csdoc_list_export_plain(const UINT32 cscore_md_id, const
 
         kv_bytes = (const CBYTES *)cvector_get_no_lock(kv_vec, pos);
 
-        sys_log(LOGSTDOUT, "[DEBUG] [B]__cscore_csdocs_list_export_plain: %ld: ", pos);
+        dbg_log(SEC_0051_CSCORE, 9)(LOGSTDOUT, "[DEBUG] [B]__cscore_csdocs_list_export_plain: %ld: ", pos);
         kvPrintHs(LOGSTDOUT, cbytes_buf(kv_bytes));
 
         csdoc = cscore_csdoc_new(cscore_md_id);
         if(NULL_PTR == csdoc)
         {
-            sys_log(LOGSTDOUT, "error:__cscore_csdoc_list_export_plain: new csdoc failed\n");
+            dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_list_export_plain: new csdoc failed\n");
             cvector_clean_with_modi(&ret_vec   , cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_uint32    , LOC_CSCORE_0088);
             cvector_clean_with_modi(&cached_vec, cscore_md_id, (CVECTOR_DATA_CLEAN)__cscore_free_cbytes_vec, LOC_CSCORE_0089);
             cvector_clean_with_location(&cbytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CSCORE_0090);
@@ -2254,14 +2254,14 @@ EC_BOOL cscore_csword_docs_export(const UINT32 cscore_md_id, const UINT32 cached
 
     if(NULL_PTR == csword_docs)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_export: csword_docs is null\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_export: csword_docs is null\n");
         return (EC_FALSE);
     }
 
     csword = CSWORD_DOCS_WORD(csword_docs);
     if(0 == CBYTES_LEN(CSWORD_CONTENT(csword)))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_export: csword content is empty\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_export: csword content is empty\n");
         return (EC_FALSE);
     }
 
@@ -2269,7 +2269,7 @@ EC_BOOL cscore_csword_docs_export(const UINT32 cscore_md_id, const UINT32 cached
     table_pattern = cstring_new((UINT8 *)CSCORE_MD_DEFAULT_TABLE_NAME, LOC_CSCORE_0094);
     if(NULL_PTR == table_pattern)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_export: new table pattern failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_export: new table pattern failed\n");
         return (EC_FALSE);
     }
 
@@ -2277,7 +2277,7 @@ EC_BOOL cscore_csword_docs_export(const UINT32 cscore_md_id, const UINT32 cached
     row_pattern = cstring_new((UINT8 *)".*", LOC_CSCORE_0095);
     if(NULL_PTR == row_pattern)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_export: new row pattern failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_export: new row pattern failed\n");
         cstring_free(table_pattern);
         return (EC_FALSE);
     }
@@ -2286,7 +2286,7 @@ EC_BOOL cscore_csword_docs_export(const UINT32 cscore_md_id, const UINT32 cached
     colf_pattern = cstring_new((UINT8 *)CSCORE_MD_DEFAULT_COLF_NAME, LOC_CSCORE_0096);
     if(NULL_PTR == colf_pattern)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_export: new colf pattern failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_export: new colf pattern failed\n");
         cstring_free(table_pattern);
         cstring_free(row_pattern);
         return (EC_FALSE);
@@ -2296,7 +2296,7 @@ EC_BOOL cscore_csword_docs_export(const UINT32 cscore_md_id, const UINT32 cached
     colq_pattern = cstring_new((UINT8 *)CSCORE_MD_DEFAULT_COLQ_WORD_TEXT, LOC_CSCORE_0097);
     if(NULL_PTR == colq_pattern)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_export: new colq pattern failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_export: new colq pattern failed\n");
         cstring_free(table_pattern);
         cstring_free(row_pattern);
         cstring_free(colf_pattern);
@@ -2307,7 +2307,7 @@ EC_BOOL cscore_csword_docs_export(const UINT32 cscore_md_id, const UINT32 cached
     val_pattern = cstring_make_by_bytes(cbytes_len(CSWORD_CONTENT(csword)), cbytes_buf(CSWORD_CONTENT(csword)));
     if(NULL_PTR == val_pattern)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_export: new val pattern failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_export: new val pattern failed\n");
 
         cstring_free(table_pattern);
         cstring_free(row_pattern);
@@ -2320,7 +2320,7 @@ EC_BOOL cscore_csword_docs_export(const UINT32 cscore_md_id, const UINT32 cached
     ret_kv_vec = cvector_new(0, MM_CBYTES, LOC_CSCORE_0098);
     if(NULL_PTR == ret_kv_vec)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_export: new ret kv vec failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_export: new ret kv vec failed\n");
 
         cstring_free(table_pattern);
         cstring_free(row_pattern);
@@ -2334,7 +2334,7 @@ EC_BOOL cscore_csword_docs_export(const UINT32 cscore_md_id, const UINT32 cached
                                 table_pattern, row_pattern, colf_pattern, colq_pattern, val_pattern,
                                 ret_kv_vec))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_export: select failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_export: select failed\n");
 
         cstring_free(table_pattern);
         cstring_free(row_pattern);
@@ -2360,7 +2360,7 @@ EC_BOOL cscore_csword_docs_export(const UINT32 cscore_md_id, const UINT32 cached
                 continue;
             }
 
-            sys_log(LOGSTDOUT, "%ld: ", pos);
+            dbg_log(SEC_0051_CSCORE, 5)(LOGSTDOUT, "%ld: ", pos);
             kvPrintHs(LOGSTDOUT, cbytes_buf(kv_bytes));
         }    
     }
@@ -2368,7 +2368,7 @@ EC_BOOL cscore_csword_docs_export(const UINT32 cscore_md_id, const UINT32 cached
     /*export ret_kv_vec to csword_docs*/
     if(EC_FALSE == __cscore_csdoc_list_export_plain(cscore_md_id, ret_kv_vec, csword_docs))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_export: export csdoc list failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_export: export csdoc list failed\n");
 
         cstring_free(table_pattern);
         cstring_free(row_pattern);
@@ -2413,7 +2413,7 @@ EC_BOOL cscore_csword_docs_list_export(const UINT32 cscore_md_id, const UINT32 c
                               (UINT32)3, (UINT32)2,
                               (UINT32)cscore_csword_docs_export, cscore_md_id, cached_mode, NULL_PTR))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_list_export:export docs of csword failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_list_export:export docs of csword failed\n");
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -2426,7 +2426,7 @@ static EC_BOOL __cscore_csword_docs_list_make_one(const UINT32 cscore_md_id, CLI
     csword_docs = cscore_csword_docs_new(cscore_md_id);
     if(NULL_PTR == csword_docs)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_docs_list_make_one: new csword_docs failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_docs_list_make_one: new csword_docs failed\n");
         return (EC_FALSE);
     }
     cscore_csword_docs_set_word(cscore_md_id, csword_docs, csword);
@@ -2453,7 +2453,7 @@ EC_BOOL cscore_csword_docs_list_export_docs(const UINT32 cscore_md_id, const UIN
     csword_docs_list = clist_new(MM_CSWORD_DOCS, LOC_CSCORE_0105);
     if(NULL_PTR == csword_docs_list)
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_list_export_docs: new csword_docs list failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_list_export_docs: new csword_docs list failed\n");
         return (EC_FALSE);
     }
 
@@ -2461,18 +2461,18 @@ EC_BOOL cscore_csword_docs_list_export_docs(const UINT32 cscore_md_id, const UIN
                                 (UINT32)3, (UINT32)2, 
                                 (UINT32)__cscore_csword_docs_list_make_one, cscore_md_id, csword_docs_list, NULL_PTR))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_list_export_docs: new csword_docs failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_list_export_docs: new csword_docs failed\n");
         clist_clean_with_modi(csword_docs_list, cscore_md_id, (CLIST_DATA_MODI_CLEANER)cscore_csword_docs_free);
         clist_free(csword_docs_list, LOC_CSCORE_0106);
         return (EC_FALSE);
     }
 
-    sys_log(LOGCONSOLE, "[DEBUG] cscore_csword_docs_list_export_docs: csword_docs list is\n");
+    dbg_log(SEC_0051_CSCORE, 0)(LOGCONSOLE, "[DEBUG] cscore_csword_docs_list_export_docs: csword_docs list is\n");
     clist_print(LOGCONSOLE, csword_docs_list, (CLIST_DATA_DATA_PRINT)cscore_csword_docs_print);
 
     if(EC_FALSE == cscore_csword_docs_list_export(cscore_md_id, cached_mode, csword_docs_list))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_list_export_docs: export csword_docs list failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_list_export_docs: export csword_docs list failed\n");
         clist_clean_with_modi(csword_docs_list, cscore_md_id, (CLIST_DATA_MODI_CLEANER)cscore_csword_docs_free);
         clist_free(csword_docs_list, LOC_CSCORE_0107);        
         return (EC_FALSE);
@@ -2518,13 +2518,13 @@ static EC_BOOL __cscore_csdoc_merge(const UINT32 cscore_md_id, const CSDOC *csdo
     new_csdoc = cscore_csdoc_new(cscore_md_id);
     if(NULL_PTR == new_csdoc)
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_merge: new csdoc failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_merge: new csdoc failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cscore_csdoc_clone(cscore_md_id, csdoc, new_csdoc))
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csdoc_merge: clone csdoc failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csdoc_merge: clone csdoc failed\n");
         cscore_csdoc_free(cscore_md_id, new_csdoc);
         return (EC_FALSE);
     }
@@ -2554,7 +2554,7 @@ static EC_BOOL __cscore_csword_docs_merge(const UINT32 cscore_md_id, const CSWOR
                               (UINT32)3, (UINT32)1, 
                               (UINT32)__cscore_csdoc_merge, cscore_md_id, NULL_PTR, csdoc_list))
     {
-        sys_log(LOGSTDOUT, "error:__cscore_csword_docs_merge: merge csdoc to csdoc list failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:__cscore_csword_docs_merge: merge csdoc to csdoc list failed\n");
         return (EC_FALSE);
     }
 
@@ -2583,7 +2583,7 @@ EC_BOOL cscore_csword_docs_list_merge(const UINT32 cscore_md_id, const CLIST *cs
                                (UINT32)3, (UINT32)1, 
                                (UINT32)__cscore_csword_docs_merge, cscore_md_id, NULL_PTR, csdoc_list))
     {
-        sys_log(LOGSTDOUT, "error:cscore_csword_docs_list_merge: merge csword_csdoc_list to docs list failed\n");
+        dbg_log(SEC_0051_CSCORE, 0)(LOGSTDOUT, "error:cscore_csword_docs_list_merge: merge csword_csdoc_list to docs list failed\n");
         return (EC_FALSE);
      }
 

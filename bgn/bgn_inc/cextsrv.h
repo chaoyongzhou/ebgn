@@ -30,15 +30,15 @@ EC_BOOL cextclnt_recv(CEXTCLNT *cextclnt, UINT8 **in_buff, UINT32 *in_buff_size)
 
 EC_BOOL cextclnt_send(CEXTCLNT *cextclnt, const UINT8 *out_buff, const UINT32 out_buff_size);
 
-CEXTSRV *cextsrv_new(const UINT32 srv_port, const int srv_sockfd);
+CEXTSRV *cextsrv_new(const UINT32 srv_ipaddr, const UINT32 srv_port, const int srv_sockfd);
 
-EC_BOOL cextsrv_init(CEXTSRV *cextsrv, const UINT32 srv_port, const int srv_sockfd);
+EC_BOOL cextsrv_init(CEXTSRV *cextsrv, const UINT32 srv_ipaddr, const UINT32 srv_port, const int srv_sockfd);
 
 EC_BOOL cextsrv_clean(CEXTSRV *cextsrv);
 
 EC_BOOL cextsrv_free(CEXTSRV *cextsrv);
 
-CEXTSRV * cextsrv_start(const UINT32 srv_port);
+CEXTSRV * cextsrv_start(const UINT32 srv_ipaddr, const UINT32 srv_port);
 
 EC_BOOL cextsrv_end(CEXTSRV *cextsrv);
 

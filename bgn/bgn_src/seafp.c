@@ -197,12 +197,12 @@ UINT32 sea_fp_start( const BIGINT *p, const ECFP_CURVE *curve)
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == p )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_start: p is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_start: p is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, ERR_MODULE_ID);
     }
     if ( NULL_PTR == curve )
     {
-         sys_log(LOGSTDOUT,"error:sea_fp_start: curve is NULL_PTR.\n");
+         dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_start: curve is NULL_PTR.\n");
          dbg_exit(MD_SEAFP, ERR_MODULE_ID);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -391,7 +391,7 @@ UINT32 sea_fp_start( const BIGINT *p, const ECFP_CURVE *curve)
     {
         if ( idx_tbl >= _oddsmallprime_tbl_size )
         {
-            sys_log(LOGSTDOUT,"error:sea_fp_start: _oddsmallprime_tbl is not large enough.\n");
+            dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_start: _oddsmallprime_tbl is not large enough.\n");
             return ( ERR_MODULE_ID );
         }
         seafp_oddsmallprime_tbl->oddsmallprime[ idx_tbl ] = _oddsmallprime_tbl[ idx_tbl ];
@@ -443,7 +443,7 @@ UINT32 sea_fp_start( const BIGINT *p, const ECFP_CURVE *curve)
         bgn_z_mod(bgnz_md_id, p, c1, c0);
         if ( EC_FALSE == bgn_z_get_word(bgnz_md_id, c0, &pmodsmallprime) )
         {
-            sys_log(LOGSTDOUT,"error:sea_fp_start: p mod %ld overflow.\n",
+            dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_start: p mod %ld overflow.\n",
                 seafp_oddsmallprime_tbl->oddsmallprime[ idx_tbl ]);
             return ( ERR_MODULE_ID );
         }
@@ -477,7 +477,7 @@ UINT32 sea_fp_start( const BIGINT *p, const ECFP_CURVE *curve)
 #if 0
     for ( idx_tbl = 0; idx_tbl < seafp_oddsmallprime_tbl->oddsmallprime_num; idx_tbl ++ )
     {
-        sys_log(LOGSTDOUT,"[%ld] %ld \n",
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"[%ld] %ld \n",
             seafp_oddsmallprime_tbl->oddsmallprime[ idx_tbl ],
             seafp_oddsmallprime_tbl->sqrtof4pmodsmallprime[ idx_tbl ]
             );
@@ -586,7 +586,7 @@ void sea_fp_end(const UINT32 seafp_md_id)
 
     if ( MAX_NUM_OF_SEAFP_MD < seafp_md_id )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_end: seafp_md_id = %ld is overflow.\n",seafp_md_id);
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_end: seafp_md_id = %ld is overflow.\n",seafp_md_id);
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 
@@ -602,7 +602,7 @@ void sea_fp_end(const UINT32 seafp_md_id)
 
     if ( 0 == seafp_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_end: seafp_md = %ld is not started.\n",seafp_md);
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_end: seafp_md = %ld is not started.\n",seafp_md);
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 
@@ -694,7 +694,7 @@ void sea_fp_end(const UINT32 seafp_md_id)
     /*actually, idx_tbl should start from 1 because the first node is set to null while module started*/
     for ( idx_tbl = 0; idx_tbl < tbl_size; idx_tbl ++ )
     {
-        //sys_log(LOGSTDOUT,"sea_fp_end: idx_tbl = %ld\n", idx_tbl);
+        //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_end: idx_tbl = %ld\n", idx_tbl);
         Atkin_node = &(seafp_Atkin_set->Atkin_Set_Node[ idx_tbl ]);
         if ( NULL_PTR !=  Atkin_node->Atkin_Q)
         {
@@ -702,7 +702,7 @@ void sea_fp_end(const UINT32 seafp_md_id)
         }
         else
         {
-            //sys_log(LOGSTDOUT,"sea_fp_end: idx_tbl = %ld : Atkin_node->Atkin_Q is null\n", idx_tbl);
+            //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_end: idx_tbl = %ld : Atkin_node->Atkin_Q is null\n", idx_tbl);
         }
         if ( NULL_PTR != Atkin_node->r1 )
         {
@@ -710,7 +710,7 @@ void sea_fp_end(const UINT32 seafp_md_id)
         }
         else
         {
-            //sys_log(LOGSTDOUT,"sea_fp_end: idx_tbl = %ld : Atkin_node->r1 is null\n", idx_tbl);
+            //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_end: idx_tbl = %ld : Atkin_node->r1 is null\n", idx_tbl);
         }
     }
     seafp_Atkin_set->Atkin_Set_size = 0;
@@ -756,7 +756,7 @@ UINT32 sea_fp_set_xpx_to_poly(const UINT32 seafp_md_id,POLY *poly)
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_set_xpx_to_poly: poly is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_set_xpx_to_poly: poly is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -834,7 +834,7 @@ UINT32 sea_fp_set_ec_xpart_to_poly(const UINT32 seafp_md_id,POLY *poly)
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_set_ec_xpart_to_poly: poly is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_set_ec_xpart_to_poly: poly is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -993,12 +993,12 @@ static UINT32 sea_fp_read_poly_from_file(const UINT32 seafp_md_id, const UINT32 
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == dat )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_read_poly_from_file: dat is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_read_poly_from_file: dat is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_read_poly_from_file: poly is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_read_poly_from_file: poly is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -1081,12 +1081,12 @@ static UINT32 sea_fp_read_item_from_file(const UINT32 seafp_md_id, const UINT32 
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == dat )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_read_item_from_file: dat is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_read_item_from_file: dat is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == item )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_read_item_from_file: item is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_read_item_from_file: item is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -1110,12 +1110,12 @@ static UINT32 sea_fp_read_item_from_file(const UINT32 seafp_md_id, const UINT32 
     ret = dbg_get_one_str_from_file(dat, para_str, para_str_maxlen, &para_str_len);
     if ( 0 != ret)
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_read_item_from_file: failed to read the deg of item from db\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_read_item_from_file: failed to read the deg of item from db\n");
         return (ret);
     }
     if ( '#' == para_str[ 0 ] )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_read_item_from_file: no deg given.\n",
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_read_item_from_file: no deg given.\n",
             para_str);
         return (( UINT32 )(-1));
     }
@@ -1128,7 +1128,7 @@ static UINT32 sea_fp_read_item_from_file(const UINT32 seafp_md_id, const UINT32 
         ret = conv_dec_to_bgn(conv_md_id, para_str, para_str_len, POLY_ITEM_DEG(cur_item));
         if ( 0 != ret  )
         {
-            sys_log(LOGSTDOUT,"error:sea_fp_read_item_from_file: failed to convert %s to deg BIGINT.\n",
+            dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_read_item_from_file: failed to convert %s to deg BIGINT.\n",
                 para_str);
 
             bgn_z_set_zero(bgnz_md_id, POLY_ITEM_DEG(cur_item));
@@ -1143,7 +1143,7 @@ static UINT32 sea_fp_read_item_from_file(const UINT32 seafp_md_id, const UINT32 
         ret = dbg_get_one_str_from_file(dat, para_str, para_str_maxlen, &para_str_len);
         if ( 0 != ret)
         {
-            sys_log(LOGSTDOUT,"error:sea_fp_read_item_from_file: failed to read the deg of item from db\n");
+            dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_read_item_from_file: failed to read the deg of item from db\n");
             return (ret);
         }
         if ( '#' == para_str[ 0 ] )
@@ -1169,7 +1169,7 @@ static UINT32 sea_fp_read_item_from_file(const UINT32 seafp_md_id, const UINT32 
     ret = dbg_get_one_str_from_file(dat, para_str, para_str_maxlen, &para_str_len);
     if ( 0 != ret)
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_read_item_from_file: failed to read the coe of item from db\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_read_item_from_file: failed to read the coe of item from db\n");
         return (ret);
     }
 
@@ -1181,7 +1181,7 @@ static UINT32 sea_fp_read_item_from_file(const UINT32 seafp_md_id, const UINT32 
     ret = conv_dec_to_bgn(conv_md_id, para_str, para_str_len, bgn_coe_of_cur_item);
     if ( 0 != ret  )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_read_item_from_file: failed to convert %s to deg BIGINT.\n",
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_read_item_from_file: failed to convert %s to deg BIGINT.\n",
             para_str);
 
         bgn_coe_of_cur_item->len = 0;
@@ -1353,13 +1353,13 @@ UINT32 sea_fp_poly_fai_tbl_build(const UINT32 seafp_md_id)
     fais_dat = fopen((char *)fais_dat_filename ,"r");
     if ( NULL_PTR == fais_dat )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_poly_fai_tbl_build: failed to open %s\n",fais_dat_filename);
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_poly_fai_tbl_build: failed to open %s\n",fais_dat_filename);
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
-    sys_log(LOGSTDOUT,"sea_fp_poly_fail_tbl_build: open %s\n", fais_dat_filename);
-    sys_log(LOGSTDOUT,"sea_fp_poly_fail_tbl_build: note: file <%s> should be closed before dbg_exit being called\n",
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_poly_fail_tbl_build: open %s\n", fais_dat_filename);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_poly_fail_tbl_build: note: file <%s> should be closed before dbg_exit being called\n",
                    fais_dat_filename);
-    sys_log(LOGSTDOUT,"sea_fp_poly_fail_tbl_build: note: otherwise, sockfd will encounter some problem?\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_poly_fail_tbl_build: note: otherwise, sockfd will encounter some problem?\n");
 
     conv_md_id = conv_start();
 
@@ -1391,7 +1391,7 @@ UINT32 sea_fp_poly_fai_tbl_build(const UINT32 seafp_md_id)
     conv_end(conv_md_id);
 
     fclose(fais_dat);
-    sys_log(LOGSTDOUT,"sea_fp_poly_fail_tbl_build: close %s\n", fais_dat_filename);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_poly_fail_tbl_build: close %s\n", fais_dat_filename);
 
     return ( 0 );
 }
@@ -1406,7 +1406,7 @@ UINT32 sea_fp_poly_destory(const UINT32 seafp_md_id, POLY *poly)
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_poly_destory: poly is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_poly_destory: poly is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -1438,7 +1438,7 @@ UINT32 sea_fp_poly_clean(const UINT32 seafp_md_id, POLY *poly)
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_poly_clean: poly is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_poly_clean: poly is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -1483,7 +1483,7 @@ static UINT32 sea_fp_poly_fai_j_clean(const UINT32 seafp_md_id,POLY *fai_j)
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == fai_j )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_poly_fai_j_clean: fai_j is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_poly_fai_j_clean: fai_j is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -1566,12 +1566,12 @@ UINT32 sea_fp_poly_squroot(const UINT32 seafp_md_id, const POLY *poly, BIGINT *r
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_poly_squroot: poly is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_poly_squroot: poly is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == root )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_poly_squroot: root is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_poly_squroot: root is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -1594,13 +1594,13 @@ UINT32 sea_fp_poly_squroot(const UINT32 seafp_md_id, const POLY *poly, BIGINT *r
 
     if ( EC_TRUE == POLY_IS_EMPTY(poly) )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_poly_squroot: poly is empty.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_poly_squroot: poly is empty.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 
     if ( EC_FALSE == POLY_ITEM_DEG_IS_N(bgnz_md_id, POLY_DEG(poly), 2) )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_poly_squroot: poly degree != 2.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_poly_squroot: poly degree != 2.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 
@@ -1733,17 +1733,17 @@ UINT32 sea_fp_iso_ec(const UINT32 seafp_md_id,
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == F )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_iso_ec: F is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_iso_ec: F is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == iso_ecfp_curve )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_iso_ec: iso_ecfp_curve is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_iso_ec: iso_ecfp_curve is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == isop1 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_iso_ec: isop1 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_iso_ec: isop1 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -1846,7 +1846,7 @@ UINT32 sea_fp_iso_ec(const UINT32 seafp_md_id,
     bgn_fp_mul(bgnfp_md_id, isodelta, delta, isodelta );/*isodelta = isodelta * delta = (F^exp * delta)/ (L^12)*/
 
 #if 0
-    sys_log(LOGSTDOUT,"sea_fp_iso_ec: isodelta===:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_iso_ec: isodelta===:\n");
     print_bigint(LOGSTDOUT, isodelta);
 #endif
 
@@ -1883,19 +1883,19 @@ UINT32 sea_fp_iso_ec(const UINT32 seafp_md_id,
     sea_fp_conv_const_poly_to_bgn(seafp_md_id, poly_dyyfai, bgn_dyyfai);
     sea_fp_conv_const_poly_to_bgn(seafp_md_id, poly_dxyfai, bgn_dxyfai);
 #if 0
-    sys_log(LOGSTDOUT,"sea_fp_iso_ec: bgn_dxfai:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_iso_ec: bgn_dxfai:\n");
     print_bigint(LOGSTDOUT, bgn_dxfai);
 
-    sys_log(LOGSTDOUT,"sea_fp_iso_ec: bgn_dyfai:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_iso_ec: bgn_dyfai:\n");
     print_bigint(LOGSTDOUT, bgn_dyfai);
 
-    sys_log(LOGSTDOUT,"sea_fp_iso_ec: bgn_dxxfai:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_iso_ec: bgn_dxxfai:\n");
     print_bigint(LOGSTDOUT, bgn_dxxfai);
 
-    sys_log(LOGSTDOUT,"sea_fp_iso_ec: bgn_dyyfai:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_iso_ec: bgn_dyyfai:\n");
     print_bigint(LOGSTDOUT, bgn_dyyfai);
 
-    sys_log(LOGSTDOUT,"sea_fp_iso_ec: bgn_dxyfai:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_iso_ec: bgn_dxyfai:\n");
     print_bigint(LOGSTDOUT, bgn_dxyfai);
 #endif
     /*step 4.*/
@@ -1942,10 +1942,10 @@ UINT32 sea_fp_iso_ec(const UINT32 seafp_md_id,
     bgn_fp_div(bgnfp_md_id, isoE4, tmp2, isoE4 );    /*isoE4 = isoE4 / tmp2 */
 
 #if 0
-    sys_log(LOGSTDOUT,"sea_fp_iso_ec: isoE4:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_iso_ec: isoE4:\n");
     print_bigint(LOGSTDOUT, isoE4);
 
-    sys_log(LOGSTDOUT,"sea_fp_iso_ec: isodelta:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_iso_ec: isodelta:\n");
     print_bigint(LOGSTDOUT, isodelta);
 #endif
 
@@ -1957,10 +1957,10 @@ UINT32 sea_fp_iso_ec(const UINT32 seafp_md_id,
     bgn_fp_div(bgnfp_md_id, isoJ, isodelta, isoJ );  /*isoJ = isoJ / isodelta*/
 
 #if 0
-    sys_log(LOGSTDOUT,"sea_fp_iso_ec: isoJ:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_iso_ec: isoJ:\n");
     print_bigint(LOGSTDOUT, isoJ);
 
-    sys_log(LOGSTDOUT,"sea_fp_iso_ec: Fstar:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_iso_ec: Fstar:\n");
     print_bigint(LOGSTDOUT, Fstar);
 #endif
 
@@ -1986,10 +1986,10 @@ UINT32 sea_fp_iso_ec(const UINT32 seafp_md_id,
     sea_fp_conv_const_poly_to_bgn(seafp_md_id, poly_dyfai , bgn_dyfai );
 
 #if 0
-    sys_log(LOGSTDOUT,"sea_fp_iso_ec: bgn_dxfai:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_iso_ec: bgn_dxfai:\n");
     print_bigint(LOGSTDOUT, bgn_dxfai);
 
-    sys_log(LOGSTDOUT,"sea_fp_iso_ec: bgn_dyfai:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_iso_ec: bgn_dyfai:\n");
     print_bigint(LOGSTDOUT, bgn_dyfai);
 #endif
 
@@ -2078,12 +2078,12 @@ static UINT32 sea_fp_conv_cluster_to_poly(const UINT32 seafp_md_id,
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == seafp_bgn_tbl )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_conv_cluster_to_poly: seafp_bgn_tbl is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_conv_cluster_to_poly: seafp_bgn_tbl is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_conv_cluster_to_poly: poly is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_conv_cluster_to_poly: poly is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -2147,12 +2147,12 @@ static UINT32 sea_fp_conv_const_poly_to_bgn(const UINT32 seafp_md_id,const POLY 
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == poly_const )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_conv_const_poly_to_bgn: poly_const is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_conv_const_poly_to_bgn: poly_const is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == bgn )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_conv_const_poly_to_bgn: bgn is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_conv_const_poly_to_bgn: bgn is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -2178,14 +2178,14 @@ static UINT32 sea_fp_conv_const_poly_to_bgn(const UINT32 seafp_md_id,const POLY 
 
     if ( POLY_FIRST_ITEM(poly_const) != POLY_LAST_ITEM(poly_const) )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_conv_const_poly_to_bgn: poly_const has more than one item.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_conv_const_poly_to_bgn: poly_const has more than one item.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 
     item = POLY_FIRST_ITEM(poly_const);
     if ( EC_FALSE == POLY_ITEM_BGN_COE_FLAG(item))
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_conv_const_poly_to_bgn: poly_const is not a BIGINT constant.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_conv_const_poly_to_bgn: poly_const is not a BIGINT constant.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 
@@ -2253,17 +2253,17 @@ UINT32 sea_fp_iso_h(const UINT32 seafp_md_id,
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == iso_ecfp_curve )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_iso_h: iso_ecfp_curve is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_iso_h: iso_ecfp_curve is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == isop1 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_iso_h: isop1 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_iso_h: isop1 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == iso_h )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_iso_h: iso_h is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_iso_h: iso_h is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -2490,12 +2490,12 @@ static UINT32 sea_fp_Elkies_set_kusai0(const UINT32 seafp_md_id, const POLY *iso
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == iso_h )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai0: iso_h is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai0: iso_h is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == poly_kusai0 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai0: poly_kusai0 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai0: poly_kusai0 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -2538,12 +2538,12 @@ static UINT32 sea_fp_Elkies_set_kusai1(const UINT32 seafp_md_id, const POLY *iso
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == iso_h )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai1: iso_h is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai1: iso_h is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == poly_kusai1 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai1: poly_kusai1 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai1: poly_kusai1 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -2588,12 +2588,12 @@ static UINT32 sea_fp_Elkies_set_kusai2(const UINT32 seafp_md_id, const POLY *iso
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == iso_h )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai2: iso_h is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai2: iso_h is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == poly_kusai2 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai2: poly_kusai2 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai2: poly_kusai2 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -2646,12 +2646,12 @@ static UINT32 sea_fp_Elkies_set_kusai3(const UINT32 seafp_md_id, const POLY *iso
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == iso_h )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai3: iso_h is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai3: iso_h is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == poly_kusai3 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai3: poly_kusai3 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai3: poly_kusai3 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -2762,12 +2762,12 @@ static UINT32 sea_fp_Elkies_set_kusai4(const UINT32 seafp_md_id, const POLY *iso
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == iso_h )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai4: iso_h is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai4: iso_h is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == poly_kusai4 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai4: poly_kusai4 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_set_kusai4: poly_kusai4 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -2911,7 +2911,7 @@ UINT32 sea_fp_Elkies_kusais(const UINT32 seafp_md_id,
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == iso_h )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_kusais: iso_h is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_kusais: iso_h is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -3068,17 +3068,17 @@ UINT32 sea_fp_Elkies(const UINT32 seafp_md_id,
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == seafp_pmodsmallprime_tbl )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies: seafp_pmodsmallprime_tbl is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies: seafp_pmodsmallprime_tbl is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == poly_gcd_result )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies: poly_gcd_result is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies: poly_gcd_result is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == tmod )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies: tmod is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies: tmod is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -3155,19 +3155,19 @@ UINT32 sea_fp_Elkies(const UINT32 seafp_md_id,
 
     sea_fp_poly_squroot(seafp_md_id, poly_gcd_result, root);
 #if 0
-    sys_log(LOGSTDOUT,"root = \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"root = \n");
     print_bigint(LOGSTDOUT, root);
 #endif
     sea_fp_iso_ec(seafp_md_id, root, oddsmallprime_pos, iso_ec, iso_p1);
 #if 0
-    sys_log(LOGSTDOUT,"iso_ec = \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"iso_ec = \n");
     print_ecfp_curve(LOGSTDOUT, iso_ec);
-    sys_log(LOGSTDOUT,"iso_p1 = \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"iso_p1 = \n");
     print_bigint(LOGSTDOUT, iso_p1);
 #endif
     sea_fp_iso_h(seafp_md_id, iso_ec, iso_p1, oddsmallprime_pos, iso_h);
 #if 0
-    sys_log(LOGSTDOUT,"iso_h = \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"iso_h = \n");
     print_poly(LOGSTDOUT, iso_h);
 #endif
     sea_fp_Elkies_kusais(seafp_md_id, iso_h, idx_m);
@@ -3175,9 +3175,9 @@ UINT32 sea_fp_Elkies(const UINT32 seafp_md_id,
     poly_fp_exp_mod(polyfp_md_id, EC, exp, iso_h, Ly);
 
 #if 0
-    sys_log(LOGSTDOUT,"Lx = \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Lx = \n");
     print_poly(LOGSTDOUT, Lx);
-    sys_log(LOGSTDOUT,"Ly = \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Ly = \n");
     print_poly(LOGSTDOUT, Ly);
 #endif
 
@@ -3185,7 +3185,7 @@ UINT32 sea_fp_Elkies(const UINT32 seafp_md_id,
     poly_fp_mod_poly(polyfp_md_id, tmp, iso_h, EC2);
 
 #if 0
-    sys_log(LOGSTDOUT,"EC2 = \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"EC2 = \n");
     print_poly(LOGSTDOUT, EC2);
 #endif
 
@@ -3197,45 +3197,45 @@ UINT32 sea_fp_Elkies(const UINT32 seafp_md_id,
         poly_fp_mod_poly(polyfp_md_id, tmp, iso_h, C );
 
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]kusai[ %ld ]:\n",cc++, idx_n);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]kusai[ %ld ]:\n",cc++, idx_n);
         print_poly(LOGSTDOUT, kusai[ idx_n ]);
 
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]tmp:\n",cc++);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]tmp:\n",cc++);
         print_poly(LOGSTDOUT, tmp);
 #endif
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]iso_h:\n",cc++);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]iso_h:\n",cc++);
         print_poly(LOGSTDOUT, iso_h);
 #endif
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]C:\n",cc++);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]C:\n",cc++);
         print_poly(LOGSTDOUT, C);
 #endif
         poly_fp_mul_poly(polyfp_md_id, kusai[ idx_n - 1 ], kusai[ idx_n + 1 ], tmp );
 
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]kusai[ %ld ]:\n",cc++, idx_n - 1);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]kusai[ %ld ]:\n",cc++, idx_n - 1);
         print_poly(LOGSTDOUT, kusai[ idx_n - 1 ]);
 
 
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]kusai[ %ld ]:\n",cc++, idx_n + 1);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]kusai[ %ld ]:\n",cc++, idx_n + 1);
         print_poly(LOGSTDOUT, kusai[ idx_n + 1 ]);
 
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]tmp:\n",cc++);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]tmp:\n",cc++);
         print_poly(LOGSTDOUT, tmp);
 #endif
         poly_fp_mod_poly(polyfp_md_id, tmp, iso_h, A );
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]A:\n",cc++);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]A:\n",cc++);
         print_poly(LOGSTDOUT, A);
 #endif
         poly_fp_sub_poly(polyfp_md_id, poly_x, Lx, B );
         poly_fp_mul_poly(polyfp_md_id, B, C, tmp );
         poly_fp_mod_poly(polyfp_md_id, tmp, iso_h, B );
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]B:\n", cc++);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]B:\n", cc++);
         print_poly(LOGSTDOUT, B);
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [1]idx_n & 1 = %ld\n", (idx_n & 1));
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [1]idx_n & 1 = %ld\n", (idx_n & 1));
 #endif
 
         if ( 1 == (idx_n & 1) )
@@ -3243,7 +3243,7 @@ UINT32 sea_fp_Elkies(const UINT32 seafp_md_id,
             poly_fp_mul_poly(polyfp_md_id, EC, A, tmp );
             poly_fp_mod_poly(polyfp_md_id, tmp, iso_h, A );
 #if 0
-            sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]A:\n",cc++);
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]A:\n",cc++);
             print_poly(LOGSTDOUT, A);
 #endif
         }
@@ -3252,28 +3252,28 @@ UINT32 sea_fp_Elkies(const UINT32 seafp_md_id,
             poly_fp_mul_poly(polyfp_md_id, EC, B, tmp );
             poly_fp_mod_poly(polyfp_md_id, tmp, iso_h, B );
 #if 0
-            sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]B:\n", cc++);
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]B:\n", cc++);
             print_poly(LOGSTDOUT, B);
 #endif
         }
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]A:\n", cc++);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]A:\n", cc++);
         print_poly(LOGSTDOUT, A);
 
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]B:\n", cc++);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]B:\n", cc++);
         print_poly(LOGSTDOUT, B);
 #endif
         poly_fp_sub_poly(polyfp_md_id, A, B, F );
 #if 0
         if ( EC_TRUE == POLY_IS_EMPTY(F) )
         {
-            sys_log(LOGSTDOUT,"sea_fp_Elkies : [1]F is empty\n");
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [1]F is empty\n");
         }
         else
         {
-            sys_log(LOGSTDOUT,"sea_fp_Elkies : [1]F is not empty\n");
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [1]F is not empty\n");
         }
-        sys_log(LOGSTDOUT,"sea_fp_Elkies : [%ld]F:\n", cc++);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [%ld]F:\n", cc++);
         print_poly(LOGSTDOUT, F);
 #endif
         if ( EC_TRUE == POLY_IS_EMPTY(F) )
@@ -3287,7 +3287,7 @@ UINT32 sea_fp_Elkies(const UINT32 seafp_md_id,
             poly_fp_squ_poly(polyfp_md_id, kusai[ idx_n + 1 ], tmp );
             poly_fp_mod_poly(polyfp_md_id, tmp, iso_h, B );     /* B = kusai[idx_n+1]^2 mod iso_h */
 #if 0
-            sys_log(LOGSTDOUT,"sea_fp_Elkies : [2]idx_n = %ld\n", idx_n);
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [2]idx_n = %ld\n", idx_n);
 #endif
             if ( idx_n > 1 )
             {
@@ -3306,7 +3306,7 @@ UINT32 sea_fp_Elkies(const UINT32 seafp_md_id,
             poly_fp_mul_poly(polyfp_md_id, D, Ly, tmp );
             poly_fp_mod_poly(polyfp_md_id, tmp, iso_h, D );
 #if 0
-            sys_log(LOGSTDOUT,"sea_fp_Elkies : [2]idx_n & 1 = %ld\n", (idx_n & 1));
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [2]idx_n & 1 = %ld\n", (idx_n & 1));
 #endif
             if ( 0 == (idx_n & 1) )
             {
@@ -3318,11 +3318,11 @@ UINT32 sea_fp_Elkies(const UINT32 seafp_md_id,
 #if 0
             if ( EC_TRUE == POLY_IS_EMPTY(G) )
             {
-                sys_log(LOGSTDOUT,"sea_fp_Elkies : [2]G is empty\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [2]G is empty\n");
             }
             else
             {
-                sys_log(LOGSTDOUT,"sea_fp_Elkies : [2]G is not empty\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [2]G is not empty\n");
             }
 #endif
             if ( EC_TRUE == POLY_IS_EMPTY(G) )
@@ -3340,11 +3340,11 @@ UINT32 sea_fp_Elkies(const UINT32 seafp_md_id,
 #if 0
             if ( EC_TRUE == POLY_IS_EMPTY(F) )
             {
-                sys_log(LOGSTDOUT,"sea_fp_Elkies : [2]F is empty\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [2]F is empty\n");
             }
             else
             {
-                sys_log(LOGSTDOUT,"sea_fp_Elkies : [2]F is not empty\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_Elkies : [2]F is not empty\n");
             }
 #endif
             if ( EC_TRUE == POLY_IS_EMPTY(F) )
@@ -3397,12 +3397,12 @@ UINT32 sea_fp_Elkies_CRT(const UINT32 seafp_md_id, const UINT32 x2, const UINT32
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == x1 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_CRT: x1 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_CRT: x1 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == m1 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Elkies_CRT: m1 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Elkies_CRT: m1 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -3472,12 +3472,12 @@ UINT32 sea_fp_Atkin_r(const UINT32 seafp_md_id, const POLY *poly_xpx_mod_fai_j, 
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == poly_xpx_mod_fai_j )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_r: poly_xpx_mod_fai_j is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_r: poly_xpx_mod_fai_j is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == r )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_r: r is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_r: r is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -3521,14 +3521,14 @@ UINT32 sea_fp_Atkin_r(const UINT32 seafp_md_id, const POLY *poly_xpx_mod_fai_j, 
 
     if ( EC_FALSE == bgn_z_get_word(bgnz_md_id, POLY_DEG(poly_t), &word_deg_of_poly_t) )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_r: poly_t degree is too large to deal with.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_r: poly_t degree is too large to deal with.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 
     /*if deg(poly_t) >= SEAFP_MAX_SMALL_PRIME*/
     if ( word_deg_of_poly_t >= SEAFP_MAX_SMALL_PRIME )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_r: poly_t degree overflow.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_r: poly_t degree overflow.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 
@@ -3585,7 +3585,7 @@ UINT32 sea_fp_Atkin_r(const UINT32 seafp_md_id, const POLY *poly_xpx_mod_fai_j, 
                 {
                     if ( EC_FALSE == bgn_z_get_word(bgnz_md_id, POLY_ITEM_DEG(item_f), &idx_k) )
                     {
-                        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_r: item_f degree is too large to deal with.\n");
+                        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_r: item_f degree is too large to deal with.\n");
                         dbg_exit(MD_SEAFP, seafp_md_id);
                     }
                     poly_fp_mul_bgn(polyfp_md_id, G[ idx_k ], POLY_ITEM_BGN_COE(item_f), poly_mid);
@@ -3597,7 +3597,7 @@ UINT32 sea_fp_Atkin_r(const UINT32 seafp_md_id, const POLY *poly_xpx_mod_fai_j, 
             poly_fp_poly_move(polyfp_md_id, poly_t, poly_f);
         }
 #if 0
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_r: [2]poly_f:\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_r: [2]poly_f:\n");
         print_poly(LOGSTDOUT, poly_f);
 #endif
         /*search for the item_f with deg(item_f) = 1*/
@@ -3649,7 +3649,7 @@ UINT32 sea_fp_Atkin_r_pos(const UINT32 seafp_md_id, const UINT32 oddsmallprime_p
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == Atkin_r_pos )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_r_pos: Atkin_r_pos is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_r_pos: Atkin_r_pos is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -3688,12 +3688,12 @@ UINT32 sea_fp_Atkin_item_clone(const UINT32 seafp_md_id,
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == Atkin_item_src )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_s_insert: Atkin_item_src is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_s_insert: Atkin_item_src is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == Atkin_item_des )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_s_insert: Atkin_item_des is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_s_insert: Atkin_item_des is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -3735,7 +3735,7 @@ UINT32 sea_fp_Atkin_s_insert(const UINT32 seafp_md_id,
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == Atkin_item_new )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_s_insert: Atkin_item_new is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_s_insert: Atkin_item_new is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -3796,7 +3796,7 @@ UINT32 sea_fp_Atkin_s_pos_modify(const UINT32 seafp_md_id, const BIGINT *Elkies_
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == Elkies_m )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_s_pos_modify: Elkies_m is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_s_pos_modify: Elkies_m is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -3837,7 +3837,7 @@ UINT32 sea_fp_Atkin_s_pos_modify(const UINT32 seafp_md_id, const BIGINT *Elkies_
         bgn_z_mul(bgnz_md_id, bgn_t0, prime, bgn_c0, bgn_c1);
         if ( EC_FALSE == bgn_z_is_zero(bgnz_md_id, bgn_c1) )
         {
-            sys_log(LOGSTDOUT,"error:sea_fp_Atkin_s_pos_modify: overflow.\n");
+            dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_s_pos_modify: overflow.\n");
             dbg_exit(MD_SEAFP, seafp_md_id);
         }
 
@@ -3876,7 +3876,7 @@ UINT32 sea_fp_Atkin_s_breakpoint_get(const UINT32 seafp_md_id, UINT32 *breakpoin
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == breakpoint )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_s_breakpoint_get: breakpoint is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_s_breakpoint_get: breakpoint is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -3995,17 +3995,17 @@ UINT32 sea_fp_Atkin_s_breakpoint_modify(const UINT32 seafp_md_id, BIGINT *Atkin_
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == Atkin_m1 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_s_breakpoint_modify: Atkin_m1 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_s_breakpoint_modify: Atkin_m1 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == Atkin_m2 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_s_breakpoint_modify: Atkin_m2 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_s_breakpoint_modify: Atkin_m2 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == breakpoint )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_s_breakpoint_modify: breakpoint is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_s_breakpoint_modify: breakpoint is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -4049,7 +4049,7 @@ UINT32 sea_fp_Atkin_s_breakpoint_modify(const UINT32 seafp_md_id, BIGINT *Atkin_
         bgn_z_mul(bgnz_md_id, c0, Atkin_item->prime, t0, t1);
         if ( EC_FALSE == bgn_z_is_zero(bgnz_md_id, t1) )
         {
-            sys_log(LOGSTDOUT,"error:sea_fp_modify_Atkin_s_breakpoint: overflow - t1 is nonzero.\n");
+            dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_modify_Atkin_s_breakpoint: overflow - t1 is nonzero.\n");
             dbg_exit(MD_SEAFP, seafp_md_id);
         }
         t = c0;
@@ -4065,7 +4065,7 @@ UINT32 sea_fp_Atkin_s_breakpoint_modify(const UINT32 seafp_md_id, BIGINT *Atkin_
         bgn_z_mul(bgnz_md_id, c1, Atkin_item->prime, t0, t1);
         if ( EC_FALSE == bgn_z_is_zero(bgnz_md_id, t1) )
         {
-            sys_log(LOGSTDOUT,"error:sea_fp_modify_Atkin_s_breakpoint: overflow - t1 is nonzero.\n");
+            dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_modify_Atkin_s_breakpoint: overflow - t1 is nonzero.\n");
             dbg_exit(MD_SEAFP, seafp_md_id);
         }
         t = c1;
@@ -4106,12 +4106,12 @@ UINT32 sea_fp_Atkin_set_crt(const UINT32 seafp_md_id,
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == xmododdsmallprime_tbl )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_set_crt: xmododdsmallprime_tbl is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_set_crt: xmododdsmallprime_tbl is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == x )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_set_crt: x is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_set_crt: x is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -4156,12 +4156,12 @@ UINT32 sea_fp_hash_key_gen(const UINT32 seafp_md_id,const BIGINT *data,UINT32 *k
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == data )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_hash_key_gen: data is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_hash_key_gen: data is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == key )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_hash_key_gen: key is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_hash_key_gen: key is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -4193,12 +4193,12 @@ UINT32 sea_fp_Atkin_node_clone(const UINT32 seafp_md_id, const SEAFP_ATKIN_NODE 
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == Atkin_node_src )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_node_clone: Atkin_node_src is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_node_clone: Atkin_node_src is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == Atkin_node_des )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_node_clone: Atkin_node_des is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_node_clone: Atkin_node_des is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -4231,12 +4231,12 @@ UINT32 sea_fp_Atkin_node_exchange(const UINT32 seafp_md_id, SEAFP_ATKIN_NODE *At
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == Atkin_node_1 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_node_exchange: Atkin_node_1 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_node_exchange: Atkin_node_1 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == Atkin_node_2 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_Atkin_node_exchange: Atkin_node_2 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_Atkin_node_exchange: Atkin_node_2 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -4364,7 +4364,7 @@ UINT32 sea_fp_heap_sort(const UINT32 seafp_md_id)
     }
 #endif/*SEA_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, " [sort      ] sorting ...\n" );
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [sort      ] sorting ...\n" );
 
     seafp_md = &(g_seafp_md[ seafp_md_id ]);
     seafp_Atkin_set = &(seafp_md->seafp_Atkin_set);
@@ -4392,7 +4392,7 @@ UINT32 sea_fp_heap_sort(const UINT32 seafp_md_id)
         sea_fp_heap_sift(seafp_md_id, 1, idx_i - 1 );
     }
 
-    sys_log(LOGSTDOUT, " [sort      ] sort over\n" );
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [sort      ] sort over\n" );
 
     return ( 0 );
 }
@@ -4427,37 +4427,37 @@ EC_BOOL sea_fp_match_R(const UINT32 seafp_md_id,
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == m1 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_match_R: m1 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_match_R: m1 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == m2 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_match_R: m2 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_match_R: m2 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == m3 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_match_R: m3 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_match_R: m3 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == t3 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_match_R: t3 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_match_R: t3 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == r2 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_match_R: r2 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_match_R: r2 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == H1 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_match_R: H1 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_match_R: H1 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == r1 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_match_R: r1 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_match_R: r1 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -4531,7 +4531,7 @@ EC_BOOL sea_fp_match_R(const UINT32 seafp_md_id,
 
             bgn_z_clone(bgnz_md_id, Atkin_node->r1, r1);
 
-            sys_log(LOGSTDOUT, " success ! \n" );
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " success ! \n" );
 
             break;
         }
@@ -4588,27 +4588,27 @@ UINT32 sea_fp_baby_step(const UINT32 seafp_md_id,
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == m1 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_baby_step: m1 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_baby_step: m1 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == m2 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_baby_step: m2 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_baby_step: m2 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == m3 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_baby_step: m3 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_baby_step: m3 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == t3 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_baby_step: t3 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_baby_step: t3 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == test_point )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_baby_step: test_point is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_baby_step: test_point is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 
@@ -4624,7 +4624,7 @@ UINT32 sea_fp_baby_step(const UINT32 seafp_md_id,
     }
 #endif/*SEA_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, " [baby step ] start\n" );
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [baby step ] start\n" );
 
     seafp_md = &(g_seafp_md[ seafp_md_id ]);
     bgnz_md_id   = seafp_md->bgnz_md_id;
@@ -4681,7 +4681,7 @@ UINT32 sea_fp_baby_step(const UINT32 seafp_md_id,
     bgn_z_mul(bgnz_md_id, m2, m3, tmp, c1);
     if ( EC_FALSE == bgn_z_is_zero(bgnz_md_id, c1) )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_baby_step: m2 * m3 overflow.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_baby_step: m2 * m3 overflow.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     ec_fp_point_mul(ecfp_md_id, test_point, tmp, Q1);
@@ -4692,7 +4692,7 @@ UINT32 sea_fp_baby_step(const UINT32 seafp_md_id,
     ecfp_md_id_of_Q1 = ec_fp_start(ecfp_p, ecfp_curve, NULL_PTR, Q1);
 
     seafp_Atkin_set->Atkin_Set_size = 1;
-    //sys_log(LOGSTDOUT,"after sea_fp_baby_step: Atkin_Set_size = %ld\n", seafp_Atkin_set->Atkin_Set_size);
+    //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"after sea_fp_baby_step: Atkin_Set_size = %ld\n", seafp_Atkin_set->Atkin_Set_size);
 
     /* baby step :*/
     for ( idx = 0; idx < depth; idx ++ )
@@ -4733,12 +4733,12 @@ UINT32 sea_fp_baby_step(const UINT32 seafp_md_id,
             }
             else
             {
-                //sys_log(LOGSTDOUT, "sea_fp_baby_step: chrem begin\n");
+                //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, "sea_fp_baby_step: chrem begin\n");
                 sea_fp_Atkin_set_crt(seafp_md_id, (const BIGINT **)tmododdsmallprime, depth, 0, t1);
 #if 0
                 /*now t = t1 mod m1 and t1 < m1*/
-                sys_log(LOGSTDOUT, "sea_fp_baby_step: chrem end\n");
-                sys_log(LOGSTDOUT,"sea_fp_baby_step: t1 = ");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, "sea_fp_baby_step: chrem end\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: t1 = ");
                 print_bigint_dec(LOGSTDOUT, t1);
 #endif
 
@@ -4746,7 +4746,7 @@ UINT32 sea_fp_baby_step(const UINT32 seafp_md_id,
                 bgn_zn_sub(bgnzn_md_id, t1, t3_mod_m1, tmp);
                 bgn_zn_mul(bgnzn_md_id, tmp, inv_m2m3_mod_m1, r1);
 #if 0
-                sys_log(LOGSTDOUT,"sea_fp_baby_step: r1 = ");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: r1 = ");
                 print_bigint_dec(LOGSTDOUT, r1);
 #endif
 
@@ -4761,27 +4761,27 @@ UINT32 sea_fp_baby_step(const UINT32 seafp_md_id,
                 /*tQ = [r1]Q1 = [r1*m2*m3]P*/
                 ec_fp_point_mul_fix_base(ecfp_md_id_of_Q1, r1, tQ);
 #if 0
-                sys_log(LOGSTDOUT,"\n");
-                sys_log(LOGSTDOUT,"==============================================================\n");
-                sys_log(LOGSTDOUT,"P:\n");print_point(LOGSTDOUT, test_point);
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"==============================================================\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"P:\n");print_point(LOGSTDOUT, test_point);
 
-                sys_log(LOGSTDOUT,"Q0 = [p+1-t3]P:\n");print_point(LOGSTDOUT, Q0);
-                sys_log(LOGSTDOUT,"Q1 = [m2*m3]P:\n");print_point(LOGSTDOUT, Q1);
-                sys_log(LOGSTDOUT,"Q2 = [m1]P:\n");print_point(LOGSTDOUT, Q2);
-                sys_log(LOGSTDOUT,"tQ = [r1]Q1:\n");print_point(LOGSTDOUT, tQ);
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Q0 = [p+1-t3]P:\n");print_point(LOGSTDOUT, Q0);
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Q1 = [m2*m3]P:\n");print_point(LOGSTDOUT, Q1);
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Q2 = [m1]P:\n");print_point(LOGSTDOUT, Q2);
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"tQ = [r1]Q1:\n");print_point(LOGSTDOUT, tQ);
 
-                sys_log(LOGSTDOUT,"p: ");print_bigint(LOGSTDOUT, ecfp_p);
-                sys_log(LOGSTDOUT,"t3: ");print_bigint(LOGSTDOUT, t3);
-                sys_log(LOGSTDOUT,"r1: ");print_bigint(LOGSTDOUT, r1);
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"p: ");print_bigint(LOGSTDOUT, ecfp_p);
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"t3: ");print_bigint(LOGSTDOUT, t3);
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"r1: ");print_bigint(LOGSTDOUT, r1);
 
 #endif
                 /*Q_{r1_0} = Q0 - tQ = [p+1-t3]P - [r1*m2*m3]P*/
                 ec_fp_point_sub(ecfp_md_id_of_Q1, Q0, tQ, Atkin_node->Atkin_Q);
 #if 0
-                sys_log(LOGSTDOUT,"R = Q0 - tQ:\n");print_point(LOGSTDOUT, Atkin_node->Atkin_Q);
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"R = Q0 - tQ:\n");print_point(LOGSTDOUT, Atkin_node->Atkin_Q);
 #endif
                 #if 0
-                //sys_log(LOGSTDOUT,"sea_fp_baby_step: half_m1 = ");
+                //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: half_m1 = ");
                 //print_bigint_dec(LOGSTDOUT, half_m1);
 
                 /*if r1 > [m1/2]*/
@@ -4791,7 +4791,7 @@ UINT32 sea_fp_baby_step(const UINT32 seafp_md_id,
                     /*so that Q_{r1_0} = [p+1-t3]P - [r1*m2*m3]P + [m1*m2*m3]P*/
                     ec_fp_point_add(ecfp_md_id_of_Q1, Atkin_node->Atkin_Q, Q2, Atkin_node->Atkin_Q);
 
-                    sys_log(LOGSTDOUT,"S = Q0 - tQ + Q2:\n");print_point(LOGSTDOUT, Atkin_node->Atkin_Q);
+                    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"S = Q0 - tQ + Q2:\n");print_point(LOGSTDOUT, Atkin_node->Atkin_Q);
 
 
                     /*set Atkin_flg = 1*/
@@ -4804,7 +4804,7 @@ UINT32 sea_fp_baby_step(const UINT32 seafp_md_id,
                 }
                 #endif
 #if 0
-                sys_log(LOGSTDOUT,"==============================================================\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"==============================================================\n");
 #endif
                 bgn_z_clone(bgnz_md_id, r1, Atkin_node->r1);
 
@@ -4828,10 +4828,10 @@ UINT32 sea_fp_baby_step(const UINT32 seafp_md_id,
 #endif
                 seafp_Atkin_set->Atkin_Set_size ++;
 
-                //sys_log(LOGSTDOUT, "sea_fp_baby_step: compute (Q_{r1_0}, r1, Atkin_flg) end - ");
+                //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, "sea_fp_baby_step: compute (Q_{r1_0}, r1, Atkin_flg) end - ");
                 if ( 0 ==  ((seafp_Atkin_set->Atkin_Set_size) % 1000))
                 {
-                    sys_log(LOGSTDOUT," sea_fp_baby_step: Atkin Set Size = %ld\n", seafp_Atkin_set->Atkin_Set_size);
+                    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT," sea_fp_baby_step: Atkin Set Size = %ld\n", seafp_Atkin_set->Atkin_Set_size);
                 }
 
                 idxstack[ idx ] ++;
@@ -4839,8 +4839,8 @@ UINT32 sea_fp_baby_step(const UINT32 seafp_md_id,
         }
     }
 #if 0
-    sys_log(LOGSTDOUT, "sea_fp_baby_step: ");
-    sys_log(LOGSTDOUT," Atkin Set Size = %ld\n", seafp_Atkin_set->Atkin_Set_size);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, "sea_fp_baby_step: ");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT," Atkin Set Size = %ld\n", seafp_Atkin_set->Atkin_Set_size);
 #endif
     bgn_zn_end(bgnzn_md_id);
     ec_fp_end(ecfp_md_id_of_Q1);
@@ -4866,44 +4866,44 @@ UINT32 sea_fp_baby_step(const UINT32 seafp_md_id,
     fclose(sea_fp_baby_step_log);
 #endif
 #if 0
-    sys_log(LOGSTDOUT,"sea_fp_baby_step: before sort, Atkin Set beg ====================== \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: before sort, Atkin Set beg ====================== \n");
     sea_fp_test_Atkin_set_output(seafp_md_id);
-    sys_log(LOGSTDOUT,"sea_fp_baby_step: before sort, Atkin Set end ====================== \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: before sort, Atkin Set end ====================== \n");
 
-    sys_log(LOGSTDOUT, " [baby step ] ");
-    sys_log(LOGSTDOUT,"setT_index = %d\n", seafp_Atkin_set->Atkin_Set_size);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [baby step ] ");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"setT_index = %d\n", seafp_Atkin_set->Atkin_Set_size);
 
-    sys_log(LOGSTDOUT, " [sort      ] sorting ...\n" );
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [sort      ] sorting ...\n" );
 
-    sys_log(LOGSTDOUT,"sea_fp_baby_step: before sort\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: before sort\n");
     sea_fp_test_Atkin_output(seafp_md_id);
-    sys_log(LOGSTDOUT,"\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"\n");
 
-    sys_log(LOGSTDOUT,"sea_fp_baby_step: check Atkin Set before sort\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: check Atkin Set before sort\n");
     sea_fp_test_Atkin_set_check(seafp_md_id);
 
-    sys_log(LOGSTDOUT,"sea_fp_baby_step: before sort, Atkin Set beg ====================== \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: before sort, Atkin Set beg ====================== \n");
     sea_fp_test_Atkin_set_output(seafp_md_id);
-    sys_log(LOGSTDOUT,"sea_fp_baby_step: before sort, Atkin Set end ====================== \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: before sort, Atkin Set end ====================== \n");
 
     /////////////////////////////////////////////
     sea_fp_heap_sort(seafp_md_id);
     /////////////////////////////////////////////
 
-    sys_log(LOGSTDOUT,"sea_fp_baby_step: check Atkin Set after sort\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: check Atkin Set after sort\n");
     sea_fp_test_Atkin_set_check(seafp_md_id);
 
-    sys_log(LOGSTDOUT,"sea_fp_baby_step: after sort, Atkin Set beg ====================== \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: after sort, Atkin Set beg ====================== \n");
     sea_fp_test_Atkin_set_output(seafp_md_id);
-    sys_log(LOGSTDOUT,"sea_fp_baby_step: after sort, Atkin Set end ====================== \n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: after sort, Atkin Set end ====================== \n");
 
-    sys_log(LOGSTDOUT,"sea_fp_baby_step: after sort\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_baby_step: after sort\n");
     sea_fp_test_Atkin_output(seafp_md_id);
-    sys_log(LOGSTDOUT,"\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"\n");
 
-    sys_log(LOGSTDOUT, " [sort      ] sorted\n" );
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [sort      ] sorted\n" );
 #endif
-    sys_log(LOGSTDOUT, " [baby step ]     over\n" );
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [baby step ]     over\n" );
 
     return ( 0 );
 }
@@ -4962,37 +4962,37 @@ EC_BOOL sea_fp_giant_step(const UINT32 seafp_md_id,
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == m1 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_giant_step: m1 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_giant_step: m1 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == m2 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_giant_step: m2 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_giant_step: m2 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == m3 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_giant_step: m3 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_giant_step: m3 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == t3 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_giant_step: t3 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_giant_step: t3 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == test_point )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_giant_step: test_point is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_giant_step: test_point is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == r2 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_giant_step: r2 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_giant_step: r2 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == order_case )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_giant_step: order_case is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_giant_step: order_case is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -5007,7 +5007,7 @@ EC_BOOL sea_fp_giant_step(const UINT32 seafp_md_id,
     }
 #endif/*SEA_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, " [giant step] start\n" );
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [giant step] start\n" );
 
     seafp_md = &(g_seafp_md[ seafp_md_id ]);
     bgnz_md_id   = seafp_md->bgnz_md_id;
@@ -5042,7 +5042,7 @@ EC_BOOL sea_fp_giant_step(const UINT32 seafp_md_id,
     bgn_z_mul(bgnz_md_id, m1, m3, c0, c1);
     if ( EC_FALSE == bgn_z_is_zero(bgnz_md_id, c1) )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_giant_step: m1 * m3 overflow.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_giant_step: m1 * m3 overflow.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     ec_fp_point_mul(ecfp_md_id, test_point, c0, Q2);
@@ -5051,7 +5051,7 @@ EC_BOOL sea_fp_giant_step(const UINT32 seafp_md_id,
     bgn_z_mul(bgnz_md_id, c0, m2, tmp, c1);
     if ( EC_FALSE == bgn_z_is_zero(bgnz_md_id, c1) )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_giant_step: m1 *m2 * m3 overflow.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_giant_step: m1 *m2 * m3 overflow.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     ec_fp_point_mul(ecfp_md_id, test_point, tmp, Q3);
@@ -5114,7 +5114,7 @@ EC_BOOL sea_fp_giant_step(const UINT32 seafp_md_id,
                 {
                     ( *order_case ) = SEAFP_ORDER_CASE_0;
 
-                    sys_log(LOGSTDOUT, "[elapsed time > 10800 seconds]failure!\n");
+                    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, "[elapsed time > 10800 seconds]failure!\n");
                     break;
                 }
 
@@ -5123,8 +5123,8 @@ EC_BOOL sea_fp_giant_step(const UINT32 seafp_md_id,
                 sea_fp_Atkin_set_crt(seafp_md_id, (const BIGINT **)tmododdsmallprime, depth, from, t2);
 #if 0
                 /*now t = t2 mod m2 and t2 < m2*/
-                sys_log(LOGSTDOUT, "sea_fp_giant_step: chrem end\n");
-                sys_log(LOGSTDOUT,"sea_fp_giant_step: t2 = ");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, "sea_fp_giant_step: chrem end\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_giant_step: t2 = ");
                 print_bigint_dec(LOGSTDOUT, t2);
 
 #endif
@@ -5132,15 +5132,15 @@ EC_BOOL sea_fp_giant_step(const UINT32 seafp_md_id,
                 bgn_zn_sub(bgnzn_md_id, t2, t3_mod_m2, tmp);    /*tmp = (t2_mod_m2 - t3_mod_m2) mod m2 = (t2-t3) mod m2*/
                 bgn_zn_mul(bgnzn_md_id, tmp, inv_m1m3_mod_m2, r2);     /*r2 = r2 / (m1*m3) mod m2*/
 #if 0
-                sys_log(LOGSTDOUT,"sea_fp_giant_step: r2 = ");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_giant_step: r2 = ");
                 print_bigint_dec(LOGSTDOUT, r2);
 #endif
                 /*R = [r2]Q2 = [r2*m1*m3]P*/
                 ec_fp_point_mul_fix_base(ecfp_md_id_with_Q2, r2, R);
 #if 0
-                sys_log(LOGSTDOUT,"sea_fp_giant_step: [1] R:\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_giant_step: [1] R:\n");
                 print_point(LOGSTDOUT, R);
-                sys_log(LOGSTDOUT,"\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"\n");
 #endif
 #if 0
                 {
@@ -5173,9 +5173,9 @@ EC_BOOL sea_fp_giant_step(const UINT32 seafp_md_id,
                 print_point(sea_fp_giant_step_log, R);
 #endif
 #if 0
-                sys_log(LOGSTDOUT,"sea_fp_giant_step: [2] R:\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_giant_step: [2] R:\n");
                 print_point(LOGSTDOUT, R);
-                sys_log(LOGSTDOUT,"\n");
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"\n");
 #endif
                 bool_found = sea_fp_match_R(seafp_md_id, m1, m2, m3, t3, r2, R, r1);
                 if ( EC_TRUE == bool_found )
@@ -5217,7 +5217,7 @@ EC_BOOL sea_fp_giant_step(const UINT32 seafp_md_id,
 #if 0
     fclose( sea_fp_giant_step_log );
 #endif
-    sys_log(LOGSTDOUT, " [giant step]     over\n" );
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [giant step]     over\n" );
 
     return ( bool_found );
 }
@@ -5235,7 +5235,7 @@ UINT32 sea_fp_ec_point_gen(const UINT32 seafp_md_id, EC_CURVE_POINT *ecfp_point)
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == ecfp_point )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_ec_point_gen: ecfp_point is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_ec_point_gen: ecfp_point is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 
@@ -5287,12 +5287,12 @@ static UINT32 sea_fp_test_init(const UINT32 seafp_md_id, BIGINT *m3, BIGINT *t3)
 #if ( SWITCH_ON == SEA_DEBUG_SWITCH )
     if ( NULL_PTR == m3 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_test_init: m3 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_test_init: m3 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
     if ( NULL_PTR == t3 )
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_test_init: t3 is NULL_PTR.\n");
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_test_init: t3 is NULL_PTR.\n");
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 #endif/*SEA_DEBUG_SWITCH*/
@@ -5620,11 +5620,11 @@ static UINT32 sea_fp_test_Atkin_set_check(const UINT32 seafp_md_id)
 
         if ( NULL_PTR == Atkin_tbl_node->Atkin_Q )
         {
-            sys_log(LOGSTDOUT,"sea_fp_test_Atkin_set_check: idx = %ld Atkin_Q is null.\n");
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_test_Atkin_set_check: idx = %ld Atkin_Q is null.\n");
         }
         if ( NULL_PTR == Atkin_tbl_node->r1)
         {
-            sys_log(LOGSTDOUT,"sea_fp_test_Atkin_set_check: idx = %ld r1 is null.\n");
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_test_Atkin_set_check: idx = %ld r1 is null.\n");
         }
     }
 
@@ -5667,27 +5667,27 @@ static UINT32 sea_fp_test_Atkin_set_output(const UINT32 seafp_md_id)
     seafp_md = &(g_seafp_md[ seafp_md_id ]);
     seafp_Atkin_set = &(seafp_md->seafp_Atkin_set);
 
-    sys_log(LOGSTDOUT,"sea_fp_test_Atkin_set_output: Atkin_Set_size = %ld\n",seafp_Atkin_set->Atkin_Set_size);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_test_Atkin_set_output: Atkin_Set_size = %ld\n",seafp_Atkin_set->Atkin_Set_size);
 
     for ( idx_i = 0; idx_i < seafp_Atkin_set->Atkin_Set_size; idx_i ++ )
     {
         Atkin_set_node = &(seafp_Atkin_set->Atkin_Set_Node[ idx_i ]);
 #if 0
-        sys_log(LOGSTDOUT,"\n");
-        sys_log(LOGSTDOUT,"sea_fp_test_Atkin_set_output: idx_i = %ld\n", idx_i);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_test_Atkin_set_output: idx_i = %ld\n", idx_i);
         if ( NULL_PTR != Atkin_set_node->Atkin_Q )
         {
-            sys_log(LOGSTDOUT,"sea_fp_test_Atkin_set_output: Atkin_Q:\n");
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_test_Atkin_set_output: Atkin_Q:\n");
             print_point(LOGSTDOUT, Atkin_set_node->Atkin_Q);
         }
         if ( NULL_PTR != Atkin_set_node->r1)
         {
-            sys_log(LOGSTDOUT,"sea_fp_test_Atkin_set_output: r1:\n");
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_test_Atkin_set_output: r1:\n");
             print_bigint(LOGSTDOUT, Atkin_set_node->r1);
         }
 #endif
-        sys_log(LOGSTDOUT,"sea_fp_test_Atkin_set_output: [ %ld ] x_sort_key = 0x%lx\n",  idx_i, Atkin_set_node->x_sort_key);
-        sys_log(LOGSTDOUT,"sea_fp_test_Atkin_set_output: [ %ld ] y_sort_key = 0x%lx\n",  idx_i, Atkin_set_node->y_sort_key);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_test_Atkin_set_output: [ %ld ] x_sort_key = 0x%lx\n",  idx_i, Atkin_set_node->x_sort_key);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_test_Atkin_set_output: [ %ld ] y_sort_key = 0x%lx\n",  idx_i, Atkin_set_node->y_sort_key);
     }
 
     return ( 0 );
@@ -5719,15 +5719,15 @@ static UINT32 sea_fp_test_Atkin_output(const UINT32 seafp_md_id)
     for ( idx_i = 0; idx_i < seafp_Atkin_tbl->pos; idx_i ++ )
     {
         Atkin_tbl_item = &(seafp_Atkin_tbl->Atkin[ idx_i ]);
-        sys_log(LOGSTDOUT,"prime = ");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"prime = ");
         print_bigint_decchars(LOGSTDOUT, Atkin_tbl_item->prime);
-        sys_log(LOGSTDOUT," : ");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT," : ");
 
         for ( idx_j = 1; idx_j <= Atkin_tbl_item->tmodprime[ 0 ]; idx_j ++ )
         {
-            sys_log(LOGSTDOUT,"%ld,", Atkin_tbl_item->tmodprime[ idx_j ]);
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"%ld,", Atkin_tbl_item->tmodprime[ idx_j ]);
         }
-        sys_log(LOGSTDOUT, " [%f]\n", Atkin_tbl_item->rate);
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [%f]\n", Atkin_tbl_item->rate);
     }
 
     return ( 0 );
@@ -5752,14 +5752,14 @@ static UINT32 sea_fp_test_Atkin_set_heapsort_output(const UINT32 seafp_md_id, co
     }
 
     Atkin_set_node_cur = &(seafp_Atkin_set->Atkin_Set_Node[ pos ]);
-    sys_log(LOGSTDOUT,"[ %ld ]x_sort_key = 0x%lx", pos,  Atkin_set_node_cur->x_sort_key);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"[ %ld ]x_sort_key = 0x%lx", pos,  Atkin_set_node_cur->x_sort_key);
 
     if ( 2*pos < Atkin_Set_size )
     {
         Atkin_set_node_left = &(seafp_Atkin_set->Atkin_Set_Node[ 2*pos ]);
         if ( Atkin_set_node_cur->x_sort_key > Atkin_set_node_left->x_sort_key )
         {
-            sys_log(LOGSTDOUT," [error:cur(%ld) > left(%ld)]", pos, 2*pos);
+            dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT," [error:cur(%ld) > left(%ld)]", pos, 2*pos);
         }
     }
     if ( 2*pos+1 < Atkin_Set_size )
@@ -5767,11 +5767,11 @@ static UINT32 sea_fp_test_Atkin_set_heapsort_output(const UINT32 seafp_md_id, co
         Atkin_set_node_right = &(seafp_Atkin_set->Atkin_Set_Node[ 2*pos+1 ]);
         if ( Atkin_set_node_cur->x_sort_key > Atkin_set_node_right->x_sort_key )
         {
-            sys_log(LOGSTDOUT," [error:cur(%ld) > right(%ld)]", pos, 2*pos+1);
+            dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT," [error:cur(%ld) > right(%ld)]", pos, 2*pos+1);
         }
     }
 
-    sys_log(LOGSTDOUT,"\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"\n");
 
     sea_fp_test_Atkin_set_heapsort_output(seafp_md_id, 2*pos);
     sea_fp_test_Atkin_set_heapsort_output(seafp_md_id, 2*pos + 1);
@@ -5815,12 +5815,12 @@ UINT32 sea_fp_compute_order(const UINT32 seafp_md_id,
     alloc_static_mem(MD_SEAFP, seafp_md_id, MM_BIGINT, &c4, LOC_SEAFP_0189);
     alloc_static_mem(MD_SEAFP, seafp_md_id, MM_BIGINT, &trace, LOC_SEAFP_0190);
 #if 0
-    sys_log(LOGSTDOUT,"sea_fp_compute_order: m1: ");print_bigint_dec(LOGSTDOUT, m1);
-    sys_log(LOGSTDOUT,"sea_fp_compute_order: m2: ");print_bigint_dec(LOGSTDOUT, m2);
-    sys_log(LOGSTDOUT,"sea_fp_compute_order: m3: ");print_bigint_dec(LOGSTDOUT, m3);
-    sys_log(LOGSTDOUT,"sea_fp_compute_order: t3: ");print_bigint_dec(LOGSTDOUT, t3);
-    sys_log(LOGSTDOUT,"sea_fp_compute_order: r1: ");print_bigint_dec(LOGSTDOUT, r1);
-    sys_log(LOGSTDOUT,"sea_fp_compute_order: r2: ");print_bigint_dec(LOGSTDOUT, r2);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_compute_order: m1: ");print_bigint_dec(LOGSTDOUT, m1);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_compute_order: m2: ");print_bigint_dec(LOGSTDOUT, m2);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_compute_order: m3: ");print_bigint_dec(LOGSTDOUT, m3);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_compute_order: t3: ");print_bigint_dec(LOGSTDOUT, t3);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_compute_order: r1: ");print_bigint_dec(LOGSTDOUT, r1);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_compute_order: r2: ");print_bigint_dec(LOGSTDOUT, r2);
 #endif
     sign_of_trace = 0;
 
@@ -5890,7 +5890,7 @@ UINT32 sea_fp_compute_order(const UINT32 seafp_md_id,
     }
     else
     {
-        sys_log(LOGSTDOUT,"error:sea_fp_compute_order: invalid order_case = %x.\n",order_case);
+        dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_compute_order: invalid order_case = %x.\n",order_case);
         dbg_exit(MD_SEAFP, seafp_md_id);
     }
 
@@ -5961,7 +5961,7 @@ UINT32 sea_fp_main(const UINT32 seafp_md_id)
 #if 0
     if ( EC_TRUE == sea_fp_ec_order_is_even(seafp_md_id))
     {
-        sys_log(LOGSTDOUT," even! ");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT," even! ");
         return ( 0 );
     }
 #endif
@@ -6023,73 +6023,73 @@ UINT32 sea_fp_main(const UINT32 seafp_md_id)
         poly_fai_x_y    = (seafp_fai_tbl->fai  [ oddsmallprime_pos ] );
         poly_fai_y_is_j = (seafp_fai_tbl->fai_j[ oddsmallprime_pos ] );
 
-        //sys_log(LOGSTDOUT,"poly_fai_x_y:\n");
+        //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"poly_fai_x_y:\n");
         //print_poly(LOGSTDOUT, poly_fai_x_y);
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_main:enter loop\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main:enter loop\n");
 #endif
         /*poly_fai_y_is_j(x) = poly_fai_x_y(x, y = j)*/
         poly_fp_eval(polyfp_md_id, poly_fai_x_y, 1, ecfp_j_invar, poly_fai_y_is_j);
 #if 0
-        sys_log(LOGSTDOUT,"poly_fai_y_is_j:\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"poly_fai_y_is_j:\n");
         //print_poly_dec(LOGSTDOUT, poly_fai_y_is_j);
         print_poly(LOGSTDOUT, poly_fai_y_is_j);
 #endif
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_main:after poly_fp_eval\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main:after poly_fp_eval\n");
 #endif
         /*clean y-items from poly_fai_y_is_j so that poly_fai_y_is_j = poly_fai_y_is_j(x)*/
         sea_fp_poly_fai_j_clean(seafp_md_id, poly_fai_y_is_j);
 #if 0
-        sys_log(LOGSTDOUT,"poly_fai_y_is_j:\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"poly_fai_y_is_j:\n");
         print_poly_dec(LOGSTDOUT, poly_fai_y_is_j);
         //print_poly(LOGSTDOUT, poly_fai_y_is_j);
-        //sys_log(LOGSTDOUT,"\n");
+        //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"\n");
 #endif
 #if 0
-        sys_log(LOGSTDOUT,"poly_xpx:\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"poly_xpx:\n");
         print_poly_dec(LOGSTDOUT, poly_xpx);
         //print_poly(LOGSTDOUT, poly_xpx);
-        //sys_log(LOGSTDOUT,"\n");
+        //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"\n");
 #endif
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_main:before poly_fp_mod_poly\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main:before poly_fp_mod_poly\n");
 #endif
         /*poly_mod_result = poly_xpx mod poly_fai_y_is_j*/
         poly_fp_mod_poly(polyfp_md_id, poly_xpx, poly_fai_y_is_j, poly_mod_result);
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_main:after poly_fp_mod_poly\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main:after poly_fp_mod_poly\n");
 #endif
 #if 0
-        sys_log(LOGSTDOUT,"poly_mod_result:\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"poly_mod_result:\n");
         print_poly(LOGSTDOUT, poly_mod_result);
         //print_poly_dec(LOGSTDOUT, poly_mod_result);
 #endif
         /*poly_gcd_result = GCD( poly_xpx, poly_fai_y_is_j ) = GCD( poly_mod_result, poly_fai_y_is_j )*/
         poly_fp_gcd_poly(polyfp_md_id, poly_mod_result, poly_fai_y_is_j, poly_gcd_result);
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_main:after poly_fp_gcd_poly\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main:after poly_fp_gcd_poly\n");
 #endif
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_main:deg(poly_gcd_result): ");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main:deg(poly_gcd_result): ");
         print_bigint_dec(LOGSTDOUT, POLY_DEG(poly_gcd_result));
 #endif
 #if 0
-        sys_log(LOGSTDOUT,"sea_fp_main:poly_gcd_result:\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main:poly_gcd_result:\n");
         print_poly_dec(LOGSTDOUT, poly_gcd_result);
         //print_poly(LOGSTDOUT, poly_gcd_result);
 #endif
         if ( EC_TRUE == POLY_ITEM_DEG_IS_N(bgnz_md_id, POLY_DEG(poly_gcd_result), 2) )
         {
             sea_fp_Elkies(seafp_md_id, seafp_oddsmallprime_tbl->pmodsmallprime, poly_gcd_result, oddsmallprime_pos, &tmod);
-            sys_log(LOGSTDOUT, " [Elkies   ] " );
-            sys_log(LOGSTDOUT, " t mod %ld = %ld \n", seafp_oddsmallprime_tbl->oddsmallprime[ oddsmallprime_pos ], tmod );
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [Elkies   ] " );
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " t mod %ld = %ld \n", seafp_oddsmallprime_tbl->oddsmallprime[ oddsmallprime_pos ], tmod );
             sea_fp_Elkies_CRT(seafp_md_id, tmod, seafp_oddsmallprime_tbl->oddsmallprime[ oddsmallprime_pos ], Elkies_x, Elkies_m);
         }
         else if ( EC_TRUE == POLY_ITEM_DEG_IS_N(bgnz_md_id, POLY_DEG(poly_gcd_result), 1) )
         {
-            sys_log(LOGSTDOUT, " [Atkin_esp] " );
-            sys_log(LOGSTDOUT, " t mod %ld : %ld \n",
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [Atkin_esp] " );
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " t mod %ld : %ld \n",
                 seafp_oddsmallprime_tbl->oddsmallprime[ oddsmallprime_pos ],
                 seafp_oddsmallprime_tbl->sqrtof4pmodsmallprime[ oddsmallprime_pos ] );
 
@@ -6110,19 +6110,19 @@ UINT32 sea_fp_main(const UINT32 seafp_md_id)
         else if ( EC_TRUE == POLY_ITEM_DEG_IS_N(bgnz_md_id, POLY_DEG(poly_gcd_result), 0) )
         {
             sea_fp_Atkin_r(seafp_md_id, poly_mod_result, oddsmallprime_pos, &Atkin_r);
-            //sys_log(LOGSTDOUT,"sea_fp_main: after sea_fp_Atkin_s_breakpoint_get: Atkin_r: %ld\n",Atkin_r);
+            //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main: after sea_fp_Atkin_s_breakpoint_get: Atkin_r: %ld\n",Atkin_r);
 
             sea_fp_Atkin_r_pos(seafp_md_id, oddsmallprime_pos, Atkin_r, &Atkin_r_pos);
-            //sys_log(LOGSTDOUT,"sea_fp_main: after sea_fp_Atkin_s_breakpoint_get: Atkin_r_pos: %ld\n",Atkin_r_pos);
+            //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main: after sea_fp_Atkin_s_breakpoint_get: Atkin_r_pos: %ld\n",Atkin_r_pos);
 
-            sys_log(LOGSTDOUT, " [Atkin    ] " );
-            sys_log(LOGSTDOUT, " t mod %ld : ", seafp_oddsmallprime_tbl->oddsmallprime[ oddsmallprime_pos ] );
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " [Atkin    ] " );
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, " t mod %ld : ", seafp_oddsmallprime_tbl->oddsmallprime[ oddsmallprime_pos ] );
 
             /*Atkin_item.prime = oddsmallprime*/
             bgn_z_set_word(bgnz_md_id, Atkin_item.prime, seafp_oddsmallprime_tbl->oddsmallprime[ oddsmallprime_pos ]);
             for ( idx_k = 0, idx_i = 0; fl2rztable[ oddsmallprime_pos ][ Atkin_r_pos ][ idx_i ] != -1; idx_i ++ )
             {
-                sys_log(LOGSTDOUT, "%ld,", fl2rztable[ oddsmallprime_pos ][ Atkin_r_pos ][ idx_i ] );
+                dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, "%ld,", fl2rztable[ oddsmallprime_pos ][ Atkin_r_pos ][ idx_i ] );
                 Atkin_item.tmodprime[ ++ idx_k ] = ( UINT32 ) fl2rztable[ oddsmallprime_pos ][ Atkin_r_pos ][ idx_i ];
                 if ( fl2rztable[ oddsmallprime_pos ][ Atkin_r_pos ][ idx_i ] )
                 {
@@ -6130,7 +6130,7 @@ UINT32 sea_fp_main(const UINT32 seafp_md_id)
                                                     - ( UINT32 ) fl2rztable[ oddsmallprime_pos ][ Atkin_r_pos ][ idx_i ];
                 }
             }
-            sys_log(LOGSTDOUT,"\n");
+            dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"\n");
             Atkin_item.tmodprime[ 0 ] = idx_k;
             Atkin_item.rate = ( float ) seafp_oddsmallprime_tbl->oddsmallprime[ oddsmallprime_pos ] / ( idx_k * idx_k * idx_k * idx_k );
             total_cases *= ( double ) idx_k;
@@ -6139,7 +6139,7 @@ UINT32 sea_fp_main(const UINT32 seafp_md_id)
         }
         else
         {
-            sys_log(LOGSTDOUT,"error:sea_fp_main: poly_gcd_result degree is more than 2.\n");
+            dbg_log(SEC_0113_SEAFP, 0)(LOGSTDOUT,"error:sea_fp_main: poly_gcd_result degree is more than 2.\n");
             dbg_exit(MD_SEAFP, seafp_md_id);
         }
 
@@ -6157,56 +6157,56 @@ UINT32 sea_fp_main(const UINT32 seafp_md_id)
 
 #if 0
     sea_fp_test_Atkin_output(seafp_md_id);
-    sys_log(LOGSTDOUT,"Elkies_m :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Elkies_m :");
     print_bigint(LOGSTDOUT, Elkies_m);
-    sys_log(LOGSTDOUT,"Elkies_x :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Elkies_x :");
     print_bigint(LOGSTDOUT, Elkies_x);
 #endif
 
     sea_fp_Atkin_s_pos_modify(seafp_md_id, Elkies_m);
 #if 0
     sea_fp_test_Atkin_output(seafp_md_id);
-    sys_log(LOGSTDOUT,"Elkies_m :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Elkies_m :");
     print_bigint(LOGSTDOUT, Elkies_m);
-    sys_log(LOGSTDOUT,"Elkies_x :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Elkies_x :");
     print_bigint(LOGSTDOUT, Elkies_x);
 #endif
 
     sea_fp_Atkin_s_modify(seafp_md_id);
 
 #if 0
-    sys_log(LOGSTDOUT,"sea_fp_main: after collecting all Atkin primes:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main: after collecting all Atkin primes:\n");
     sea_fp_test_Atkin_output(seafp_md_id);
-    sys_log(LOGSTDOUT,"\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"\n");
 
-    sys_log(LOGSTDOUT,"Elkies_m :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Elkies_m :");
     print_bigint(LOGSTDOUT, Elkies_m);
-    sys_log(LOGSTDOUT,"Elkies_x :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Elkies_x :");
     print_bigint(LOGSTDOUT, Elkies_x);
 #endif
 
     sea_fp_Atkin_s_breakpoint_get(seafp_md_id, &breakpoint);
-    //sys_log(LOGSTDOUT,"sea_fp_main: after sea_fp_Atkin_s_breakpoint_get: breakpoint: %ld\n",breakpoint);
+    //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main: after sea_fp_Atkin_s_breakpoint_get: breakpoint: %ld\n",breakpoint);
 
     sea_fp_Atkin_s_breakpoint_modify(seafp_md_id, Atkin_m1, Atkin_m2, &breakpoint);
-    //sys_log(LOGSTDOUT,"sea_fp_main: after sea_fp_Atkin_s_breakpoint_modify: breakpoint: %ld\n",breakpoint);
+    //dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main: after sea_fp_Atkin_s_breakpoint_modify: breakpoint: %ld\n",breakpoint);
 
 #if 0
     sea_fp_test_Atkin_output(seafp_md_id);
-    sys_log(LOGSTDOUT,"Elkies_m :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Elkies_m :");
     print_bigint(LOGSTDOUT, Elkies_m);
-    sys_log(LOGSTDOUT,"Elkies_x :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Elkies_x :");
     print_bigint(LOGSTDOUT, Elkies_x);
-    sys_log(LOGSTDOUT,"Atkin_m1 :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Atkin_m1 :");
     print_bigint(LOGSTDOUT, Atkin_m1);
-    sys_log(LOGSTDOUT,"Atkin_m2 :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Atkin_m2 :");
     print_bigint(LOGSTDOUT, Atkin_m2);
 #endif
 
     /*get a point from the ec*/
     sea_fp_ec_point_gen(seafp_md_id, test_point);
 #if 0
-    sys_log(LOGSTDOUT,"test_point:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"test_point:\n");
     print_point(LOGSTDOUT, test_point);
 #endif
 
@@ -6214,7 +6214,7 @@ UINT32 sea_fp_main(const UINT32 seafp_md_id)
     sea_fp_baby_step (seafp_md_id, Atkin_m1, Atkin_m2, Elkies_m, Elkies_x, depth, test_point);
 
 #if 0
-    sys_log(LOGSTDOUT,"after sea_fp_baby_step: Atkin_Set_size = %ld\n", seafp_Atkin_set->Atkin_Set_size);
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"after sea_fp_baby_step: Atkin_Set_size = %ld\n", seafp_Atkin_set->Atkin_Set_size);
 #endif
 
     sea_fp_heap_sort(seafp_md_id);
@@ -6223,17 +6223,17 @@ UINT32 sea_fp_main(const UINT32 seafp_md_id)
     //sea_fp_test_Atkin_set_heapsort_output(seafp_md_id, 1);
 
 #if 0
-    sys_log(LOGSTDOUT,"sea_fp_main: after sea_fp_baby_step:\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main: after sea_fp_baby_step:\n");
     sea_fp_test_Atkin_output(seafp_md_id);
-    sys_log(LOGSTDOUT,"\n");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"\n");
 
-    sys_log(LOGSTDOUT,"Elkies_m :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Elkies_m :");
     print_bigint(LOGSTDOUT, Elkies_m);
-    sys_log(LOGSTDOUT,"Elkies_x :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Elkies_x :");
     print_bigint(LOGSTDOUT, Elkies_x);
-    sys_log(LOGSTDOUT,"Atkin_m1 :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Atkin_m1 :");
     print_bigint(LOGSTDOUT, Atkin_m1);
-    sys_log(LOGSTDOUT,"Atkin_m2 :");
+    dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"Atkin_m2 :");
     print_bigint(LOGSTDOUT, Atkin_m2);
 
 #endif
@@ -6247,12 +6247,12 @@ UINT32 sea_fp_main(const UINT32 seafp_md_id)
     {
         sea_fp_compute_order(seafp_md_id, Atkin_m1, Atkin_m2, Elkies_m, Elkies_x, r1, r2, order_case, &carry_of_ecfp_order, ecfp_order);
 
-        sys_log(LOGSTDOUT, "sea_fp_main: ecfp_order =\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT, "sea_fp_main: ecfp_order =\n");
         print_bigint_dec(LOGSTDOUT, ecfp_order);
     }
     else
     {
-        sys_log(LOGSTDOUT,"sea_fp_main: match failed.\n");
+        dbg_log(SEC_0113_SEAFP, 5)(LOGSTDOUT,"sea_fp_main: match failed.\n");
     }
 
 #endif

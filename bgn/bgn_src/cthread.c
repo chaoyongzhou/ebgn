@@ -154,7 +154,7 @@ UINT32 cthread_caller(const UINT32 start_routine_addr, const UINT32 arg_num, UIN
             ret = FUNC_CALL(16, start_routine_addr, arg_list);
             break;
         default:
-            sys_log(LOGSTDOUT, "error:cthread_caller: arg num = %ld overflow\n", arg_num);
+            dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_caller: arg num = %ld overflow\n", arg_num);
             return ((UINT32)(-1));
     }
 
@@ -195,7 +195,7 @@ static EC_BOOL cthread_check_tcid_offset()
     if(CTHREAD_GET_TID() != CTHREAD_FETCH_TID(pthread_self(), CTHREAD_TID_OFFSET))
     {
         UINT32 offset;
-        sys_log(LOGSTDOUT, "fatal error:cthread_check_tcid_offset: invalid tid offset %ld, where pthread_self = %u, got tid = %d, fetched tid = %d\n",
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "fatal error:cthread_check_tcid_offset: invalid tid offset %ld, where pthread_self = %u, got tid = %d, fetched tid = %d\n",
                             CTHREAD_TID_OFFSET,
                             pthread_self(),
                             CTHREAD_GET_TID(),
@@ -222,7 +222,7 @@ void * cthread_start(void *args)
     int oldstate;
     int oldtype;
 
-    //sys_log(LOGSTDOUT, "cthread_start: [%u] say hello, args = %lx\n", pthread_self(), args);
+    //dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthread_start: [%u] say hello, args = %lx\n", pthread_self(), args);
 
     /*check once when a thread is created. the checking can only happen on thread internally due to CTHREAD_GET_TID() operation*/
     //cthread_check_tcid_offset();
@@ -244,7 +244,7 @@ void * cthread_start(void *args)
 
         if (0 != (err = pthread_setaffinity_np(pthread_self(), sizeof(mask), &mask)))
         {
-            sys_log(LOGSTDOUT, "error:cthread_start: setaffinity of thread %u failed: %s\n",
+            dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_start: setaffinity of thread %u failed: %s\n",
                                 pthread_self(), strerror(err));
         }
     }
@@ -275,19 +275,19 @@ UINT32 cthread_attr_set(CTHREAD_ATTR *cthread_attr, const UINT32 flag)
 {
     if(pthread_attr_init(cthread_attr))
     {
-        sys_log(LOGSTDOUT, "error:cthread_attr_set: init thread attr failed\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_attr_set: init thread attr failed\n");
         return ((UINT32) -1);
     }
 #if 1
     if(pthread_attr_setinheritsched(cthread_attr, PTHREAD_EXPLICIT_SCHED))
     {
-        sys_log(LOGSTDOUT, "error:cthread_attr_set: set inheritsched failed\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_attr_set: set inheritsched failed\n");
         return ((UINT32) -1);
     }
 
     if(pthread_attr_setschedpolicy(cthread_attr, SCHED_OTHER))
     {
-        sys_log(LOGSTDOUT, "error:cthread_attr_set: set schedpolicy failed\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_attr_set: set schedpolicy failed\n");
         return ((UINT32) -1);
     }
 #endif
@@ -300,13 +300,13 @@ UINT32 cthread_attr_set(CTHREAD_ATTR *cthread_attr, const UINT32 flag)
         sched_get_priority_max(max_priority);
         sched_get_priority_min(min_priority);
 
-        sys_log(LOGSTDOUT, "max_priority = %u, min_priority = %u\n", max_priority, min_priority);
+        dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "max_priority = %u, min_priority = %u\n", max_priority, min_priority);
     }
 
     cthread_sched.sched_priority = 0; /* SCHED_RR (MAX_PRIORITY - ((th_priority * MAX_PRIORITY) / MAX_VXWORKS_PRIORITY)) */
     if(pthread_attr_setschedparam(cthread_attr, &cthread_sched))
     {
-        sys_log(LOGSTDOUT, "error:cthread_attr_set: set schedparam failed\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_attr_set: set schedparam failed\n");
         return ((UINT32) -1);
     }
 #endif
@@ -315,7 +315,7 @@ UINT32 cthread_attr_set(CTHREAD_ATTR *cthread_attr, const UINT32 flag)
     {
         if(pthread_attr_setdetachstate(cthread_attr, PTHREAD_CREATE_DETACHED))
         {
-            sys_log(LOGSTDOUT, "error:cthread_attr_set: set DETACHED state failed\n");
+            dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_attr_set: set DETACHED state failed\n");
             return ((UINT32) -1);
         }
     }
@@ -323,7 +323,7 @@ UINT32 cthread_attr_set(CTHREAD_ATTR *cthread_attr, const UINT32 flag)
     {
         if(pthread_attr_setdetachstate(cthread_attr, PTHREAD_CREATE_JOINABLE))
         {
-            sys_log(LOGSTDOUT, "error:cthread_attr_set: set JOINABLE state failed\n");
+            dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_attr_set: set JOINABLE state failed\n");
             return ((UINT32) -1);
         }
     }
@@ -332,7 +332,7 @@ UINT32 cthread_attr_set(CTHREAD_ATTR *cthread_attr, const UINT32 flag)
     {
         if(pthread_attr_setscope(cthread_attr, PTHREAD_SCOPE_PROCESS) && 0 != errno)
         {
-            sys_log(LOGSTDOUT, "error:cthread_attr_set: set PROCESS scope failed, errno = %d, errstr = %s\n", errno, strerror(errno));
+            dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_attr_set: set PROCESS scope failed, errno = %d, errstr = %s\n", errno, strerror(errno));
             return ((UINT32) -1);
         }
     }
@@ -340,20 +340,20 @@ UINT32 cthread_attr_set(CTHREAD_ATTR *cthread_attr, const UINT32 flag)
     {
         if(pthread_attr_setscope(cthread_attr, PTHREAD_SCOPE_SYSTEM) && 0 != errno)
         {
-            sys_log(LOGSTDOUT, "error:cthread_attr_set: set SYSTEM scope failed, errno = %d, errstr = %s\n", errno, strerror(errno));
+            dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_attr_set: set SYSTEM scope failed, errno = %d, errstr = %s\n", errno, strerror(errno));
             return ((UINT32) -1);
         }
     }
 
     if(pthread_attr_setstacksize(cthread_attr, CTHREAD_STACK_SIZE_DEFAULT))
     {
-        sys_log(LOGSTDOUT, "error:cthread_attr_set: set stacksize failed\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_attr_set: set stacksize failed\n");
         return ((UINT32) -1);
     }
 
     if(pthread_attr_setguardsize(cthread_attr, CTHREAD_GUARD_SIZE_DEFAULT))
     {
-        sys_log(LOGSTDOUT, "error:cthread_attr_set: set guardsize failed\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_attr_set: set guardsize failed\n");
         return ((UINT32) -1);
     }
 
@@ -368,7 +368,7 @@ UINT32 cthread_attr_clean(CTHREAD_ATTR *cthread_attr)
 
 void cthread_do_nothing(void *none)
 {
-    sys_log(LOGSTDOUT, "cthread_do_nothing was called\n");
+    dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthread_do_nothing was called\n");
     return;
 }
 
@@ -384,14 +384,14 @@ CTHREAD_ID cthread_create(const UINT32 flag, const UINT32 start_routine_addr, co
     if(0 != cthread_attr_set(&cthread_attr, flag))
     {
         cthread_attr_clean(&cthread_attr);
-        sys_log(LOGSTDOUT, "error:cthread_create: failed to set attribute\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_create: failed to set attribute\n");
         return (ERR_CTHREAD_ID);
     }
 
     alloc_static_mem(MD_TASK, 0, MM_CTHREAD_TASK, &cthread_task, LOC_CTHREAD_0002);
     if(NULL_PTR == cthread_task)
     {
-        sys_log(LOGSTDOUT, "error:cthread_create: alloc CTHREAD_TASK failed\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_create: alloc CTHREAD_TASK failed\n");
         return (ERR_CTHREAD_ID);
     }
 
@@ -400,14 +400,14 @@ CTHREAD_ID cthread_create(const UINT32 flag, const UINT32 start_routine_addr, co
 
     if(0 != (err = pthread_create(&cthread_id, &cthread_attr, cthread_start, (void *)cthread_task)))
     {
-        sys_log(LOGSTDOUT, "error:cthread_create: create thread failed: %s\n", strerror(err));
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_create: create thread failed: %s\n", strerror(err));
         free_static_mem(MD_TASK, 0, MM_CTHREAD_TASK, cthread_task, LOC_CTHREAD_0003);
         return (ERR_CTHREAD_ID);
     }
 
     if(cthread_attr_clean(&cthread_attr))
     {
-        sys_log(LOGSTDOUT, "error:cthread_create: destroy thread attr failed\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_create: destroy thread attr failed\n");
         //return (ERR_CTHREAD_ID);
     }
 
@@ -421,6 +421,8 @@ CTHREAD_ID cthread_new(const UINT32 flag, const UINT32 start_routine_addr, const
     TASK_BRD *task_brd;
 
     va_list para_list;
+
+    dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "[DEBUG] cthread_new: enter\n");
 
     cthread_check_tcid_offset();/*assert!*/
 
@@ -444,26 +446,26 @@ EC_BOOL cthread_wait(CTHREAD_ID cthread_id)
         {
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:cthread_wait - EINVAL: cthread_id %u NOT refer to a joinable thread\n", cthread_id);
+                dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_wait - EINVAL: cthread_id %u NOT refer to a joinable thread\n", cthread_id);
                 break;
             }
 
             case ESRCH:
             {
-                sys_log(LOGSTDOUT, "error:cthread_wait - ESRCH: cthread_id %u not found\n", cthread_id);
+                dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_wait - ESRCH: cthread_id %u not found\n", cthread_id);
                 break;
             }
 
             case EDEADLK:
             {
-                sys_log(LOGSTDOUT, "error:cthread_wait - EDEADLK: cthread_id %u detect deadlock\n", cthread_id);
+                dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_wait - EDEADLK: cthread_id %u detect deadlock\n", cthread_id);
                 break;
             }
 
             default:
             {
                 /* Unknown error */
-                sys_log(LOGSTDOUT, "error:cthread_wait - UNKNOWN: cthread_id %u var detect error, error no: %d, error info: %s\n", cthread_id, ret_val, strerror(ret_val));
+                dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_wait - UNKNOWN: cthread_id %u var detect error, error no: %d, error info: %s\n", cthread_id, ret_val, strerror(ret_val));
                 break;
             }
         }
@@ -483,14 +485,14 @@ EC_BOOL cthread_cancel(CTHREAD_ID cthread_id)
         {
             case ESRCH:
             {
-                sys_log(LOGSTDOUT, "error:cthread_cancel - ESRCH: cthread_id %u not found\n", cthread_id);
+                dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_cancel - ESRCH: cthread_id %u not found\n", cthread_id);
                 break;
             }
 
             default:
             {
                 /* Unknown error */
-                sys_log(LOGSTDOUT, "error:cthread_cancel - UNKNOWN: cthread_id %u var detect error, error no: %d, error info: %s\n", cthread_id, ret_val, strerror(ret_val));
+                dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_cancel - UNKNOWN: cthread_id %u var detect error, error no: %d, error info: %s\n", cthread_id, ret_val, strerror(ret_val));
                 break;
             }
         }
@@ -504,26 +506,26 @@ EC_BOOL cthread_cancel(CTHREAD_ID cthread_id)
         {
             case EINVAL:
             {
-                sys_log(LOGSTDOUT, "error:cthread_cancel - EINVAL: cthread_id %u NOT refer to a joinable thread\n", cthread_id);
+                dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_cancel - EINVAL: cthread_id %u NOT refer to a joinable thread\n", cthread_id);
                 break;
             }
 
             case ESRCH:
             {
-                sys_log(LOGSTDOUT, "error:cthread_cancel - ESRCH: cthread_id %u not found\n", cthread_id);
+                dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_cancel - ESRCH: cthread_id %u not found\n", cthread_id);
                 break;
             }
 
             case EDEADLK:
             {
-                sys_log(LOGSTDOUT, "error:cthread_cancel - EDEADLK: cthread_id %u detect deadlock\n", cthread_id);
+                dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_cancel - EDEADLK: cthread_id %u detect deadlock\n", cthread_id);
                 break;
             }
 
             default:
             {
                 /* Unknown error */
-                sys_log(LOGSTDOUT, "error:cthread_cancel - UNKNOWN: cthread_id %u var detect error, error no: %d, error info: %s\n", cthread_id, ret_val, strerror(ret_val));
+                dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_cancel - UNKNOWN: cthread_id %u var detect error, error no: %d, error info: %s\n", cthread_id, ret_val, strerror(ret_val));
                 break;
             }
         }
@@ -539,7 +541,7 @@ CTHREAD_TASK *cthread_task_new(const UINT32 start_routine_addr, const UINT32 cor
     alloc_static_mem(MD_TASK, 0, MM_CTHREAD_TASK, &cthread_task, LOC_CTHREAD_0004);
     if(NULL_PTR == cthread_task)
     {
-        sys_log(LOGSTDOUT, "error:cthread_task_new: alloc CTHREAD_TASK failed\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_task_new: alloc CTHREAD_TASK failed\n");
         return (NULL_PTR);
     }
 
@@ -635,23 +637,25 @@ static void cthread_unbind(CTHREAD_BIND *cthread_bind)
     {        
         clist_rmv(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), CTHREAD_NODE_MOUNTED(cthread_node));        
 
-        sys_log(LOGSTDOUT, "cthread_unbind: free idle cthread_node %lx with thread id %u\n", cthread_node, CTHREAD_NODE_ID(cthread_node));
+        dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthread_unbind: free idle cthread_node %lx with thread id %u\n", cthread_node, CTHREAD_NODE_ID(cthread_node));
         cthread_node_free(cthread_node);
     }
     else if(CTHREAD_IS_BUSY & CTHREAD_NODE_STATUS(cthread_node))
     {
         clist_rmv(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool), CTHREAD_NODE_MOUNTED(cthread_node));
 
-        sys_log(LOGSTDOUT, "cthread_unbind: free busy cthread_node %lx with thread id %u\n", cthread_node, CTHREAD_NODE_ID(cthread_node));
+        dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthread_unbind: free busy cthread_node %lx with thread id %u\n", cthread_node, CTHREAD_NODE_ID(cthread_node));
         cthread_node_free(cthread_node);
     }
     else
     {
-        sys_log(LOGSTDOUT, "cthread_unbind: free cthread_node %lx with thread id %u but status %lx\n", 
+        dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthread_unbind: free cthread_node %lx with thread id %u but status %lx\n", 
                             cthread_node, CTHREAD_NODE_ID(cthread_node), CTHREAD_NODE_STATUS(cthread_node));
         cthread_node_free(cthread_node);    
     }
     cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0007);
+
+    safe_free(cthread_bind, LOC_CTHREAD_0008);
 
     return;
 }
@@ -663,11 +667,11 @@ static UINT32 cthread_core_load_inc(CTHREAD_BIND *cthread_bind)
     core_id = CTHREAD_NODE_CORE_ID(CTHREAD_BIND_NODE(cthread_bind));
     if(CTHREAD_MAX_CORE_NUM <= core_id)
     {
-        sys_log(LOGSTDOUT, "error:cthread_core_load_inc: invalid core id %ld\n", core_id);
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_core_load_inc: invalid core id %ld\n", core_id);
         return ((UINT32)-1);
     }
 
-    sys_log(LOGSTDNULL, "[DEBUG] cthread_core_load_inc: core id %ld, load %ld ++\n",
+    dbg_log(SEC_0016_CTHREAD, 9)(LOGSTDNULL, "[DEBUG] cthread_core_load_inc: core id %ld, load %ld ++\n",
                         core_id, CTHREAD_POOL_CORE_LOAD(CTHREAD_BIND_POOL(cthread_bind), core_id));
 
     CTHREAD_POOL_CORE_LOAD(CTHREAD_BIND_POOL(cthread_bind), core_id) ++;
@@ -681,20 +685,20 @@ static UINT32 cthread_core_load_dec(CTHREAD_BIND *cthread_bind)
     core_id = CTHREAD_NODE_CORE_ID(CTHREAD_BIND_NODE(cthread_bind));
     if(CTHREAD_MAX_CORE_NUM <= core_id)
     {
-        sys_log(LOGSTDOUT, "error:cthread_core_load_dec: invalid core id %ld\n", core_id);
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_core_load_dec: invalid core id %ld\n", core_id);
         return ((UINT32)-1);
     }
 
     if(0 < CTHREAD_POOL_CORE_LOAD(CTHREAD_BIND_POOL(cthread_bind), core_id))
     {
-        sys_log(LOGSTDNULL, "[DEBUG] cthread_core_load_dec: core id %ld, load %ld --\n",
+        dbg_log(SEC_0016_CTHREAD, 9)(LOGSTDNULL, "[DEBUG] cthread_core_load_dec: core id %ld, load %ld --\n",
                         core_id, CTHREAD_POOL_CORE_LOAD(CTHREAD_BIND_POOL(cthread_bind), core_id));
 
         CTHREAD_POOL_CORE_LOAD(CTHREAD_BIND_POOL(cthread_bind), core_id) --;
     }
     else
     {
-        sys_log(LOGSTDOUT, "[DEBUG] error: cthread_core_load_dec: core id %ld, load %ld --\n",
+        dbg_log(SEC_0016_CTHREAD, 9)(LOGSTDOUT, "[DEBUG] error: cthread_core_load_dec: core id %ld, load %ld --\n",
                         core_id, CTHREAD_POOL_CORE_LOAD(CTHREAD_BIND_POOL(cthread_bind), core_id));
     }
     return (0);
@@ -704,10 +708,10 @@ CTHREAD_NODE *cthread_node_new()
 {
     CTHREAD_NODE *cthread_node;
 
-    alloc_static_mem(MD_TASK, 0, MM_CTHREAD_NODE, &cthread_node, LOC_CTHREAD_0008);
+    alloc_static_mem(MD_TASK, 0, MM_CTHREAD_NODE, &cthread_node, LOC_CTHREAD_0009);
     if(NULL_PTR == cthread_node)
     {
-        sys_log(LOGSTDOUT, "error:cthread_node_new: alloc CTHREAD_NODE failed\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_node_new: alloc CTHREAD_NODE failed\n");
         return (NULL_PTR);
     }
 
@@ -724,7 +728,7 @@ UINT32 cthread_node_init(CTHREAD_NODE *cthread_node)
     CTHREAD_NODE_STATUS(cthread_node)  = CTHREAD_IS_IDLE;
     CTHREAD_NODE_MOUNTED(cthread_node) = NULL_PTR;
 
-    ccond_init(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0009);
+    ccond_init(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0010);
 
     return (0);
 }
@@ -758,7 +762,7 @@ void * cthread_node_entry(void *args)
 
         if (0 != (err = pthread_setaffinity_np(pthread_self(), sizeof(mask), &mask)))
         {
-            sys_log(LOGSTDOUT, "error:cthread_node_entry: set thread to core %ld# failed: %s\n",
+            dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_node_entry: set thread to core %ld# failed: %s\n",
                                 CTHREAD_TASK_CORE_ID(&entry_thread_task), strerror(err));
         }
     }
@@ -783,13 +787,13 @@ void * cthread_node_entry(void *args)
 
         if (0 != (err = pthread_setaffinity_np(pthread_self(), sizeof(mask), &mask)))
         {
-            sys_log(LOGSTDOUT, "error:cthread_node_entry: setaffinity of thread %u failed: %s\n",
+            dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_node_entry: setaffinity of thread %u failed: %s\n",
                                 pthread_self(), strerror(err));
         }
     }
 #endif/*(SWITCH_OFF == CTHREAD_SET_CORE_SWITCH)*/
 
-    //sys_log(LOGSTDOUT, "========================== cthread_node_entry: ==========================\n");
+    //dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "========================== cthread_node_entry: ==========================\n");
     //cthread_task_print(LOGSTDOUT, &entry_thread_task);
     cthread_caller(CTHREAD_TASK_ROUTINE(&entry_thread_task), CTHREAD_TASK_ARG_NUM(&entry_thread_task), CTHREAD_TASK_ARG_LIST(&entry_thread_task));
     return (NULL_PTR);
@@ -808,7 +812,7 @@ CTHREAD_ID cthread_node_create(CTHREAD_NODE *cthread_node, const CTHREAD_ATTR *c
 
     if(NULL_PTR == entry_thread_task)
     {
-        sys_log(LOGSTDOUT, "error:cthread_node_create: alloc entry_thread_task failed\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_node_create: alloc entry_thread_task failed\n");
         return (ERR_CTHREAD_ID);
     }
 
@@ -831,7 +835,7 @@ CTHREAD_ID cthread_node_create(CTHREAD_NODE *cthread_node, const CTHREAD_ATTR *c
         cthread_task_free(CTHREAD_NODE_TASK(cthread_node));
         CTHREAD_NODE_TASK(cthread_node) = NULL_PTR;
         CTHREAD_NODE_ID(cthread_node)   = ERR_CTHREAD_ID;
-        sys_log(LOGSTDOUT, "error:cthread_node_create: create thread failed: %s\n", strerror(err));
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_node_create: create thread failed: %s\n", strerror(err));
         return (ERR_CTHREAD_ID);
     }
 
@@ -844,7 +848,7 @@ UINT32 cthread_node_clean(CTHREAD_NODE *cthread_node)
     {
         CTHREAD_NODE_STATUS(cthread_node) |= CTHREAD_IS_DOWN;
 
-        ccond_release_all(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0010);
+        ccond_release_all(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0011);
 
         //cthread_cancel(CTHREAD_NODE_ID(cthread_node));
         //cthread_wait(CTHREAD_NODE_ID(cthread_node));
@@ -853,8 +857,8 @@ UINT32 cthread_node_clean(CTHREAD_NODE *cthread_node)
         CTHREAD_NODE_MOUNTED(cthread_node) = NULL_PTR;
     }
 
-    //ccond_release_all(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0011);
-    ccond_clean(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0012);
+    //ccond_release_all(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0012);
+    ccond_clean(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0013);
 
     if(NULL_PTR != CTHREAD_NODE_TASK(cthread_node))
     {
@@ -868,14 +872,14 @@ UINT32 cthread_node_clean(CTHREAD_NODE *cthread_node)
 UINT32 cthread_node_free(CTHREAD_NODE *cthread_node)
 {
     cthread_node_clean(cthread_node);
-    free_static_mem(MD_TASK, 0, MM_CTHREAD_NODE, cthread_node, LOC_CTHREAD_0013);
+    free_static_mem(MD_TASK, 0, MM_CTHREAD_NODE, cthread_node, LOC_CTHREAD_0014);
     return (0);
 }
 
 /*note: cthread_node_shutdown will lock cthread_pool, so DO NOT call it when cthreadp_shutdown*/
 UINT32 cthread_node_shutdown(CTHREAD_NODE *cthread_node, CTHREAD_POOL *cthread_pool)
 {
-    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0014);
+    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0015);
 
     CTHREAD_NODE_STATUS(cthread_node) |= CTHREAD_IS_DOWN;
 
@@ -883,19 +887,19 @@ UINT32 cthread_node_shutdown(CTHREAD_NODE *cthread_node, CTHREAD_POOL *cthread_p
     /*search & remove*/
     if(NULL_PTR != clist_del(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), cthread_node, NULL_PTR))
     {
-        ccond_release_all(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0015);
-        cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0016);
+        ccond_release_all(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0016);
+        cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0017);
         return (0);
     }
 
     if(NULL_PTR != clist_del(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool), cthread_node, NULL_PTR))
     {
         cthread_cancel(CTHREAD_NODE_ID(cthread_node));
-        cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0017);
+        cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0018);
         return (0);
     }
 
-    sys_log(LOGSTDOUT, "error:cthread_node_shutdown: neigher idle or busy cthread_node %lx, status %ld, thread %u\n",
+    dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_node_shutdown: neigher idle or busy cthread_node %lx, status %ld, thread %u\n",
                     cthread_node, CTHREAD_NODE_STATUS(cthread_node), CTHREAD_NODE_ID(cthread_node));
 
 #endif
@@ -904,8 +908,8 @@ UINT32 cthread_node_shutdown(CTHREAD_NODE *cthread_node, CTHREAD_POOL *cthread_p
     if(CTHREAD_IS_IDLE & CTHREAD_NODE_STATUS(cthread_node))
     {
         clist_rmv(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), CTHREAD_NODE_MOUNTED(cthread_node));
-        ccond_release_all(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0018);
-        cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0019);
+        ccond_release_all(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0019);
+        cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0020);
         return (0);
     }
 
@@ -913,12 +917,12 @@ UINT32 cthread_node_shutdown(CTHREAD_NODE *cthread_node, CTHREAD_POOL *cthread_p
     {
         clist_rmv(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool), CTHREAD_NODE_MOUNTED(cthread_node));
         cthread_cancel(CTHREAD_NODE_ID(cthread_node));
-        cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0020);
+        cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0021);
         return (0);
     }
 #endif
 
-    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0021);
+    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0022);
     return (0);
 }
 
@@ -927,9 +931,9 @@ UINT32 cthread_node_busy_to_idle(CTHREAD_NODE *cthread_node, CTHREAD_POOL *cthre
     /*move cthread_node from busy list to idle list*/
     CLIST_DATA *clist_data;
 
-    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0022);
+    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0023);
 
-    ccond_reserve(CTHREAD_NODE_CCOND(cthread_node), 1, LOC_CTHREAD_0023);
+    ccond_reserve(CTHREAD_NODE_CCOND(cthread_node), 1, LOC_CTHREAD_0024);
     clist_data = CTHREAD_NODE_MOUNTED(cthread_node);
     if(NULL_PTR != clist_data)
     {
@@ -938,7 +942,7 @@ UINT32 cthread_node_busy_to_idle(CTHREAD_NODE *cthread_node, CTHREAD_POOL *cthre
     CTHREAD_NODE_STATUS(cthread_node)  = ((CTHREAD_NODE_STATUS(cthread_node) & CTHREAD_HI_MASK) | CTHREAD_IS_IDLE);
     CTHREAD_NODE_MOUNTED(cthread_node) = clist_push_back(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), cthread_node);
 
-    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0024);
+    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0025);
 
     return (0);
 }
@@ -955,7 +959,7 @@ EC_BOOL cthread_get_core_id()
 
     if (0 > pthread_getaffinity_np(pthread_self(), sizeof(mask), &mask))
     {
-        sys_log(LOGSTDOUT, "error:cthread_get_core_id: get thread %u affinity failed\n", pthread_self());
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_get_core_id: get thread %u affinity failed\n", pthread_self());
         return (EC_FALSE);
     }
 
@@ -963,7 +967,7 @@ EC_BOOL cthread_get_core_id()
     {
         if (CPU_ISSET(core_idx, &mask))
         {
-            sys_log(LOGSTDOUT, "[DEBUG] cthread_get_core_id: thread %u is running in processor %ld\n", pthread_self(), core_idx);
+            dbg_log(SEC_0016_CTHREAD, 9)(LOGSTDOUT, "[DEBUG] cthread_get_core_id: thread %u is running in processor %ld\n", pthread_self(), core_idx);
         }
     }
     return (EC_TRUE);
@@ -972,28 +976,36 @@ EC_BOOL cthread_get_core_id()
 UINT32 cthread_node_run(CTHREAD_NODE *cthread_node, CTHREAD_POOL *cthread_pool)
 {
     CTHREAD_TASK *cthread_task;
-    CTHREAD_BIND  cthread_bind;
+    CTHREAD_BIND *cthread_bind;
 
-    CTHREAD_BIND_NODE(&cthread_bind) = cthread_node;
-    CTHREAD_BIND_POOL(&cthread_bind) = cthread_pool;
+    /*note: cthread_bind will be free in cthread_unbind*/
+    cthread_bind = safe_malloc(sizeof(CTHREAD_BIND), LOC_CTHREAD_0026);
+    if(NULL_PTR == cthread_bind)
+    {
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthread_node_run: malloc cthread_bind failed\n");
+        return (-1);
+    }
 
-    CTHREAD_CLEANUP_PUSH(cthread_unbind, &cthread_bind);
+    CTHREAD_BIND_NODE(cthread_bind) = cthread_node;
+    CTHREAD_BIND_POOL(cthread_bind) = cthread_pool;
+
+    CTHREAD_CLEANUP_PUSH(cthread_unbind, cthread_bind);
 
 #if (SWITCH_ON == CTHREAD_SET_CORE_SWITCH)
-    CTHREAD_CLEANUP_PUSH(cthread_core_load_dec, &cthread_bind);
+    CTHREAD_CLEANUP_PUSH(cthread_core_load_dec, cthread_bind);
 #endif/*(SWITCH_ON == CTHREAD_SET_CORE_SWITCH)*/
 
     for(;;)
     {
 #if 0
-        sys_log(LOGSTDOUT, "[DBG] cthread_node_run: thread %u, pthread self %u, cthread_node %lx, status %ld\n",
+        dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "[DBG] cthread_node_run: thread %u, pthread self %u, cthread_node %lx, status %ld\n",
                             CTHREAD_NODE_ID(cthread_node), pthread_self(),
                             cthread_node, CTHREAD_NODE_STATUS(cthread_node)
                 );
 #endif
-        ccond_wait(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0025);
+        ccond_wait(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0027);
 
-        CTHREAD_CORE_LOAD_INC(&cthread_bind);
+        CTHREAD_CORE_LOAD_INC(cthread_bind);
 
         //cthread_get_core_id();
 
@@ -1001,30 +1013,30 @@ UINT32 cthread_node_run(CTHREAD_NODE *cthread_node, CTHREAD_POOL *cthread_pool)
 
         if(CTHREAD_IS_DOWN & CTHREAD_NODE_STATUS(cthread_node))
         {
-            CTHREAD_CORE_LOAD_DEC(&cthread_bind);
+            CTHREAD_CORE_LOAD_DEC(cthread_bind);
             break;
         }
 
         /*as design, only busy cthread_node can reach here*/
         if(CTHREAD_IS_IDLE & CTHREAD_NODE_STATUS(cthread_node))
         {
-            sys_log(LOGSTDOUT, "warn:cthread_node_run: cthread node status is idle with thread %u\n", CTHREAD_NODE_ID(cthread_node));
+            dbg_log(SEC_0016_CTHREAD, 1)(LOGSTDOUT, "warn:cthread_node_run: cthread node status is idle with thread %u\n", CTHREAD_NODE_ID(cthread_node));
 
             /*move it from busy list to idle list*/
             cthread_node_busy_to_idle(cthread_node, cthread_pool);
 
-            CTHREAD_CORE_LOAD_DEC(&cthread_bind);
+            CTHREAD_CORE_LOAD_DEC(cthread_bind);
             continue;
         }
 
         if(NULL_PTR == CTHREAD_NODE_TASK(cthread_node))
         {
-            sys_log(LOGSTDOUT, "warn:cthread_node_run: busy but no task, return thread %u to idle list\n", CTHREAD_NODE_ID(cthread_node));
+            dbg_log(SEC_0016_CTHREAD, 1)(LOGSTDOUT, "warn:cthread_node_run: busy but no task, return thread %u to idle list\n", CTHREAD_NODE_ID(cthread_node));
 
             /*move it from busy list to idle list*/
             cthread_node_busy_to_idle(cthread_node, cthread_pool);
 
-            CTHREAD_CORE_LOAD_DEC(&cthread_bind);
+            CTHREAD_CORE_LOAD_DEC(cthread_bind);
             continue;
         }
 
@@ -1035,10 +1047,10 @@ UINT32 cthread_node_run(CTHREAD_NODE *cthread_node, CTHREAD_POOL *cthread_pool)
         /*move it from busy list to idle list*/
         cthread_node_busy_to_idle(cthread_node, cthread_pool);
 
-        CTHREAD_CORE_LOAD_DEC(&cthread_bind);
+        CTHREAD_CORE_LOAD_DEC(cthread_bind);
     }
 
-    sys_log(LOGSTDOUT, "warn:cthread_node_run: cthread_node %lx was dying.....\n", cthread_node);
+    dbg_log(SEC_0016_CTHREAD, 1)(LOGSTDOUT, "warn:cthread_node_run: cthread_node %lx was dying.....\n", cthread_node);
 
 #if (SWITCH_ON == CTHREAD_SET_CORE_SWITCH)
     CTHREAD_CLEANUP_POP( 0 );
@@ -1054,7 +1066,7 @@ void cthread_node_print(LOG *log, const CTHREAD_NODE *cthread_node)
 {
     UINT32 ccond_counter;
 
-    ccond_counter = ccond_spy((CCOND *)CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0026);
+    ccond_counter = ccond_spy((CCOND *)CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0028);
     sys_log(log, "cthread_node %lx: thread id %u, ccond counter %ld, thread task:\n",
                 cthread_node,
                 CTHREAD_NODE_ID(cthread_node),
@@ -1094,13 +1106,13 @@ UINT32 cthreadp_expand_no_lock(CTHREAD_POOL *cthread_pool, const UINT32 cthread_
 
     if(CTHREAD_ERR_FLAG == flag)
     {
-        sys_log(LOGSTDOUT, "error:cthreadp_expand_no_lock: invalid cthread flag %lx\n", flag);
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthreadp_expand_no_lock: invalid cthread flag %lx\n", flag);
         return (0);
     }
 
     if(0 != cthread_attr_set(&cthread_attr, flag))
     {
-        sys_log(LOGSTDOUT, "error:cthreadp_expand_no_lock: failed to set attribute\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthreadp_expand_no_lock: failed to set attribute\n");
         cthread_attr_clean(&cthread_attr);
         return (0);
     }
@@ -1115,7 +1127,7 @@ UINT32 cthreadp_expand_no_lock(CTHREAD_POOL *cthread_pool, const UINT32 cthread_
         cthread_node = cthread_node_new();
         if(NULL_PTR == cthread_node)
         {
-            sys_log(LOGSTDOUT, "error:cthreadp_expand_no_lock: failed to new # %ld CTHREAD_NODE\n", cthread_idx);
+            dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthreadp_expand_no_lock: failed to new # %ld CTHREAD_NODE\n", cthread_idx);
             break;
         }
 
@@ -1127,13 +1139,13 @@ UINT32 cthreadp_expand_no_lock(CTHREAD_POOL *cthread_pool, const UINT32 cthread_
                                                  cthread_pool))
         {
             cthread_node_free(cthread_node);
-            sys_log(LOGSTDOUT, "cthreadp_expand_no_lock: cthread_node_create failed while total thread %ld, support max worker num %ld\n",
+            dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthreadp_expand_no_lock: cthread_node_create failed while total thread %ld, support max worker num %ld\n",
                                 clist_size(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool)) + clist_size(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool)),
                                 CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool));
             break;
         }
 
-        ccond_reserve(CTHREAD_NODE_CCOND(cthread_node), 1, LOC_CTHREAD_0027);
+        ccond_reserve(CTHREAD_NODE_CCOND(cthread_node), 1, LOC_CTHREAD_0029);
 
         CTHREAD_NODE_STATUS(cthread_node)  = ((CTHREAD_NODE_STATUS(cthread_node) & CTHREAD_HI_MASK) | CTHREAD_IS_IDLE);
         CTHREAD_NODE_MOUNTED(cthread_node) = clist_push_back(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), (void *)cthread_node);
@@ -1171,11 +1183,11 @@ UINT32 cthreadp_shrink_no_lock(CTHREAD_POOL *cthread_pool, const UINT32 cthread_
     {
         cthread_node = (CTHREAD_NODE *)clist_pop_front(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool));
         CTHREAD_NODE_STATUS(cthread_node) |= CTHREAD_IS_DOWN;
-        sys_log(LOGSTDOUT, "cthreadp_shrink_no_lock: shutdown idle cthread_node %lx, thread %u\n", cthread_node, CTHREAD_NODE_ID(cthread_node));
-        ccond_release_all(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0028);
+        dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthreadp_shrink_no_lock: shutdown idle cthread_node %lx, thread %u\n", cthread_node, CTHREAD_NODE_ID(cthread_node));
+        ccond_release_all(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0030);
     }
 
-    sys_log(LOGSTDOUT, "cthreadp_shrink_no_lock report: to shrink %ld cthread_nodes, actually shrinked %ld cthread_nodes, current support max %ld cthread_nodes\n",
+    dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthreadp_shrink_no_lock report: to shrink %ld cthread_nodes, actually shrinked %ld cthread_nodes, current support max %ld cthread_nodes\n",
                         cthread_num_to_shrink, cthread_num_shrinked, CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool));
     return (cthread_num_shrinked);
 }
@@ -1184,10 +1196,10 @@ CTHREAD_POOL * cthreadp_new(const UINT32 cthread_num, const UINT32 flag)
 {
     CTHREAD_POOL *cthread_pool;
 
-    alloc_static_mem(MD_TASK, 0, MM_CTHREAD_POOL, &cthread_pool, LOC_CTHREAD_0029);
+    alloc_static_mem(MD_TASK, 0, MM_CTHREAD_POOL, &cthread_pool, LOC_CTHREAD_0031);
     if(NULL_PTR == cthread_pool)
     {
-        sys_log(LOGSTDOUT, "error:cthreadp_new: alloc CTHREAD_POOL failed\n");
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthreadp_new: alloc CTHREAD_POOL failed\n");
         return (NULL_PTR);
     }
 
@@ -1201,9 +1213,9 @@ UINT32 cthreadp_init(CTHREAD_POOL *cthread_pool)
 {
     UINT32 core_id;
 
-    clist_init(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), MM_IGNORE, LOC_CTHREAD_0030);
-    clist_init(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool), MM_IGNORE, LOC_CTHREAD_0031);
-    cmutex_init(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), CMUTEX_PROCESS_PRIVATE, LOC_CTHREAD_0032);
+    clist_init(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), MM_IGNORE, LOC_CTHREAD_0032);
+    clist_init(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool), MM_IGNORE, LOC_CTHREAD_0033);
+    cmutex_init(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), CMUTEX_PROCESS_PRIVATE, LOC_CTHREAD_0034);
 
     CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool) = 0;
     CTHREAD_POOL_WORKER_FLAG(cthread_pool)    = CTHREAD_ERR_FLAG;
@@ -1224,15 +1236,15 @@ UINT32 cthreadp_shutdown(CTHREAD_POOL *cthread_pool)
     CTHREAD_NODE *cthread_node;
     UINT32 core_id;
 
-    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0033);
-    //sys_log(LOGSTDOUT, "info:cthreadp_shutdown enter\n");
+    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0035);
+    //dbg_log(SEC_0016_CTHREAD, 3)(LOGSTDOUT, "info:cthreadp_shutdown enter\n");
 
     while(EC_FALSE == clist_is_empty(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool)))
     {
         cthread_node = (CTHREAD_NODE *)clist_pop_front(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool));
         CTHREAD_NODE_STATUS(cthread_node) |= CTHREAD_IS_DOWN;
-        sys_log(LOGSTDOUT, "cthreadp_shutdown: shutdown idle cthread_node %lx, thread %u\n", cthread_node, CTHREAD_NODE_ID(cthread_node));
-        ccond_release_all(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0034);
+        dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthreadp_shutdown: shutdown idle cthread_node %lx, thread %u\n", cthread_node, CTHREAD_NODE_ID(cthread_node));
+        ccond_release_all(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0036);
     }
 
     while(EC_FALSE == clist_is_empty(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool)))
@@ -1240,12 +1252,12 @@ UINT32 cthreadp_shutdown(CTHREAD_POOL *cthread_pool)
         cthread_node = (CTHREAD_NODE *)clist_pop_front(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool));
 
         CTHREAD_NODE_STATUS(cthread_node) |= CTHREAD_IS_DOWN;
-        sys_log(LOGSTDOUT, "cthreadp_shutdown: shutdown busy cthread_node %lx, thread %u\n", cthread_node, CTHREAD_NODE_ID(cthread_node));
+        dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthreadp_shutdown: shutdown busy cthread_node %lx, thread %u\n", cthread_node, CTHREAD_NODE_ID(cthread_node));
         cthread_cancel(CTHREAD_NODE_ID(cthread_node));
     }
 
-    //sys_log(LOGSTDOUT, "info:cthreadp_shutdown leave\n");
-    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0035);
+    //dbg_log(SEC_0016_CTHREAD, 3)(LOGSTDOUT, "info:cthreadp_shutdown leave\n");
+    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0037);
 
     for(core_id = 0; core_id < CTHREAD_MAX_CORE_NUM; core_id ++)
     {
@@ -1258,14 +1270,14 @@ UINT32 cthreadp_shutdown(CTHREAD_POOL *cthread_pool)
 UINT32 cthreadp_clean(CTHREAD_POOL *cthread_pool)
 {
     cthreadp_shutdown(cthread_pool);
-    cmutex_clean(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0036);
+    cmutex_clean(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0038);
     return (0);
 }
 
 UINT32 cthreadp_free(CTHREAD_POOL *cthread_pool)
 {
     cthreadp_clean(cthread_pool);
-    free_static_mem(MD_TASK, 0, MM_CTHREAD_POOL, cthread_pool, LOC_CTHREAD_0037);
+    free_static_mem(MD_TASK, 0, MM_CTHREAD_POOL, cthread_pool, LOC_CTHREAD_0039);
     return (0);
 }
 
@@ -1279,7 +1291,7 @@ CTHREAD_NODE *cthreadp_reserve_node(CTHREAD_POOL *cthread_pool)
     core_load_min  = ((UINT32)-1);/*set to max value*/
     clist_data_min = NULL_PTR;
 
-    CLIST_LOCK(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), LOC_CTHREAD_0038);
+    CLIST_LOCK(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), LOC_CTHREAD_0040);
     CLIST_LOOP_NEXT(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), clist_data)
     {
         CTHREAD_NODE *cthread_node;
@@ -1298,12 +1310,12 @@ CTHREAD_NODE *cthreadp_reserve_node(CTHREAD_POOL *cthread_pool)
     {
         CTHREAD_NODE *cthread_node_min;
         cthread_node_min = (CTHREAD_NODE *)clist_rmv_no_lock(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), clist_data_min);
-        CLIST_UNLOCK(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), LOC_CTHREAD_0039);
+        CLIST_UNLOCK(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), LOC_CTHREAD_0041);
 
         return (cthread_node_min);
     }
 
-    CLIST_UNLOCK(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), LOC_CTHREAD_0040);
+    CLIST_UNLOCK(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), LOC_CTHREAD_0042);
     return (NULL_PTR);
 }
 
@@ -1317,14 +1329,14 @@ CTHREAD_NODE * cthreadp_reserve_no_lock0(CTHREAD_POOL *cthread_pool)
 
     if(total_num < CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool))
     {
-        sys_log(LOGSTDOUT, "cthreadp_reserve_no_lock: try to expand cthread num from %ld to %ld\n", 
+        dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthreadp_reserve_no_lock: try to expand cthread num from %ld to %ld\n", 
                             total_num, CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool));
         cthreadp_expand_no_lock(cthread_pool, CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool) - total_num, CTHREAD_POOL_WORKER_FLAG(cthread_pool));
     }
 
     if(total_num > CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool))
     {
-        sys_log(LOGSTDOUT, "cthreadp_reserve_no_lock: try to shrink cthread num from %ld to %ld\n", 
+        dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthreadp_reserve_no_lock: try to shrink cthread num from %ld to %ld\n", 
                             total_num, CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool));
     
         cthreadp_shrink_no_lock(cthread_pool, total_num - CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool));
@@ -1377,7 +1389,7 @@ CTHREAD_NODE * cthreadp_reserve_no_lock(CTHREAD_POOL *cthread_pool)
 
             cthread_num = DMIN(CTHREAD_EXPAND_MIN_NUM, CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool) - total_num);
             
-            sys_log(LOGSTDOUT, "cthreadp_reserve_no_lock: try to expand cthread num from %ld to %ld\n", 
+            dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthreadp_reserve_no_lock: try to expand cthread num from %ld to %ld\n", 
                                 total_num, cthread_num + total_num);
             cthreadp_expand_no_lock(cthread_pool, cthread_num, CTHREAD_POOL_WORKER_FLAG(cthread_pool));
         }
@@ -1401,7 +1413,7 @@ CTHREAD_NODE * cthreadp_reserve_no_lock(CTHREAD_POOL *cthread_pool)
     total_num = idle_num + busy_num;        
     if(total_num > CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool))
     {
-        sys_log(LOGSTDOUT, "cthreadp_reserve_no_lock: try to shrink cthread num from %ld to %ld\n", 
+        dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthreadp_reserve_no_lock: try to shrink cthread num from %ld to %ld\n", 
                             total_num, CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool));
     
         cthreadp_shrink_no_lock(cthread_pool, total_num - CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool));
@@ -1409,7 +1421,7 @@ CTHREAD_NODE * cthreadp_reserve_no_lock(CTHREAD_POOL *cthread_pool)
 #if 0
     if(CTHREAD_SHRINK_THRESHOLD <= idle_num)
     {
-        sys_log(LOGSTDOUT, "cthreadp_reserve_no_lock: try to shrink idle cthread num from %ld to %ld\n", 
+        dbg_log(SEC_0016_CTHREAD, 5)(LOGSTDOUT, "cthreadp_reserve_no_lock: try to shrink idle cthread num from %ld to %ld\n", 
                             idle_num, idle_num - CTHREAD_SHRINK_MIN_NUM);
     
         cthreadp_shrink_no_lock(cthread_pool, CTHREAD_SHRINK_MIN_NUM);
@@ -1422,9 +1434,9 @@ CTHREAD_NODE * cthreadp_reserve(CTHREAD_POOL *cthread_pool)
 {
     CTHREAD_NODE *cthread_node;
 
-    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0041);
+    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0043);
     cthread_node = cthreadp_reserve_no_lock(cthread_pool);
-    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0042);
+    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0044);
 
     return (cthread_node);
 }
@@ -1444,7 +1456,7 @@ CTHREAD_NODE * cthreadp_load_no_lock(CTHREAD_POOL *cthread_pool, const UINT32 st
         cthreadp_num_info_no_lock(cthread_pool, &idle_num, &busy_num, &total_num);
         max_num = CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool);
 
-        sys_log(LOGSTDOUT, "warn:cthreadp_load_no_lock: failed to reserve one cthread_node where idle %ld, busy %ld, total %ld, max %ld\n",
+        dbg_log(SEC_0016_CTHREAD, 1)(LOGSTDNULL, "warn:cthreadp_load_no_lock: failed to reserve one cthread_node where idle %ld, busy %ld, total %ld, max %ld\n",
                             idle_num, busy_num, total_num, max_num);
         return (NULL_PTR);
     }
@@ -1459,13 +1471,13 @@ CTHREAD_NODE * cthreadp_load_no_lock(CTHREAD_POOL *cthread_pool, const UINT32 st
         cthreadp_num_info_no_lock(cthread_pool, &idle_num, &busy_num, &total_num);
         max_num = CTHREAD_POOL_WORKER_MAX_NUM(cthread_pool);
 
-        sys_log(LOGSTDOUT, "[DEBUG]cthreadp_load_no_lock: idle %ld, busy %ld, total %ld, max %ld\n",
+        dbg_log(SEC_0016_CTHREAD, 9)(LOGSTDOUT, "[DEBUG]cthreadp_load_no_lock: idle %ld, busy %ld, total %ld, max %ld\n",
                             idle_num, busy_num, total_num, max_num);
     }
 
     if(NULL_PTR == CTHREAD_NODE_TASK(cthread_node))
     {
-        sys_log(LOGSTDOUT, "error:cthreadp_load_no_lock: cthread node %lx task is null\n", cthread_node);
+        dbg_log(SEC_0016_CTHREAD, 0)(LOGSTDOUT, "error:cthreadp_load_no_lock: cthread node %lx task is null\n", cthread_node);
 
         clist_push_back(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool), (void *)cthread_node);
         return (NULL_PTR);
@@ -1477,7 +1489,7 @@ CTHREAD_NODE * cthreadp_load_no_lock(CTHREAD_POOL *cthread_pool, const UINT32 st
     CTHREAD_NODE_MOUNTED(cthread_node) = clist_push_back(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool), (void *)cthread_node);
 
     /*note: ccond_release MUST be called out of cthreadp_node, otherwise, user cannot determine when the cthread_node can be refered*/
-    //ccond_release(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0043);
+    //ccond_release(CTHREAD_NODE_CCOND(cthread_node), LOC_CTHREAD_0045);
 
     return (cthread_node);
 }
@@ -1489,9 +1501,9 @@ CTHREAD_NODE * cthreadp_load(CTHREAD_POOL *cthread_pool, const UINT32 start_rout
 
     va_start(para_list, para_num);
     
-    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0044);    
+    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0046);    
     cthread_node = cthreadp_load_no_lock(cthread_pool, start_routine_addr, para_num, para_list);
-    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0045);
+    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0047);
     
     va_end(para_list);
 
@@ -1539,10 +1551,10 @@ UINT32 cthreadp_size(CTHREAD_POOL *cthread_pool)
 {
     UINT32 size;
 
-    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0046);
+    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0048);
     size = clist_size(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool))
          + clist_size(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool));
-    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0047);
+    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0049);
 
     return (size);
 }
@@ -1551,9 +1563,9 @@ UINT32 cthreadp_idle_num(CTHREAD_POOL *cthread_pool)
 {
     UINT32 num;
 
-    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0048);
+    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0050);
     num = clist_size(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool));
-    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0049);
+    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0051);
 
     return (num);
 }
@@ -1562,20 +1574,20 @@ UINT32 cthreadp_busy_num(CTHREAD_POOL *cthread_pool)
 {
     UINT32 num;
 
-    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0050);
+    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0052);
     num = clist_size(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool));
-    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0051);
+    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0053);
 
     return (num);
 }
 
 UINT32 cthreadp_num_info(CTHREAD_POOL *cthread_pool, UINT32 *idle_num, UINT32 *busy_num, UINT32 *total_num)
 {
-    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0052);
+    cmutex_lock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0054);
     (*idle_num) = clist_size(CTHREAD_POOL_WORKER_IDLE_LIST(cthread_pool));
     (*busy_num) = clist_size(CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool));
     (*total_num) = (*idle_num) + (*busy_num);
-    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0053);
+    cmutex_unlock(CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0055);
 
     return (0);
 }
@@ -1586,7 +1598,7 @@ void cthreadp_print(LOG *log, const CTHREAD_POOL *cthread_pool)
     UINT32 busy_num;
     UINT32 total_num;
     
-    cmutex_lock((CMUTEX *)CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0054);
+    cmutex_lock((CMUTEX *)CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0056);
 
     cthreadp_num_info_no_lock((CTHREAD_POOL *)cthread_pool, &idle_num, &busy_num, &total_num);
 
@@ -1600,7 +1612,7 @@ void cthreadp_print(LOG *log, const CTHREAD_POOL *cthread_pool)
     sys_log(log, "busy worker list:\n");
     clist_print(log, CTHREAD_POOL_WORKER_BUSY_LIST(cthread_pool), (CLIST_DATA_DATA_PRINT)cthread_node_print);
 
-    cmutex_unlock((CMUTEX *)CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0055);
+    cmutex_unlock((CMUTEX *)CTHREAD_POOL_WORKER_CMUTEX(cthread_pool), LOC_CTHREAD_0057);
     return;
 }
 

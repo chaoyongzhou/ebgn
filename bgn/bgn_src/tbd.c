@@ -112,7 +112,7 @@ UINT32 tbd_start( )
 
     tbd_md->usedcounter = 1;
 
-    sys_log(LOGSTDOUT, "tbd_start: start TBD module #%ld\n", tbd_md_id);
+    dbg_log(SEC_0079_TBD, 5)(LOGSTDOUT, "tbd_start: start TBD module #%ld\n", tbd_md_id);
 
     return ( tbd_md_id );
 }
@@ -129,7 +129,7 @@ void tbd_end(const UINT32 tbd_md_id)
     tbd_md = TBD_MD_GET(tbd_md_id);
     if(NULL_PTR == tbd_md)
     {
-        sys_log(LOGSTDOUT,"error:tbd_end: tbd_md_id = %ld not exist.\n", tbd_md_id);
+        dbg_log(SEC_0079_TBD, 0)(LOGSTDOUT,"error:tbd_end: tbd_md_id = %ld not exist.\n", tbd_md_id);
         dbg_exit(MD_TBD, tbd_md_id);
     }
 
@@ -142,7 +142,7 @@ void tbd_end(const UINT32 tbd_md_id)
 
     if ( 0 == tbd_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:tbd_end: tbd_md_id = %ld is not started.\n", tbd_md_id);
+        dbg_log(SEC_0079_TBD, 0)(LOGSTDOUT,"error:tbd_end: tbd_md_id = %ld is not started.\n", tbd_md_id);
         dbg_exit(MD_TBD, tbd_md_id);
     }
 
@@ -152,7 +152,7 @@ void tbd_end(const UINT32 tbd_md_id)
 
     tbd_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "tbd_end: stop TBD module #%ld\n", tbd_md_id);
+    dbg_log(SEC_0079_TBD, 5)(LOGSTDOUT, "tbd_end: stop TBD module #%ld\n", tbd_md_id);
 
     cbc_md_free(MD_TBD, tbd_md_id);
 
@@ -186,7 +186,7 @@ UINT32 tbd_set_mod_mgr(const UINT32 tbd_md_id, const MOD_MGR * src_mod_mgr)
     tbd_md = TBD_MD_GET(tbd_md_id);
     des_mod_mgr = tbd_md->mod_mgr;
 
-    //sys_log(LOGSTDOUT, "tbd_set_mod_mgr: md_id %d, des_mod_mgr %lx\n", tbd_md_id, des_mod_mgr);
+    //dbg_log(SEC_0079_TBD, 5)(LOGSTDOUT, "tbd_set_mod_mgr: md_id %d, des_mod_mgr %lx\n", tbd_md_id, des_mod_mgr);
 
     mod_mgr_limited_clone(tbd_md_id, src_mod_mgr, des_mod_mgr);
     return (0);
@@ -221,11 +221,11 @@ UINT32 tbd_run(const UINT32 tbd_md_id, const void * ui_retval_addr, const UINT32
 
     va_list ap;
 
-    //sys_log(LOGSTDOUT, "tbd_run: being called!\n");
+    //dbg_log(SEC_0079_TBD, 5)(LOGSTDOUT, "tbd_run: being called!\n");
 
     if(0 != dbg_fetch_func_addr_node_by_index(ui_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:tbd_run: failed to fetch ui func addr node by ui id %lx\n", ui_id);
+        dbg_log(SEC_0079_TBD, 0)(LOGSTDOUT, "error:tbd_run: failed to fetch ui func addr node by ui id %lx\n", ui_id);
         return ((UINT32)-1);
     }
 
@@ -319,13 +319,13 @@ UINT32 tbd_run(const UINT32 tbd_md_id, const void * ui_retval_addr, const UINT32
             func_ret_value = FUNC_CALL(16, func_addr, func_para_value);
             break;
         default:
-            sys_log(LOGSTDOUT, "error:tbd_run: func para num = %d overflow\n", func_para_num);
+            dbg_log(SEC_0079_TBD, 0)(LOGSTDOUT, "error:tbd_run: func para num = %d overflow\n", func_para_num);
             return ((UINT32)(-1));
     }
 
     //if(0 != ui_retval_addr)
     {
-        //sys_log(LOGSTDOUT, "tbd_run: ui_retval_addr %lx ==> ", ui_retval_addr);
+        //dbg_log(SEC_0079_TBD, 5)(LOGSTDOUT, "tbd_run: ui_retval_addr %lx ==> ", ui_retval_addr);
 
         *((UINT32 *)ui_retval_addr) = func_ret_value;
         //sys_print(LOGSTDOUT, "%lx ==> %ld\n", ui_retval_addr, *((UINT32 *)ui_retval_addr));

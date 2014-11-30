@@ -21,7 +21,7 @@ extern "C"{
 #include "cstring.h"
 #include "cbytes.h"
 
-#include "croutine.h"
+#include "cmutex.h"
 
 #define CSESSION_NEVER_EXPIRE        ((UINT32)   0)
 #define CSESSION_BEGIN_ID            ((UINT32)   0)
@@ -38,9 +38,9 @@ typedef struct
     UINT32      usedcounter;
 
     MOD_MGR    *mod_mgr;
-    CROUTINE_RWLOCK     rwlock;
+    CRWLOCK     rwlock;
 
-    CROUTINE_MUTEX      session_id_pool_cmutex;
+    CMUTEX      session_id_pool_cmutex;
     UINT32      session_id_pool;
 
     CLIST       session_list;   /*session list, item type is CSESSION_NODE*/
@@ -52,16 +52,16 @@ typedef struct
 #define CSESSION_MD_ID_POOL(csession_md)            ((csession_md)->session_id_pool)
 #define CSESSION_MD_SESSION_LIST(csession_md)       (&((csession_md)->session_list))
 
-#define CSESSION_MD_INIT_CRWLOCK(csession_md, location)            (croutine_rwlock_init(CSESSION_MD_CRWLOCK(csession_md), CRWLOCK_PROCESS_PRIVATE, location))
-#define CSESSION_MD_CLEAN_CRWLOCK(csession_md, location)           (croutine_rwlock_clean(CSESSION_MD_CRWLOCK(csession_md), location))
-#define CSESSION_MD_CRWLOCK_RDLOCK(csession_md, location)          (croutine_rwlock_rdlock(CSESSION_MD_CRWLOCK(csession_md), location))
-#define CSESSION_MD_CRWLOCK_WRLOCK(csession_md, location)          (croutine_rwlock_wrlock(CSESSION_MD_CRWLOCK(csession_md), location))
-#define CSESSION_MD_CRWLOCK_UNLOCK(csession_md, location)          (croutine_rwlock_unlock(CSESSION_MD_CRWLOCK(csession_md), location))
+#define CSESSION_MD_INIT_CRWLOCK(csession_md, location)            (crwlock_init(CSESSION_MD_CRWLOCK(csession_md), CRWLOCK_PROCESS_PRIVATE, location))
+#define CSESSION_MD_CLEAN_CRWLOCK(csession_md, location)           (crwlock_clean(CSESSION_MD_CRWLOCK(csession_md), location))
+#define CSESSION_MD_CRWLOCK_RDLOCK(csession_md, location)          (crwlock_rdlock(CSESSION_MD_CRWLOCK(csession_md), location))
+#define CSESSION_MD_CRWLOCK_WRLOCK(csession_md, location)          (crwlock_wrlock(CSESSION_MD_CRWLOCK(csession_md), location))
+#define CSESSION_MD_CRWLOCK_UNLOCK(csession_md, location)          (crwlock_unlock(CSESSION_MD_CRWLOCK(csession_md), location))
 
-#define CSESSION_MD_INIT_ID_POOL_CMUTEX(csession_md, location)     (croutine_mutex_init(CSESSION_MD_ID_POOL_CMUTEX(csession_md), CMUTEX_PROCESS_PRIVATE, location))
-#define CSESSION_MD_CLEAN_ID_POOL_CMUTEX(csession_md, location)    (croutine_mutex_clean(CSESSION_MD_ID_POOL_CMUTEX(csession_md), location))
-#define CSESSION_MD_CMUTEX_ID_POOL_LOCK(csession_md, location)     (croutine_mutex_lock(CSESSION_MD_ID_POOL_CMUTEX(csession_md), location))
-#define CSESSION_MD_CMUTEX_ID_POOL_UNLOCK(csession_md, location)   (croutine_mutex_unlock(CSESSION_MD_ID_POOL_CMUTEX(csession_md), location))
+#define CSESSION_MD_INIT_ID_POOL_CMUTEX(csession_md, location)     (cmutex_init(CSESSION_MD_ID_POOL_CMUTEX(csession_md), CMUTEX_PROCESS_PRIVATE, location))
+#define CSESSION_MD_CLEAN_ID_POOL_CMUTEX(csession_md, location)    (cmutex_clean(CSESSION_MD_ID_POOL_CMUTEX(csession_md), location))
+#define CSESSION_MD_CMUTEX_ID_POOL_LOCK(csession_md, location)     (cmutex_lock(CSESSION_MD_ID_POOL_CMUTEX(csession_md), location))
+#define CSESSION_MD_CMUTEX_ID_POOL_UNLOCK(csession_md, location)   (cmutex_unlock(CSESSION_MD_ID_POOL_CMUTEX(csession_md), location))
 
 /*one session*/
 typedef struct
@@ -69,7 +69,7 @@ typedef struct
     CSTRING      name;
     UINT32       id;
 
-    CROUTINE_MUTEX       cmutex;/*cmutex for updating access_time*/    
+    CMUTEX       cmutex;/*cmutex for updating access_time*/    
 
     UINT32       expire_nsec;
     CTIMET       create_time; /*session created time*/
@@ -86,10 +86,10 @@ typedef struct
 #define CSESSION_NODE_ACCESS_TIME(csession_node)    ((csession_node)->access_time)
 #define CSESSION_NODE_CACHE_TREE(csession_node)     (&((csession_node)->cache_tree))
 
-#define CSESSION_NODE_INIT_ACCESS_CMUTEX(csession_node, location)     (croutine_mutex_init(CSESSION_NODE_ACCESS_CMUTEX(csession_node), CMUTEX_PROCESS_PRIVATE, location))
-#define CSESSION_NODE_CLEAN_ACCESS_CMUTEX(csession_node, location)    (croutine_mutex_clean(CSESSION_NODE_ACCESS_CMUTEX(csession_node), location))
-#define CSESSION_NODE_CMUTEX_ACCESS_LOCK(csession_node, location)     (croutine_mutex_lock(CSESSION_NODE_ACCESS_CMUTEX(csession_node), location))
-#define CSESSION_NODE_CMUTEX_ACCESS_UNLOCK(csession_node, location)   (croutine_mutex_unlock(CSESSION_NODE_ACCESS_CMUTEX(csession_node), location))
+#define CSESSION_NODE_INIT_ACCESS_CMUTEX(csession_node, location)     (cmutex_init(CSESSION_NODE_ACCESS_CMUTEX(csession_node), CMUTEX_PROCESS_PRIVATE, location))
+#define CSESSION_NODE_CLEAN_ACCESS_CMUTEX(csession_node, location)    (cmutex_clean(CSESSION_NODE_ACCESS_CMUTEX(csession_node), location))
+#define CSESSION_NODE_CMUTEX_ACCESS_LOCK(csession_node, location)     (cmutex_lock(CSESSION_NODE_ACCESS_CMUTEX(csession_node), location))
+#define CSESSION_NODE_CMUTEX_ACCESS_UNLOCK(csession_node, location)   (cmutex_unlock(CSESSION_NODE_ACCESS_CMUTEX(csession_node), location))
 
 /*update access time*/
 #define CSESSION_NODE_UPDATE_ACCESS_TIME(csession_node, location)     do{\

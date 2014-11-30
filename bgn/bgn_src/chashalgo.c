@@ -12,6 +12,7 @@ extern "C"{
 #include "type.h"
 #include "log.h"
 
+#include "cmd5.h"
 #include "chashalgo.h"
 #include "chashalgo.inc"
 
@@ -205,6 +206,26 @@ UINT32 CRC_hash(const UINT32 len, const UINT8 *str)
     return (answer & 0xFFFFFFFF);
 }
 
+UINT32 MD5_hash(const UINT32 len, const UINT8 *str)
+{
+    uint32_t  hash;
+    uint8_t   digest[ CMD5_DIGEST_LEN ];
+    uint8_t   i;
+
+    cmd5_sum(len, str, digest);
+
+    hash = 0;
+    for(i = 0; i < 4; i++)
+    {
+        hash += ((uint32_t)(digest[i * 4 + 3] & 0xFF) << 24)
+              | ((uint32_t)(digest[i * 4 + 2] & 0xFF) << 16)
+              | ((uint32_t)(digest[i * 4 + 1] & 0xFF) <<  8)
+              | ((uint32_t)(digest[i * 4 + 0] & 0xFF));
+    }
+
+    return (hash);
+}
+
 CHASH_ALGO chash_algo_fetch(const UINT32 chash_algo_id)
 {
     CHASH_ALGO_NODE *chash_algo_node;
@@ -228,7 +249,7 @@ CHASH_ALGO chash_algo_fetch(const UINT32 chash_algo_id)
         }
     }
 
-    sys_log(LOGSTDOUT, "error:chash_algo_get: invalid chash_algo_id %ld\n", chash_algo_id);
+    dbg_log(SEC_0064_CHASHALGO, 0)(LOGSTDOUT, "error:chash_algo_get: invalid chash_algo_id %ld\n", chash_algo_id);
     return (NULL_PTR);
 }
 

@@ -97,7 +97,7 @@ TASKS_CFG * tasks_cfg_new()
     alloc_static_mem(MD_TASK, 0, MM_TASKS_CFG, &tasks_cfg, LOC_TASKCFG_0005);
     if(NULL_PTR == tasks_cfg)
     {
-        sys_log(LOGSTDOUT, "error:tasks_cfg_new: failed to alloc TASKS_CFG\n");
+        dbg_log(SEC_0019_TASKCFG, 0)(LOGSTDOUT, "error:tasks_cfg_new: failed to alloc TASKS_CFG\n");
         return (NULL_PTR);
     }
 
@@ -215,6 +215,21 @@ EC_BOOL tasks_cfg_match_netcards(const TASKS_CFG *tasks_cfg, const CSET *cnetcar
     return (EC_TRUE);
 }
 
+EC_BOOL tasks_cfg_match_csrv(const TASKS_CFG *tasks_cfg, const UINT32 tcid, const UINT32 csrvport)
+{
+    if(TASKS_CFG_TCID(tasks_cfg) != tcid)
+    {
+        return (EC_FALSE);
+    }
+    
+    if(CMPI_ANY_SRVPORT != csrvport && TASKS_CFG_CSRVPORT(tasks_cfg) != csrvport)
+    {
+        return (EC_FALSE);
+    }
+
+    return (EC_TRUE);
+}
+
 
 /**
 *
@@ -257,12 +272,12 @@ EC_BOOL tasks_cfg_is_intranet(const TASKS_CFG *tasks_cfg_src, const TASKS_CFG *t
     /*src & maski(src) == des & maski(src)*/
     if(DES_TCID_IS_INTRANET(TASKS_CFG_TCID(tasks_cfg_src), TASKS_CFG_MASKI(tasks_cfg_src), TASKS_CFG_TCID(tasks_cfg_des), TASKS_CFG_MASKE(tasks_cfg_des)))
     {
-        sys_log(LOGSTDOUT, "[DEBUG] intranet: %s & %s == %s & %s\n",
+        dbg_log(SEC_0019_TASKCFG, 9)(LOGSTDOUT, "[DEBUG] intranet: %s & %s == %s & %s\n",
                             TASKS_CFG_TCID_STR(tasks_cfg_src), TASKS_CFG_MASKI_STR(tasks_cfg_src),
                             TASKS_CFG_TCID_STR(tasks_cfg_des), TASKS_CFG_MASKE_STR(tasks_cfg_des));
         return (EC_TRUE);
     }
-    sys_log(LOGSTDOUT, "[DEBUG] intranet: %s & %s != %s & %s\n",
+    dbg_log(SEC_0019_TASKCFG, 9)(LOGSTDOUT, "[DEBUG] intranet: %s & %s != %s & %s\n",
                         TASKS_CFG_TCID_STR(tasks_cfg_src), TASKS_CFG_MASKI_STR(tasks_cfg_src),
                         TASKS_CFG_TCID_STR(tasks_cfg_des), TASKS_CFG_MASKE_STR(tasks_cfg_des));
     return (EC_FALSE);
@@ -279,12 +294,12 @@ EC_BOOL tasks_cfg_is_lannet(const TASKS_CFG *tasks_cfg_src, const TASKS_CFG *tas
     /*src & maske(src) == des & maske(des)*/
     if(DES_TCID_IS_LANNET(TASKS_CFG_TCID(tasks_cfg_src), TASKS_CFG_MASKE(tasks_cfg_src), TASKS_CFG_TCID(tasks_cfg_des), TASKS_CFG_MASKE(tasks_cfg_des)))
     {
-        sys_log(LOGSTDOUT, "[DEBUG] lannet: %s & %s == %s & %s\n",
+        dbg_log(SEC_0019_TASKCFG, 9)(LOGSTDOUT, "[DEBUG] lannet: %s & %s == %s & %s\n",
                             TASKS_CFG_TCID_STR(tasks_cfg_src), TASKS_CFG_MASKE_STR(tasks_cfg_src),
                             TASKS_CFG_TCID_STR(tasks_cfg_des), TASKS_CFG_MASKE_STR(tasks_cfg_des));
         return (EC_TRUE);
     }
-    sys_log(LOGSTDOUT, "[DEBUG] lannet: %s & %s != %s & %s\n",
+    dbg_log(SEC_0019_TASKCFG, 9)(LOGSTDOUT, "[DEBUG] lannet: %s & %s != %s & %s\n",
                         TASKS_CFG_TCID_STR(tasks_cfg_src), TASKS_CFG_MASKE_STR(tasks_cfg_src),
                         TASKS_CFG_TCID_STR(tasks_cfg_des), TASKS_CFG_MASKE_STR(tasks_cfg_des));
     return (EC_FALSE);
@@ -301,12 +316,12 @@ EC_BOOL tasks_cfg_is_externet(const TASKS_CFG *tasks_cfg_src, const TASKS_CFG *t
     /*src & maske(src) == des & maske(src)*/
     if(DES_TCID_IS_EXTERNET(TASKS_CFG_TCID(tasks_cfg_src), TASKS_CFG_MASKE(tasks_cfg_src), TASKS_CFG_TCID(tasks_cfg_des), TASKS_CFG_MASKI(tasks_cfg_des)))
     {
-        sys_log(LOGSTDOUT, "[DEBUG] externet: %s & %s == %s & %s\n",
+        dbg_log(SEC_0019_TASKCFG, 9)(LOGSTDOUT, "[DEBUG] externet: %s & %s == %s & %s\n",
                             TASKS_CFG_TCID_STR(tasks_cfg_src), TASKS_CFG_MASKE_STR(tasks_cfg_src),
                             TASKS_CFG_TCID_STR(tasks_cfg_des), TASKS_CFG_MASKI_STR(tasks_cfg_des));
         return (EC_TRUE);
     }
-    sys_log(LOGSTDOUT, "[DEBUG] externet: %s & %s != %s & %s\n",
+    dbg_log(SEC_0019_TASKCFG, 9)(LOGSTDOUT, "[DEBUG] externet: %s & %s != %s & %s\n",
                         TASKS_CFG_TCID_STR(tasks_cfg_src), TASKS_CFG_MASKE_STR(tasks_cfg_src),
                         TASKS_CFG_TCID_STR(tasks_cfg_des), TASKS_CFG_MASKI_STR(tasks_cfg_des));
     return (EC_FALSE);
@@ -462,7 +477,7 @@ TASKR_CFG * taskr_cfg_new()
     alloc_static_mem(MD_TASK, 0, MM_TASKR_CFG, &taskr_cfg, LOC_TASKCFG_0011);
     if(NULL_PTR == taskr_cfg)
     {
-        sys_log(LOGSTDOUT, "error:taskr_cfg_new: failed to alloc TASKR_CFG\n");
+        dbg_log(SEC_0019_TASKCFG, 0)(LOGSTDOUT, "error:taskr_cfg_new: failed to alloc TASKR_CFG\n");
         return (NULL_PTR);
     }
 
@@ -565,7 +580,7 @@ TASK_CFG * task_cfg_new()
     alloc_static_mem(MD_TASK, 0, MM_TASK_CFG, &task_cfg, LOC_TASKCFG_0015);
     if(NULL_PTR == task_cfg)
     {
-        sys_log(LOGSTDOUT, "error:task_cfg_new: failed to alloc TASK_CFG\n");
+        dbg_log(SEC_0019_TASKCFG, 0)(LOGSTDOUT, "error:task_cfg_new: failed to alloc TASK_CFG\n");
         return (NULL_PTR);
     }
 
@@ -615,7 +630,7 @@ EC_BOOL task_cfg_filter(const TASK_CFG *src_task_cfg, const UINT32 tcid, TASK_CF
 #if 0
         if(EC_TRUE == tasks_cfg_is_intranet(filtered_tasks_cfg, tasks_cfg))
         {
-            sys_log(LOGSTDOUT, "[DEBUG][I]tcid = %s, maski = %s, maske = %s, srvipaddr = %s, srvport = %ld, srvsockfd = %d\n",
+            dbg_log(SEC_0019_TASKCFG, 9)(LOGSTDOUT, "[DEBUG][I]tcid = %s, maski = %s, maske = %s, srvipaddr = %s, srvport = %ld, srvsockfd = %d\n",
                             TASKS_CFG_TCID_STR(tasks_cfg),
                             TASKS_CFG_MASKI_STR(tasks_cfg),
                             TASKS_CFG_MASKE_STR(tasks_cfg),
@@ -625,7 +640,7 @@ EC_BOOL task_cfg_filter(const TASK_CFG *src_task_cfg, const UINT32 tcid, TASK_CF
         }
         if(EC_TRUE == tasks_cfg_is_externet(filtered_tasks_cfg, tasks_cfg))
         {
-            sys_log(LOGSTDOUT, "[DEBUG][E]tcid = %s, maski = %s, maske = %s, srvipaddr = %s, srvport = %ld, srvsockfd = %d\n",
+            dbg_log(SEC_0019_TASKCFG, 9)(LOGSTDOUT, "[DEBUG][E]tcid = %s, maski = %s, maske = %s, srvipaddr = %s, srvport = %ld, srvsockfd = %d\n",
                             TASKS_CFG_TCID_STR(tasks_cfg),
                             TASKS_CFG_MASKI_STR(tasks_cfg),
                             TASKS_CFG_MASKE_STR(tasks_cfg),
@@ -635,7 +650,7 @@ EC_BOOL task_cfg_filter(const TASK_CFG *src_task_cfg, const UINT32 tcid, TASK_CF
         }
         if(EC_TRUE == tasks_cfg_is_lannet(filtered_tasks_cfg, tasks_cfg))
         {
-            sys_log(LOGSTDOUT, "[DEBUG][L]tcid = %s, maski = %s, maske = %s, srvipaddr = %s, srvport = %ld, srvsockfd = %d\n",
+            dbg_log(SEC_0019_TASKCFG, 9)(LOGSTDOUT, "[DEBUG][L]tcid = %s, maski = %s, maske = %s, srvipaddr = %s, srvport = %ld, srvsockfd = %d\n",
                             TASKS_CFG_TCID_STR(tasks_cfg),
                             TASKS_CFG_MASKI_STR(tasks_cfg),
                             TASKS_CFG_MASKE_STR(tasks_cfg),
@@ -646,7 +661,7 @@ EC_BOOL task_cfg_filter(const TASK_CFG *src_task_cfg, const UINT32 tcid, TASK_CF
 
         if(EC_TRUE == tasks_cfg_is_dbgnet(filtered_tasks_cfg, tasks_cfg))
         {
-            sys_log(LOGSTDOUT, "[DEBUG][D]tcid = %s, maski = %s, maske = %s, srvipaddr = %s, srvport = %ld, srvsockfd = %d\n",
+            dbg_log(SEC_0019_TASKCFG, 9)(LOGSTDOUT, "[DEBUG][D]tcid = %s, maski = %s, maske = %s, srvipaddr = %s, srvport = %ld, srvsockfd = %d\n",
                             TASKS_CFG_TCID_STR(tasks_cfg),
                             TASKS_CFG_MASKI_STR(tasks_cfg),
                             TASKS_CFG_MASKE_STR(tasks_cfg),
@@ -657,7 +672,7 @@ EC_BOOL task_cfg_filter(const TASK_CFG *src_task_cfg, const UINT32 tcid, TASK_CF
 
         if(EC_TRUE == tasks_cfg_is_monnet(filtered_tasks_cfg, tasks_cfg))
         {
-            sys_log(LOGSTDOUT, "[DEBUG][D]tcid = %s, maski = %s, maske = %s, srvipaddr = %s, srvport = %ld, srvsockfd = %d\n",
+            dbg_log(SEC_0019_TASKCFG, 9)(LOGSTDOUT, "[DEBUG][D]tcid = %s, maski = %s, maske = %s, srvipaddr = %s, srvport = %ld, srvsockfd = %d\n",
                             TASKS_CFG_TCID_STR(tasks_cfg),
                             TASKS_CFG_MASKI_STR(tasks_cfg),
                             TASKS_CFG_MASKE_STR(tasks_cfg),
@@ -679,7 +694,7 @@ EC_BOOL task_cfg_filter(const TASK_CFG *src_task_cfg, const UINT32 tcid, TASK_CF
             cloned_tasks_cfg = tasks_cfg_new();
             if(NULL_PTR == cloned_tasks_cfg)
             {
-                sys_log(LOGSTDOUT, "error:task_cfg_filter: failed to new tasks cfg\n");
+                dbg_log(SEC_0019_TASKCFG, 0)(LOGSTDOUT, "error:task_cfg_filter: failed to new tasks cfg\n");
                 CVECTOR_UNLOCK(TASK_CFG_TASKS_CFG_VEC(src_task_cfg), LOC_TASKCFG_0018);
                 return (EC_FALSE);
             }
@@ -713,7 +728,7 @@ EC_BOOL task_cfg_check_all(const TASK_CFG *task_cfg)
             continue;
         }
 
-        sys_log(LOGSTDOUT, "--------------------------------- check tcid %s, maski %s, maske %s -------------------------------------\n",
+        dbg_log(SEC_0019_TASKCFG, 5)(LOGSTDOUT, "--------------------------------- check tcid %s, maski %s, maske %s -------------------------------------\n",
                     TASKS_CFG_TCID_STR(tasks_cfg),
                     TASKS_CFG_MASKI_STR(tasks_cfg),
                     TASKS_CFG_MASKE_STR(tasks_cfg)
@@ -803,6 +818,31 @@ TASKS_CFG *task_cfg_searchs_by_netcards(const TASK_CFG *task_cfg, const CSET *cn
     return (NULL_PTR);
 }
 
+TASKS_CFG *task_cfg_searchs_by_csrv(const TASK_CFG *task_cfg, const UINT32 tcid, const UINT32 csrvport)
+{
+    UINT32 pos;
+
+    CVECTOR_LOCK(TASK_CFG_TASKS_CFG_VEC(task_cfg), LOC_TASKCFG_0030);
+    for(pos = 0; pos < cvector_size(TASK_CFG_TASKS_CFG_VEC(task_cfg)); pos ++)
+    {
+        TASKS_CFG *tasks_cfg;
+
+        tasks_cfg = (TASKS_CFG *)cvector_get_no_lock(TASK_CFG_TASKS_CFG_VEC(task_cfg), pos);
+        if(NULL_PTR == tasks_cfg)
+        {
+            continue;
+        }
+
+        if(EC_TRUE == tasks_cfg_match_csrv(tasks_cfg, tcid, csrvport))
+        {
+            CVECTOR_UNLOCK(TASK_CFG_TASKS_CFG_VEC(task_cfg), LOC_TASKCFG_0031);
+            return (tasks_cfg);
+        }
+    }
+    CVECTOR_UNLOCK(TASK_CFG_TASKS_CFG_VEC(task_cfg), LOC_TASKCFG_0032);
+    return (NULL_PTR);
+}
+
 void task_cfg_print(LOG *log, const TASK_CFG *task_cfg)
 {
     sys_log(log, "task_cfg %lx:\n", task_cfg);
@@ -836,7 +876,7 @@ void task_cfg_print_xml(LOG *log, const TASK_CFG *task_cfg, const UINT32 level)
     taskx_cfg_ident_print_xml(log, level);
     task_cfg_head_print_xml(log, task_cfg, level);
 
-    CVECTOR_LOCK(TASK_CFG_TASKS_CFG_VEC(task_cfg), LOC_TASKCFG_0030);
+    CVECTOR_LOCK(TASK_CFG_TASKS_CFG_VEC(task_cfg), LOC_TASKCFG_0033);
     for(pos = 0; pos < num; pos ++)
     {
         TASKS_CFG *tasks_cfg;
@@ -849,7 +889,7 @@ void task_cfg_print_xml(LOG *log, const TASK_CFG *task_cfg, const UINT32 level)
 
         tasks_cfg_print_xml(log, tasks_cfg, level + 1);
     }
-    CVECTOR_UNLOCK(TASK_CFG_TASKS_CFG_VEC(task_cfg), LOC_TASKCFG_0031);
+    CVECTOR_UNLOCK(TASK_CFG_TASKS_CFG_VEC(task_cfg), LOC_TASKCFG_0034);
 
     taskx_cfg_ident_print_xml(log, level);
     sys_print(log, "</taskConfig>\n");

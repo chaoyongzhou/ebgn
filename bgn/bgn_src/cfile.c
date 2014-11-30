@@ -193,17 +193,17 @@ UINT32 cfile_start(const CVECTOR *node_tcid_vec, const CVECTOR *seg_tcid_vec)
     cdir_md_id = cdir_start(node_tcid_vec);
     if(ERR_MODULE_ID == cdir_md_id)
     {
-        sys_log(LOGSTDOUT, "error:cfile_start: failed to start a CDIR module\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_start: failed to start a CDIR module\n");
         return (ERR_MODULE_ID);
     }
 
     cfile_md->cdir_md_id = cdir_md_id;
     cdir_set_cfile_md_id(cdir_md_id, cfile_md_id);
 
-    sys_log(LOGSTDOUT, "info:cfile_start: input node_tcid_vec is\n");
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_start: input node_tcid_vec is\n");
     cvector_print(LOGSTDOUT, node_tcid_vec, NULL_PTR);
 
-    sys_log(LOGSTDOUT, "info:cfile_start: input seg_tcid_vec is\n");
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_start: input seg_tcid_vec is\n");
     cvector_print(LOGSTDOUT, seg_tcid_vec, NULL_PTR);
 
     cvector_init(&(cfile_md->node_tcid_vec), cvector_size(node_tcid_vec), MM_UINT32, CVECTOR_LOCK_ENABLE, LOC_CFILE_0001);
@@ -212,10 +212,10 @@ UINT32 cfile_start(const CVECTOR *node_tcid_vec, const CVECTOR *seg_tcid_vec)
     cvector_init(&(cfile_md->seg_tcid_vec), cvector_size(seg_tcid_vec),  MM_UINT32, CVECTOR_LOCK_ENABLE, LOC_CFILE_0002);
     cvector_clone_with_prev_filter(seg_tcid_vec, &(cfile_md->seg_tcid_vec), task_brd, (CVECTOR_DATA_PREV_FILTER)task_brd_check_tcid_connected, NULL_PTR, NULL_PTR);
 
-    sys_log(LOGSTDOUT, "info:cfile_start: output node_tcid_vec is\n");
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_start: output node_tcid_vec is\n");
     cvector_print(LOGSTDOUT, &(cfile_md->node_tcid_vec), NULL_PTR);
 
-    sys_log(LOGSTDOUT, "info:cfile_start: output seg_tcid_vec is\n");
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_start: output seg_tcid_vec is\n");
     cvector_print(LOGSTDOUT, &(cfile_md->seg_tcid_vec), NULL_PTR);
 
     /*default setting which will be override after cfile_set_mod_mgr calling*/
@@ -223,8 +223,8 @@ UINT32 cfile_start(const CVECTOR *node_tcid_vec, const CVECTOR *seg_tcid_vec)
 
     cfile_md->usedcounter = 1;
 
-    sys_log(LOGSTDOUT, "cfile_start: start CFILE module #%ld\n", cfile_md_id);
-    //sys_log(LOGSTDOUT, "========================= cfile_start: CFILE table info:\n");
+    dbg_log(SEC_0026_CFILE, 5)(LOGSTDOUT, "cfile_start: start CFILE module #%ld\n", cfile_md_id);
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "========================= cfile_start: CFILE table info:\n");
     //cfile_print_module_status(cfile_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -243,7 +243,7 @@ void cfile_end(const UINT32 cfile_md_id)
     cfile_md = CFILE_MD_GET(cfile_md_id);
     if(NULL_PTR == cfile_md)
     {
-        sys_log(LOGSTDOUT,"error:cfile_end: cfile_md_id = %ld not exist.\n", cfile_md_id);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT,"error:cfile_end: cfile_md_id = %ld not exist.\n", cfile_md_id);
         dbg_exit(MD_CFILE, cfile_md_id);
     }
     /* if the module is occupied by others,then decrease counter only */
@@ -255,7 +255,7 @@ void cfile_end(const UINT32 cfile_md_id)
 
     if ( 0 == cfile_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:cfile_end: cfile_md_id = %ld is not started.\n", cfile_md_id);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT,"error:cfile_end: cfile_md_id = %ld is not started.\n", cfile_md_id);
         dbg_exit(MD_CFILE, cfile_md_id);
     }
 
@@ -276,12 +276,12 @@ void cfile_end(const UINT32 cfile_md_id)
 
     cfile_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "cfile_end: stop CFILE module #%ld\n", cfile_md_id);
+    dbg_log(SEC_0026_CFILE, 5)(LOGSTDOUT, "cfile_end: stop CFILE module #%ld\n", cfile_md_id);
     cbc_md_free(MD_CFILE, cfile_md_id);
 
     breathing_static_mem();
 
-    //sys_log(LOGSTDOUT, "========================= cfile_end: CFILE table info:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "========================= cfile_end: CFILE table info:\n");
     //cfile_print_module_status(cfile_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -351,7 +351,7 @@ UINT32 cfile_set_mod_mgr(const UINT32 cfile_md_id, const MOD_MGR * src_mod_mgr)
     cfile_md = CFILE_MD_GET(cfile_md_id);
     des_mod_mgr = cfile_md->mod_mgr;
 
-    sys_log(LOGSTDOUT, "cfile_set_mod_mgr: md_id %d, input src_mod_mgr %lx\n", cfile_md_id, src_mod_mgr);
+    dbg_log(SEC_0026_CFILE, 5)(LOGSTDOUT, "cfile_set_mod_mgr: md_id %d, input src_mod_mgr %lx\n", cfile_md_id, src_mod_mgr);
     mod_mgr_print(LOGSTDOUT, src_mod_mgr);
 
     cdir_set_mod_mgr(cfile_md->cdir_md_id, src_mod_mgr);
@@ -362,7 +362,7 @@ UINT32 cfile_set_mod_mgr(const UINT32 cfile_md_id, const MOD_MGR * src_mod_mgr)
     cvector_clone_with_prev_filter(&(cfile_md->node_tcid_vec), tcid_vec, (void *)tcid_vec, (CVECTOR_DATA_PREV_FILTER)cfile_tcid_filter_out, NULL_PTR, NULL_PTR);
     cvector_clone_with_prev_filter(&(cfile_md->seg_tcid_vec), tcid_vec, (void *)tcid_vec, (CVECTOR_DATA_PREV_FILTER)cfile_tcid_filter_out, NULL_PTR, NULL_PTR);
 
-    sys_log(LOGSTDOUT, "info:cfile_set_mod_mgr: output tcid_vec is\n");
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_set_mod_mgr: output tcid_vec is\n");
     cvector_print(LOGSTDOUT, tcid_vec, NULL_PTR);
 
     /*figure out mod_nodes with tcid belong to set of node_tcid_vec and node_tcid_vec*/
@@ -370,9 +370,9 @@ UINT32 cfile_set_mod_mgr(const UINT32 cfile_md_id, const MOD_MGR * src_mod_mgr)
 
     cvector_free(tcid_vec, LOC_CFILE_0006);
 
-    sys_log(LOGSTDOUT, "====================================cfile_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
+    dbg_log(SEC_0026_CFILE, 5)(LOGSTDOUT, "====================================cfile_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
     mod_mgr_print(LOGSTDOUT, des_mod_mgr);
-    sys_log(LOGSTDOUT, "====================================cfile_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
+    dbg_log(SEC_0026_CFILE, 5)(LOGSTDOUT, "====================================cfile_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
 
     return (0);
 }
@@ -429,7 +429,7 @@ UINT32 cfile_dir_split(const UINT32 cfile_md_id, CSTRING *home, CSTRING *dir, CL
     {
         if(0 != cfile_dir_split(cfile_md_id, NULL_PTR, home, dir_clist))
         {
-            sys_log(LOGSTDOUT, "error:cfile_dir_split: invalid home\n");
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_dir_split: invalid home\n");
             return ((UINT32)-1);
         }
     }
@@ -446,7 +446,7 @@ UINT32 cfile_dir_split(const UINT32 cfile_md_id, CSTRING *home, CSTRING *dir, CL
         {
             if(NULL_PTR == clist_pop_back(dir_clist))
             {
-                sys_log(LOGSTDOUT, "error:cfile_dir_split: invalid dir\n");
+                dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_dir_split: invalid dir\n");
                 return ((UINT32)-1);
             }
             continue;
@@ -529,7 +529,7 @@ UINT32 cfile_basename(const UINT32 cfile_md_id, const CSTRING *file_name, CSTRIN
 
     if(0 != cfile_dir_split(cfile_md_id, NULL_PTR, tmp_file_name, dir_clist))
     {
-        sys_log(LOGSTDOUT, "error:cfile_basename: invalid file name %s\n", (char *)cstring_get_str(file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_basename: invalid file name %s\n", (char *)cstring_get_str(file_name));
 
         clist_clean(dir_clist, NULL_PTR);
         clist_free(dir_clist, LOC_CFILE_0009);
@@ -577,7 +577,7 @@ UINT32 cfile_dirname(const UINT32 cfile_md_id, const CSTRING *file_name, CSTRING
 
     if(0 != cfile_dir_split(cfile_md_id, NULL_PTR, tmp_file_name, dir_clist))
     {
-        sys_log(LOGSTDOUT, "error:cfile_dirname: invalid file name %s\n", (char *)cstring_get_str(file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_dirname: invalid file name %s\n", (char *)cstring_get_str(file_name));
 
         clist_clean(dir_clist, NULL_PTR);
         clist_free(dir_clist, LOC_CFILE_0013);
@@ -630,7 +630,7 @@ static UINT32 cfile_seg_name_gen(const UINT32 cfile_md_id, const UINT32 seg_id, 
     cstring_format(api_cfile_seg_name, "%s/%08ld.dat",
                                         (char *)cstring_get_str(seg_dir_name),
                                         seg_id);
-    //sys_log(LOGSTDOUT, "info:cfile_seg_name_gen: %s => %s\n", (char *)cstring_get_str(ui_cfile_seg_name), (char *)cstring_get_str(api_cfile_seg_name));
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_name_gen: %s => %s\n", (char *)cstring_get_str(ui_cfile_seg_name), (char *)cstring_get_str(api_cfile_seg_name));
     return (0);
 }
 
@@ -1089,18 +1089,18 @@ static UINT32 cfile_node_name_gen(const UINT32 cfile_md_id, const CSTRING *ui_cf
 
     if(NULL_PTR == ui_cfile_node_name)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_name_gen: ui_cfile_node_name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_name_gen: ui_cfile_node_name is null\n");
         return ((UINT32)-1);
     }
 
     if(NULL_PTR == cstring_get_str(ui_cfile_node_name))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_name_gen: ui_cfile_node_name str is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_name_gen: ui_cfile_node_name str is null\n");
         return ((UINT32)-1);
     }
 
     cstring_format(api_cfile_node_name, "%s.xml", (char *)cstring_get_str(ui_cfile_node_name));
-    //sys_log(LOGSTDOUT, "info:cfile_node_name_gen: %s => %s\n", (char *)cstring_get_str(ui_cfile_node_name), (char *)cstring_get_str(api_cfile_node_name));
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_node_name_gen: %s => %s\n", (char *)cstring_get_str(ui_cfile_node_name), (char *)cstring_get_str(api_cfile_node_name));
     return (0);
 }
 
@@ -1316,7 +1316,7 @@ XMLDOCPTR cfile_node_xml_new(const UINT32 cfile_md_id, const UINT8 *cfile_node_x
     cfile_node_xml_doc_ptr = xmlParseFile((const char *)cfile_node_xml_doc_name);
     if(NULL_PTR == cfile_node_xml_doc_ptr)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_xml_new: failed to parse %s\n", (const char *)cfile_node_xml_doc_name);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_xml_new: failed to parse %s\n", (const char *)cfile_node_xml_doc_name);
         return ((XMLDOCPTR)0);
     }
     return (cfile_node_xml_doc_ptr);
@@ -1350,7 +1350,7 @@ XMLNODEPTR cfile_node_xml_get_root(const UINT32 cfile_md_id, XMLDOCPTR cfile_nod
     cfile_xml_node_ptr = xmlDocGetRootElement(cfile_node_xml_doc_ptr);
     if(NULL_PTR == cfile_xml_node_ptr)
     {
-        sys_log(LOGSTDOUT, "warn:cfile_node_xml_get_root: empty document\n");
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_node_xml_get_root: empty document\n");
         return ((XMLNODEPTR)0);
     }
     return (cfile_xml_node_ptr);
@@ -1463,7 +1463,7 @@ UINT32 cfile_node_xml_parse_seg(const UINT32 cfile_md_id, XMLNODEPTR node, CFILE
     if(xmlHasProp(node, (const XMLCHAR*)"id"))
     {
         attr_val = xmlGetProp(node, (const XMLCHAR*)"id");
-        //sys_log(LOGSTDOUT,"info:cfile_node_xml_parse_seg: id=>%s\n", attr_val);
+        //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT,"info:cfile_node_xml_parse_seg: id=>%s\n", attr_val);
         CFILE_SEG_ID(cfile_seg) = c_xmlchar_to_word(attr_val);
         xmlFree(attr_val);
     }
@@ -1471,7 +1471,7 @@ UINT32 cfile_node_xml_parse_seg(const UINT32 cfile_md_id, XMLNODEPTR node, CFILE
     if(xmlHasProp(node, (const XMLCHAR*)"size"))
     {
         attr_val = xmlGetProp(node, (const XMLCHAR*)"size");
-        //sys_log(LOGSTDOUT,"info:cfile_node_xml_parse_seg: size=>%s\n", attr_val);
+        //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT,"info:cfile_node_xml_parse_seg: size=>%s\n", attr_val);
         CFILE_SEG_SIZE(cfile_seg) = c_xmlchar_to_word(attr_val);
         xmlFree(attr_val);
     }
@@ -1486,7 +1486,7 @@ UINT32 cfile_node_xml_parse_seg(const UINT32 cfile_md_id, XMLNODEPTR node, CFILE
     if(xmlHasProp(node, (const XMLCHAR*)"name"))
     {
         attr_val = xmlGetProp(node, (const XMLCHAR*)"name");
-        //sys_log(LOGSTDOUT,"info:cfile_node_xml_parse_seg: name=>%s\n", attr_val);
+        //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT,"info:cfile_node_xml_parse_seg: name=>%s\n", attr_val);
         cstring_init(CFILE_SEG_NAME(cfile_seg), (const UINT8 *)attr_val);
         xmlFree(attr_val);
     }
@@ -1540,7 +1540,7 @@ UINT32 cfile_node_xml_parse_seg_vec(const UINT32 cfile_md_id, XMLNODEPTR node, C
     for(cur = node->xmlChildrenNode; NULL_PTR != cur; cur = cur->next)
     {
         CFILE_NODE_XML_SKIP_TEXT_NODE(cur);
-        //sys_log(LOGSTDOUT, "info:cfile_node_xml_parse_seg_vec: cur name: %s\n", cur->name);
+        //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_node_xml_parse_seg_vec: cur name: %s\n", cur->name);
 
         if(0 == xmlStrcmp(cur->name, (const XMLCHAR *)"segment"))
         {
@@ -1554,7 +1554,7 @@ UINT32 cfile_node_xml_parse_seg_vec(const UINT32 cfile_md_id, XMLNODEPTR node, C
             continue;
         }
 
-        //sys_log(LOGSTDOUT, "error:cfile_node_xml_parse_seg_vec: unknow name: %s\n", cur->name);
+        //dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_xml_parse_seg_vec: unknow name: %s\n", cur->name);
     }
 
     return (0);
@@ -1615,11 +1615,11 @@ UINT32 cfile_node_xml_parse_node(const UINT32 cfile_md_id, XMLNODEPTR node, CFIL
     if(xmlHasProp(node, (const XMLCHAR*)"name"))
     {
         attr_val = xmlGetProp(node, (const XMLCHAR*)"name");
-        //sys_log(LOGSTDOUT,"info:cfile_node_xml_parse_node: name=>%s\n", attr_val);
+        //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT,"info:cfile_node_xml_parse_node: name=>%s\n", attr_val);
 
         if(0 != strcmp((char *)CFILE_NODE_NAME_STR(cfile_node), (char *)attr_val))
         {
-            sys_log(LOGSTDOUT, "error:cfile_node_xml_parse_node: mismatched file name %s of node and xml name tag value %s\n",
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_xml_parse_node: mismatched file name %s of node and xml name tag value %s\n",
                                 (char *)CFILE_NODE_NAME_STR(cfile_node), (char *)attr_val);
             xmlFree(attr_val);
             return ((UINT32)-1);
@@ -1633,7 +1633,7 @@ UINT32 cfile_node_xml_parse_node(const UINT32 cfile_md_id, XMLNODEPTR node, CFIL
     if(xmlHasProp(node, (const XMLCHAR*)"tcid"))
     {
         attr_val = xmlGetProp(node, (const XMLCHAR*)"tcid");
-        //sys_log(LOGSTDOUT,"info:cfile_node_xml_parse_node: tcid=>%s\n", attr_val);
+        //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT,"info:cfile_node_xml_parse_node: tcid=>%s\n", attr_val);
 #if 1
         cfile_node_xml_parse_tcid(cfile_md_id, attr_val, CFILE_NODE_TCID_VEC(cfile_node));
         xmlFree(attr_val);
@@ -1647,7 +1647,7 @@ UINT32 cfile_node_xml_parse_node(const UINT32 cfile_md_id, XMLNODEPTR node, CFIL
 
         else if(CFILE_NODE_TCID(cfile_node, 0) != c_xmlchar_to_word(attr_val))
         {
-            sys_log(LOGSTDOUT, "error:cfile_node_xml_parse_node: mismatched tcid %s of node and xml tcid tag value %s\n",
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_xml_parse_node: mismatched tcid %s of node and xml tcid tag value %s\n",
                                 CFILE_NODE_TCID_STR(cfile_node, 0), (char *)attr_val);
             xmlFree(attr_val);
             return ((UINT32)-1);
@@ -1663,7 +1663,7 @@ UINT32 cfile_node_xml_parse_node(const UINT32 cfile_md_id, XMLNODEPTR node, CFIL
     if(xmlHasProp(node, (const XMLCHAR*)"size"))
     {
         attr_val = xmlGetProp(node, (const XMLCHAR*)"size");
-        //sys_log(LOGSTDOUT,"info:cfile_node_xml_parse_node: size=>%s\n", attr_val);
+        //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT,"info:cfile_node_xml_parse_node: size=>%s\n", attr_val);
         CFILE_NODE_SIZE(cfile_node) = c_xmlchar_to_word(attr_val);
         xmlFree(attr_val);
     }
@@ -1671,7 +1671,7 @@ UINT32 cfile_node_xml_parse_node(const UINT32 cfile_md_id, XMLNODEPTR node, CFIL
     for(cur = node->xmlChildrenNode; NULL_PTR != cur; cur = cur->next)
     {
         CFILE_NODE_XML_SKIP_TEXT_NODE(cur);
-        //sys_log(LOGSTDOUT, "info:cfile_node_xml_parse_node: cur name: %s\n", cur->name);
+        //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_node_xml_parse_node: cur name: %s\n", cur->name);
 
         if(0 == xmlStrcmp(cur->name, (const XMLCHAR *)"segments"))
         {
@@ -1972,35 +1972,35 @@ UINT32 cfile_node_read(const UINT32 cfile_md_id, CFILE_NODE *cfile_node)
     file_name_str = CFILE_NODE_NAME_STR(cfile_node);
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_read: file name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_read: file name is null\n");
         return ((UINT32)-1);
     }
 
     /*not exist*/
     if(0 != access((char *)file_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_read: file %s not exist\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_read: file %s not exist\n", (char *)file_name_str);
         return ((UINT32)-1);
     }
 
     /*not readable*/
     if(0 != access((char *)file_name_str, R_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_read: file %s not readable\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_read: file %s not readable\n", (char *)file_name_str);
         return ((UINT32)-1);
     }
 
     cfile_node_xml_doc  = cfile_node_xml_new(cfile_md_id, file_name_str);
     if((XMLDOCPTR)0 == cfile_node_xml_doc)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_read: failed to open %s to read\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_read: failed to open %s to read\n", (char *)file_name_str);
         return ((UINT32)-1);
     }
     cfile_node_xml_root = cfile_node_xml_get_root(cfile_md_id, cfile_node_xml_doc);
 
     if(0 != cfile_node_xml_parse_node(cfile_md_id, cfile_node_xml_root, cfile_node))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_read: failed to xml parse node of file %s\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_read: failed to xml parse node of file %s\n", (char *)file_name_str);
         cxml_free(cfile_node_xml_doc);
         return ((UINT32)-1);
     }
@@ -2042,14 +2042,14 @@ UINT32 cfile_node_write(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node)
     file_name_str = CFILE_NODE_NAME_STR(cfile_node);
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_write: file name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_write: file name is null\n");
         return ((UINT32)-1);
     }
 
     /*exist but not writable*/
     if(0 == access((char *)file_name_str, F_OK) && 0 != access((char *)file_name_str, W_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_write: file %s exist but not writable\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_write: file %s exist but not writable\n", (char *)file_name_str);
         return ((UINT32)-1);
     }
 
@@ -2059,7 +2059,7 @@ UINT32 cfile_node_write(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node)
                                     LOGD_SWITCH_OFF_DISABLE, LOGD_PID_INFO_ENABLE);
     if(NULL_PTR == cfile_node_xml_log)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_write: failed to open %s to write\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_write: failed to open %s to write\n", (char *)file_name_str);
         return ((UINT32)-1);
     }
 
@@ -2102,14 +2102,14 @@ UINT32 cfile_node_write_with_node_tcid(const UINT32 cfile_md_id, const CFILE_NOD
     file_name_str = CFILE_NODE_NAME_STR(cfile_node);
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_write_with_node_tcid: file name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_write_with_node_tcid: file name is null\n");
         return ((UINT32)-1);
     }
 
     /*exist but not writable*/
     if(0 == access((char *)file_name_str, F_OK) && 0 != access((char *)file_name_str, W_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_write_with_node_tcid: file %s exist but not writable\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_write_with_node_tcid: file %s exist but not writable\n", (char *)file_name_str);
         return ((UINT32)-1);
     }
 
@@ -2119,7 +2119,7 @@ UINT32 cfile_node_write_with_node_tcid(const UINT32 cfile_md_id, const CFILE_NOD
                                     LOGD_SWITCH_OFF_DISABLE, LOGD_PID_INFO_ENABLE);
     if(NULL_PTR == cfile_node_xml_log)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_write_with_node_tcid: failed to open %s to write\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_write_with_node_tcid: failed to open %s to write\n", (char *)file_name_str);
         return ((UINT32)-1);
     }
 
@@ -2156,7 +2156,7 @@ UINT32 cfile_node_fcreate(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node
     /*exist*/
     if(0 == access((char *)CFILE_NODE_NAME_STR(cfile_node), F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_fcreate: file %s already exist\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fcreate: file %s already exist\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
         return ((UINT32)-1);
     }
 
@@ -2196,11 +2196,11 @@ UINT32 cfile_node_fopen(const UINT32 cfile_md_id, CFILE_NODE *cfile_node)
 
     if(0 != cfile_node_read(cfile_md_id, cfile_node))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_fopen: failed to read node info from file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fopen: failed to read node info from file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
         return ((UINT32)-1);
     }
 
-    sys_log(LOGSTDOUT, "cfile_node_fopen: after cfile_node_read, CFILE_NODE_TCID_VEC is:\n");
+    dbg_log(SEC_0026_CFILE, 5)(LOGSTDOUT, "cfile_node_fopen: after cfile_node_read, CFILE_NODE_TCID_VEC is:\n");
     cvector_print(LOGSTDOUT, CFILE_NODE_TCID_VEC(cfile_node), NULL_PTR);
     return (0);
 }
@@ -2272,18 +2272,18 @@ EC_BOOL cfile_node_fexist(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node
     file_name_str = CFILE_NODE_NAME_STR(cfile_node);
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_fexist: file name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fexist: file name is null\n");
         return (EC_FALSE);
     }
 
     /*not exist*/
     if(0 != access((char *)file_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_fexist: file %s not exist on tcid %s\n", (char *)file_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fexist: file %s not exist on tcid %s\n", (char *)file_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "info:cfile_node_fexist: node %s exist on tcid %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node), CFILE_LOCAL_TCID_STR(cfile_md_id));
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_node_fexist: node %s exist on tcid %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node), CFILE_LOCAL_TCID_STR(cfile_md_id));
     return (EC_TRUE);
 }
 
@@ -2321,25 +2321,25 @@ EC_BOOL cfile_node_frable(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node
     file_name_str = CFILE_NODE_NAME_STR(cfile_node);
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_frable: file name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_frable: file name is null\n");
         return (EC_FALSE);
     }
 
     /*not exist*/
     if(0 != access((char *)file_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_frable: file %s not exist\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_frable: file %s not exist\n", (char *)file_name_str);
         return (EC_FALSE);
     }
 
     /*not readable*/
     if(0 != access((char *)file_name_str, R_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_frable: file %s not readable\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_frable: file %s not readable\n", (char *)file_name_str);
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "info:cfile_node_frable: node %s is readable on tcid %s\n",
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_node_frable: node %s is readable on tcid %s\n",
                         (char *)CFILE_NODE_NAME_STR(cfile_node), CFILE_LOCAL_TCID_STR(cfile_md_id));
     return (EC_TRUE);
 }
@@ -2378,25 +2378,25 @@ EC_BOOL cfile_node_fwable(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node
     file_name_str = CFILE_NODE_NAME_STR(cfile_node);
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_fwable: file name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fwable: file name is null\n");
         return (EC_FALSE);
     }
 
     /*not exist*/
     if(0 != access((char *)file_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_fwable: file %s not exist\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fwable: file %s not exist\n", (char *)file_name_str);
         return (EC_TRUE);/*warning: maybe here we should further check whethere dir is writable*/
     }
 
     /*exist but not writable*/
     if(0 != access((char *)file_name_str, W_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_fwable: file %s exist but not writable\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fwable: file %s exist but not writable\n", (char *)file_name_str);
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "info:cfile_node_fwable: node %s is readable on tcid %s\n",
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_node_fwable: node %s is readable on tcid %s\n",
                         (char *)CFILE_NODE_NAME_STR(cfile_node), CFILE_LOCAL_TCID_STR(cfile_md_id));
     return (EC_TRUE);
 }
@@ -2435,25 +2435,25 @@ EC_BOOL cfile_node_fxable(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node
     file_name_str = CFILE_NODE_NAME_STR(cfile_node);
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_fxable: file name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fxable: file name is null\n");
         return (EC_FALSE);
     }
 
     /*not exist*/
     if(0 != access((char *)file_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_fxable: file %s not exist\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fxable: file %s not exist\n", (char *)file_name_str);
         return (EC_FALSE);
     }
 
     /*not executable*/
     if(0 != access((char *)file_name_str, X_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_fxable: file %s exist but not executable\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fxable: file %s exist but not executable\n", (char *)file_name_str);
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "info:cfile_node_fwable: node %s is executable on tcid %s\n",
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_node_fwable: node %s is executable on tcid %s\n",
                         (char *)CFILE_NODE_NAME_STR(cfile_node), CFILE_LOCAL_TCID_STR(cfile_md_id));
     return (EC_TRUE);
 }
@@ -2493,13 +2493,13 @@ UINT32 cfile_node_rmv(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node)
     file_name_str = CFILE_NODE_NAME_STR(cfile_node);
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_rmv: file name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_rmv: file name is null\n");
         return ((UINT32)-1);
     }
 
     if(0 != remove((char *)file_name_str))
     {
-        sys_log(LOGSTDOUT, "error:cfile_node_rmv: failed to rmv node %s with errno = %d, errstr = %s\n", file_name_str, errno, strerror(errno));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_rmv: failed to rmv node %s with errno = %d, errstr = %s\n", file_name_str, errno, strerror(errno));
         return ((UINT32)-1);
     }
     return (0);
@@ -2577,7 +2577,7 @@ EC_BOOL cfile_node_cmp(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node_1s
     }
 #endif/*CFILE_DEBUG_SWITCH*/
 /*
-    if(EC_FALSE == cstring_cmp(CFILE_NODE_NAME(cfile_node_1st), CFILE_NODE_NAME(cfile_node_2nd)))
+    if(EC_FALSE == cstring_is_equal(CFILE_NODE_NAME(cfile_node_1st), CFILE_NODE_NAME(cfile_node_2nd)))
     {
         return (EC_FALSE);
     }
@@ -2641,13 +2641,13 @@ EC_BOOL cfile_node_fcheck(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node
     {
         if(EC_FALSE == cfile_node_fexist(cfile_md_id, cfile_node))
         {
-            sys_log(LOGSTDOUT, "error:cfile_node_fcheck: node of file %s does not exist\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fcheck: node of file %s does not exist\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
             return (EC_FALSE);
         }
 
         if(EC_FALSE == cfile_seg_vec_fexist(cfile_md_id, CFILE_SEG_VEC(cfile_node)))
         {
-            sys_log(LOGSTDOUT, "error:cfile_node_fcheck: some segment(s) of file %s does not exist\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fcheck: some segment(s) of file %s does not exist\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
             return (EC_FALSE);
         }
     }
@@ -2656,13 +2656,13 @@ EC_BOOL cfile_node_fcheck(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node
     {
         if(EC_FALSE == cfile_node_frable(cfile_md_id, cfile_node))
         {
-            sys_log(LOGSTDOUT, "error:cfile_node_fcheck: node of file %s is not readable\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fcheck: node of file %s is not readable\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
             return (EC_FALSE);
         }
 
         if(EC_FALSE == cfile_seg_vec_frable(cfile_md_id, CFILE_SEG_VEC(cfile_node)))
         {
-            sys_log(LOGSTDOUT, "error:cfile_node_fcheck: some segment of file %s is not readable\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fcheck: some segment of file %s is not readable\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
             return (EC_FALSE);
         }
     }
@@ -2671,13 +2671,13 @@ EC_BOOL cfile_node_fcheck(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node
     {
         if(EC_FALSE == cfile_node_fwable(cfile_md_id, cfile_node))
         {
-            sys_log(LOGSTDOUT, "error:cfile_node_fcheck: node of file %s is not writable\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fcheck: node of file %s is not writable\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
             return (EC_FALSE);
         }
 
         if(EC_FALSE == cfile_seg_vec_fwable(cfile_md_id, CFILE_SEG_VEC(cfile_node)))
         {
-            sys_log(LOGSTDOUT, "error:cfile_node_fcheck: some segment of file %s is not writable\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fcheck: some segment of file %s is not writable\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
             return (EC_FALSE);
         }
     }
@@ -2686,18 +2686,18 @@ EC_BOOL cfile_node_fcheck(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node
     {
         if(EC_FALSE == cfile_node_fxable(cfile_md_id, cfile_node))
         {
-            sys_log(LOGSTDOUT, "error:cfile_node_fcheck: node of file %s is not executable\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fcheck: node of file %s is not executable\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
             return (EC_FALSE);
         }
 
         if(EC_FALSE == cfile_seg_vec_fxable(cfile_md_id, CFILE_SEG_VEC(cfile_node)))
         {
-            sys_log(LOGSTDOUT, "error:cfile_node_fcheck: some segment of file %s is not executable\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_node_fcheck: some segment of file %s is not executable\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
             return (EC_FALSE);
         }
     }
 
-    sys_log(LOGSTDOUT, "info:cfile_node_fcheck: file %s check mask %lx successfully on tcid %s\n",
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_node_fcheck: file %s check mask %lx successfully on tcid %s\n",
                         (char *)CFILE_NODE_NAME_STR(cfile_node), mask, c_word_to_ipv4(MOD_MGR_LOCAL_MOD_TCID(mod_mgr)));
     return (EC_TRUE);
 }
@@ -2803,14 +2803,14 @@ UINT32 cfile_seg_fcreate(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg)
 
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fcreate: file name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fcreate: file name is null\n");
         return ((UINT32)-1);
     }
 
     /*exist*/
     if(0 == access((char *)file_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fcreate: file %s exist\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fcreate: file %s exist\n", (char *)file_name_str);
         return ((UINT32)-1);
     }
 
@@ -2834,7 +2834,7 @@ UINT32 cfile_seg_fcreate(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg)
 
     if(0 != access((char *)cstring_get_str(dir_name), F_OK))
     {
-        sys_log(LOGSTDOUT, "info:cfile_seg_fcreate: create folder %s\n", (char *)cstring_get_str(dir_name));
+        dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_fcreate: create folder %s\n", (char *)cstring_get_str(dir_name));
         mkdir((char *)cstring_get_str(dir_name), 0700);/*default mode = 0600*/
     }
     cstring_free(dir_name);
@@ -2842,13 +2842,13 @@ UINT32 cfile_seg_fcreate(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg)
     fp = fopen((char *)file_name_str, "wb");
     if(NULL_PTR == fp)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fcreate: failed to create file %s\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fcreate: failed to create file %s\n", (char *)file_name_str);
         return ((UINT32)-1);
     }
 #if 0
     if(0 != truncate((char *)file_name_str, CFILE_SEG_SIZE(cfile_seg)))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fcreate: failed to truncate file %s to %ld bytes\n", (char *)file_name_str, CFILE_SEG_SIZE(cfile_seg));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fcreate: failed to truncate file %s to %ld bytes\n", (char *)file_name_str, CFILE_SEG_SIZE(cfile_seg));
         fclose(fp);
         return ((UINT32)-1);
     }
@@ -2925,7 +2925,7 @@ static FILE * cfile_seg_fopen(const UINT32 cfile_md_id, const UINT32 mode, const
      }
 #endif/*(SWITCH_ON == CFILE_DEBUG_ONLY_SWITCH)*/
 
-    //sys_log(LOGSTDOUT, "info:cfile_seg_fopen: try to open file %s as mode %ld\n", (char *)CFILE_SEG_NAME_STR(cfile_seg), mode);
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_fopen: try to open file %s as mode %ld\n", (char *)CFILE_SEG_NAME_STR(cfile_seg), mode);
 
     switch(mode)
     {
@@ -2949,11 +2949,11 @@ static FILE * cfile_seg_fopen(const UINT32 cfile_md_id, const UINT32 mode, const
             break;
         default:
             fp = NULL_PTR;
-            sys_log(LOGSTDOUT, "error:cfile_seg_fopen: unknown open mode %ld of file %s\n", mode, (char *)file_name_str);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fopen: unknown open mode %ld of file %s\n", mode, (char *)file_name_str);
             return (NULL_PTR);
     }
 
-    //sys_log(LOGSTDOUT, "info:cfile_seg_fopen: try to open file %s as mode %ld, fp %lx\n", (char *)CFILE_SEG_NAME_STR(cfile_seg), mode, fp);
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_fopen: try to open file %s as mode %ld, fp %lx\n", (char *)CFILE_SEG_NAME_STR(cfile_seg), mode, fp);
 
     return (fp);
 }
@@ -3050,17 +3050,17 @@ EC_BOOL cfile_seg_fexist(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg)
 
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fexist: seg name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fexist: seg name is null\n");
         return (EC_FALSE);
     }
 
     /*not exist*/
     if(0 != access((char *)file_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fexist: seg %s not exist on tcid %s\n", (char *)file_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fexist: seg %s not exist on tcid %s\n", (char *)file_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
         return (EC_FALSE);
     }
-    sys_log(LOGSTDOUT, "info:cfile_seg_fexist: seg %s exist on tcid %s\n", (char *)CFILE_SEG_NAME_STR(cfile_seg), CFILE_LOCAL_TCID_STR(cfile_md_id));
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_fexist: seg %s exist on tcid %s\n", (char *)CFILE_SEG_NAME_STR(cfile_seg), CFILE_LOCAL_TCID_STR(cfile_md_id));
     return (EC_TRUE);
 }
 
@@ -3125,24 +3125,24 @@ EC_BOOL cfile_seg_frable(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg)
 
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_frable: seg name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_frable: seg name is null\n");
         return (EC_FALSE);
     }
 
     /*not exist*/
     if(0 != access((char *)file_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_frable: seg %s not exist on tcid %s\n", (char *)file_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_frable: seg %s not exist on tcid %s\n", (char *)file_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
         return (EC_FALSE);
     }
 
     /*not readable*/
     if(0 != access((char *)file_name_str, R_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_frable: seg %s not readable on tcid %s\n", (char *)file_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_frable: seg %s not readable on tcid %s\n", (char *)file_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
         return (EC_FALSE);
     }
-    sys_log(LOGSTDOUT, "info:cfile_seg_frable: seg %s is readable on tcid %s\n", (char *)file_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_frable: seg %s is readable on tcid %s\n", (char *)file_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
     return (EC_TRUE);
 }
 
@@ -3207,21 +3207,21 @@ EC_BOOL cfile_seg_fwable(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg)
 
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fwable: file name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fwable: file name is null\n");
         return ((UINT32)-1);
     }
 
     /*not exist*/
     if(0 != access((char *)file_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fwable: file %s not exist\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fwable: file %s not exist\n", (char *)file_name_str);
         return (EC_TRUE);/*warning: maybe here we should further check whethere dir is writable*/
     }
 
     /*exist but not writable*/
     if(0 != access((char *)file_name_str, W_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fwable: file %s exist but not writable\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fwable: file %s exist but not writable\n", (char *)file_name_str);
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -3288,21 +3288,21 @@ EC_BOOL cfile_seg_fxable(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg)
 
     if(NULL_PTR == file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fxable: file name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fxable: file name is null\n");
         return ((UINT32)-1);
     }
 
     /*not exist*/
     if(0 != access((char *)file_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fxable: file %s not exist\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fxable: file %s not exist\n", (char *)file_name_str);
         return (EC_FALSE);
     }
 
     /*not executable*/
     if(0 != access((char *)file_name_str, X_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fxable: file %s exist but not executable\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fxable: file %s exist but not executable\n", (char *)file_name_str);
         return (EC_FALSE);
     }
 
@@ -3341,20 +3341,20 @@ UINT32 cfile_seg_fread(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg, KBU
     fp = cfile_seg_fopen(cfile_md_id, CFILE_SEG_OPEN_MODE(cfile_seg), cfile_seg);
     if(NULL_PTR == fp)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fread: file %s does not open to read\n", (char *)CFILE_SEG_NAME_STR(cfile_seg));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fread: file %s does not open to read\n", (char *)CFILE_SEG_NAME_STR(cfile_seg));
         return ((UINT32)-1);
     }
 
     if(EC_FALSE == kbuff_fread(kbuff, CFILE_SEG_SIZE(cfile_seg), fp))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fread: failed to read file %s\n", (char *)CFILE_SEG_NAME_STR(cfile_seg));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fread: failed to read file %s\n", (char *)CFILE_SEG_NAME_STR(cfile_seg));
         return ((UINT32)-1);
     }
 
     /*check consistency*/
     if(CFILE_SEG_SIZE(cfile_seg) != KBUFF_CUR_LEN(kbuff))
     {
-        sys_log(LOGSTDOUT, "warn:cfile_seg_fread: mismatched file segment size %ld and kbuff cur len %ld\n", CFILE_SEG_SIZE(cfile_seg), KBUFF_CUR_LEN(kbuff));
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_fread: mismatched file segment size %ld and kbuff cur len %ld\n", CFILE_SEG_SIZE(cfile_seg), KBUFF_CUR_LEN(kbuff));
         return ((UINT32)-1);
     }
 
@@ -3424,27 +3424,27 @@ UINT32 cfile_seg_fwrite(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg, co
 
     if(NULL_PTR == (char *)file_name_str)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fwrite: file name is empty\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fwrite: file name is empty\n");
         return ((UINT32)-1);
     }
 
     fp = cfile_seg_fopen(cfile_md_id, CFILE_SEG_OPEN_MODE(cfile_seg), cfile_seg);
     if(NULL_PTR == fp)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fwrite: file %s does not open to write\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fwrite: file %s does not open to write\n", (char *)file_name_str);
         return ((UINT32)-1);
     }
 
     pos = 0;
     if(EC_FALSE == kbuff_fwrite(kbuff, fp, &pos))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fwrite: failed to write file %s\n", (char *)file_name_str);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fwrite: failed to write file %s\n", (char *)file_name_str);
         return ((UINT32)-1);
     }
 
     if(pos < KBUFF_CUR_LEN(kbuff))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fwrite: only once write %ld bytes of total %ld bytes into file %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fwrite: only once write %ld bytes of total %ld bytes into file %s\n",
                             pos, KBUFF_CUR_LEN(kbuff),
                             (char *)file_name_str);
         /*call cfile_seg_fappend here ??*/
@@ -3487,13 +3487,13 @@ UINT32 cfile_seg_fappend(const UINT32 cfile_md_id, CFILE_SEG *cfile_seg, const K
     fp = cfile_seg_fopen(cfile_md_id, CFILE_WB_OPEN_MODE, cfile_seg);
     if(NULL_PTR == fp)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fappend: file %s does not open to append\n", (char *)CFILE_SEG_NAME_STR(cfile_seg));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fappend: file %s does not open to append\n", (char *)CFILE_SEG_NAME_STR(cfile_seg));
         return ((UINT32)-1);
     }
 
     if(EC_FALSE == kbuff_fwrite(kbuff, fp, pos))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fappend: failed to write file %s\n", (char *)CFILE_SEG_NAME_STR(cfile_seg));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fappend: failed to write file %s\n", (char *)CFILE_SEG_NAME_STR(cfile_seg));
         return ((UINT32)-1);
     }
 
@@ -3562,13 +3562,13 @@ UINT32 cfile_seg_rmv(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg)
 
     if(EC_FALSE == cfile_seg_fexist(cfile_md_id, cfile_seg))
     {
-        sys_log(LOGSTDOUT, "warn:cfile_seg_rmv: file %s does not exist\n", (char *)CFILE_SEG_NAME_STR(cfile_seg));
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_rmv: file %s does not exist\n", (char *)CFILE_SEG_NAME_STR(cfile_seg));
         return (0);
     }
 
     if(0 != remove((char *)file_name_str))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_rmv: failed to rmv seg %s with errno = %d, errstr = %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_rmv: failed to rmv seg %s with errno = %d, errstr = %s\n",
                             (char *)CFILE_SEG_NAME_STR(cfile_seg), errno, strerror(errno));
         return ((UINT32)-1);
     }
@@ -3680,14 +3680,14 @@ UINT32 cfile_seg_copy(const UINT32 cfile_md_id, const CFILE_SEG *src_cfile_seg, 
     seg_tcid_pos = CFILE_SEG_START_TCID_POS;
     if(EC_FALSE == cfile_seg_fexist_ppl(cfile_md_id, src_cfile_seg, &seg_tcid_pos))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_copy: no tcid has src seg\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_copy: no tcid has src seg\n");
         return ((UINT32)-1);
     }
 
     kbuff = kbuff_new(0);
     if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, CFILE_SEG_TCID(src_cfile_seg, seg_tcid_pos), &ret, FI_cfile_seg_fread, ERR_MODULE_ID, src_cfile_seg, kbuff))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_copy: something wrong when make task to read seg file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_copy: something wrong when make task to read seg file %s on tcid %s\n",
                             (char *)CFILE_SEG_NAME_STR(src_cfile_seg), CFILE_SEG_TCID_STR(src_cfile_seg, seg_tcid_pos));
         kbuff_free(kbuff);
         return ((UINT32)-1);
@@ -3695,7 +3695,7 @@ UINT32 cfile_seg_copy(const UINT32 cfile_md_id, const CFILE_SEG *src_cfile_seg, 
 
     if(0 != ret)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_copy: failed to read seg file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_copy: failed to read seg file %s on tcid %s\n",
                         (char *)CFILE_SEG_NAME_STR(src_cfile_seg), CFILE_SEG_TCID_STR(src_cfile_seg, seg_tcid_pos));
         kbuff_free(kbuff);
         return ((UINT32)-1);
@@ -3747,7 +3747,7 @@ EC_BOOL cfile_seg_cmp(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg_1st, 
     {
         return (EC_FALSE);
     }
-    if(EC_FALSE == cstring_cmp(CFILE_SEG_NAME(cfile_seg_1st), CFILE_SEG_NAME(cfile_seg_2nd)))
+    if(EC_FALSE == cstring_is_equal(CFILE_SEG_NAME(cfile_seg_1st), CFILE_SEG_NAME(cfile_seg_2nd)))
     {
         return (EC_FALSE);
     }
@@ -3783,7 +3783,7 @@ UINT32 cfile_seg_dir_create(const UINT32 cfile_md_id, const CSTRING *seg_dir_nam
 
     if(NULL_PTR == seg_dir_name)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_dir_create: seg dir name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_dir_create: seg dir name is null\n");
         return ((UINT32)-1);
     }
 
@@ -3792,14 +3792,14 @@ UINT32 cfile_seg_dir_create(const UINT32 cfile_md_id, const CSTRING *seg_dir_nam
     /*exist*/
     if(0 == access((char *)seg_dir_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "warn:cfile_seg_dir_create: seg dir %s exist\n", (char *)seg_dir_name_str);
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_dir_create: seg dir %s exist\n", (char *)seg_dir_name_str);
         return (0);
     }
 
     /*seg dir default mode = 0700*/
     if(0 != mkdir((char *)seg_dir_name_str, 0700))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_dir_create: failed to make seg dir %s with errno = %d, errstr = %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_dir_create: failed to make seg dir %s with errno = %d, errstr = %s\n",
                            (char *)seg_dir_name_str, errno, strerror(errno));
         return ((UINT32)-1);
     }
@@ -3837,7 +3837,7 @@ UINT32 cfile_seg_dir_rmv(const UINT32 cfile_md_id, const CSTRING *seg_dir_name)
 
     if(NULL_PTR == seg_dir_name)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_dir_rmv: seg dir name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_dir_rmv: seg dir name is null\n");
         return ((UINT32)-1);
     }
 
@@ -3845,13 +3845,13 @@ UINT32 cfile_seg_dir_rmv(const UINT32 cfile_md_id, const CSTRING *seg_dir_name)
 
     if(0 != access((char *)seg_dir_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "warn:cfile_seg_dir_rmv: seg dir %s not exist\n", (char *)seg_dir_name_str);
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_dir_rmv: seg dir %s not exist\n", (char *)seg_dir_name_str);
         return (0);
     }
 
     if(0 != rmdir((char *)seg_dir_name_str))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_dir_rmv: failed to rmv seg dir %s with errno = %d, errstr = %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_dir_rmv: failed to rmv seg dir %s with errno = %d, errstr = %s\n",
                             (char *)seg_dir_name_str, errno, strerror(errno));
         return ((UINT32)-1);
     }
@@ -3888,7 +3888,7 @@ EC_BOOL cfile_seg_dir_exist(const UINT32 cfile_md_id, const CSTRING *seg_dir_nam
 
     if(NULL_PTR == seg_dir_name)
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_dir_exist: seg dir name is null\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_dir_exist: seg dir name is null\n");
         return (EC_FALSE);
     }
 
@@ -3897,11 +3897,11 @@ EC_BOOL cfile_seg_dir_exist(const UINT32 cfile_md_id, const CSTRING *seg_dir_nam
     /*not exist*/
     if(0 != access((char *)seg_dir_name_str, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_dir_exist: seg dir %s not exist on tcid %s\n", (char *)seg_dir_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_dir_exist: seg dir %s not exist on tcid %s\n", (char *)seg_dir_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "info:cfile_seg_dir_exist: seg %s exist on tcid %s\n", (char *)seg_dir_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_dir_exist: seg %s exist on tcid %s\n", (char *)seg_dir_name_str, CFILE_LOCAL_TCID_STR(cfile_md_id));
     return (EC_TRUE);
 }
 
@@ -4028,14 +4028,14 @@ UINT32 cfile_seg_fcreate_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
     seg_tcid_num = CFILE_SEG_TCID_NUM(cfile_seg);
     if((*seg_tcid_pos) >= seg_tcid_num)
     {
-        sys_log(LOGSTDOUT, "warn:cfile_seg_fcreate_ppl: seg_tcid_pos = %ld reach max tcid num %ld\n", (*seg_tcid_pos), seg_tcid_num);
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_fcreate_ppl: seg_tcid_pos = %ld reach max tcid num %ld\n", (*seg_tcid_pos), seg_tcid_num);
         return ((UINT32)-1);
     }
 
     seg_tcid = CFILE_SEG_TCID(cfile_seg, (*seg_tcid_pos));
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fcreate_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fcreate_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
                          (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return ((UINT32)-1);
     }
@@ -4055,7 +4055,7 @@ UINT32 cfile_seg_fcreate_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
             /*because the next datanode will hand on the data to its next datanode*/
             break;
         }
-        sys_log(LOGSTDOUT, "warn:cfile_seg_fcreate_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_fcreate_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
                             (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
     return (ret);
@@ -4109,14 +4109,14 @@ EC_BOOL cfile_seg_fexist_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "info:cfile_seg_fexist_ppl: seg_tcid_pos = %ld, seg_tcid = %s, local tcid = %s, file = %s\n",
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_fexist_ppl: seg_tcid_pos = %ld, seg_tcid = %s, local tcid = %s, file = %s\n",
                         (*seg_tcid_pos), CFILE_SEG_TCID_STR(cfile_seg, (*seg_tcid_pos)),
                         MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)), (char *)CFILE_SEG_NAME_STR(cfile_seg));
 
     seg_tcid = CFILE_SEG_TCID(cfile_seg, (*seg_tcid_pos));
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fexist_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fexist_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
                          (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return (EC_FALSE);
     }
@@ -4126,7 +4126,7 @@ EC_BOOL cfile_seg_fexist_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "warn:cfile_seg_fexist_ppl: tcid %s has not found seg file %s\n",
+    dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_fexist_ppl: tcid %s has not found seg file %s\n",
                         c_word_to_ipv4(seg_tcid), (char *)CFILE_SEG_NAME_STR(cfile_seg));
 
     /*skip unavailable tcid. the right way should check tcid connectivity and skip unavailable ones*/
@@ -4143,7 +4143,7 @@ EC_BOOL cfile_seg_fexist_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
         {
             return (ret);
         }
-        sys_log(LOGSTDOUT, "warn:cfile_seg_fexist_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_fexist_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
                             (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
@@ -4201,7 +4201,7 @@ EC_BOOL cfile_seg_frable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
     seg_tcid = CFILE_SEG_TCID(cfile_seg, (*seg_tcid_pos));
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_frable_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_frable_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
                          (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return (EC_FALSE);
     }
@@ -4211,7 +4211,7 @@ EC_BOOL cfile_seg_frable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "warn:cfile_seg_frable_ppl: tcid %s has not found seg file %s\n", c_word_to_ipv4(seg_tcid), (char *)CFILE_SEG_NAME_STR(cfile_seg));
+    dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_frable_ppl: tcid %s has not found seg file %s\n", c_word_to_ipv4(seg_tcid), (char *)CFILE_SEG_NAME_STR(cfile_seg));
 
     /*skip unavailable tcid. the right way should check tcid connectivity and skip unavailable ones*/
     //TODO: check tcid connectivity
@@ -4227,7 +4227,7 @@ EC_BOOL cfile_seg_frable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
         {
             return (ret);
         }
-        sys_log(LOGSTDOUT, "warn:cfile_seg_frable_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_frable_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
                             (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
@@ -4285,7 +4285,7 @@ EC_BOOL cfile_seg_fwable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
     seg_tcid = CFILE_SEG_TCID(cfile_seg, (*seg_tcid_pos));
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fwable_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fwable_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
                          (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return (EC_FALSE);
     }
@@ -4308,7 +4308,7 @@ EC_BOOL cfile_seg_fwable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
         {
             return (ret);
         }
-        sys_log(LOGSTDOUT, "warn:cfile_seg_fwable_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_fwable_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
                             (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
@@ -4366,7 +4366,7 @@ EC_BOOL cfile_seg_fxable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
     seg_tcid = CFILE_SEG_TCID(cfile_seg, (*seg_tcid_pos));
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fxable_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fxable_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
                          (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return (EC_FALSE);
     }
@@ -4389,7 +4389,7 @@ EC_BOOL cfile_seg_fxable_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_se
         {
             return (ret);
         }
-        sys_log(LOGSTDOUT, "warn:cfile_seg_fxable_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_fxable_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
                             (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
@@ -4449,7 +4449,7 @@ UINT32 cfile_seg_fread_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg,
     seg_tcid = CFILE_SEG_TCID(cfile_seg, (*seg_tcid_pos));
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fread_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fread_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
                          (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return ((UINT32)-1);
     }
@@ -4476,7 +4476,7 @@ UINT32 cfile_seg_fread_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg,
         {
             return (ret);
         }
-        sys_log(LOGSTDOUT, "warn:cfile_seg_fread_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_fread_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
                             (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
@@ -4533,7 +4533,7 @@ UINT32 cfile_seg_fwrite_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg
     seg_tcid = CFILE_SEG_TCID(cfile_seg, (*seg_tcid_pos));
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_fwrite_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_fwrite_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
                          (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return ((UINT32)-1);
     }
@@ -4551,7 +4551,7 @@ UINT32 cfile_seg_fwrite_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg
         {
             break;
         }
-        sys_log(LOGSTDOUT, "warn:cfile_seg_fwrite_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n", (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_fwrite_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n", (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
     return (ret);
 }
@@ -4606,7 +4606,7 @@ UINT32 cfile_seg_rmv_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg, U
     seg_tcid = CFILE_SEG_TCID(cfile_seg, (*seg_tcid_pos));
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_rmv_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_rmv_ppl: seg_tcid_pos %ld has tcid %s but not match to local mod_node tcid %s\n",
                          (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return ((UINT32)-1);
     }
@@ -4624,7 +4624,7 @@ UINT32 cfile_seg_rmv_ppl(const UINT32 cfile_md_id, const CFILE_SEG *cfile_seg, U
         {
             break;
         }
-        sys_log(LOGSTDOUT, "warn:cfile_seg_rmv_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_rmv_ppl: seg_tcid_pos = %ld, seg_tcid = %s, seg_tcid_num = %ld\n",
                         (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
@@ -4682,7 +4682,7 @@ UINT32 cfile_seg_copy_ppl(const UINT32 cfile_md_id, const CFILE_SEG *src_cfile_s
     seg_tcid = CFILE_SEG_TCID(des_cfile_seg, (*seg_tcid_pos));
     if(seg_tcid != MOD_NODE_TCID(MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_copy_ppl: seg_tcid_pos %ld of des_cfile_seg has tcid %s but not match to local mod_node tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_copy_ppl: seg_tcid_pos %ld of des_cfile_seg has tcid %s but not match to local mod_node tcid %s\n",
                          (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), MOD_NODE_TCID_STR(MOD_MGR_LOCAL_MOD(mod_mgr)));
         return ((UINT32)-1);
     }
@@ -4700,7 +4700,7 @@ UINT32 cfile_seg_copy_ppl(const UINT32 cfile_md_id, const CFILE_SEG *src_cfile_s
         {
             break;
         }
-        sys_log(LOGSTDOUT, "warn:cfile_seg_copy_ppl: seg_tcid_pos = %ld of des_cfile_seg, seg_tcid = %s, seg_tcid_num = %ld\n",
+        dbg_log(SEC_0026_CFILE, 1)(LOGSTDOUT, "warn:cfile_seg_copy_ppl: seg_tcid_pos = %ld of des_cfile_seg, seg_tcid = %s, seg_tcid_num = %ld\n",
                             (*seg_tcid_pos), c_word_to_ipv4(seg_tcid), seg_tcid_num);
     }
 
@@ -4751,7 +4751,7 @@ static UINT32 cfile_seg_vec_read(const UINT32 cfile_md_id, const CVECTOR *cfile_
 
         if(EC_FALSE == kbuff_fread(kbuff, CFILE_SEG_SIZE(cfile_seg), in_fp))
         {
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_read: failed to read to segment #%ld\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_read: failed to read to segment #%ld\n", cfile_seg_pos);
             return ((UINT32)-1);
         }
 
@@ -4808,7 +4808,7 @@ static UINT32 cfile_seg_vec_write(const UINT32 cfile_md_id, const CVECTOR *cfile
         pos = 0;
         if(EC_FALSE == kbuff_fwrite(kbuff, out_fp, &pos) || pos != KBUFF_CUR_LEN(kbuff))
         {
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_write: failed to write to segment #%ld where kbuff cur len = %ld, pos = %ld\n",
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_write: failed to write to segment #%ld where kbuff cur len = %ld, pos = %ld\n",
                                 cfile_seg_pos, KBUFF_CUR_LEN(kbuff), pos);
             return ((UINT32)-1);
         }
@@ -4870,12 +4870,12 @@ UINT32 cfile_seg_vec_fcreate(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
 
         if(0 != task_tcid_inc(task_mgr, CFILE_SEG_TCID(cfile_seg, seg_tcid_pos), ret_addr, FI_cfile_seg_fcreate_ppl, ERR_MODULE_ID, cfile_seg, &seg_tcid_pos))
         {
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_fcreate: cfile_seg # %ld has no tcid or mod_node\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_fcreate: cfile_seg # %ld has no tcid or mod_node\n", cfile_seg_pos);
             task_mgr_free(task_mgr);
             return ((UINT32)-1);
         }
 
-        sys_log(LOGSTDOUT, "info:cfile_seg_vec_fcreate: cfile_seg # %ld, seg_tcid_pos = %ld\n", cfile_seg_pos, seg_tcid_pos);
+        dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_vec_fcreate: cfile_seg # %ld, seg_tcid_pos = %ld\n", cfile_seg_pos, seg_tcid_pos);
     }
 
     task_wait(task_mgr, TASK_ALWAYS_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
@@ -4892,7 +4892,7 @@ UINT32 cfile_seg_vec_fcreate(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
             CFILE_SEG *cfile_seg;
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
 
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_fcreate: file segment #%ld with file %s does not create\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_fcreate: file segment #%ld with file %s does not create\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
             ret = ((UINT32)-1);
         }
     }
@@ -4977,7 +4977,7 @@ EC_BOOL cfile_seg_vec_fexist(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
             CFILE_SEG *cfile_seg;
 
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_fexist: file segment #%ld with file %s does NOT exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_fexist: file segment #%ld with file %s does NOT exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
 
             carray_free(ret_list, LOC_CFILE_0035);
             return (EC_FALSE);
@@ -4987,7 +4987,7 @@ EC_BOOL cfile_seg_vec_fexist(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
             CFILE_SEG *cfile_seg;
 
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
-            sys_log(LOGSTDOUT, "info:cfile_seg_vec_fexist: file segment #%ld with file %s exist on tcid %s\n",
+            dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_vec_fexist: file segment #%ld with file %s exist on tcid %s\n",
                                 cfile_seg_pos,
                                 (char *)CFILE_SEG_NAME_STR(cfile_seg),
                                 CFILE_SEG_TCID_STR(cfile_seg, (UINT32)(seg_tcid_pos_list->data[ cfile_seg_pos ])));
@@ -4996,7 +4996,7 @@ EC_BOOL cfile_seg_vec_fexist(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
 
     carray_free(ret_list, LOC_CFILE_0036);
 
-    sys_log(LOGSTDOUT, "info:cfile_seg_vec_fexist: segs exist on tcid %s\n", MOD_MGR_LOCAL_MOD_TCID_STR(mod_mgr));
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_vec_fexist: segs exist on tcid %s\n", MOD_MGR_LOCAL_MOD_TCID_STR(mod_mgr));
     return (EC_TRUE);
 }
 
@@ -5070,7 +5070,7 @@ EC_BOOL cfile_seg_vec_frable(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
             CFILE_SEG *cfile_seg;
 
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_frable: file segment #%ld with file %s does not exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_frable: file segment #%ld with file %s does not exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
 
             carray_free(ret_list, LOC_CFILE_0038);
             return (EC_FALSE);
@@ -5080,7 +5080,7 @@ EC_BOOL cfile_seg_vec_frable(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
             CFILE_SEG *cfile_seg;
 
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
-            sys_log(LOGSTDOUT, "info:cfile_seg_vec_frable: file segment #%ld with file %s exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
+            dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_vec_frable: file segment #%ld with file %s exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
         }
     }
 
@@ -5157,7 +5157,7 @@ EC_BOOL cfile_seg_vec_fwable(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
             CFILE_SEG *cfile_seg;
 
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_fwable: file segment #%ld with file %s does not exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_fwable: file segment #%ld with file %s does not exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
 
             carray_free(ret_list, LOC_CFILE_0041);
             return (EC_FALSE);
@@ -5167,7 +5167,7 @@ EC_BOOL cfile_seg_vec_fwable(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
             CFILE_SEG *cfile_seg;
 
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
-            sys_log(LOGSTDOUT, "info:cfile_seg_vec_fwable: file segment #%ld with file %s exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
+            dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_vec_fwable: file segment #%ld with file %s exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
         }
     }
 
@@ -5244,7 +5244,7 @@ EC_BOOL cfile_seg_vec_fxable(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
             CFILE_SEG *cfile_seg;
 
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_fxable: file segment #%ld with file %s does not exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_fxable: file segment #%ld with file %s does not exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
 
             carray_free(ret_list, LOC_CFILE_0044);
             return (EC_FALSE);
@@ -5254,7 +5254,7 @@ EC_BOOL cfile_seg_vec_fxable(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
             CFILE_SEG *cfile_seg;
 
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
-            sys_log(LOGSTDOUT, "info:cfile_seg_vec_fxable: file segment #%ld with file %s exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
+            dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_vec_fxable: file segment #%ld with file %s exist\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
         }
     }
 
@@ -5318,7 +5318,7 @@ UINT32 cfile_seg_vec_fread(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_ve
 
         if(0 != task_tcid_inc(task_mgr, CFILE_SEG_TCID(cfile_seg, seg_tcid_pos), ret_addr, FI_cfile_seg_fread_ppl, ERR_MODULE_ID, cfile_seg, kbuff, &seg_tcid_pos))
         {
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_fread: cfile_seg # %ld has no tcid or mod_node\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_fread: cfile_seg # %ld has no tcid or mod_node\n", cfile_seg_pos);
             task_mgr_free(task_mgr);
             carray_free(ret_list, LOC_CFILE_0047);
             return ((UINT32)-1);
@@ -5337,7 +5337,7 @@ UINT32 cfile_seg_vec_fread(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_ve
             CFILE_SEG *cfile_seg;
 
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_fread: file segment #%ld with name %s failed to read\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_fread: file segment #%ld with name %s failed to read\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
 
             carray_free(ret_list, LOC_CFILE_0048);
             return ((UINT32)-1);
@@ -5403,7 +5403,7 @@ UINT32 cfile_seg_vec_fwrite(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_v
 
         if(0 == KBUFF_CUR_LEN(kbuff))
         {
-            sys_log(LOGSTDOUT, "info:cfile_seg_vec_fwrite: cfile_seg # %ld has empty kbuff\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_seg_vec_fwrite: cfile_seg # %ld has empty kbuff\n", cfile_seg_pos);
             carray_set(ret_list, cfile_seg_pos, (void *)0);
             continue;
         }
@@ -5412,7 +5412,7 @@ UINT32 cfile_seg_vec_fwrite(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_v
 
         if(0 != task_tcid_inc(task_mgr, CFILE_SEG_TCID(cfile_seg, seg_tcid_pos), ret_addr, FI_cfile_seg_fwrite_ppl, ERR_MODULE_ID, cfile_seg, kbuff, &seg_tcid_pos))
         {
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_fwrite: cfile_seg # %ld has no tcid or mod_node\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_fwrite: cfile_seg # %ld has no tcid or mod_node\n", cfile_seg_pos);
             task_mgr_free(task_mgr);
             carray_free(ret_list, LOC_CFILE_0051);
             return ((UINT32)-1);
@@ -5432,7 +5432,7 @@ UINT32 cfile_seg_vec_fwrite(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_v
         {
             CFILE_SEG *cfile_seg;
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_fwrite: file segment #%ld with name %s failed to write\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_fwrite: file segment #%ld with name %s failed to write\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
             ret = ((UINT32)-1);
         }
     }
@@ -5455,7 +5455,7 @@ UINT32 cfile_seg_vec_fwrite(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_v
 **/
 UINT32 cfile_seg_vec_fappend(const UINT32 cfile_md_id, CVECTOR *cfile_seg_vec)
 {
-    sys_log(LOGSTDOUT, "error:cfile_seg_vec_fappend: incomplete implementation!\n");
+    dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_fappend: incomplete implementation!\n");
     return ((UINT32)-1);
 #if 0
     CFILE_MD  *cfile_md;
@@ -5507,7 +5507,7 @@ UINT32 cfile_seg_vec_fappend(const UINT32 cfile_md_id, CVECTOR *cfile_seg_vec)
 #if 0
         if(0 != task_tcid_inc(task_mgr, CFILE_SEG_TCID(cfile_seg, seg_tcid_pos), &(ret_list->data[ cfile_seg_pos ]), FI_cfile_seg_fappend_ppl, ERR_MODULE_ID, cfile_seg, CFILE_SEG_KBUFF(cfile_seg), &(CFILE_SEG_APPEND_POS(cfile_seg)), &seg_tcid_pos))
         {
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_fappend: cfile_seg # %ld has no tcid or mod_node\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_fappend: cfile_seg # %ld has no tcid or mod_node\n", cfile_seg_pos);
             task_mgr_free(task_mgr);
             carray_free(ret_list, LOC_CFILE_0054);
             return ((UINT32)-1);
@@ -5528,7 +5528,7 @@ UINT32 cfile_seg_vec_fappend(const UINT32 cfile_md_id, CVECTOR *cfile_seg_vec)
         {
             CFILE_SEG *cfile_seg;
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_fappend: file segment #%ld with name %s failed to append\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_fappend: file segment #%ld with name %s failed to append\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
             ret = ((UINT32)-1);
         }
     }
@@ -5595,7 +5595,7 @@ UINT32 cfile_seg_vec_rmv(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_vec)
 
         if(0 != task_tcid_inc(task_mgr, CFILE_SEG_TCID(cfile_seg, seg_tcid_pos), ret_addr, FI_cfile_seg_rmv_ppl, ERR_MODULE_ID, cfile_seg, &seg_tcid_pos))
         {
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_rmv: cfile_seg # %ld has no tcid or mod_node\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_rmv: cfile_seg # %ld has no tcid or mod_node\n", cfile_seg_pos);
             task_mgr_free(task_mgr);
             carray_free(ret_list, LOC_CFILE_0057);
             return ((UINT32)-1);
@@ -5613,7 +5613,7 @@ UINT32 cfile_seg_vec_rmv(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_vec)
         {
             CFILE_SEG *cfile_seg;
             cfile_seg = (CFILE_SEG *)cvector_get(cfile_seg_vec, cfile_seg_pos);
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_rmv: file segment #%ld failed to remove file %s\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_rmv: file segment #%ld failed to remove file %s\n", cfile_seg_pos, (char *)CFILE_SEG_NAME_STR(cfile_seg));
             ret = ((UINT32)-1);
         }
     }
@@ -5702,7 +5702,7 @@ UINT32 cfile_seg_vec_dir_rmv(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
 
         if(0 != task_tcid_inc(task_mgr, seg_tcid, ret_addr, FI_cfile_seg_dir_rmv, ERR_MODULE_ID, seg_dir_name))
         {
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_dir_rmv: has no tcid %s or mod_node\n", c_word_to_ipv4(seg_tcid));
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_dir_rmv: has no tcid %s or mod_node\n", c_word_to_ipv4(seg_tcid));
             task_mgr_free(task_mgr);
             cstring_free(seg_dir_name);
             cvector_free(seg_tcid_vec, LOC_CFILE_0062);
@@ -5722,7 +5722,7 @@ UINT32 cfile_seg_vec_dir_rmv(const UINT32 cfile_md_id, const CVECTOR *cfile_seg_
         {
             UINT32   seg_tcid;
             seg_tcid = (UINT32)cvector_get(seg_tcid_vec, seg_tcid_pos);
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_dir_rmv: failed to remove seg dir %s on tcid %s\n",
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_dir_rmv: failed to remove seg dir %s on tcid %s\n",
                                 (char *)cstring_get_str(seg_dir_name), c_word_to_ipv4(seg_tcid));
             ret = ((UINT32)-1);
         }
@@ -5780,7 +5780,7 @@ UINT32 cfile_seg_vec_clone(const UINT32 cfile_md_id, const CVECTOR *src_cfile_se
         des_cfile_seg = cfile_seg_new(cfile_md_id, 0, 0, NULL_PTR);
         if(NULL_PTR == des_cfile_seg)
         {
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_clone: failed to alloc #%ld des seg\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_clone: failed to alloc #%ld des seg\n", cfile_seg_pos);
             cfile_seg_vec_clean(cfile_md_id, des_cfile_seg_vec);
             return ((UINT32)-1);
         }
@@ -5838,7 +5838,7 @@ UINT32 cfile_seg_vec_copy(const UINT32 cfile_md_id, const CVECTOR *src_cfile_seg
     cfile_seg_num = cvector_size(des_cfile_seg_vec);
     if(cfile_seg_num != cvector_size(src_cfile_seg_vec))
     {
-        sys_log(LOGSTDOUT, "error:cfile_seg_vec_copy: mismatched seg num where des seg num = %ld and src seg num = %ld\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_copy: mismatched seg num where des seg num = %ld and src seg num = %ld\n",
                             cfile_seg_num, cvector_size(src_cfile_seg_vec));
         return ((UINT32)-1);
     }
@@ -5861,7 +5861,7 @@ UINT32 cfile_seg_vec_copy(const UINT32 cfile_md_id, const CVECTOR *src_cfile_seg
 
         if(0 != task_tcid_inc(task_mgr, CFILE_SEG_TCID(des_cfile_seg, seg_tcid_pos), ret_addr, FI_cfile_seg_copy_ppl, ERR_MODULE_ID, src_cfile_seg, des_cfile_seg, &seg_tcid_pos))
         {
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_copy: des cfile_seg # %ld has no tcid or mod_node\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_copy: des cfile_seg # %ld has no tcid or mod_node\n", cfile_seg_pos);
             task_mgr_free(task_mgr);
             carray_free(ret_list, LOC_CFILE_0067);
             return ((UINT32)-1);
@@ -5883,7 +5883,7 @@ UINT32 cfile_seg_vec_copy(const UINT32 cfile_md_id, const CVECTOR *src_cfile_seg
             src_cfile_seg = (CFILE_SEG *)cvector_get(src_cfile_seg_vec, cfile_seg_pos);
             des_cfile_seg = (CFILE_SEG *)cvector_get(des_cfile_seg_vec, cfile_seg_pos);
 
-            sys_log(LOGSTDOUT, "error:cfile_seg_vec_copy: seg #%ld failed to copy from file %s to file %s\n",
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_seg_vec_copy: seg #%ld failed to copy from file %s to file %s\n",
                                 cfile_seg_pos,
                                 (char *)CFILE_SEG_NAME_STR(src_cfile_seg),
                                 (char *)CFILE_SEG_NAME_STR(des_cfile_seg));
@@ -6009,7 +6009,7 @@ CVECTOR * cfile_kbuff_vec_new(const UINT32 cfile_md_id, const UINT32 kbuff_num)
         kbuff = kbuff_new(0);
         if(NULL_PTR == kbuff)
         {
-            sys_log(LOGSTDOUT, "error:cfile_kbuff_vec_new: failed to alloc kbuff #%ld\n", kbuff_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_kbuff_vec_new: failed to alloc kbuff #%ld\n", kbuff_pos);
             cvector_clean(kbuff_vec, (CVECTOR_DATA_CLEANER)kbuff_free, LOC_CFILE_0070);
             cvector_free(kbuff_vec, LOC_CFILE_0071);
             return (NULL_PTR);
@@ -6146,7 +6146,7 @@ UINT32 cfile_fcreate_on_node_tcid(const UINT32 cfile_md_id, CFILE_NODE *cfile_no
         UINT32 ret;
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cfile_fcreate_on_node_tcid, ERR_MODULE_ID, cfile_node, node_tcid))
         {
-            sys_log(LOGSTDOUT, "error:cfile_fcreate_on_node_tcid: something wrong when make task to create node file %s on tcid %s\n",
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fcreate_on_node_tcid: something wrong when make task to create node file %s on tcid %s\n",
                                 (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
@@ -6184,7 +6184,7 @@ UINT32 cfile_fcreate_on_node_tcid(const UINT32 cfile_md_id, CFILE_NODE *cfile_no
         cvector_push(CFILE_SEG_VEC(cfile_node), (void *)cfile_seg);
     }
 
-    //sys_log(LOGSTDOUT, "info:cfile_fcreate_on_node_tcid: after set segs:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_fcreate_on_node_tcid: after set segs:\n");
     //cfile_node_xml_print_node(LOGSTDOUT, cfile_node, 0);
 
     cfile_seg_vec_fcreate(cfile_md_id, CFILE_SEG_VEC(cfile_node));
@@ -6244,7 +6244,7 @@ UINT32 cfile_fopen_on_node_tcid(const UINT32 cfile_md_id, CFILE_NODE *cfile_node
     {
         if(0 != cfile_node_fopen(cfile_md_id, cfile_node))
         {
-            sys_log(LOGSTDOUT, "error:cfile_fopen_on_node_tcid: failed to fopen node of file %s on tcid %s\n",
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fopen_on_node_tcid: failed to fopen node of file %s on tcid %s\n",
                                 (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
@@ -6254,13 +6254,13 @@ UINT32 cfile_fopen_on_node_tcid(const UINT32 cfile_md_id, CFILE_NODE *cfile_node
     {
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cfile_node_fopen, ERR_MODULE_ID, cfile_node))
         {
-            sys_log(LOGSTDOUT, "error:cfile_fopen_on_node_tcid: something wrong when make task to open node file %s on tcid %s\n",
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fopen_on_node_tcid: something wrong when make task to open node file %s on tcid %s\n",
                                 (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
     }
 
-    //sys_log(LOGSTDOUT, "info:cfile_fopen_on_node_tcid: cfile_node is\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_fopen_on_node_tcid: cfile_node is\n");
     //cfile_node_xml_print_node(LOGSTDOUT, cfile_node, 0);
 
     cfile_seg_vec = CFILE_SEG_VEC(cfile_node);
@@ -6453,7 +6453,7 @@ EC_BOOL cfile_fsearch_on_node_tcid(const UINT32 cfile_md_id, const CFILE_NODE *c
     {
         (*node_tcid) = (UINT32)cvector_get(tcid_list, tcid_pos);
 
-        sys_log(LOGSTDOUT, "info:cfile_fsearch_on_node_tcid: file %s found on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_fsearch_on_node_tcid: file %s found on tcid %s\n",
                         (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(*node_tcid));
 
         carray_free(ret_list, LOC_CFILE_0078);
@@ -6461,7 +6461,7 @@ EC_BOOL cfile_fsearch_on_node_tcid(const UINT32 cfile_md_id, const CFILE_NODE *c
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "info:cfile_fsearch_on_node_tcid: file %s NOT found\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_fsearch_on_node_tcid: file %s NOT found\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
 
     carray_free(ret_list, LOC_CFILE_0080);
     cvector_free(tcid_list, LOC_CFILE_0081);
@@ -6504,7 +6504,7 @@ UINT32 cfile_fread_on_node_tcid(const UINT32 cfile_md_id, CFILE_NODE *cfile_node
     {
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cfile_fread_on_node_tcid, ERR_MODULE_ID, cfile_node, node_tcid))
         {
-            sys_log(LOGSTDOUT, "error:cfile_fread_on_node_tcid: something wrong when make task with tcid %s and file %s for cfile fread\n",
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fread_on_node_tcid: something wrong when make task with tcid %s and file %s for cfile fread\n",
                                 c_word_to_ipv4(node_tcid), (char *)CFILE_NODE_NAME_STR(cfile_node));
             return ((UINT32)-1);
         }
@@ -6513,7 +6513,7 @@ UINT32 cfile_fread_on_node_tcid(const UINT32 cfile_md_id, CFILE_NODE *cfile_node
 
     if(0 != cfile_node_read(cfile_md_id, cfile_node))
     {
-        sys_log(LOGSTDOUT, "error:cfile_fread_on_node_tcid: failed to read node info of file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fread_on_node_tcid: failed to read node info of file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
         return ((UINT32)-1);
     }
@@ -6557,7 +6557,7 @@ UINT32 cfile_fwrite_on_node_tcid(const UINT32 cfile_md_id, const CFILE_NODE *cfi
     {
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cfile_node_write, ERR_MODULE_ID, cfile_node, node_tcid))
         {
-            sys_log(LOGSTDOUT, "error:cfile_fwrite_on_node_tcid: something wrong when make task with tcid %s and file %s for node write\n",
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fwrite_on_node_tcid: something wrong when make task with tcid %s and file %s for node write\n",
                                 c_word_to_ipv4(node_tcid), (char *)CFILE_NODE_NAME_STR(cfile_node));
             return ((UINT32)-1);
         }
@@ -6569,7 +6569,7 @@ UINT32 cfile_fwrite_on_node_tcid(const UINT32 cfile_md_id, const CFILE_NODE *cfi
 
     if(0 != ret)
     {
-        sys_log(LOGSTDOUT, "error:cfile_fwrite_on_node_tcid: failed to write node info with file %s and tcid %s to tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fwrite_on_node_tcid: failed to write node info with file %s and tcid %s to tcid %s\n",
                            (char *)CFILE_NODE_NAME_STR(cfile_node), CFILE_NODE_TCID_STR(cfile_node, CFILE_NODE_TCID_POS), c_word_to_ipv4(node_tcid));
         return ((UINT32)-1);
     }
@@ -6691,7 +6691,7 @@ UINT32 cfile_fcopy_on_node_tcid(const UINT32 cfile_md_id, const CFILE_NODE *src_
 
     if(0 != cfile_seg_vec_copy(cfile_md_id, CFILE_SEG_VEC(src_cfile_node), CFILE_SEG_VEC(des_cfile_node)))
     {
-        sys_log(LOGSTDOUT, "error:cfile_fcopy_on_node_tcid: failed to copy segs\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fcopy_on_node_tcid: failed to copy segs\n");
         return ((UINT32)-1);
     }
 
@@ -6699,7 +6699,7 @@ UINT32 cfile_fcopy_on_node_tcid(const UINT32 cfile_md_id, const CFILE_NODE *src_
     {
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cfile_node_write_with_node_tcid, ERR_MODULE_ID, des_cfile_node, node_tcid))
         {
-            sys_log(LOGSTDOUT, "error:cfile_fcopy_on_node_tcid: something wrong when make task with tcid %s and file %s for node write\n",
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fcopy_on_node_tcid: something wrong when make task with tcid %s and file %s for node write\n",
                                 c_word_to_ipv4(node_tcid), (char *)CFILE_NODE_NAME_STR(des_cfile_node));
             return ((UINT32)-1);
         }
@@ -6711,7 +6711,7 @@ UINT32 cfile_fcopy_on_node_tcid(const UINT32 cfile_md_id, const CFILE_NODE *src_
 
     if(0 != ret)
     {
-        sys_log(LOGSTDOUT, "error:cfile_fcopy_on_node_tcid: failed to write node info with file %s and tcid %s to tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fcopy_on_node_tcid: failed to write node info with file %s and tcid %s to tcid %s\n",
                            (char *)CFILE_NODE_NAME_STR(des_cfile_node), CFILE_NODE_TCID_STR(des_cfile_node, CFILE_NODE_TCID_POS),
                            c_word_to_ipv4(node_tcid));
         return ((UINT32)-1);
@@ -6763,7 +6763,7 @@ UINT32 cfile_upload(const UINT32 cfile_md_id, const CSTRING *in_file_name, const
     in_fp = fopen((char *)cstring_get_str(in_file_name), "rb");/*open in file to read*/
     if(NULL_PTR == in_fp)
     {
-        sys_log(LOGSTDOUT, "error:cfile_upload: failed to open file %s to read\n", (char *)cstring_get_str(in_file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_upload: failed to open file %s to read\n", (char *)cstring_get_str(in_file_name));
         return ((UINT32)-1);
     }
 
@@ -6772,7 +6772,7 @@ UINT32 cfile_upload(const UINT32 cfile_md_id, const CSTRING *in_file_name, const
     file_size = ftell(in_fp);
     fseek(in_fp, 0, SEEK_SET);
 
-    //sys_log(LOGSTDOUT, "info:cfile_upload: file %s has size %ld\n", (char *)cstring_get_str(in_file_name), file_size);
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_upload: file %s has size %ld\n", (char *)cstring_get_str(in_file_name), file_size);
     in_file_basename = cstring_new(NULL_PTR, LOC_CFILE_0082);
     cfile_basename(cfile_md_id, in_file_name, in_file_basename);
 
@@ -6784,7 +6784,7 @@ UINT32 cfile_upload(const UINT32 cfile_md_id, const CSTRING *in_file_name, const
     cfile_node = cfile_node_new(cfile_md_id, file_size, ui_cfile_node_name);
     if(NULL_PTR == cfile_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_upload: failed to new cfile node of file %s\n", (char *)cstring_get_str(ui_cfile_node_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_upload: failed to new cfile node of file %s\n", (char *)cstring_get_str(ui_cfile_node_name));
         cstring_free(ui_cfile_node_name);
         return ((UINT32)-1);
     }
@@ -6792,14 +6792,14 @@ UINT32 cfile_upload(const UINT32 cfile_md_id, const CSTRING *in_file_name, const
     /*create segment files at remote*/
     if(0 != cfile_fcreate_on_node_tcid(cfile_md_id, cfile_node, node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_upload: failed to create file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_upload: failed to create file %s on tcid %s\n",
                             (char *)cstring_get_str(ui_cfile_node_name), c_word_to_ipv4(node_tcid));
         cstring_free(ui_cfile_node_name);
         cfile_node_free(cfile_md_id, cfile_node);
         return ((UINT32)-1);
     }
 #endif
-    //sys_log(LOGSTDOUT, "info:cfile_upload: after cfile_fcreate_on_node_tcid, CFILE_NODE_TCID_VEC is:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_upload: after cfile_fcreate_on_node_tcid, CFILE_NODE_TCID_VEC is:\n");
     //cvector_print(LOGSTDOUT, CFILE_NODE_TCID_VEC(cfile_node), NULL_PTR);
 
 
@@ -6808,7 +6808,7 @@ UINT32 cfile_upload(const UINT32 cfile_md_id, const CSTRING *in_file_name, const
     cfile_seg_vec_read(cfile_md_id, CFILE_SEG_VEC(cfile_node), in_fp, 0, cvector_size(CFILE_SEG_VEC(cfile_node)));/*read data from local file to kbuff set*/
     fclose(in_fp);/*close in file*/
 
-    //sys_log(LOGSTDOUT, "info:cfile_upload: after cfile_seg_vec_read:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_upload: after cfile_seg_vec_read:\n");
     //cfile_node_xml_print_node(LOGSTDOUT, cfile_node, 0);
 
     cfile_fwrite_on_node_tcid(cfile_md_id, cfile_node, node_tcid);/*write data from kbuff to remote segment file*/
@@ -6863,39 +6863,39 @@ UINT32 cfile_download(const UINT32 cfile_md_id, const CSTRING *in_file_name, con
     in_cfile_node = cfile_node_new(cfile_md_id, 0, in_file_name);
     if(NULL_PTR == in_cfile_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_download: failed to new node of in file %s\n", (char *)cstring_get_str(in_file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_download: failed to new node of in file %s\n", (char *)cstring_get_str(in_file_name));
         return ((UINT32)-1);
     }
 #if 0
     if(EC_FALSE == cfile_fsearch_on_node_tcid(cfile_md_id, in_cfile_node, &in_node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_download: not found node of file %s\n", (char *)CFILE_NODE_NAME_STR(in_cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_download: not found node of file %s\n", (char *)CFILE_NODE_NAME_STR(in_cfile_node));
         cfile_node_free(cfile_md_id, in_cfile_node);
         return ((UINT32)-1);
     }
 #endif
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, in_cfile_node, CFILE_RB_OPEN_MODE, node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_download: failed to fopen node of file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_download: failed to fopen node of file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(in_cfile_node), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, in_cfile_node);
         return ((UINT32)-1);
     }
 
-    //sys_log(LOGSTDOUT, "info:cfile_download: after cfile_fopen_on_node_tcid:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_download: after cfile_fopen_on_node_tcid:\n");
     //cfile_node_xml_print_node(LOGSTDOUT, cfile_node, 0);
 
     out_fp = fopen((char *)cstring_get_str(out_file_name), "wb");/*open in file to write*/
     if(NULL_PTR == out_fp)
     {
-        sys_log(LOGSTDOUT, "error:cfile_download: failed to open file %s to write locally\n", (char *)cstring_get_str(out_file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_download: failed to open file %s to write locally\n", (char *)cstring_get_str(out_file_name));
         cfile_node_free(cfile_md_id, in_cfile_node);
         return ((UINT32)-1);
     }
 #if 0
     cfile_seg_vec_fread(cfile_md_id, CFILE_SEG_VEC(in_cfile_node), 0, cvector_size(CFILE_SEG_VEC(in_cfile_node)));
 
-    //sys_log(LOGSTDOUT, "info:cfile_download: after cfile_fread_on_node_tcid:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_download: after cfile_fread_on_node_tcid:\n");
     //cfile_node_xml_print_node(LOGSTDOUT, cfile_node, 0);
 
     cfile_seg_vec_write(cfile_md_id, CFILE_SEG_VEC(in_cfile_node), out_fp, 0, cvector_size(CFILE_SEG_VEC(in_cfile_node)));
@@ -6947,13 +6947,13 @@ UINT32 cfile_rmv_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *file_name
     cfile_node = cfile_node_new(cfile_md_id, 0, file_name);
     if(NULL_PTR == cfile_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_rmv_on_node_tcid: failed to new node of file %s\n", (char *)cstring_get_str(file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_rmv_on_node_tcid: failed to new node of file %s\n", (char *)cstring_get_str(file_name));
         return ((UINT32)-1);
     }
 
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, cfile_node, CFILE_ERR_OPEN_MODE, node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_rmv_on_node_tcid: failed to open file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_rmv_on_node_tcid: failed to open file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, cfile_node);
         return ((UINT32)-1);
@@ -6961,7 +6961,7 @@ UINT32 cfile_rmv_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *file_name
 
     if(0 != cfile_frmv_on_node_tcid(cfile_md_id, cfile_node, node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_rmv_on_node_tcid: failed to frmv file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_rmv_on_node_tcid: failed to frmv file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, cfile_node);
         return ((UINT32)-1);
@@ -6987,7 +6987,7 @@ UINT32 cfile_rmv_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *file_name
 **/
 UINT32 cfile_clone_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *src_file_name, const CSTRING *des_file_name, const UINT32 node_tcid)
 {
-    sys_log(LOGSTDOUT, "error:cfile_clone_on_node_tcid: incompleted implementation!\n");
+    dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_clone_on_node_tcid: incompleted implementation!\n");
 #if 0
     CFILE_NODE *src_cfile_node;
     CFILE_NODE *des_cfile_node;
@@ -7007,39 +7007,39 @@ UINT32 cfile_clone_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *src_fil
     src_cfile_node = cfile_node_new(cfile_md_id, 0, src_file_name, src_node_dir_name);
     if(NULL_PTR == src_cfile_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_clone_on_node_tcid: failed to new src node of file %s\n", (char *)cstring_get_str(src_file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_clone_on_node_tcid: failed to new src node of file %s\n", (char *)cstring_get_str(src_file_name));
         return ((UINT32)-1);
     }
 
     if(EC_FALSE == cfile_fsearch_on_node_tcid(cfile_md_id, src_cfile_node, &src_node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_clone_on_node_tcid: not found node of file %s\n", (char *)CFILE_NODE_NAME_STR(src_cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_clone_on_node_tcid: not found node of file %s\n", (char *)CFILE_NODE_NAME_STR(src_cfile_node));
         cfile_node_free(cfile_md_id, src_cfile_node);
         return ((UINT32)-1);
     }
 
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, src_cfile_node, CFILE_RB_OPEN_MODE, src_node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_clone_on_node_tcid: failed to open node of file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_clone_on_node_tcid: failed to open node of file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(src_cfile_node), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, src_cfile_node);
         return ((UINT32)-1);
     }
 
-    //sys_log(LOGSTDOUT, "info:cfile_clone_on_node_tcid: after cfile_fopen_on_node_tcid, src_cfile_node:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_clone_on_node_tcid: after cfile_fopen_on_node_tcid, src_cfile_node:\n");
     //cfile_node_xml_print_node(LOGSTDOUT, src_cfile_node, 0);
 
     des_cfile_node = cfile_node_new(cfile_md_id, CFILE_NODE_SIZE(src_cfile_node), des_file_name, des_node_dir_name);
     if(NULL_PTR == des_cfile_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_clone_on_node_tcid: failed to new des node of file %s\n", (char *)cstring_get_str(des_file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_clone_on_node_tcid: failed to new des node of file %s\n", (char *)cstring_get_str(des_file_name));
         cfile_node_free(cfile_md_id, src_cfile_node);
         return ((UINT32)-1);
     }
 
     cfile_fclone_on_node_tcid(cfile_md_id, src_cfile_node, des_cfile_node, node_tcid);
 
-    //sys_log(LOGSTDOUT, "info:cfile_clone_on_node_tcid: after cfile_fclone_on_node_tcid, des_cfile_node:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_clone_on_node_tcid: after cfile_fclone_on_node_tcid, des_cfile_node:\n");
     //cfile_node_xml_print_node(LOGSTDOUT, des_cfile_node, 0);
 
     //cfile_fclose_on_node_tcid(cfile_md_id, src_cfile_node, node_tcid);
@@ -7086,32 +7086,32 @@ UINT32 cfile_copy_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *src_file
     src_cfile_node = cfile_node_new(cfile_md_id, 0, src_file_name);
     if(NULL_PTR == src_cfile_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_copy_on_node_tcid: failed to new src node of file %s\n", (char *)cstring_get_str(src_file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_copy_on_node_tcid: failed to new src node of file %s\n", (char *)cstring_get_str(src_file_name));
         return ((UINT32)-1);
     }
 
     if(EC_FALSE == cfile_fsearch_on_node_tcid(cfile_md_id, src_cfile_node, &src_node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_copy_on_node_tcid: not found node of file %s\n", (char *)CFILE_NODE_NAME_STR(src_cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_copy_on_node_tcid: not found node of file %s\n", (char *)CFILE_NODE_NAME_STR(src_cfile_node));
         cfile_node_free(cfile_md_id, src_cfile_node);
         return ((UINT32)-1);
     }
 
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, src_cfile_node, CFILE_RB_OPEN_MODE, src_node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_copy_on_node_tcid: failed to open node of file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_copy_on_node_tcid: failed to open node of file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(src_cfile_node), c_word_to_ipv4(src_node_tcid));
         cfile_node_free(cfile_md_id, src_cfile_node);
         return ((UINT32)-1);
     }
 
-    //sys_log(LOGSTDOUT, "info:cfile_clone_on_node_tcid: after cfile_fopen_on_node_tcid, src_cfile_node:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_clone_on_node_tcid: after cfile_fopen_on_node_tcid, src_cfile_node:\n");
     //cfile_node_xml_print_node(LOGSTDOUT, src_cfile_node, 0);
 
     des_cfile_node = cfile_node_new(cfile_md_id, CFILE_NODE_SIZE(src_cfile_node), des_file_name);
     if(NULL_PTR == des_cfile_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_copy_on_node_tcid: failed to new des node of file %s\n", (char *)cstring_get_str(des_file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_copy_on_node_tcid: failed to new des node of file %s\n", (char *)cstring_get_str(des_file_name));
         cfile_node_free(cfile_md_id, src_cfile_node);
         return ((UINT32)-1);
     }
@@ -7120,7 +7120,7 @@ UINT32 cfile_copy_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *src_file
 
     cfile_fcopy_on_node_tcid(cfile_md_id, src_cfile_node, des_cfile_node, node_tcid);
 
-    //sys_log(LOGSTDOUT, "info:cfile_clone_on_node_tcid: after cfile_fclone_on_node_tcid, des_cfile_node:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_clone_on_node_tcid: after cfile_fclone_on_node_tcid, des_cfile_node:\n");
     //cfile_node_xml_print_node(LOGSTDOUT, des_cfile_node, 0);
 
     //cfile_fclose_on_node_tcid(cfile_md_id, src_cfile_node, node_tcid);
@@ -7166,13 +7166,13 @@ EC_BOOL cfile_search_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *file_
     cfile_node = cfile_node_new(cfile_md_id, 0, file_name);
     if(NULL_PTR == cfile_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_search_on_node_tcid: failed to new node of file %s\n", (char *)cstring_get_str(file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_search_on_node_tcid: failed to new node of file %s\n", (char *)cstring_get_str(file_name));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cfile_fsearch_on_node_tcid(cfile_md_id, cfile_node, node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_search_on_node_tcid: failed to search node of file %s\n", (char *)cstring_get_str(file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_search_on_node_tcid: failed to search node of file %s\n", (char *)cstring_get_str(file_name));
         cfile_node_free(cfile_md_id, cfile_node);
         return (EC_FALSE);
     }
@@ -7224,39 +7224,39 @@ EC_BOOL cfile_cmp_on_node_tcid(const UINT32 cfile_md_id, const CSTRING *file_nam
     cfile_node_1st = cfile_node_new(cfile_md_id, 0, file_name_1st);
     if(NULL_PTR == cfile_node_1st)
     {
-        sys_log(LOGSTDOUT, "error:cfile_cmp_on_node_tcid: failed to new 1st node of file %s\n", (char *)cstring_get_str(file_name_1st));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_cmp_on_node_tcid: failed to new 1st node of file %s\n", (char *)cstring_get_str(file_name_1st));
         return (EC_FALSE);
     }
 
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, cfile_node_1st, CFILE_RB_OPEN_MODE, node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_cmp_on_node_tcid: failed to open 1st node of file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_cmp_on_node_tcid: failed to open 1st node of file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(cfile_node_1st), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, cfile_node_1st);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "info:cfile_cmp_on_node_tcid: cfile_node_1st:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_cmp_on_node_tcid: cfile_node_1st:\n");
     //cfile_node_xml_print_node(LOGSTDOUT, cfile_node_1st, 0);
 
     cfile_node_2nd = cfile_node_new(cfile_md_id, 0, file_name_2nd);
     if(NULL_PTR == cfile_node_2nd)
     {
-        sys_log(LOGSTDOUT, "error:cfile_cmp_on_node_tcid: failed to new 2nd node of file %s\n", (char *)cstring_get_str(file_name_2nd));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_cmp_on_node_tcid: failed to new 2nd node of file %s\n", (char *)cstring_get_str(file_name_2nd));
         cfile_node_free(cfile_md_id, cfile_node_1st);
         return (EC_FALSE);
     }
 
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, cfile_node_2nd, CFILE_RB_OPEN_MODE, node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_cmp_on_node_tcid: failed to open 2nd node of file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_cmp_on_node_tcid: failed to open 2nd node of file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(cfile_node_2nd), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, cfile_node_1st);
         cfile_node_free(cfile_md_id, cfile_node_2nd);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "info:cfile_cmp_on_node_tcid: cfile_node_2nd:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_cmp_on_node_tcid: cfile_node_2nd:\n");
     //cfile_node_xml_print_node(LOGSTDOUT, cfile_node_2nd, 0);
 
     if(EC_FALSE == cfile_node_cmp(cfile_md_id, cfile_node_1st, cfile_node_2nd))
@@ -7315,7 +7315,7 @@ static UINT32 cfile_read_fwrite_group_on_node_tcid(const UINT32 cfile_md_id, CFI
     {
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cfile_node_write, ERR_MODULE_ID, cfile_node, node_tcid))
         {
-            sys_log(LOGSTDOUT, "error:cfile_read_fwrite_group_on_node_tcid: something wrong when make task with tcid %s and file %s for node write\n",
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_read_fwrite_group_on_node_tcid: something wrong when make task with tcid %s and file %s for node write\n",
                                c_word_to_ipv4(node_tcid), (char *)CFILE_NODE_NAME_STR(cfile_node));
             return ((UINT32)-1);
         }
@@ -7327,7 +7327,7 @@ static UINT32 cfile_read_fwrite_group_on_node_tcid(const UINT32 cfile_md_id, CFI
 
     if(0 != ret)
     {
-        sys_log(LOGSTDOUT, "error:cfile_read_fwrite_group_on_node_tcid: failed to write node info with file %s and tcid %s to tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_read_fwrite_group_on_node_tcid: failed to write node info with file %s and tcid %s to tcid %s\n",
                            (char *)CFILE_NODE_NAME_STR(cfile_node), CFILE_NODE_TCID_STR(cfile_node, CFILE_NODE_TCID_POS), c_word_to_ipv4(node_tcid));
         return ((UINT32)-1);
     }
@@ -7335,7 +7335,7 @@ static UINT32 cfile_read_fwrite_group_on_node_tcid(const UINT32 cfile_md_id, CFI
     kbuff_vec = cfile_kbuff_vec_new(cfile_md_id, FILE_SEG_GROUP_SIZE);
     if(NULL_PTR == kbuff_vec)
     {
-        sys_log(LOGSTDOUT, "error:cfile_read_fwrite_group_on_node_tcid: failed to alloc %ld KBUFF\n", FILE_SEG_GROUP_SIZE);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_read_fwrite_group_on_node_tcid: failed to alloc %ld KBUFF\n", FILE_SEG_GROUP_SIZE);
         return ((UINT32)-1);
     }
 
@@ -7344,14 +7344,14 @@ static UINT32 cfile_read_fwrite_group_on_node_tcid(const UINT32 cfile_md_id, CFI
     {
         if(0 != cfile_seg_vec_read(cfile_md_id, CFILE_SEG_VEC(cfile_node), cfile_seg_pos, cfile_seg_pos + FILE_SEG_GROUP_SIZE, kbuff_vec, in_fp))
         {
-            sys_log(LOGSTDOUT, "error:cfile_read_fwrite_group_on_node_tcid: failed to read from seg #%ld\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_read_fwrite_group_on_node_tcid: failed to read from seg #%ld\n", cfile_seg_pos);
             cfile_kbuff_vec_free(cfile_md_id, kbuff_vec);
             return ((UINT32)-1);
         }
 
         if(0 != cfile_seg_vec_fwrite(cfile_md_id, CFILE_SEG_VEC(cfile_node), cfile_seg_pos, cfile_seg_pos + FILE_SEG_GROUP_SIZE, kbuff_vec))
         {
-            sys_log(LOGSTDOUT, "error:cfile_read_fwrite_group_on_node_tcid: failed to write from seg #%ld\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_read_fwrite_group_on_node_tcid: failed to write from seg #%ld\n", cfile_seg_pos);
             cfile_kbuff_vec_free(cfile_md_id, kbuff_vec);
             return ((UINT32)-1);
         }
@@ -7397,7 +7397,7 @@ static UINT32 cfile_fread_write_group_on_local_tcid(const UINT32 cfile_md_id, CF
     kbuff_vec = cfile_kbuff_vec_new(cfile_md_id, FILE_SEG_GROUP_SIZE);
     if(NULL_PTR == kbuff_vec)
     {
-        sys_log(LOGSTDOUT, "error:cfile_fread_write_group_on_local_tcid: failed to alloc %ld KBUFF\n", FILE_SEG_GROUP_SIZE);
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fread_write_group_on_local_tcid: failed to alloc %ld KBUFF\n", FILE_SEG_GROUP_SIZE);
         return ((UINT32)-1);
     }
 
@@ -7406,7 +7406,7 @@ static UINT32 cfile_fread_write_group_on_local_tcid(const UINT32 cfile_md_id, CF
     {
         if(0 != cfile_seg_vec_fread(cfile_md_id, CFILE_SEG_VEC(cfile_node), cfile_seg_pos, cfile_seg_pos + FILE_SEG_GROUP_SIZE, kbuff_vec))
         {
-            sys_log(LOGSTDOUT, "error:cfile_fread_write_group_on_local_tcid: failed to read from remote into seg #%ld\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fread_write_group_on_local_tcid: failed to read from remote into seg #%ld\n", cfile_seg_pos);
             cfile_kbuff_vec_free(cfile_md_id, kbuff_vec);
             return ((UINT32)-1);
         }
@@ -7414,7 +7414,7 @@ static UINT32 cfile_fread_write_group_on_local_tcid(const UINT32 cfile_md_id, CF
 
         if(0 != cfile_seg_vec_write(cfile_md_id, CFILE_SEG_VEC(cfile_node), cfile_seg_pos, cfile_seg_pos + FILE_SEG_GROUP_SIZE, kbuff_vec, out_fp))
         {
-            sys_log(LOGSTDOUT, "error:cfile_fread_write_group_on_local_tcid: failed to write from seg #%ld to local file\n", cfile_seg_pos);
+            dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fread_write_group_on_local_tcid: failed to write from seg #%ld to local file\n", cfile_seg_pos);
             cfile_kbuff_vec_free(cfile_md_id, kbuff_vec);
             return ((UINT32)-1);
         }
@@ -7466,7 +7466,7 @@ UINT32 cfile_fcreate_trans(const UINT32 cfile_md_id, CFILE_NODE *cfile_node)
     mod_node = mod_mgr_find_min_load_with_tcid_vec_filter(mod_mgr, &(cfile_md->node_tcid_vec));
     if(NULL_PTR == mod_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_fcreate_trans: failed to filter mod_node with node tcid vec\n");
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fcreate_trans: failed to filter mod_node with node tcid vec\n");
         cvector_print(LOGSTDOUT, &(cfile_md->node_tcid_vec), NULL_PTR);
         return ((UINT32)-1);
     }
@@ -7513,7 +7513,7 @@ UINT32 cfile_fopen_trans(const UINT32 cfile_md_id, CFILE_NODE *cfile_node, const
 
     if(EC_FALSE == cfile_fsearch_trans(cfile_md_id, cfile_node, &node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_fopen_trans: failed to search node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fopen_trans: failed to search node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
         return ((UINT32)-1);
     }
 
@@ -7552,7 +7552,7 @@ UINT32 cfile_fclose_trans(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node
 
     if(EC_FALSE == cfile_fsearch_trans(cfile_md_id, cfile_node, &node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_fclose_trans: failed to search node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fclose_trans: failed to search node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
         return ((UINT32)-1);
     }
 
@@ -7592,7 +7592,7 @@ EC_BOOL cfile_fcheck_trans(const UINT32 cfile_md_id, const CFILE_NODE *cfile_nod
 
     if(EC_FALSE == cfile_fsearch_trans(cfile_md_id, cfile_node, &node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_fexist_trans: failed to search node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fexist_trans: failed to search node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
         return (EC_FALSE);
     }
 
@@ -7661,13 +7661,13 @@ EC_BOOL cfile_fsearch_trans(const UINT32 cfile_md_id, const CFILE_NODE *cfile_no
     {
         (*node_tcid) = (UINT32)cvector_get(tcid_list, tcid_pos);
 
-        sys_log(LOGSTDOUT, "info:cfile_fsearch_trans: file %s found on tcid %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(*node_tcid));
+        dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_fsearch_trans: file %s found on tcid %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(*node_tcid));
 
         carray_free(ret_list, LOC_CFILE_0085);
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "info:cfile_fsearch_trans: file %s NOT found\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+    dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_fsearch_trans: file %s NOT found\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
 
     carray_free(ret_list, LOC_CFILE_0086);
     return (EC_FALSE);
@@ -7703,7 +7703,7 @@ UINT32 cfile_fread_trans(const UINT32 cfile_md_id, CFILE_NODE *cfile_node, CVECT
 
     if(EC_FALSE == cfile_fsearch_trans(cfile_md_id, cfile_node, &node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_fread_trans: failed to search node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fread_trans: failed to search node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
         return ((UINT32)-1);
     }
 
@@ -7740,7 +7740,7 @@ UINT32 cfile_fwrite_trans(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node
 
     if(EC_FALSE == cfile_fsearch_trans(cfile_md_id, cfile_node, &node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_fwrite_trans: failed to search node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_fwrite_trans: failed to search node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
         return ((UINT32)-1);
     }
 
@@ -7777,7 +7777,7 @@ UINT32 cfile_frmv_trans(const UINT32 cfile_md_id, const CFILE_NODE *cfile_node)
 
     if(EC_FALSE == cfile_fsearch_trans(cfile_md_id, cfile_node, &node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_frmv_trans: failed to search node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_frmv_trans: failed to search node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
         return ((UINT32)-1);
     }
 
@@ -7814,7 +7814,7 @@ UINT32 cfile_fcopy_trans(const UINT32 cfile_md_id, const CFILE_NODE *src_cfile_n
 
     if(EC_FALSE == cfile_fsearch_trans(cfile_md_id, src_cfile_node, &node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_frmv_trans: failed to search src node of file %s\n", (char *)CFILE_NODE_NAME_STR(src_cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_frmv_trans: failed to search src node of file %s\n", (char *)CFILE_NODE_NAME_STR(src_cfile_node));
         return ((UINT32)-1);
     }
 
@@ -7853,20 +7853,20 @@ UINT32 cfile_rmv_trans(const UINT32 cfile_md_id, const CSTRING *file_name)
     cfile_node = cfile_node_new(cfile_md_id, 0, file_name);
     if(NULL_PTR == cfile_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_rmv_trans: failed to new node of file %s\n", (char *)cstring_get_str(file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_rmv_trans: failed to new node of file %s\n", (char *)cstring_get_str(file_name));
         return ((UINT32)-1);
     }
 
     if(EC_FALSE == cfile_fsearch_trans(cfile_md_id, cfile_node, &node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_rmv_trans: failed to search src node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_rmv_trans: failed to search src node of file %s\n", (char *)CFILE_NODE_NAME_STR(cfile_node));
         cfile_node_free(cfile_md_id, cfile_node);
         return ((UINT32)-1);
     }
 
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, cfile_node, CFILE_ERR_OPEN_MODE, node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_rmv_trans: failed to open file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_rmv_trans: failed to open file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, cfile_node);
         return ((UINT32)-1);
@@ -7874,7 +7874,7 @@ UINT32 cfile_rmv_trans(const UINT32 cfile_md_id, const CSTRING *file_name)
 
     if(0 != cfile_frmv_on_node_tcid(cfile_md_id, cfile_node, node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_rmv_trans: failed to frmv file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_rmv_trans: failed to frmv file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(cfile_node), c_word_to_ipv4(node_tcid));
         cfile_node_free(cfile_md_id, cfile_node);
         return ((UINT32)-1);
@@ -7920,20 +7920,20 @@ UINT32 cfile_copy_trans(const UINT32 cfile_md_id, const CSTRING *src_file_name, 
     src_cfile_node = cfile_node_new(cfile_md_id, 0, src_file_name);
     if(NULL_PTR == src_cfile_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_copy_trans: failed to new src node of file %s\n", (char *)cstring_get_str(src_file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_copy_trans: failed to new src node of file %s\n", (char *)cstring_get_str(src_file_name));
         return ((UINT32)-1);
     }
 
     if(EC_FALSE == cfile_fsearch_trans(cfile_md_id, src_cfile_node, &src_node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_copy_trans: not found node of file %s\n", (char *)CFILE_NODE_NAME_STR(src_cfile_node));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_copy_trans: not found node of file %s\n", (char *)CFILE_NODE_NAME_STR(src_cfile_node));
         cfile_node_free(cfile_md_id, src_cfile_node);
         return ((UINT32)-1);
     }
 
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, src_cfile_node, CFILE_RB_OPEN_MODE, src_node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_copy_trans: failed to open node of file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_copy_trans: failed to open node of file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(src_cfile_node), c_word_to_ipv4(src_node_tcid));
         cfile_node_free(cfile_md_id, src_cfile_node);
         return ((UINT32)-1);
@@ -7942,7 +7942,7 @@ UINT32 cfile_copy_trans(const UINT32 cfile_md_id, const CSTRING *src_file_name, 
     des_cfile_node = cfile_node_new(cfile_md_id, CFILE_NODE_SIZE(src_cfile_node), des_file_name);
     if(NULL_PTR == des_cfile_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_copy_trans: failed to new des node of file %s\n", (char *)cstring_get_str(des_file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_copy_trans: failed to new des node of file %s\n", (char *)cstring_get_str(des_file_name));
         cfile_node_free(cfile_md_id, src_cfile_node);
         return ((UINT32)-1);
     }
@@ -7991,13 +7991,13 @@ EC_BOOL cfile_search_trans(const UINT32 cfile_md_id, const CSTRING *file_name, U
     cfile_node = cfile_node_new(cfile_md_id, 0, file_name);
     if(NULL_PTR == cfile_node)
     {
-        sys_log(LOGSTDOUT, "error:cfile_search_trans: failed to new node of file %s\n", (char *)cstring_get_str(file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_search_trans: failed to new node of file %s\n", (char *)cstring_get_str(file_name));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cfile_fsearch_trans(cfile_md_id, cfile_node, node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cfile_search_trans: failed to search node of file %s\n", (char *)cstring_get_str(file_name));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_search_trans: failed to search node of file %s\n", (char *)cstring_get_str(file_name));
         cfile_node_free(cfile_md_id, cfile_node);
         return (EC_FALSE);
     }
@@ -8052,39 +8052,39 @@ EC_BOOL cfile_cmp_trans(const UINT32 cfile_md_id, const CSTRING *file_name_1st, 
     cfile_node_1st = cfile_node_new(cfile_md_id, 0, file_name_1st);
     if(NULL_PTR == cfile_node_1st)
     {
-        sys_log(LOGSTDOUT, "error:cfile_cmp_trans: failed to new 1st node of file %s\n", (char *)cstring_get_str(file_name_1st));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_cmp_trans: failed to new 1st node of file %s\n", (char *)cstring_get_str(file_name_1st));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cfile_fsearch_trans(cfile_md_id, cfile_node_1st, &node_tcid_1st))
     {
-        sys_log(LOGSTDOUT, "error:cfile_cmp_trans: failed to search 1st node of file %s\n", (char *)cstring_get_str(file_name_1st));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_cmp_trans: failed to search 1st node of file %s\n", (char *)cstring_get_str(file_name_1st));
         cfile_node_free(cfile_md_id, cfile_node_1st);
         return (EC_FALSE);
     }
 
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, cfile_node_1st, CFILE_RB_OPEN_MODE, node_tcid_1st))
     {
-        sys_log(LOGSTDOUT, "error:cfile_cmp_trans: failed to open 1st node of file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_cmp_trans: failed to open 1st node of file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(cfile_node_1st), c_word_to_ipv4(node_tcid_1st));
         cfile_node_free(cfile_md_id, cfile_node_1st);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "info:cfile_cmp_on_node_tcid: cfile_node_1st:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_cmp_on_node_tcid: cfile_node_1st:\n");
     //cfile_node_xml_print_node(LOGSTDOUT, cfile_node_1st, 0);
 
     cfile_node_2nd = cfile_node_new(cfile_md_id, 0, file_name_2nd);
     if(NULL_PTR == cfile_node_2nd)
     {
-        sys_log(LOGSTDOUT, "error:cfile_cmp_trans: failed to new 2nd node of file %s\n", (char *)cstring_get_str(file_name_2nd));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_cmp_trans: failed to new 2nd node of file %s\n", (char *)cstring_get_str(file_name_2nd));
         cfile_node_free(cfile_md_id, cfile_node_1st);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cfile_fsearch_trans(cfile_md_id, cfile_node_2nd, &node_tcid_2nd))
     {
-        sys_log(LOGSTDOUT, "error:cfile_cmp_trans: failed to search 2nd node of file %s\n", (char *)cstring_get_str(file_name_2nd));
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_cmp_trans: failed to search 2nd node of file %s\n", (char *)cstring_get_str(file_name_2nd));
         cfile_node_free(cfile_md_id, cfile_node_1st);
         cfile_node_free(cfile_md_id, cfile_node_2nd);
         return (EC_FALSE);
@@ -8092,14 +8092,14 @@ EC_BOOL cfile_cmp_trans(const UINT32 cfile_md_id, const CSTRING *file_name_1st, 
 
     if(0 != cfile_fopen_on_node_tcid(cfile_md_id, cfile_node_2nd, CFILE_RB_OPEN_MODE, node_tcid_2nd))
     {
-        sys_log(LOGSTDOUT, "error:cfile_cmp_trans: failed to open 2nd node of file %s on tcid %s\n",
+        dbg_log(SEC_0026_CFILE, 0)(LOGSTDOUT, "error:cfile_cmp_trans: failed to open 2nd node of file %s on tcid %s\n",
                             (char *)CFILE_NODE_NAME_STR(cfile_node_2nd), c_word_to_ipv4(node_tcid_2nd));
         cfile_node_free(cfile_md_id, cfile_node_1st);
         cfile_node_free(cfile_md_id, cfile_node_2nd);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "info:cfile_cmp_on_node_tcid: cfile_node_2nd:\n");
+    //dbg_log(SEC_0026_CFILE, 3)(LOGSTDOUT, "info:cfile_cmp_on_node_tcid: cfile_node_2nd:\n");
     //cfile_node_xml_print_node(LOGSTDOUT, cfile_node_2nd, 0);
 
     if(EC_FALSE == cfile_node_cmp(cfile_md_id, cfile_node_1st, cfile_node_2nd))

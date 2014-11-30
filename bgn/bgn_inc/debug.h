@@ -117,6 +117,10 @@ extern "C"{
 #define           e_dbg_CHFSNP_FNODE_ptr    ((UINT32) 80)
 #define               e_dbg_uint64_t_ptr    ((UINT32) 81)
 #define      e_dbg_CRFSDN_CACHE_NODE_ptr    ((UINT32) 82)
+#define            e_dbg_CMD5_DIGEST_ptr    ((UINT32) 83)
+#define                 e_dbg_CRFSOP_ptr    ((UINT32) 84)
+#define           e_dbg_CRFSDT_PNODE_ptr    ((UINT32) 85)
+#define                e_dbg_CBUFFER_ptr    ((UINT32) 86)
 #define                   e_dbg_type_end    ((UINT32)128)
 
 /* description of E_DBG_TYPE */
@@ -166,8 +170,11 @@ typedef struct
 #define                  PRIO_MD_GANGLIA    ((UINT32) 33)
 #define                 PRIO_MD_CSESSION    ((UINT32) 34)
 #define                   PRIO_MD_CSCORE    ((UINT32) 35)
-#define                   PRIO_MD_CRFS      ((UINT32) 36)
-#define                   PRIO_MD_CHFS      ((UINT32) 37)
+#define                     PRIO_MD_CRFS    ((UINT32) 36)
+#define                     PRIO_MD_CHFS    ((UINT32) 37)
+#define                    PRIO_MD_CCURL    ((UINT32) 38)
+#define                    PRIO_MD_CRFSC    ((UINT32) 39)
+#define                 PRIO_MD_CXMPPC2S    ((UINT32) 40)
 #define                         PRIO_END    ((UINT32)128) /*top priority*/
 
 

@@ -55,7 +55,7 @@ EC_BOOL cbase64_encode(const UINT8 *in, const UINT32 inlen, UINT8 *out, const UI
     len2 = 4 * ((inlen + 2) / 3);
     if (max_outlen < len2 + 1)
     {
-        sys_log(LOGSTDOUT, "error:cbase64_encode: overflow where inlen %ld, max_outlen %ld\n", inlen, max_outlen);
+        dbg_log(SEC_0012_CBASE64CODE, 0)(LOGSTDOUT, "error:cbase64_encode: overflow where inlen %ld, max_outlen %ld\n", inlen, max_outlen);
         return (EC_FALSE);
     }
     p = out;
@@ -110,13 +110,13 @@ EC_BOOL cbase64_decode(const UINT8 *in, const UINT32 inlen, UINT8 *out, const UI
             /* prevent g < 0 which would potentially allow an overflow later */
             if (0 > --g)
             {
-                sys_log(LOGSTDOUT, "error:cbase64_decode: invalid packet\n");
+                dbg_log(SEC_0012_CBASE64CODE, 0)(LOGSTDOUT, "error:cbase64_decode: invalid packet\n");
                 return (EC_FALSE);
             }
         }
         else if (3 != g)
         {
-            sys_log(LOGSTDOUT, "error:cbase64_decode: invalid packet\n");
+            dbg_log(SEC_0012_CBASE64CODE, 0)(LOGSTDOUT, "error:cbase64_decode: invalid packet\n");
             /* we only allow = to be at the end */
             return (EC_FALSE);
         }
@@ -127,7 +127,7 @@ EC_BOOL cbase64_decode(const UINT8 *in, const UINT32 inlen, UINT8 *out, const UI
         {
             if (z + g > max_outlen)
             {
-                sys_log(LOGSTDOUT, "error:cbase64_decode: overflow\n");
+                dbg_log(SEC_0012_CBASE64CODE, 0)(LOGSTDOUT, "error:cbase64_decode: overflow\n");
                 return (EC_FALSE);
             }
 
@@ -146,7 +146,7 @@ EC_BOOL cbase64_decode(const UINT8 *in, const UINT32 inlen, UINT8 *out, const UI
 
     if (0 != y)
     {
-        sys_log(LOGSTDOUT, "error:cbase64_decode: invalid packet\n");
+        dbg_log(SEC_0012_CBASE64CODE, 0)(LOGSTDOUT, "error:cbase64_decode: invalid packet\n");
         return (EC_FALSE);
     }
 

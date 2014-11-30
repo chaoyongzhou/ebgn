@@ -253,10 +253,10 @@ void test_case_cscore_003(const UINT32 cscore_md_id)
     clist_push_back(csdoc_words_list, (void *)csdoc_words_2);
 
     /*import csdoc_words_1 into bigtable*/
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_003: import beg\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_003: import beg\n");
     ASSERT(EC_TRUE == cscore_csdoc_words_list_import(cscore_md_id, csdoc_words_list));
     clist_free_with_modi(csdoc_words_list, cscore_md_id);
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_003: import end\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_003: import end\n");
 
     /*make csword_docs ready*/
     csword_docs = cscore_csword_docs_new(cscore_md_id);
@@ -268,10 +268,10 @@ void test_case_cscore_003(const UINT32 cscore_md_id)
     cscore_csword_docs_set_word(cscore_md_id, csword_docs, csword);
     cscore_csword_free(cscore_md_id, csword);
 
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_003: export beg\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_003: export beg\n");
     ASSERT(EC_TRUE == cscore_csword_docs_export(cscore_md_id, CBGT_SELECT_FROM_ALL_TABLE, csword_docs));
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_003: export end\n");
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_003: export result:\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_003: export end\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_003: export result:\n");
     cscore_csword_docs_print(LOGSTDOUT, csword_docs);
     cscore_csword_docs_free(cscore_md_id, csword_docs);
 
@@ -315,10 +315,10 @@ void test_case_cscore_004(const UINT32 cscore_md_id)
     clist_push_back(csdoc_words_list, (void *)csdoc_words_3);
 
     /*import csdoc_words_1 into bigtable*/
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_004: import beg\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_004: import beg\n");
     ASSERT(EC_TRUE == cscore_csdoc_words_list_import(cscore_md_id, csdoc_words_list));
     clist_free_with_modi(csdoc_words_list, cscore_md_id);
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_004: import end\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_004: import end\n");
 
     /*make csword_docs ready*/
     csword_docs = cscore_csword_docs_new(cscore_md_id);
@@ -327,10 +327,10 @@ void test_case_cscore_004(const UINT32 cscore_md_id)
     /*add cswords to csword_docs*/
     __test_case_cscore_csword_docs_set_word(cscore_md_id, csword_docs, (UINT8 *)"pepole");
 
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_004: export beg\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_004: export beg\n");
     ASSERT(EC_TRUE == cscore_csword_docs_export(cscore_md_id, CBGT_SELECT_FROM_ALL_TABLE, csword_docs));
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_004: export end\n");
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_004: export result:\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_004: export end\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_004: export result:\n");
     cscore_csword_docs_print(LOGSTDOUT, csword_docs);
     cscore_csword_docs_free(cscore_md_id, csword_docs);
 
@@ -375,10 +375,10 @@ void test_case_cscore_005(const UINT32 cscore_md_id)
     clist_push_back(csdoc_words_list, (void *)csdoc_words_3);
 
     /*import csdoc_words_1 into bigtable*/
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_005: import beg\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_005: import beg\n");
     ASSERT(EC_TRUE == cscore_csdoc_words_list_import(cscore_md_id, csdoc_words_list));
     clist_free_with_modi(csdoc_words_list, cscore_md_id);
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_005: import end\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_005: import end\n");
 
     /*make csword_list ready*/
     csword_list = clist_new(MM_CSWORD, 0);
@@ -386,21 +386,21 @@ void test_case_cscore_005(const UINT32 cscore_md_id)
     __test_case_cscore_csword_list_add_word(cscore_md_id, csword_list, (UINT8 *)"pepole");
     __test_case_cscore_csword_list_add_word(cscore_md_id, csword_list, (UINT8 *)"china");
 
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_005: csword_list is:\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_005: csword_list is:\n");
     clist_print(LOGSTDOUT, csword_list, cscore_csword_print);
 
     /*make csdoc_list ready*/
     csdoc_list = clist_new(MM_CSDOC, 0);
     ASSERT(NULL_PTR != csdoc_list);    
 
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_005: export beg\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_005: export beg\n");
     ASSERT(EC_TRUE == cscore_csword_docs_list_export_docs(cscore_md_id, CBGT_SELECT_FROM_ALL_TABLE, csword_list, csdoc_list));
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_005: export end\n");
-    sys_log(LOGSTDOUT, "[DEBUG] test_case_cscore_005: export result:\n");
-    clist_print(LOGSTDOUT, csdoc_list, cscore_csdoc_print);
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_005: export end\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] test_case_cscore_005: export result:\n");
+    clist_print(LOGSTDOUT, csdoc_list, (CLIST_DATA_DATA_PRINT)cscore_csdoc_print);
 
-    clist_clean_with_modi(csword_list, cscore_md_id, cscore_csword_free);
-    clist_clean_with_modi(csdoc_list, cscore_md_id, cscore_csdoc_free);
+    clist_clean_with_modi(csword_list, cscore_md_id, (CLIST_DATA_MODI_HANDLER)cscore_csword_free);
+    clist_clean_with_modi(csdoc_list, cscore_md_id, (CLIST_DATA_MODI_HANDLER)cscore_csdoc_free);
 
     clist_free(csword_list, 0);
     clist_free(csdoc_list, 0);    
@@ -417,7 +417,7 @@ int main_cscore0(int argc, char **argv)
     task_brd_default_init(argc, argv);
     if(EC_FALSE == task_brd_default_check_validity())
     {
-        sys_log(LOGSTDOUT, "error:main_cscore: validity checking failed\n");
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:main_cscore: validity checking failed\n");
         task_brd_default_abort();
         return (-1);
     }
@@ -439,9 +439,9 @@ int main_cscore0(int argc, char **argv)
 
         //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
 
-        sys_log(LOGSTDOUT, "======================================================================\n");
-        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
-        sys_log(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
         mod_mgr_print(LOGSTDOUT, mod_mgr_def);
 
         mod_mgr_free(mod_mgr_def);
@@ -469,7 +469,7 @@ int main_cscore0(int argc, char **argv)
 
         ASSERT(ERR_MODULE_ID != cbgt_md_id);
 
-        sys_log(LOGSTDOUT, "[DEBUG] main_cbgt: ============================ root server started ====================\n");
+        dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] main_cbgt: ============================ root server started ====================\n");
 
         do_slave_wait_default();
     }
@@ -478,14 +478,14 @@ int main_cscore0(int argc, char **argv)
     else if (c_ipv4_to_word("10.10.10.2") == this_tcid && 1 == this_rank)
     {
         UINT32 cscore_md_id;
-        sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
-        sys_log(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
 
         cscore_md_id = cscore_start();
         ASSERT(ERR_MODULE_ID != cscore_md_id );
-        sys_log(LOGSTDOUT, "[DEBUG] main_cscore: cscore_md_id = %ld\n", cscore_md_id);
+        dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] main_cscore: cscore_md_id = %ld\n", cscore_md_id);
 
         //test_case_cscore_001(cscore_md_id);
         //test_case_cscore_002(cscore_md_id);
@@ -528,7 +528,7 @@ EC_BOOL __test_cscore_cbgt_root_server_runner()
 
     ASSERT(ERR_MODULE_ID != cbgt_md_id);
 
-    sys_log(LOGSTDOUT, "[DEBUG] __test_cscore_cbgt_root_server_runner: ============================ root server started ====================\n");
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] __test_cscore_cbgt_root_server_runner: ============================ root server started ====================\n");
 
     return (EC_TRUE);
 }
@@ -539,7 +539,7 @@ EC_BOOL __test_cscore_cases_runner()
 
     cscore_md_id = cscore_start();
     ASSERT(ERR_MODULE_ID != cscore_md_id );
-    sys_log(LOGSTDOUT, "[DEBUG] __test_cscore_cases_runner: cscore_md_id = %ld\n", cscore_md_id);
+    dbg_log(SEC_0137_DEMO, 9)(LOGSTDOUT, "[DEBUG] __test_cscore_cases_runner: cscore_md_id = %ld\n", cscore_md_id);
 
     //test_case_cscore_001(cscore_md_id);
     //test_case_cscore_002(cscore_md_id);
@@ -557,7 +557,7 @@ int main_cscore(int argc, char **argv)
     task_brd_default_init(argc, argv);
     if(EC_FALSE == task_brd_default_check_validity())
     {
-        sys_log(LOGSTDOUT, "error:main_cscore: validity checking failed\n");
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:main_cscore: validity checking failed\n");
         task_brd_default_abort();
         return (-1);
     }

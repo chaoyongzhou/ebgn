@@ -54,7 +54,7 @@ extern "C"{
 #if 0
 #define PRINT_BUFF(info, buff, len) do{\
     UINT32 __pos;\
-    sys_log(LOGSTDOUT, "%s: ", info);\
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "%s: ", info);\
     for(__pos = 0; __pos < len; __pos ++)\
     {\
         sys_print(LOGSTDOUT, "%x,", ((UINT8 *)buff)[ __pos ]);\
@@ -233,7 +233,7 @@ static EC_BOOL __cbgt_make_user_table_key(const UINT32 cbgt_md_id, const CBYTES 
 {
     if(EC_FALSE == cbgt_key_init(cbgt_md_id, row, colf, colq, c_time(NULL_PTR), user_table_key))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_make_user_table_key: init key failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_make_user_table_key: init key failed\n");
         return (EC_FALSE);
     }
 
@@ -250,7 +250,7 @@ static EC_BOOL __cbgt_make_row_of_colf_table_by_start_end_user_table_key(const u
 
     if(EC_FALSE == cbytes_cat(&start_user_table_key_bytes, &end_user_table_key_bytes, colf_row_bytes))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_make_row_of_colf_table_by_start_end_user_table_key: make row of colf table failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_make_row_of_colf_table_by_start_end_user_table_key: make row of colf table failed\n");
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -267,7 +267,7 @@ static EC_BOOL __cbgt_make_rmc_table_key(const UINT32 cbgt_md_id, const CBYTES *
 
     if(EC_FALSE == cbgt_key_init(cbgt_md_id, row, &colf, &colq, c_time(NULL_PTR), rmc_table_key))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_make_rmc_table_key: init key failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_make_rmc_table_key: init key failed\n");
         return (EC_FALSE);
     }
 
@@ -279,7 +279,7 @@ static EC_BOOL __cbgt_make_colf_table_key_by_user_table_key(const UINT32 cbgt_md
     CBYTES colf_row;
 
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_make_colf_table_key_by_user_table_key: user rowkey is ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_make_colf_table_key_by_user_table_key: user rowkey is ");
     __cbgt_print_user_table_key(LOGSTDOUT, cbytes_buf(user_table_key));
     sys_print(LOGSTDOUT, "\n");
 #endif    
@@ -287,19 +287,19 @@ static EC_BOOL __cbgt_make_colf_table_key_by_user_table_key(const UINT32 cbgt_md
     cbytes_init(&colf_row);
     if(EC_FALSE == cbytes_cat(user_table_key, user_table_key, &colf_row))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_user_table_and_key_no_lock: cat user_table_key and user_table_key failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_user_table_and_key_no_lock: cat user_table_key and user_table_key failed\n");
         return (EC_FALSE);
     }
     
     if(EC_FALSE == __cbgt_make_rmc_table_key(cbgt_md_id, &colf_row, colf_table_key))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_make_colf_table_key_by_user_table_key: init key failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_make_colf_table_key_by_user_table_key: init key failed\n");
         cbytes_clean(&colf_row, LOC_CBGT_0001);
         return (EC_FALSE);
     }
     cbytes_clean(&colf_row, LOC_CBGT_0002);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_make_colf_table_key_by_user_table_key: colf rowkey is ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_make_colf_table_key_by_user_table_key: colf rowkey is ");
     __cbgt_print_colf_table_key(LOGSTDOUT, cbytes_buf(colf_table_key));
     sys_print(LOGSTDOUT, "\n");
 #endif
@@ -330,7 +330,7 @@ static EC_BOOL __cbgt_make_default_row_of_colf_table(const UINT32 cbgt_md_id, CB
 
     if(EC_FALSE == cbgt_key_init(cbgt_md_id, &row, &colf, &colq, min_ts, &start_user_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_make_default_row_of_colf_table: make start user rowkey failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_make_default_row_of_colf_table: make start user rowkey failed\n");
         return (EC_FALSE);
     }
 
@@ -341,14 +341,14 @@ static EC_BOOL __cbgt_make_default_row_of_colf_table(const UINT32 cbgt_md_id, CB
 
     if(EC_FALSE == cbgt_key_init(cbgt_md_id, &row, &colf, &colq, max_ts, &end_user_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_make_default_row_of_colf_table: make end user rowkey failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_make_default_row_of_colf_table: make end user rowkey failed\n");
         cbytes_clean(&start_user_rowkey, LOC_CBGT_0003);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cbytes_cat(&start_user_rowkey, &end_user_rowkey, colf_row))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_make_default_row_of_colf_table: cat start and end user rowkeys failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_make_default_row_of_colf_table: cat start and end user rowkeys failed\n");
         cbytes_clean(&start_user_rowkey, LOC_CBGT_0004);
         cbytes_clean(&end_user_rowkey, LOC_CBGT_0005);
         return (EC_FALSE);
@@ -397,7 +397,7 @@ static EC_BOOL __cbgt_make_meta_table_key(const UINT32 cbgt_md_id, const CBYTES 
 {
     if(EC_FALSE == __cbgt_make_rmc_table_key(cbgt_md_id, user_colf, meta_table_key))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_make_meta_table_key: init key failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_make_meta_table_key: init key failed\n");
         return (EC_FALSE);
     }
 
@@ -408,7 +408,7 @@ static EC_BOOL __cbgt_make_root_table_key(const UINT32 cbgt_md_id, const CBYTES 
 {
     if(EC_FALSE == __cbgt_make_rmc_table_key(cbgt_md_id, user_table_name, root_table_key))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_make_root_table_key: init key failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_make_root_table_key: init key failed\n");
         return (EC_FALSE);
     }
 
@@ -620,7 +620,7 @@ static void __cbgt_print_colf_kv(LOG *log, const  uint8_t *kv)
     key  = kv;
     val  = kvGetValueHs(kv);
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_print_colf_kv: kv %lx, vlen %d, value %lx\n", kv, kvGetvLenHs(kv), val);
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_print_colf_kv: kv %lx, vlen %d, value %lx\n", kv, kvGetvLenHs(kv), val);
 
     counter = 0;
     user_table_id = gdbGetWord(val, &counter);
@@ -781,14 +781,14 @@ static MOD_MGR *__cbgt_gen_mod_mgr(const UINT32 cbgt_md_id, const UINT32 server_
     mod_mgr = mod_mgr_new(cbgt_md_id, LOAD_BALANCING_OBJ);
     if(NULL_PTR == mod_mgr)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_gen_mod_mgr: new mod mgr failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_gen_mod_mgr: new mod mgr failed\n");
         return (NULL_PTR);
     }
 
     tcid_vec = cvector_new(0, MM_UINT32, LOC_CBGT_0008);
     if(NULL_PTR == tcid_vec)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_gen_mod_mgr: new tcid vec failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_gen_mod_mgr: new tcid vec failed\n");
         mod_mgr_free(mod_mgr);
         return (NULL_PTR);
     }
@@ -796,7 +796,7 @@ static MOD_MGR *__cbgt_gen_mod_mgr(const UINT32 cbgt_md_id, const UINT32 server_
     cload_mgr = cload_mgr_new();
     if(NULL_PTR == cload_mgr)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_gen_mod_mgr: new cload mgr failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_gen_mod_mgr: new cload mgr failed\n");
         mod_mgr_free(mod_mgr);
         return (NULL_PTR);
     }
@@ -829,13 +829,13 @@ static MOD_MGR *__cbgt_gen_mod_mgr(const UINT32 cbgt_md_id, const UINT32 server_
         cluster_cfg = sys_cfg_get_cluster_cfg_by_id(TASK_BRD_SYS_CFG(task_brd), cluster_id);
         if(NULL_PTR == cluster_cfg)
         {
-            sys_log(LOGSTDOUT, "warn:__cbgt_gen_mod_mgr: not found cluter %ld definition\n", cluster_id);
+            dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:__cbgt_gen_mod_mgr: not found cluter %ld definition\n", cluster_id);
             continue;
         }
 
         if(MODEL_TYPE_HSBGT_CONNEC != CLUSTER_CFG_MODEL(cluster_cfg))
         {
-            sys_log(LOGSTDOUT, "__cbgt_gen_mod_mgr: cluter %ld is not hsbgt model, skip it\n", cluster_id);
+            dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "__cbgt_gen_mod_mgr: cluter %ld is not hsbgt model, skip it\n", cluster_id);
             continue;
         }
 
@@ -843,7 +843,7 @@ static MOD_MGR *__cbgt_gen_mod_mgr(const UINT32 cbgt_md_id, const UINT32 server_
         cluster_node_cfg = cluster_cfg_search_by_tcid_rank(cluster_cfg, TASK_BRD_TCID(task_brd), TASK_BRD_RANK(task_brd));
         if(NULL_PTR == cluster_node_cfg)
         {
-            sys_log(LOGSTDOUT, "warn:__cbgt_gen_mod_mgr: current tcid %s rank %ld not belong to cluster %ld\n",
+            dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:__cbgt_gen_mod_mgr: current tcid %s rank %ld not belong to cluster %ld\n",
                                TASK_BRD_TCID_STR(task_brd), TASK_BRD_RANK(task_brd), CLUSTER_CFG_ID(cluster_cfg));
             continue;
         }
@@ -881,9 +881,9 @@ static MOD_MGR *__cbgt_gen_mod_mgr(const UINT32 cbgt_md_id, const UINT32 server_
     mod_mgr_excl(excl_tcid, CMPI_ANY_COMM, excl_rank, cbgt_md_id, mod_mgr);
 
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ __cbgt_gen_mod_mgr beg ----------------------------------\n");
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "------------------------------------ __cbgt_gen_mod_mgr beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ __cbgt_gen_mod_mgr end ----------------------------------\n");
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "------------------------------------ __cbgt_gen_mod_mgr end ----------------------------------\n");
 #endif
     return (mod_mgr);
 }
@@ -900,7 +900,7 @@ static EC_BOOL __cbgt_start_trigger(const UINT32 cbgt_md_id, const UINT32 server
     src_mod_mgr = __cbgt_gen_mod_mgr(cbgt_md_id, server_type, CMPI_ANY_TCID, CMPI_ANY_RANK, CMPI_ANY_TCID, CMPI_ERROR_RANK);
     if(NULL_PTR == src_mod_mgr)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_start_trigger: gen mod mgr failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_start_trigger: gen mod mgr failed\n");
         return (EC_FALSE);
     }
 
@@ -908,15 +908,15 @@ static EC_BOOL __cbgt_start_trigger(const UINT32 cbgt_md_id, const UINT32 server
     mod_mgr_excl(CMPI_ANY_MON_TCID, CMPI_ANY_COMM, CMPI_ANY_RANK, CMPI_ANY_MODI, src_mod_mgr);
 
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ __cbgt_start_trigger beg ----------------------------------\n");
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "------------------------------------ __cbgt_start_trigger beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, src_mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ __cbgt_start_trigger end ----------------------------------\n");
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "------------------------------------ __cbgt_start_trigger end ----------------------------------\n");
 #endif
 
     if(0 != task_act(src_mod_mgr, &des_mod_mgr, TASK_DEFAULT_LIVE, mod_num, LOAD_BALANCING_OBJ, TASK_PRIO_NORMAL,
                    FI_cbgt_start, server_type, table_id, table_name, parent, root_path, open_flags))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_start_trigger: start CBGT module failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_start_trigger: start CBGT module failed\n");
         mod_mgr_free(src_mod_mgr);
         return (EC_FALSE);
     }
@@ -925,20 +925,20 @@ static EC_BOOL __cbgt_start_trigger(const UINT32 cbgt_md_id, const UINT32 server
 
     if(NULL_PTR == des_mod_mgr)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_start_trigger: activate nothing\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_start_trigger: activate nothing\n");
         return (EC_FALSE);
     }
 
     if(0 == MOD_MGR_REMOTE_NUM(des_mod_mgr))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_start_trigger: start none CBGT module\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_start_trigger: start none CBGT module\n");
         mod_mgr_free(des_mod_mgr);
         return (EC_FALSE);
     }
 
     if(mod_num != MOD_MGR_REMOTE_NUM(des_mod_mgr))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_start_trigger: start %ld CBGT modules but need %ld CBGT modules\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_start_trigger: start %ld CBGT modules but need %ld CBGT modules\n",
                             MOD_MGR_REMOTE_NUM(des_mod_mgr), mod_num);
         mod_mgr_free(des_mod_mgr);
         return (EC_FALSE);
@@ -956,7 +956,7 @@ static EC_BOOL __cbgt_end_trigger(const UINT32 cbgt_md_id, const MOD_NODE *mod_n
     src_mod_mgr = mod_mgr_new(cbgt_md_id, LOAD_BALANCING_LOOP);
     if(NULL_PTR == src_mod_mgr)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_end_trigger: new mod mgr failed which expect to accept mod node\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_end_trigger: new mod mgr failed which expect to accept mod node\n");
         return (EC_FALSE);
     }
 
@@ -964,7 +964,7 @@ static EC_BOOL __cbgt_end_trigger(const UINT32 cbgt_md_id, const MOD_NODE *mod_n
 
     if(0 != task_dea(src_mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cbgt_end, ERR_MODULE_ID))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_end_trigger: start CBGT module failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_end_trigger: start CBGT module failed\n");
         mod_mgr_free(src_mod_mgr);
         return (EC_FALSE);
     }
@@ -1167,7 +1167,7 @@ static CSTRING *__cbgt_gen_root_record_file_name_cstr(const CSTRING *root_path)
     root_record_file_name = cstring_new(NULL_PTR, LOC_CBGT_0012);
     if(NULL_PTR == root_record_file_name)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_gen_root_record_file_name_cstr: new cstring failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_gen_root_record_file_name_cstr: new cstring failed\n");
         return (NULL_PTR);
     }
     cstring_format(root_record_file_name, "%s/root_table.record", (char *)cstring_get_str(root_path));
@@ -1184,13 +1184,13 @@ EC_BOOL __cbgt_flush_root_record_file(const UINT32 cbgt_md_id, const CSTRING *ro
     root_record_file_name = __cbgt_gen_root_record_file_name_cstr(root_path);
     if(NULL_PTR == root_record_file_name)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_flush_root_record_file: gen root record file name failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_flush_root_record_file: gen root record file name failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == c_basedir_create((char *)cstring_get_str(root_record_file_name)))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_flush_root_record_file: create basedir of file %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_flush_root_record_file: create basedir of file %s failed\n",
                             (char *)cstring_get_str(root_record_file_name));
         cstring_free(root_record_file_name);
         return (EC_FALSE);
@@ -1199,7 +1199,7 @@ EC_BOOL __cbgt_flush_root_record_file(const UINT32 cbgt_md_id, const CSTRING *ro
     fd = c_file_open((char *)cstring_get_str(root_record_file_name), O_RDWR | O_CREAT, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT,"error:__cbgt_flush_root_record_file: create %s failed\n", (char *)cstring_get_str(root_record_file_name));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT,"error:__cbgt_flush_root_record_file: create %s failed\n", (char *)cstring_get_str(root_record_file_name));
         cstring_free(root_record_file_name);
         return (EC_FALSE);
     }
@@ -1235,14 +1235,14 @@ EC_BOOL __cbgt_load_root_record_file(const UINT32 cbgt_md_id, const CSTRING *roo
     root_record_file_name = __cbgt_gen_root_record_file_name_cstr(root_path);
     if(NULL_PTR == root_record_file_name)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_load_root_record_file: gen root record file name failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_load_root_record_file: gen root record file name failed\n");
         return (EC_FALSE);
     }
 
     fd = c_file_open((char *)cstring_get_str(root_record_file_name), O_RDWR, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT,"error:__cbgt_load_root_record_file: open %s failed\n", (char *)cstring_get_str(root_record_file_name));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT,"error:__cbgt_load_root_record_file: open %s failed\n", (char *)cstring_get_str(root_record_file_name));
         cstring_free(root_record_file_name);
         return (EC_FALSE);
     }
@@ -1288,7 +1288,7 @@ EC_BOOL __cbgt_flush_root_record_file(const UINT32 cbgt_md_id, const CSTRING *ro
     root_record_file_name = __cbgt_gen_root_record_file_name_cstr(root_path);
     if(NULL_PTR == root_record_file_name)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_flush_root_record_file: gen root record file name failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_flush_root_record_file: gen root record file name failed\n");
         return (EC_FALSE);
     }
 
@@ -1296,7 +1296,7 @@ EC_BOOL __cbgt_flush_root_record_file(const UINT32 cbgt_md_id, const CSTRING *ro
     {
         if(EC_FALSE == cdfs_truncate(CBGT_MD_CDFS_MD_ID(cbgt_md), root_record_file_name, CBGT_RECORD_FILE_SIZE, CBGT_REPLICA_NUM))
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_flush_root_record_file: truncate %s with %ld bytes and %ld replicas failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_flush_root_record_file: truncate %s with %ld bytes and %ld replicas failed\n",
                                 (char *)cstring_get_str(root_record_file_name), CBGT_RECORD_FILE_SIZE, CBGT_REPLICA_NUM);
             cstring_free(root_record_file_name);
             return (EC_FALSE);
@@ -1313,7 +1313,7 @@ EC_BOOL __cbgt_flush_root_record_file(const UINT32 cbgt_md_id, const CSTRING *ro
     cbytes_mount(&cbytes, counter, buff);
     if(EC_FALSE == cdfs_update(CBGT_MD_CDFS_MD_ID(cbgt_md), root_record_file_name, &cbytes))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_flush_root_record_file:flush table %ld (tcid %s,comm %ld,rank %ld,modi %ld) to root record file %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_flush_root_record_file:flush table %ld (tcid %s,comm %ld,rank %ld,modi %ld) to root record file %s failed\n",
                             root_table_id,
                             MOD_NODE_TCID_STR(root_mod_node),
                             MOD_NODE_COMM(root_mod_node),
@@ -1346,21 +1346,21 @@ EC_BOOL __cbgt_load_root_record_file(const UINT32 cbgt_md_id, const CSTRING *roo
     root_record_file_name = __cbgt_gen_root_record_file_name_cstr(root_path);
     if(NULL_PTR == root_record_file_name)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_load_root_record_file: gen root record file name failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_load_root_record_file: gen root record file name failed\n");
         return (EC_FALSE);
     }
 
     cbytes = cbytes_new(0);
     if(NULL_PTR == cbytes)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_load_root_record_file: new cdfs buff failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_load_root_record_file: new cdfs buff failed\n");
         cstring_free(root_record_file_name);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cdfs_read(CBGT_MD_CDFS_MD_ID(cbgt_md), root_record_file_name, cbytes))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_load_root_record_file:read %s failed\n", (char *)cstring_get_str(root_record_file_name));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_load_root_record_file:read %s failed\n", (char *)cstring_get_str(root_record_file_name));
         cstring_free(root_record_file_name);
         cbytes_free(cbytes, LOC_CBGT_0013);
         return (EC_FALSE);
@@ -1388,7 +1388,7 @@ static CSTRING *__cbgt_gen_cbitmap_file_name_cstr(const CSTRING *root_path)
     table_id_pool_fname = cstring_new(NULL_PTR, LOC_CBGT_0015);
     if(NULL_PTR == table_id_pool_fname)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_gen_cbitmap_file_name_cstr: new cstring failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_gen_cbitmap_file_name_cstr: new cstring failed\n");
         return (NULL_PTR);
     }
     cstring_format(table_id_pool_fname, "%s/table_id.pool", (char *)cstring_get_str(root_path));
@@ -1456,7 +1456,7 @@ static CBITMAP *__cbgt_open_table_id_pool(const UINT32 cbgt_md_id, const UINT32 
     table_id_pool_fname = __cbgt_gen_cbitmap_file_name_cstr(root_path);
     if(NULL_PTR == table_id_pool_fname)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_open_table_id_pool: gen cbitmap file name failed where root_path = %s\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_table_id_pool: gen cbitmap file name failed where root_path = %s\n",
                             (char *)cstring_get_str(root_path));
         return (NULL_PTR);
     }
@@ -1465,7 +1465,7 @@ static CBITMAP *__cbgt_open_table_id_pool(const UINT32 cbgt_md_id, const UINT32 
     {
         if(0 == (open_flags & CBGT_O_CREAT))
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_open_table_id_pool: table id pool %s not exist and not be created\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_table_id_pool: table id pool %s not exist and not be created\n",
                                 (char *)cstring_get_str(table_id_pool_fname));
             cstring_free(table_id_pool_fname);
             return (NULL_PTR);
@@ -1474,7 +1474,7 @@ static CBITMAP *__cbgt_open_table_id_pool(const UINT32 cbgt_md_id, const UINT32 
         cbitmap = __cbgt_create_table_id_pool(cbgt_md_id, table_id_pool_fname, CBGT_TABLE_MAX_NUM);
         if(NULL_PTR == cbitmap)
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_open_table_id_pool: create table id pool %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_table_id_pool: create table id pool %s failed\n",
                                 (char *)cstring_get_str(table_id_pool_fname));
             cstring_free(table_id_pool_fname);
             return (NULL_PTR);
@@ -1482,7 +1482,7 @@ static CBITMAP *__cbgt_open_table_id_pool(const UINT32 cbgt_md_id, const UINT32 
         cbitmap_set(cbitmap, table_id);
         __cbgt_flush_table_id_pool(cbgt_md_id, table_id_pool_fname, cbitmap);
 #if 0
-        sys_log(LOGSTDNULL, "[DEBUG] __cbgt_open_table_id_pool: create table id pool %s and set table id %ld and flush it\n",
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDNULL, "[DEBUG] __cbgt_open_table_id_pool: create table id pool %s and set table id %ld and flush it\n",
                             (char *)cstring_get_str(table_id_pool_fname), table_id);
 #endif                            
     }
@@ -1491,7 +1491,7 @@ static CBITMAP *__cbgt_open_table_id_pool(const UINT32 cbgt_md_id, const UINT32 
         cbitmap = __cbgt_load_table_id_pool(cbgt_md_id, table_id_pool_fname);
         if(NULL_PTR == cbitmap)
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_open_table_id_pool: load table id pool %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_table_id_pool: load table id pool %s failed\n",
                                 (char *)cstring_get_str(table_id_pool_fname));
             cstring_free(table_id_pool_fname);
             return (NULL_PTR);
@@ -1499,7 +1499,7 @@ static CBITMAP *__cbgt_open_table_id_pool(const UINT32 cbgt_md_id, const UINT32 
 
         if(EC_FALSE == cbitmap_check(cbitmap, table_id))
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_open_table_id_pool: loaded table id pool %s NOT SET table id %ld\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_table_id_pool: loaded table id pool %s NOT SET table id %ld\n",
                                 (char *)cstring_get_str(table_id_pool_fname), table_id);
             cbitmap_free(cbitmap);/*also works when it is null*/
             cstring_free(table_id_pool_fname);
@@ -1521,7 +1521,7 @@ static uint8_t *__cbgt_gen_table_fame(const uint8_t *root_path, const word_t tab
     fname = (uint8_t *)safe_malloc(len, LOC_CBGT_0016);
     if(NULL_PTR == fname)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_gen_table_fame: malloc %d bytes failed\n", len);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_gen_table_fame: malloc %d bytes failed\n", len);
         return (NULL_PTR);
     }
     BSET(fname, (uint8_t)0, len);
@@ -1552,17 +1552,17 @@ static EC_BOOL __cbgt_whereis_root_server(const UINT32   cbgt_md_id,
         {
             if(0 == (open_flags & CBGT_O_CREAT))/*when not need to create, report error and return false*/
             {
-                sys_log(LOGSTDOUT, "error:__cbgt_whereis_root_server: load root record file failed\n");
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_whereis_root_server: load root record file failed\n");
                 return (EC_FALSE);
             }
             (*root_table_id) = table_id;
-            sys_log(LOGSTDOUT, "warn:__cbgt_whereis_root_server:load root record file failed, wait for creating it\n");
+            dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:__cbgt_whereis_root_server:load root record file failed, wait for creating it\n");
             return (EC_TRUE);
         }
 
         if(table_id != (*root_table_id))
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_whereis_root_server: loaded root table id %ld but expected to start root table id %ld\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_whereis_root_server: loaded root table id %ld but expected to start root table id %ld\n",
                                (*root_table_id), table_id);
             return (EC_FALSE);
         }
@@ -1580,7 +1580,7 @@ static EC_BOOL __cbgt_whereis_root_server(const UINT32   cbgt_md_id,
             return (EC_TRUE);
         }
 
-        sys_log(LOGSTDOUT, "error:__cbgt_whereis_root_server: root table %ld was already started on (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_whereis_root_server: root table %ld was already started on (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                             (*root_table_id),
                             MOD_NODE_TCID_STR(root_mod_node),
                             MOD_NODE_COMM(root_mod_node),
@@ -1592,17 +1592,17 @@ static EC_BOOL __cbgt_whereis_root_server(const UINT32   cbgt_md_id,
 
     if(EC_FALSE == __cbgt_load_root_record_file(cbgt_md_id, root_path, root_table_id, root_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_whereis_root_server: load root record file failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_whereis_root_server: load root record file failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_mod_node_is_valid(CMPI_ANY_MODI, root_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_whereis_root_server: root table was not started yet\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_whereis_root_server: root table was not started yet\n");
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG] __cbgt_whereis_root_server: root is table %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDNULL, "[DEBUG] __cbgt_whereis_root_server: root is table %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        (*root_table_id),
                        MOD_NODE_TCID_STR(root_mod_node),
                        MOD_NODE_COMM(root_mod_node),
@@ -1622,7 +1622,7 @@ static EC_BOOL __cbgt_start_hsdfs(const UINT32 cbgt_md_id)
     CBGT_MD_CDFS_MD_ID(cbgt_md)= cdfs_start(CBGT_MIN_NP_NUM);
     if(ERR_MODULE_ID == CBGT_MD_CDFS_MD_ID(cbgt_md))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_start_hsdfs: start hsdfs client failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_start_hsdfs: start hsdfs client failed\n");
         return (EC_FALSE);
     }
     
@@ -1657,7 +1657,7 @@ static EC_BOOL __cbgt_start_csession(const UINT32 cbgt_md_id)
     CBGT_MD_CSESSION_MD_ID(cbgt_md) = csession_start();
     if(ERR_MODULE_ID == CBGT_MD_CSESSION_MD_ID(cbgt_md))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_start_csession: start csession client failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_start_csession: start csession client failed\n");
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -1759,38 +1759,38 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
     cbgt_md_id = cbc_md_new(MD_CBGT, sizeof(CBGT_MD));
     if(ERR_MODULE_ID == cbgt_md_id)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_start: no more cbgt module resource available\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: no more cbgt module resource available\n");
         return (ERR_MODULE_ID);
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_start: server_type = %ld\n", server_type);
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_start: table_id = %ld\n", table_id);
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_start: server_type = %ld\n", server_type);
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_start: table_id = %ld\n", table_id);
     if(NULL_PTR != table_name)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cbgt_start: table_name = %.*s\n", cbytes_len(table_name), cbytes_buf(table_name));
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_start: table_name = %.*s\n", cbytes_len(table_name), cbytes_buf(table_name));
     }
     else
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cbgt_start: table_name = (null)\n");
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_start: table_name = (null)\n");
     }
     if(NULL_PTR != parent)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cbgt_start: parent = (%s,%ld,%ld,%ld)\n", MOD_NODE_TCID_STR(parent), MOD_NODE_COMM(parent), MOD_NODE_RANK(parent), MOD_NODE_MODI(parent));
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_start: parent = (%s,%ld,%ld,%ld)\n", MOD_NODE_TCID_STR(parent), MOD_NODE_COMM(parent), MOD_NODE_RANK(parent), MOD_NODE_MODI(parent));
     }
     else
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cbgt_start: parent = (null)\n");
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_start: parent = (null)\n");
     }
 
     if(NULL_PTR != root_path)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cbgt_start: root_path = %s\n", cstring_get_str(root_path));
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_start: root_path = %s\n", cstring_get_str(root_path));
     }
     else
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cbgt_start: root_path = (null)\n");
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_start: root_path = (null)\n");
     }
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_start: open_flags = %ld\n", open_flags);
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_start: open_flags = %ld\n", open_flags);
 #endif
     /* initilize new one CBGT module */
     cbgt_md = (CBGT_MD *)cbc_md_get(MD_CBGT, cbgt_md_id);
@@ -1800,7 +1800,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
     CBGT_MD_CSESSION_NAME(cbgt_md) = cstring_new(CBGT_SESSION_NAME, LOC_CBGT_0017);
     if(NULL_PTR == CBGT_MD_CSESSION_NAME(cbgt_md))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_start: new session name failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: new session name failed\n");
         cbc_md_free(MD_CBGT, cbgt_md_id);
         return (ERR_MODULE_ID);
     }
@@ -1808,7 +1808,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
     /* start cession client */
     if(EC_FALSE == __cbgt_start_csession(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_start: start csession client failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: start csession client failed\n");
         cbc_md_free(MD_CBGT, cbgt_md_id);
         return (ERR_MODULE_ID);
     }
@@ -1818,7 +1818,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
     /* start hsdfs client */
     if(EC_FALSE == __cbgt_start_hsdfs(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_start: start hsdfs client failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: start hsdfs client failed\n");
         __cbgt_end_csession(cbgt_md_id);
         cstring_free(CBGT_MD_CSESSION_NAME(cbgt_md));
         CBGT_MD_CSESSION_NAME(cbgt_md) = NULL_PTR;
@@ -1828,7 +1828,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
     
     if(EC_FALSE == __cbgt_whereis_root_server(cbgt_md_id, server_type, table_id, root_path, open_flags, &root_table_id, &root_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_start: query root server failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: query root server failed\n");
         __cbgt_end_hsdfs(cbgt_md_id);
         __cbgt_end_csession(cbgt_md_id);
         cstring_free(CBGT_MD_CSESSION_NAME(cbgt_md));
@@ -1850,7 +1850,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
     {
         if(CBGT_TYPE_USER_CLIENT != server_type)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_start: invalid table id where server type %s\n", __cbgt_type(server_type));
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: invalid table id where server type %s\n", __cbgt_type(server_type));
             __cbgt_end_hsdfs(cbgt_md_id);
             __cbgt_end_csession(cbgt_md_id);
             cstring_free(CBGT_MD_CSESSION_NAME(cbgt_md));
@@ -1865,7 +1865,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
                             __cbgt_make_open_flags(open_flags),__cbgt_type_to_cbtree_type(server_type));
         if(NULL_PTR == gdb)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_start: open table %ld failed\n", table_id);
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: open table %ld failed\n", table_id);
             __cbgt_end_hsdfs(cbgt_md_id);
             __cbgt_end_csession(cbgt_md_id);
             cstring_free(CBGT_MD_CSESSION_NAME(cbgt_md));
@@ -1879,7 +1879,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
     CBGT_MD_ROOT_PATH(cbgt_md) = cstring_new(cstring_get_str(root_path), LOC_CBGT_0021);
     if(NULL_PTR == CBGT_MD_ROOT_PATH(cbgt_md))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_start: clone root_path %s failed\n", (char *)cstring_get_str(root_path));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: clone root_path %s failed\n", (char *)cstring_get_str(root_path));
         cbgt_gdb_close(gdb);/*also works when gdb is null*/
         __cbgt_end_hsdfs(cbgt_md_id);
         __cbgt_end_csession(cbgt_md_id);
@@ -1897,7 +1897,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
         CBGT_MD_TABLE_ID_POOL(cbgt_md) = __cbgt_open_table_id_pool(cbgt_md_id, table_id, root_path, open_flags);
         if(NULL_PTR == CBGT_MD_TABLE_ID_POOL(cbgt_md))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_start: load table id pool failed\n");
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: load table id pool failed\n");
             cbgt_gdb_close(gdb);/*also works when gdb is null*/
             __cbgt_end_hsdfs(cbgt_md_id);
             __cbgt_end_csession(cbgt_md_id);
@@ -1914,7 +1914,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
         CBGT_MD_ROOT_MOD(cbgt_md) = mod_node_new();
         if(NULL_PTR == CBGT_MD_ROOT_MOD(cbgt_md))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_start: new mod node failed\n");
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: new mod node failed\n");
             cbgt_gdb_close(gdb);/*also works when gdb is null*/
             cbitmap_free(CBGT_MD_TABLE_ID_POOL(cbgt_md));/*also works when it is null*/
             __cbgt_end_hsdfs(cbgt_md_id);
@@ -1932,7 +1932,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
         CBGT_MD_ROOT_MOD(cbgt_md) = mod_node_new();
         if(NULL_PTR == CBGT_MD_ROOT_MOD(cbgt_md))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_start: new mod node failed\n");
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: new mod node failed\n");
             cbgt_gdb_close(gdb);/*also works when gdb is null*/
             __cbgt_end_hsdfs(cbgt_md_id);
             __cbgt_end_csession(cbgt_md_id);
@@ -1949,7 +1949,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
     mod_mgr = mod_mgr_new(cbgt_md_id, /*LOAD_BALANCING_LOOP*//*LOAD_BALANCING_MOD*/LOAD_BALANCING_OBJ);
     if(NULL_PTR == mod_mgr)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_start: new mod mgr failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: new mod mgr failed\n");
         cbgt_gdb_close(gdb);/*also works when gdb is null*/
         cbitmap_free(CBGT_MD_TABLE_ID_POOL(cbgt_md));/*also works when it is null*/
         mod_node_free(CBGT_MD_ROOT_MOD(cbgt_md));
@@ -1988,10 +1988,10 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
     {
         CBYTES colf_row;
 
-        sys_log(LOGSTDOUT, "[DEBUG] cbgt_start: gdb of colf table is empty, try to create its first user table\n");
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_start: gdb of colf table is empty, try to create its first user table\n");
         if(EC_FALSE == __cbgt_make_default_row_of_colf_table(cbgt_md_id, &colf_row))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_start: make default row of colf table failed");
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: make default row of colf table failed");
             cbgt_gdb_close(gdb);/*also works when gdb is null*/
             cbitmap_free(CBGT_MD_TABLE_ID_POOL(cbgt_md));/*also works when it is null*/
             mod_node_free(CBGT_MD_ROOT_MOD(cbgt_md));
@@ -2005,7 +2005,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
 
         if(EC_FALSE == cbgt_create_table_on_colf(cbgt_md_id, &colf_row))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_start: create default user table on colf table failed");
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: create default user table on colf table failed");
             cbytes_clean(&colf_row, LOC_CBGT_0022);
             cbgt_gdb_close(gdb);/*also works when gdb is null*/
             cbitmap_free(CBGT_MD_TABLE_ID_POOL(cbgt_md));/*also works when it is null*/
@@ -2026,7 +2026,7 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
         __cbgt_local_mod_node(cbgt_md_id, &mod_node);
         if(EC_FALSE == __cbgt_flush_root_record_file(cbgt_md_id, root_path, table_id, &mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_start: flush root record file failed\n");
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_start: flush root record file failed\n");
             cbgt_end(cbgt_md_id);
             return (ERR_MODULE_ID);
         }
@@ -2035,16 +2035,16 @@ UINT32 cbgt_start(const UINT32 server_type, const UINT32 table_id, const CBYTES 
     /*root server never aging*/
     if(CBGT_TYPE_ROOT_SERVER != server_type && CBGT_TYPE_USER_CLIENT != server_type)
     {
-        //sys_log(LOGSTDNULL, "[DEBUG] cbgt_start: register CBGT %ld for aging\n", cbgt_md_id);
+        //dbg_log(SEC_0054_CBGT, 9)(LOGSTDNULL, "[DEBUG] cbgt_start: register CBGT %ld for aging\n", cbgt_md_id);
 
         CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0024);
         /*aging has bug!*/
         task_brd_cbtimer_register(task_brd_default_get(), CBTIMER_NEVER_EXPIRE, CBGT_AGING_INTERVAL_NSEC, FI_cbgt_aging_handle, cbgt_md_id);
     }
 
-    sys_log(LOGSTDOUT, "cbgt_start: start CBGT module #%ld for table %ld, type %s\n", cbgt_md_id, table_id, __cbgt_type(server_type));
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "cbgt_start: start CBGT module #%ld for table %ld, type %s\n", cbgt_md_id, table_id, __cbgt_type(server_type));
     __cbgt_print_table_name(cbgt_md_id, LOGSTDOUT);
-    //sys_log(LOGSTDOUT, "========================= cbgt_start: CBGT table info:\n");
+    //dbg_log(SEC_0054_CBGT, 3)(LOGSTDOUT, "========================= cbgt_start: CBGT table info:\n");
     //cbgt_print_module_status(cbgt_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -2068,7 +2068,7 @@ void cbgt_end(const UINT32 cbgt_md_id)
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     if(NULL_PTR == cbgt_md)
     {
-        sys_log(LOGSTDOUT,"error:cbgt_end: cbgt_md_id = %ld not exist.\n", cbgt_md_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT,"error:cbgt_end: cbgt_md_id = %ld not exist.\n", cbgt_md_id);
         dbg_exit(MD_CBGT, cbgt_md_id);
     }
     /* if the module is occupied by others,then decrease counter only */
@@ -2080,7 +2080,7 @@ void cbgt_end(const UINT32 cbgt_md_id)
 
     if ( 0 == cbgt_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:cbgt_end: cbgt_md_id = %ld is not started.\n", cbgt_md_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT,"error:cbgt_end: cbgt_md_id = %ld is not started.\n", cbgt_md_id);
         dbg_exit(MD_CBGT, cbgt_md_id);
     }
 
@@ -2089,7 +2089,7 @@ void cbgt_end(const UINT32 cbgt_md_id)
     server_type = CBGT_MD_TYPE(cbgt_md);
     table_id    = CBGT_MD_TABLE_ID(cbgt_md);
 
-    sys_log(LOGSTDOUT, "cbgt_end: try to stop CBGT module #%ld of table %ld, type %s\n", cbgt_md_id, table_id, __cbgt_type(server_type));
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "cbgt_end: try to stop CBGT module #%ld of table %ld, type %s\n", cbgt_md_id, table_id, __cbgt_type(server_type));
     __cbgt_print_table_name(cbgt_md_id, LOGSTDOUT);
 
     if(CBGT_TYPE_ROOT_SERVER == server_type)
@@ -2098,7 +2098,7 @@ void cbgt_end(const UINT32 cbgt_md_id)
         __cbgt_error_mod_node(cbgt_md_id, &err_mod_node);
         if(EC_FALSE == __cbgt_flush_root_record_file(cbgt_md_id, CBGT_MD_ROOT_PATH(cbgt_md), table_id, &err_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_end: update root record file failed\n");
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_end: update root record file failed\n");
             //return;
         }
     }
@@ -2179,12 +2179,12 @@ void cbgt_end(const UINT32 cbgt_md_id)
     CBGT_MD_CLEAN_LAST_ACCESS_TIME_CMUTEX(cbgt_md, LOC_CBGT_0030);
     cbgt_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "cbgt_end: stop CBGT module #%ld of table %ld, type %s\n", cbgt_md_id, table_id, __cbgt_type(server_type));
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "cbgt_end: stop CBGT module #%ld of table %ld, type %s\n", cbgt_md_id, table_id, __cbgt_type(server_type));
     cbc_md_free(MD_CBGT, cbgt_md_id);
 
     //breathing_static_mem();
 
-    //sys_log(LOGSTDOUT, "========================= cbgt_end: CBGT table info:\n");
+    //dbg_log(SEC_0054_CBGT, 3)(LOGSTDOUT, "========================= cbgt_end: CBGT table info:\n");
     //cbgt_print_module_status(cbgt_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -2219,7 +2219,7 @@ EC_BOOL cbgt_aging_handle(const UINT32 cbgt_md_id)
     diff_nsec = CTIMET_DIFF(CBGT_MD_LAST_ACCESS_TIME(cbgt_md), cur_time);
     if(diff_nsec >= 0.0 + CBGT_AGING_INTERVAL_NSEC)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cbgt_aging_handle: cbgt_md_id %ld is aged where diff_nsec %.2f, expired_nsec %ld\n", 
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_aging_handle: cbgt_md_id %ld is aged where diff_nsec %.2f, expired_nsec %ld\n", 
                             cbgt_md_id, diff_nsec, CBGT_AGING_INTERVAL_NSEC);
         cbgt_end(cbgt_md_id);
         return (EC_FALSE);
@@ -2247,15 +2247,15 @@ UINT32 cbgt_set_mod_mgr(const UINT32 cbgt_md_id, const MOD_MGR * src_mod_mgr)
     des_mod_mgr = CBGT_MD_MOD_MGR(cbgt_md);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0032);
 
-    sys_log(LOGSTDOUT, "cbgt_set_mod_mgr: md_id %d, input src_mod_mgr %lx\n", cbgt_md_id, src_mod_mgr);
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "cbgt_set_mod_mgr: md_id %d, input src_mod_mgr %lx\n", cbgt_md_id, src_mod_mgr);
     mod_mgr_print(LOGSTDOUT, src_mod_mgr);
 
     /*figure out mod_nodes with tcid belong to set of cbgtnp_tcid_vec and cbgtnp_tcid_vec*/
     mod_mgr_limited_clone(cbgt_md_id, src_mod_mgr, des_mod_mgr);
 
-    sys_log(LOGSTDOUT, "====================================cbgt_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "====================================cbgt_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
     mod_mgr_print(LOGSTDOUT, des_mod_mgr);
-    sys_log(LOGSTDOUT, "====================================cbgt_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "====================================cbgt_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
 
     return (0);
 }
@@ -2400,7 +2400,7 @@ CBGT_GDB *cbgt_gdb_new()
     alloc_static_mem(MD_CBGT, CMPI_ANY_MODI, MM_CBGT_GDB, &gdb, LOC_CBGT_0034);
     if(NULL_PTR == gdb)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_new: new gdb failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_new: new gdb failed\n");
         return (NULL_PTR);
     }
 
@@ -2462,14 +2462,14 @@ CBGT_GDB *cbgt_gdb_open(const uint8_t *root_path, const word_t table_id, const w
     
     if(NULL_PTR == root_path)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_open: root_path is null\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_open: root_path is null\n");
         return (NULL_PTR);
     }
 
     fname = __cbgt_gen_table_fame(root_path, table_id);
     if(NULL_PTR == fname)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_open: gen table fname of table id %ld failed\n", table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_open: gen table fname of table id %ld failed\n", table_id);
         return (NULL_PTR);
     }
 
@@ -2488,14 +2488,14 @@ CBGT_GDB *cbgt_gdb_open(const uint8_t *root_path, const word_t table_id, const w
         {            
             return cbgt_gdb_create(root_path, table_id, cdfs_md_id, cbtree_type);
         }
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_open: unable to open table %ld\n", table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_open: unable to open table %ld\n", table_id);
         return (NULL_PTR);
     }
 
     gdb = cbgt_gdb_new();
     if(NULL_PTR == gdb)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_open: new gdb failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_open: new gdb failed\n");
         safe_free(fname, LOC_CBGT_0039);
         cbtree_free(cbtree);
         return (NULL_PTR);
@@ -2516,7 +2516,7 @@ EC_BOOL cbgt_gdb_load(CBGT_GDB *gdb)
     
     if(NULL_PTR == gdb)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_load: gdb is null\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_load: gdb is null\n");
         return (EC_FALSE);
     }
 
@@ -2535,14 +2535,14 @@ EC_BOOL cbgt_gdb_load(CBGT_GDB *gdb)
     fd = c_file_open((char *)CBGT_GDB_FNAME_STR(gdb), O_RDWR, 0666);
     if(ERR_FD == fd)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_load: open file %s failed\n", (char *)CBGT_GDB_FNAME_STR(gdb));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_load: open file %s failed\n", (char *)CBGT_GDB_FNAME_STR(gdb));
         return (EC_FALSE);
     }
 
     cbtree = cbtree_load_posix(fd);
     if(NULL_PTR == cbtree)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_load: load cbtree from file %s failed\n", (char *)CBGT_GDB_FNAME_STR(gdb));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_load: load cbtree from file %s failed\n", (char *)CBGT_GDB_FNAME_STR(gdb));
         c_file_close(fd);
         return (EC_FALSE);
     }
@@ -2565,14 +2565,14 @@ CBGT_GDB *cbgt_gdb_create(const uint8_t *root_path, const word_t table_id, const
     fname = __cbgt_gen_table_fame(root_path, table_id);
     if(NULL_PTR == fname)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_create: gen table fname of table id %ld failed\n", table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_create: gen table fname of table id %ld failed\n", table_id);
         return (NULL_PTR);
     }
 
     fd = c_file_open((char *)fname, O_RDWR | O_CREAT, 0666);
     if(ERR_FD == fd)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_create: open file %s failed\n", fname);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_create: open file %s failed\n", fname);
         safe_free(fname, LOC_CBGT_0040);
         return (NULL_PTR);
     }
@@ -2580,7 +2580,7 @@ CBGT_GDB *cbgt_gdb_create(const uint8_t *root_path, const word_t table_id, const
     cbtree = cbtree_new(CBTREE_MAX_ORDER, CBTREE_MAX_VERSION, cbtree_type);
     if(NULL_PTR == cbtree)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_create: new cbtree failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_create: new cbtree failed\n");
         safe_free(fname, LOC_CBGT_0041);
         return (NULL_PTR);
     }
@@ -2589,7 +2589,7 @@ CBGT_GDB *cbgt_gdb_create(const uint8_t *root_path, const word_t table_id, const
     gdb = cbgt_gdb_new();
     if(NULL_PTR == gdb)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_create: new gdb failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_create: new gdb failed\n");
         safe_free(fname, LOC_CBGT_0042);
         cbtree_free(cbtree);
         return (NULL_PTR);
@@ -2608,7 +2608,7 @@ EC_BOOL cbgt_gdb_flush(CBGT_GDB *gdb)
 {
     if(NULL_PTR == CBGT_GDB_CBTREE(gdb))
     {
-        sys_log(LOGSTDOUT, "warn:cbgt_gdb_flush: cbtree of gdb %lx is null, flush nothing\n", gdb);
+        dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:cbgt_gdb_flush: cbtree of gdb %lx is null, flush nothing\n", gdb);
         return (EC_TRUE);
     }
 
@@ -2616,21 +2616,21 @@ EC_BOOL cbgt_gdb_flush(CBGT_GDB *gdb)
     
     if(EC_FALSE == cbtree_is_dirty(CBGT_GDB_CBTREE(gdb)))
     {
-        sys_log(LOGSTDOUT, "warn:cbgt_gdb_flush: gdb is not dirty, NOT flush\n");
+        dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:cbgt_gdb_flush: gdb is not dirty, NOT flush\n");
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0044);
         return (EC_TRUE);
     }  
 
     if(ERR_FD == CBGT_GDB_FD(gdb))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_flush: fd is invalid\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_flush: fd is invalid\n");
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0045);
         return (EC_FALSE);    
     }
 
     if(EC_FALSE == cbtree_flush_posix(CBGT_GDB_CBTREE(gdb), CBGT_GDB_FD(gdb)))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_flush: flush cbtree to fd %d file %s failed\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_flush: flush cbtree to fd %d file %s failed\n", 
                             CBGT_GDB_FD(gdb), (char *)CBGT_GDB_FNAME_STR(gdb));
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0046);
         return (EC_FALSE);
@@ -2647,7 +2647,7 @@ EC_BOOL cbgt_gdb_unlink(CBGT_GDB *gdb, const CSTRING *root_path, const UINT32 ta
     fname = __cbgt_gen_table_fame(cstring_get_str(root_path), table_id);
     if(NULL_PTR == fname)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_unlink: gen file %s of table id %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_unlink: gen file %s of table id %ld failed\n",
                           (char *)fname, table_id);
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0049);
         return (EC_FALSE);
@@ -2670,14 +2670,14 @@ CBGT_GDB *cbgt_gdb_open(const uint8_t *root_path, const word_t table_id, const w
     
     if(NULL_PTR == root_path)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_open: root_path is null\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_open: root_path is null\n");
         return (NULL_PTR);
     }
 
     fname = __cbgt_gen_table_fame(root_path, table_id);
     if(NULL_PTR == fname)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_open: gen table fname of table id %ld failed\n", table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_open: gen table fname of table id %ld failed\n", table_id);
         return (NULL_PTR);
     }
 
@@ -2690,7 +2690,7 @@ CBGT_GDB *cbgt_gdb_open(const uint8_t *root_path, const word_t table_id, const w
         fname_cstr = cstring_new(fname, LOC_CBGT_0052);
         if(NULL_PTR == fname_cstr)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_gdb_open: new fname cstr failed\n");
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_open: new fname cstr failed\n");
             safe_free(fname, LOC_CBGT_0053);
             return (NULL_PTR);
         }
@@ -2707,14 +2707,14 @@ CBGT_GDB *cbgt_gdb_open(const uint8_t *root_path, const word_t table_id, const w
         {            
             return cbgt_gdb_create(root_path, table_id, cdfs_md_id, cbtree_type);
         }
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_open: unable to open table %ld\n", table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_open: unable to open table %ld\n", table_id);
         return (NULL_PTR);
     }
 
     gdb = cbgt_gdb_new();
     if(NULL_PTR == gdb)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_open: new gdb failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_open: new gdb failed\n");
         safe_free(fname, LOC_CBGT_0055);
         cbtree_free(cbtree);
         return (NULL_PTR);
@@ -2733,7 +2733,7 @@ EC_BOOL cbgt_gdb_load(CBGT_GDB *gdb)
     
     if(NULL_PTR == gdb)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_load: gdb is null\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_load: gdb is null\n");
         return (EC_FALSE);
     }
 
@@ -2746,7 +2746,7 @@ EC_BOOL cbgt_gdb_load(CBGT_GDB *gdb)
     cbtree = cbtree_load_hsdfs(CBGT_GDB_CDFS_MD_ID(gdb), CBGT_GDB_FNAME(gdb));
     if(NULL_PTR == cbtree)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_load: load cbtree from file %s failed\n", (char *)CBGT_GDB_FNAME_STR(gdb));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_load: load cbtree from file %s failed\n", (char *)CBGT_GDB_FNAME_STR(gdb));
         return (EC_FALSE);
     }
 
@@ -2766,7 +2766,7 @@ CBGT_GDB *cbgt_gdb_create(const uint8_t *root_path, const word_t table_id, const
     fname = __cbgt_gen_table_fame(root_path, table_id);
     if(NULL_PTR == fname)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_create: gen table fname of table id %ld failed\n", table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_create: gen table fname of table id %ld failed\n", table_id);
         return (NULL_PTR);
     }
 
@@ -2783,7 +2783,7 @@ CBGT_GDB *cbgt_gdb_create(const uint8_t *root_path, const word_t table_id, const
     if(EC_FALSE == cdfs_truncate(cdfs_md_id, &fname_cstr_t, CBGT_CDFS_FILE_MAX_SIZE, CBGT_REPLICA_NUM))
     {
         safe_free(fname, LOC_CBGT_0056);
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_create: truncate %s with size %ld and replica %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_create: truncate %s with size %ld and replica %ld failed\n",
                           (char *)fname, CBGT_CDFS_FILE_MAX_SIZE, CBGT_REPLICA_NUM);
         return (NULL_PTR);
     }
@@ -2791,7 +2791,7 @@ CBGT_GDB *cbgt_gdb_create(const uint8_t *root_path, const word_t table_id, const
     cbtree = cbtree_new(CBTREE_MAX_ORDER, CBTREE_MAX_VERSION, cbtree_type);
     if(NULL_PTR == cbtree)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_create: new cbtree failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_create: new cbtree failed\n");
         safe_free(fname, LOC_CBGT_0057);
         return (NULL_PTR);
     }
@@ -2800,7 +2800,7 @@ CBGT_GDB *cbgt_gdb_create(const uint8_t *root_path, const word_t table_id, const
     gdb = cbgt_gdb_new();
     if(NULL_PTR == gdb)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_create: new gdb failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_create: new gdb failed\n");
         safe_free(fname, LOC_CBGT_0058);
         cbtree_free(cbtree);
         return (NULL_PTR);
@@ -2830,7 +2830,7 @@ EC_BOOL cbgt_gdb_flush(CBGT_GDB *gdb)
 
     if(NULL_PTR == CBGT_GDB_CBTREE(gdb))
     {
-        sys_log(LOGSTDOUT, "warn:cbgt_gdb_flush: cbtree of gdb %lx is null, flush nothing\n", gdb);
+        dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:cbgt_gdb_flush: cbtree of gdb %lx is null, flush nothing\n", gdb);
         return (EC_TRUE);
     }
 
@@ -2838,7 +2838,7 @@ EC_BOOL cbgt_gdb_flush(CBGT_GDB *gdb)
     if(EC_FALSE == cbtree_is_dirty(CBGT_GDB_CBTREE(gdb)))
     {
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0060);
-        sys_log(LOGSTDOUT, "warn:cbgt_gdb_flush: gdb is not dirty, NOT flush\n");        
+        dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:cbgt_gdb_flush: gdb is not dirty, NOT flush\n");        
         return (EC_TRUE);
     }    
 
@@ -2848,7 +2848,7 @@ EC_BOOL cbgt_gdb_flush(CBGT_GDB *gdb)
     if(EC_FALSE == cbtree_encode_size(CBGT_GDB_CBTREE(gdb), &encoded_size))
     {
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0061);
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_flush: encode_size of gdb %lx failed\n", gdb);        
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_flush: encode_size of gdb %lx failed\n", gdb);        
         return (EC_FALSE);
     }
 
@@ -2857,7 +2857,7 @@ EC_BOOL cbgt_gdb_flush(CBGT_GDB *gdb)
     if(NULL == encoded_buff)
     {
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0063);
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_flush: alloc %d bytes encoding buff failed\n", encoded_size);        
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_flush: alloc %d bytes encoding buff failed\n", encoded_size);        
         return (EC_FALSE);
     }
 
@@ -2866,7 +2866,7 @@ EC_BOOL cbgt_gdb_flush(CBGT_GDB *gdb)
     if(EC_FALSE == cbtree_encode(CBGT_GDB_CBTREE(gdb), encoded_buff, encoded_size, &encoded_pos))
     {
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0064);
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_flush: encode gdb %lx to buff %lx with size %d failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_flush: encode gdb %lx to buff %lx with size %d failed\n",
                            gdb, encoded_buff, encoded_size);
         safe_free(encoded_buff, LOC_CBGT_0065);        
         return (EC_FALSE);
@@ -2878,7 +2878,7 @@ EC_BOOL cbgt_gdb_flush(CBGT_GDB *gdb)
     if(NULL == compressed_buff)
     {
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0067);
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_flush: alloc %d bytes compression buff failed\n", compressed_len + sizeof(uint32_t));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_flush: alloc %d bytes compression buff failed\n", compressed_len + sizeof(uint32_t));
         safe_free(encoded_buff, LOC_CBGT_0068);        
         return (EC_FALSE);
     }    
@@ -2889,7 +2889,7 @@ EC_BOOL cbgt_gdb_flush(CBGT_GDB *gdb)
     /*compressing*/
     if(Z_OK != compress(compressed_buff + counter, &compressed_len, encoded_buff, encoded_pos))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_flush: compress buff %lx size %d to buff %lx failed\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_flush: compress buff %lx size %d to buff %lx failed\n", 
                             encoded_buff, encoded_pos, compressed_buff);
                             
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0069);
@@ -2900,7 +2900,7 @@ EC_BOOL cbgt_gdb_flush(CBGT_GDB *gdb)
 
     safe_free(encoded_buff, LOC_CBGT_0072);/*free memory as fast as possible*/
 #if 1
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_gdb_flush: compress %d bytes => %d bytes, rate = %.2f\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_gdb_flush: compress %d bytes => %d bytes, rate = %.2f\n",
                        encoded_pos, compressed_len, (compressed_len + 0.0)/(encoded_pos + 0.0));
 #endif
     /*flush compressed buff to hsdfs*/
@@ -2910,7 +2910,7 @@ EC_BOOL cbgt_gdb_flush(CBGT_GDB *gdb)
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0073);
         cbytes_umount(&cbytes);
         safe_free(compressed_buff, LOC_CBGT_0074);
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_flush: update %s with %ld bytes failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_flush: update %s with %ld bytes failed\n",
                             (char *)cstring_get_str(fname_cstr), compressed_len + counter);        
         return (EC_FALSE);
     }
@@ -2932,7 +2932,7 @@ EC_BOOL cbgt_gdb_unlink(CBGT_GDB *gdb, const CSTRING *root_path, const UINT32 ta
     fname = __cbgt_gen_table_fame(cstring_get_str(root_path), table_id);
     if(NULL_PTR == fname)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_unlink: gen table fname from root path %s and table id %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_unlink: gen table fname from root path %s and table id %ld failed\n",
                           (char *)cstring_get_str(root_path), table_id);
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0078);
         return (EC_FALSE);
@@ -2942,7 +2942,7 @@ EC_BOOL cbgt_gdb_unlink(CBGT_GDB *gdb, const CSTRING *root_path, const UINT32 ta
 
     if(EC_FALSE == cdfs_delete(CBGT_GDB_CDFS_MD_ID(gdb), &fname_cstr, CDFSNP_ITEM_FILE_IS_REG))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_unlink: delete hdfs file %s of table id %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_unlink: delete hdfs file %s of table id %ld failed\n",
                           (char *)cstring_get_str(&fname_cstr), table_id);
         safe_free(fname, LOC_CBGT_0079);
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0080);
@@ -2984,19 +2984,19 @@ EC_BOOL cbgt_gdb_del_key(CBGT_GDB *gdb, const uint8_t *key)
 {
     if(NULL_PTR == gdb)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_del_key: gdb is null\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_del_key: gdb is null\n");
         return (EC_FALSE);
     }
 
     if(NULL_PTR == CBGT_GDB_CBTREE(gdb))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_del_key: cbtree of gdb %lx is null\n", gdb);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_del_key: cbtree of gdb %lx is null\n", gdb);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cbtree_delete(CBGT_GDB_CBTREE(gdb), key))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_del_key: del key from gdb %lx failed\n", gdb);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_del_key: del key from gdb %lx failed\n", gdb);
         return (EC_FALSE);
     }
 
@@ -3007,20 +3007,20 @@ EC_BOOL cbgt_gdb_insert_key(CBGT_GDB *gdb, const uint8_t *key)
 {
     if(NULL_PTR == gdb)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_insert_key: gdb is null\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_insert_key: gdb is null\n");
         return (EC_FALSE);
     }
 
     if(NULL_PTR == CBGT_GDB_CBTREE(gdb))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_insert_key: cbtree of gdb %lx is null\n", gdb);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_insert_key: cbtree of gdb %lx is null\n", gdb);
         return (EC_FALSE);
     }
 
     CBGT_GDB_CRWLOCK_WRLOCK(gdb, LOC_CBGT_0083);
     if(EC_FALSE == cbtree_insert(CBGT_GDB_CBTREE(gdb), key))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_insert_key: del key from gdb %lx failed\n", gdb);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_insert_key: del key from gdb %lx failed\n", gdb);
         CBGT_GDB_CRWLOCK_UNLOCK(gdb, LOC_CBGT_0084);
         return (EC_FALSE);
     }
@@ -3033,13 +3033,13 @@ CBTREE_KEY *cbgt_gdb_search_key(const CBGT_GDB *gdb, const uint8_t *key)
     CBTREE_KEY *cbtree_key;
     if(NULL_PTR == gdb)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_search_key: gdb is null\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_search_key: gdb is null\n");
         return (NULL_PTR);
     }
 
     if(NULL_PTR == CBGT_GDB_CBTREE(gdb))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_search_key: cbtree of gdb %lx is null\n", gdb);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_search_key: cbtree of gdb %lx is null\n", gdb);
         return (NULL_PTR);
     }
     CBGT_GDB_CRWLOCK_RDLOCK((CBGT_GDB *)gdb, LOC_CBGT_0086);
@@ -3066,14 +3066,14 @@ EC_BOOL   cbgt_gdb_update_val(CBGT_GDB *gdb, const uint8_t *key, const uint8_t *
     kv = kvNewHs(&keyValue, LOC_CBGT_0088);
     if(NULL_PTR == kv)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_update_val: failed to alloc %d bytes for key\n", keyValueGettLenHs(&keyValue));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_update_val: failed to alloc %d bytes for key\n", keyValueGettLenHs(&keyValue));
         return (EC_FALSE);
     }
     kvPutHs(kv, &keyValue);
 
     if(EC_FALSE == cbgt_gdb_insert_key(gdb, kv))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_update_val: insert new kv to gdb %lx failed\n", gdb);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_update_val: insert new kv to gdb %lx failed\n", gdb);
         kvFreeHs(kv, LOC_CBGT_0089);
         return (EC_FALSE);
     }
@@ -3087,18 +3087,18 @@ EC_BOOL cbgt_gdb_is_full(const CBGT_GDB *gdb)
     
     if(NULL_PTR == gdb)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_is_full: gdb is null\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_is_full: gdb is null\n");
         return (EC_FALSE);
     }
 
     if(NULL_PTR == CBGT_GDB_CBTREE(gdb))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_is_full: cbtree of gdb %lx is null\n", gdb);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_is_full: cbtree of gdb %lx is null\n", gdb);
         return (EC_FALSE);
     }    
 
     cbtree = CBGT_GDB_CBTREE(gdb);
-    //sys_log(LOGSTDOUT, "[DEBUG] cbgt_gdb_is_full: cbtree %lx size %ld, tlen %ld\n", cbtree, CBTREE_SIZE(cbtree), CBTREE_TLEN(cbtree));
+    //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_gdb_is_full: cbtree %lx size %ld, tlen %ld\n", cbtree, CBTREE_SIZE(cbtree), CBTREE_TLEN(cbtree));
 
     if(CBGT_SPLIT_TRIGGER_TLEN <= CBTREE_TLEN(cbtree))
     {
@@ -3131,13 +3131,13 @@ EC_BOOL cbgt_gdb_get_last_key(const CBGT_GDB *gdb, uint8_t **last_key)
 
     if(NULL_PTR == gdb)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_get_last_key: gdb is null\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_get_last_key: gdb is null\n");
         return (EC_FALSE);
     }
 
     if(NULL_PTR == CBGT_GDB_CBTREE(gdb))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_get_last_key: cbtree of gdb %lx is null\n", gdb);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_get_last_key: cbtree of gdb %lx is null\n", gdb);
         return (EC_FALSE);
     }
 
@@ -3148,7 +3148,7 @@ EC_BOOL cbgt_gdb_get_last_key(const CBGT_GDB *gdb, uint8_t **last_key)
     dup_key = keyDupHs(kv, LOC_CBGT_0091);
     if(NULL_PTR == dup_key)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_get_last_key: dup key from kv %lx failed\n", kv);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_get_last_key: dup key from kv %lx failed\n", kv);
         return (EC_FALSE);
     }
     
@@ -3167,7 +3167,7 @@ EC_BOOL cbgt_gdb_split(CBGT_GDB *old_gdb, CBGT_GDB *left_gdb)
     if(EC_FALSE == cbtree_split(old_cbtree, &left_cbtree))
     {
         CBGT_GDB_CRWLOCK_UNLOCK(old_gdb, LOC_CBGT_0093);
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_split: split cbtree %lx failed\n", old_cbtree);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_split: split cbtree %lx failed\n", old_cbtree);
         return (EC_FALSE);
     }
 
@@ -3185,7 +3185,7 @@ EC_BOOL cbgt_gdb_merge(CBGT_GDB *old_gdb, CBGT_GDB *left_gdb)
     des_cbtree = cbtree_merge(CBGT_GDB_CBTREE(left_gdb), CBGT_GDB_CBTREE(old_gdb));
     if(NULL_PTR == des_cbtree)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_gdb_merge: merge left cbtree %lx and right cbtree %lx failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_gdb_merge: merge left cbtree %lx and right cbtree %lx failed\n",
                             CBGT_GDB_CBTREE(left_gdb), CBGT_GDB_CBTREE(old_gdb));
         return (EC_FALSE);
     }
@@ -3431,25 +3431,25 @@ EC_BOOL cbgt_kv_init(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTES *c
     /*check validiity*/
     if(NULL_PTR != val && (cbytes_len(val) & (~0xFFFFFFFF)))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_kv_init: invalid val len %ld\n", cbytes_len(val));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_kv_init: invalid val len %ld\n", cbytes_len(val));
         return (EC_FALSE);
     }
 
     if(cbytes_len(row) & (~0xFFFF))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_kv_init: invalid row len %ld\n", cbytes_len(row));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_kv_init: invalid row len %ld\n", cbytes_len(row));
         return (EC_FALSE);
     }
 
     if(cbytes_len(colf) & (~0xFF))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_kv_init: invalid colf len %ld\n", cbytes_len(colf));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_kv_init: invalid colf len %ld\n", cbytes_len(colf));
         return (EC_FALSE);
     }
 
     if(cbytes_len(colq) & (~0xFFFF))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_kv_init: invalid colq len %ld\n", cbytes_len(colq));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_kv_init: invalid colq len %ld\n", cbytes_len(colq));
         return (EC_FALSE);
     }
 
@@ -3479,7 +3479,7 @@ EC_BOOL cbgt_kv_init(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTES *c
     kv_buff = kvNewHs(&keyValue, LOC_CBGT_0100);
     if(NULL_PTR == kv_buff)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_kv_init: failed to alloc %d bytes for kv\n", keyValueGettLenHs(&keyValue));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_kv_init: failed to alloc %d bytes for kv\n", keyValueGettLenHs(&keyValue));
         return (EC_FALSE);
     }
     kvPutHs(kv_buff, &keyValue);
@@ -3562,24 +3562,24 @@ EC_BOOL cbgt_key_init(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTES *
     /*check validity*/
     if(KV_FORMAT_TSLEN != sizeof(ctime_t))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_key_init: invalid timestamp len %d\n", sizeof(ctime_t));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_key_init: invalid timestamp len %d\n", sizeof(ctime_t));
         return (EC_FALSE);
     }
     if(cbytes_len(row) & (~0xFFFF))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_key_init: invalid row len %ld\n", cbytes_len(row));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_key_init: invalid row len %ld\n", cbytes_len(row));
         return (EC_FALSE);
     }
 
     if(cbytes_len(colf) & (~0xFF))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_key_init: invalid colf len %ld\n", cbytes_len(colf));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_key_init: invalid colf len %ld\n", cbytes_len(colf));
         return (EC_FALSE);
     }
 
     if(cbytes_len(colq) & (~0xFFFF))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_key_init: invalid colq len %ld\n", cbytes_len(colq));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_key_init: invalid colq len %ld\n", cbytes_len(colq));
         return (EC_FALSE);
     }
 
@@ -3596,7 +3596,7 @@ EC_BOOL cbgt_key_init(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTES *
     key_buff = kvNewHs(&keyValue, LOC_CBGT_0103);
     if(NULL_PTR == key_buff)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_key_init: failed to alloc %d bytes for key\n", keyValueGettLenHs(&keyValue));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_key_init: failed to alloc %d bytes for key\n", keyValueGettLenHs(&keyValue));
         return (EC_FALSE);
     }
     kvPutHs(key_buff, &keyValue);
@@ -3673,23 +3673,23 @@ EC_BOOL cbgt_reserve_table_id(const UINT32 cbgt_md_id, UINT32 *table_id)
         if(EC_FALSE == cbitmap_reserve(table_id_pool, table_id))
         {
             CBGT_MD_CMUTEX_TABLE_ID_POOL_UNLOCK(cbgt_md, LOC_CBGT_0108);
-            sys_log(LOGSTDOUT, "error:cbgt_reserve_table_id: reserve table id failed\n");
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_reserve_table_id: reserve table id failed\n");
             return (EC_FALSE);
         }
         CBGT_MD_CMUTEX_TABLE_ID_POOL_UNLOCK(cbgt_md, LOC_CBGT_0109);
-        //sys_log(LOGSTDNULL, "[DEBUG] cbgt_reserve_table_id: reserved table id %ld\n", (*table_id));
+        //dbg_log(SEC_0054_CBGT, 9)(LOGSTDNULL, "[DEBUG] cbgt_reserve_table_id: reserved table id %ld\n", (*table_id));
         return (EC_TRUE);
     }
 
     if(EC_TRUE == cbgt_is_user_client(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_reserve_table_id: uesr client should never be reached\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_reserve_table_id: uesr client should never be reached\n");
         return (EC_FALSE);
     }
 
     if(NULL_PTR == parent)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_reserve_table_id: parent of table %ld type %s is null\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_reserve_table_id: parent of table %ld type %s is null\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         return (EC_FALSE);
     }
@@ -3707,14 +3707,14 @@ EC_BOOL cbgt_reserve_table_id(const UINT32 cbgt_md_id, UINT32 *table_id)
                  &ret, FI_cbgt_reserve_table_id, ERR_MODULE_ID, table_id);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_reserve_table_id: table %ld type %s reserve table id from parent failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_reserve_table_id: table %ld type %s reserve table id from parent failed\n",
                                 CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
             return (EC_FALSE);
         }
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "error:cbgt_reserve_table_id: table %ld type is unknow\n", CBGT_MD_TABLE_ID(cbgt_md));
+    dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_reserve_table_id: table %ld type is unknow\n", CBGT_MD_TABLE_ID(cbgt_md));
     return (EC_FALSE);
 }
 
@@ -3746,7 +3746,7 @@ EC_BOOL cbgt_release_table_id(const UINT32 cbgt_md_id, const UINT32 table_id)
         if(EC_FALSE == cbitmap_release(table_id_pool, table_id))
         {
             CBGT_MD_CMUTEX_TABLE_ID_POOL_UNLOCK(cbgt_md, LOC_CBGT_0112);
-            sys_log(LOGSTDOUT, "error:cbgt_release_table_id: release table id %ld failed\n", table_id);
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_release_table_id: release table id %ld failed\n", table_id);
             return (EC_FALSE);
         }
         CBGT_MD_CMUTEX_TABLE_ID_POOL_UNLOCK(cbgt_md, LOC_CBGT_0113);
@@ -3755,13 +3755,13 @@ EC_BOOL cbgt_release_table_id(const UINT32 cbgt_md_id, const UINT32 table_id)
 
     if(EC_TRUE == cbgt_is_user_client(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_release_table_id: uesr client should never be reached\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_release_table_id: uesr client should never be reached\n");
         return (EC_FALSE);
     }
 
     if(NULL_PTR == parent)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_release_table_id: parent of table %ld type %s is null\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_release_table_id: parent of table %ld type %s is null\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         return (EC_FALSE);
     }
@@ -3779,14 +3779,14 @@ EC_BOOL cbgt_release_table_id(const UINT32 cbgt_md_id, const UINT32 table_id)
                  &ret, FI_cbgt_release_table_id, ERR_MODULE_ID, table_id);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_release_table_id: table %ld type %s release table id %ld from parent failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_release_table_id: table %ld type %s release table id %ld from parent failed\n",
                                 CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)), table_id);
             return (EC_FALSE);
         }
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "error:cbgt_release_table_id: table %ld type is unknow\n", CBGT_MD_TABLE_ID(cbgt_md));
+    dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_release_table_id: table %ld type is unknow\n", CBGT_MD_TABLE_ID(cbgt_md));
     return (EC_FALSE);
 }
 
@@ -3820,7 +3820,7 @@ EC_BOOL cbgt_get_root_mod_node(const UINT32 cbgt_md_id, MOD_NODE *mod_node)
     {
         if(NULL_PTR == parent)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_get_root_mod_node: meta table %ld parent is unknown\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_root_mod_node: meta table %ld parent is unknown\n",
                                 CBGT_MD_TABLE_ID(cbgt_md));
             return (EC_FALSE);
         }
@@ -3838,7 +3838,7 @@ EC_BOOL cbgt_get_root_mod_node(const UINT32 cbgt_md_id, MOD_NODE *mod_node)
                  &ret,FI_cbgt_get_root_mod_node, ERR_MODULE_ID, mod_node);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_get_root_mod_node: colf table %ld query root failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_root_mod_node: colf table %ld query root failed\n",
                                 CBGT_MD_TABLE_ID(cbgt_md));
             return (EC_FALSE);
         }
@@ -3855,14 +3855,14 @@ EC_BOOL cbgt_get_root_mod_node(const UINT32 cbgt_md_id, MOD_NODE *mod_node)
                  &ret,FI_cbgt_get_root_mod_node, ERR_MODULE_ID, mod_node);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_get_root_mod_node: user table %ld query root failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_root_mod_node: user table %ld query root failed\n",
                                 CBGT_MD_TABLE_ID(cbgt_md));
             return (EC_FALSE);
         }
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "error:cbgt_get_root_mod_node: unknow server type %ld\n", CBGT_MD_TYPE(cbgt_md));
+    dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_root_mod_node: unknow server type %ld\n", CBGT_MD_TYPE(cbgt_md));
     return (EC_FALSE);
 }
 
@@ -3888,18 +3888,18 @@ EC_BOOL cbgt_split_register_no_lock(const UINT32 cbgt_md_id,
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0115);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_split_register_no_lock: [1]\n");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_split_register_no_lock: [1]\n");
     cbgt_traversal_no_lock(cbgt_md_id, LOGSTDOUT);
 #endif
     if(EC_FALSE == __cbgt_make_colf_table_key_by_user_table_key(cbgt_md_id, old_row, &rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_split_register_no_lock: make rowkey of colf table failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register_no_lock: make rowkey of colf table failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cbgt_delete_kv_no_lock(cbgt_md_id, &rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_split_register_no_lock: delete old row from cbgt %ld table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register_no_lock: delete old row from cbgt %ld table %ld failed\n",
                             cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md));
         __cbgt_print_colf_table_key(LOGSTDOUT, cbytes_buf(&rowkey));
         sys_print(LOGSTDOUT, "\n");
@@ -3908,13 +3908,13 @@ EC_BOOL cbgt_split_register_no_lock(const UINT32 cbgt_md_id,
     }
     cbytes_clean(&rowkey, LOC_CBGT_0117);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_split_register_no_lock: [2]\n");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_split_register_no_lock: [2]\n");
     cbgt_traversal_no_lock(cbgt_md_id, LOGSTDOUT);    
 #endif
     /*insert left */
     if(EC_FALSE == cbgt_insert_register_no_lock(cbgt_md_id, left_row, left_table_id, left_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_split_register_no_lock: insert left table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info in parent table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register_no_lock: insert left table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info in parent table %ld failed\n",
                             left_table_id,
                             MOD_NODE_TCID_STR(left_mod_node),
                             MOD_NODE_COMM(left_mod_node),
@@ -3925,7 +3925,7 @@ EC_BOOL cbgt_split_register_no_lock(const UINT32 cbgt_md_id,
         /*rollback old*/
         if(EC_FALSE == cbgt_insert_register_no_lock(cbgt_md_id, old_row, old_table_id, old_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_split_register_no_lock: restore old table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info to parent table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register_no_lock: restore old table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info to parent table %ld failed\n",
                                 old_table_id,
                                 MOD_NODE_TCID_STR(old_mod_node),
                                 MOD_NODE_COMM(old_mod_node),
@@ -3941,13 +3941,13 @@ EC_BOOL cbgt_split_register_no_lock(const UINT32 cbgt_md_id,
         mod_mgr_incl(MOD_NODE_TCID(left_mod_node), MOD_NODE_COMM(left_mod_node), MOD_NODE_RANK(left_mod_node), MOD_NODE_MODI(left_mod_node), CBGT_MD_MOD_MGR(cbgt_md));
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_split_register_no_lock: [3]\n");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_split_register_no_lock: [3]\n");
     cbgt_traversal_no_lock(cbgt_md_id, LOGSTDOUT);    
 #endif
     /*insert right */
     if(EC_FALSE == cbgt_insert_register_no_lock(cbgt_md_id, right_row, right_table_id, right_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_split_register_no_lock: insert right table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info in parent table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register_no_lock: insert right table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info in parent table %ld failed\n",
                             right_table_id,
                             MOD_NODE_TCID_STR(right_mod_node),
                             MOD_NODE_COMM(right_mod_node),
@@ -3958,7 +3958,7 @@ EC_BOOL cbgt_split_register_no_lock(const UINT32 cbgt_md_id,
         /*rollback old*/
         if(EC_FALSE == cbgt_insert_register_no_lock(cbgt_md_id, old_row, old_table_id, old_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_split_register_no_lock: restore old table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info to parent table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register_no_lock: restore old table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info to parent table %ld failed\n",
                                 old_table_id,
                                 MOD_NODE_TCID_STR(old_mod_node),
                                 MOD_NODE_COMM(old_mod_node),
@@ -3970,13 +3970,13 @@ EC_BOOL cbgt_split_register_no_lock(const UINT32 cbgt_md_id,
         /*rollback and rmv left*/
         if(EC_FALSE == __cbgt_make_colf_table_key_by_user_table_key(cbgt_md_id, left_row, &rowkey))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_split_register_no_lock: make rowkey of left table failed\n");
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register_no_lock: make rowkey of left table failed\n");
             return (EC_FALSE);
         }
 
         if(EC_FALSE == cbgt_delete_kv_no_lock(cbgt_md_id, &rowkey))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_split_register_no_lock: delete left row from cbgt %ld table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register_no_lock: delete left row from cbgt %ld table %ld failed\n",
                                 cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md));
             __cbgt_print_colf_table_key(LOGSTDOUT, cbytes_buf(&rowkey));
             sys_print(LOGSTDOUT, "\n");
@@ -3998,7 +3998,7 @@ EC_BOOL cbgt_split_register_no_lock(const UINT32 cbgt_md_id,
         mod_mgr_incl(MOD_NODE_TCID(right_mod_node), MOD_NODE_COMM(right_mod_node), MOD_NODE_RANK(right_mod_node), MOD_NODE_MODI(right_mod_node), CBGT_MD_MOD_MGR(cbgt_md));
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_split_register_no_lock: [4]\n");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_split_register_no_lock: [4]\n");
     cbgt_traversal_no_lock(cbgt_md_id, LOGSTDOUT);    
 #endif
     return (EC_TRUE);
@@ -4025,15 +4025,15 @@ EC_BOOL cbgt_split_register(const UINT32 cbgt_md_id,
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0120);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_split_register: cbgt %ld, table %ld, old_row:  ", cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_split_register: cbgt %ld, table %ld, old_row:  ", cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md));
     __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(old_row));
     sys_print(LOGSTDOUT, "\n");
 
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_split_register: cbgt %ld, table %ld, left_row: ", cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_split_register: cbgt %ld, table %ld, left_row: ", cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md));
     __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(left_row));
     sys_print(LOGSTDOUT, "\n");
 
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_split_register: cbgt %ld, table %ld, right_row: ", cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_split_register: cbgt %ld, table %ld, right_row: ", cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md));
     __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(right_row));
     sys_print(LOGSTDOUT, "\n");
 #endif
@@ -4073,28 +4073,28 @@ EC_BOOL cbgt_merge_register_no_lock(const UINT32 cbgt_md_id,
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0124);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_merge_register_no_lock: des_row: ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_merge_register_no_lock: des_row: ");
     __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(des_row));
     sys_print(LOGSTDOUT, "\n");
 
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_merge_register_no_lock: left_row: ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_merge_register_no_lock: left_row: ");
     __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(left_row));
     sys_print(LOGSTDOUT, "\n");
 
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_merge_register_no_lock: right_row: ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_merge_register_no_lock: right_row: ");
     __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(right_row));
     sys_print(LOGSTDOUT, "\n");
 #endif
     /*delete left*/
     if(EC_FALSE == __cbgt_make_colf_table_key_by_user_table_key(cbgt_md_id, left_row, &rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_merge_register_no_lock: make rowkey of colf table from left row failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge_register_no_lock: make rowkey of colf table from left row failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cbgt_delete_kv_no_lock(cbgt_md_id, &rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_merge_register_no_lock: delete left row failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge_register_no_lock: delete left row failed\n");
         cbytes_clean(&rowkey, LOC_CBGT_0125);
         return (EC_FALSE);
     }
@@ -4103,12 +4103,12 @@ EC_BOOL cbgt_merge_register_no_lock(const UINT32 cbgt_md_id,
     /*delete right*/
     if(EC_FALSE == __cbgt_make_colf_table_key_by_user_table_key(cbgt_md_id, right_row, &rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_merge_register_no_lock: make rowkey of colf table from right row failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge_register_no_lock: make rowkey of colf table from right row failed\n");
 
         /*roll back left*/
         if(EC_FALSE == cbgt_insert_register_no_lock(cbgt_md_id, left_row, left_table_id, left_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_split_register: restore left table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info to parent table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register: restore left table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info to parent table %ld failed\n",
                                 left_table_id,
                                 MOD_NODE_TCID_STR(left_mod_node),
                                 MOD_NODE_COMM(left_mod_node),
@@ -4121,12 +4121,12 @@ EC_BOOL cbgt_merge_register_no_lock(const UINT32 cbgt_md_id,
 
     if(EC_FALSE == cbgt_delete_kv_no_lock(cbgt_md_id, &rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_merge_register_no_lock: delete right row failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge_register_no_lock: delete right row failed\n");
 
         /*roll back left*/
         if(EC_FALSE == cbgt_insert_register_no_lock(cbgt_md_id, left_row, left_table_id, left_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_split_register: restore left table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info to parent table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register: restore left table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info to parent table %ld failed\n",
                                 left_table_id,
                                 MOD_NODE_TCID_STR(left_mod_node),
                                 MOD_NODE_COMM(left_mod_node),
@@ -4142,7 +4142,7 @@ EC_BOOL cbgt_merge_register_no_lock(const UINT32 cbgt_md_id,
     /*insert left */
     if(EC_FALSE == cbgt_insert_register_no_lock(cbgt_md_id, des_row, des_table_id, des_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_split_register: insert des table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info in parent table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register: insert des table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info in parent table %ld failed\n",
                             des_table_id,
                             MOD_NODE_TCID_STR(des_mod_node),
                             MOD_NODE_COMM(des_mod_node),
@@ -4153,7 +4153,7 @@ EC_BOOL cbgt_merge_register_no_lock(const UINT32 cbgt_md_id,
         /*roll back left*/
         if(EC_FALSE == cbgt_insert_register_no_lock(cbgt_md_id, left_row, left_table_id, left_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_split_register: restore left table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info to parent table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register: restore left table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info to parent table %ld failed\n",
                                 left_table_id,
                                 MOD_NODE_TCID_STR(left_mod_node),
                                 MOD_NODE_COMM(left_mod_node),
@@ -4165,7 +4165,7 @@ EC_BOOL cbgt_merge_register_no_lock(const UINT32 cbgt_md_id,
         /*roll back right*/
         if(EC_FALSE == cbgt_insert_register_no_lock(cbgt_md_id, right_row, right_table_id, right_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_split_register: restore right table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info to parent table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_register: restore right table %ld (tcid %s, comm %ld, rank %ld, modi %ld) register info to parent table %ld failed\n",
                                 right_table_id,
                                 MOD_NODE_TCID_STR(right_mod_node),
                                 MOD_NODE_COMM(right_mod_node),
@@ -4245,7 +4245,7 @@ EC_BOOL cbgt_delete_kv_no_lock(const UINT32 cbgt_md_id, const CBYTES *key_bytes)
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "error:cbgt_delete_kv_no_lock: cbgt %ld, table %ld, type %s, delete key failed\n",
+    dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_kv_no_lock: cbgt %ld, table %ld, type %s, delete key failed\n",
                         cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
     __cbgt_print_key(cbgt_md_id, key, LOGSTDOUT);
     sys_print(LOGSTDOUT, "\n");
@@ -4330,13 +4330,13 @@ EC_BOOL __cbgt_merge_one_group(const UINT32 cbgt_md_id, const CVECTOR *kv_bytes_
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0139);
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG] __cbgt_merge_one_group: CBGT module %ld: table %ld type %s\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDNULL, "[DEBUG] __cbgt_merge_one_group: CBGT module %ld: table %ld type %s\n",
                         cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
 #endif
     mod_mgr = mod_mgr_new(cbgt_md_id, LOAD_BALANCING_LOOP);
     if(NULL_PTR == mod_mgr)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_merge_one_group: new mod mgr failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_merge_one_group: new mod mgr failed\n");
         return (EC_FALSE);
     }
 
@@ -4355,7 +4355,7 @@ EC_BOOL __cbgt_merge_one_group(const UINT32 cbgt_md_id, const CVECTOR *kv_bytes_
         cbytes_init(&user_rowkey);
         if(EC_FALSE == cbgt_fetch_row(cbgt_md_id, kv_bytes, &user_rowkey))
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_merge_one_group: fetch key from kv_bytes on table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_merge_one_group: fetch key from kv_bytes on table %ld type %s failed\n",
                                 CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TABLE_ID(cbgt_md)));
 
             task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cbgt_end, ERR_MODULE_ID);
@@ -4364,7 +4364,7 @@ EC_BOOL __cbgt_merge_one_group(const UINT32 cbgt_md_id, const CVECTOR *kv_bytes_
 
         if(EC_FALSE == cbgt_fetch_from_rmc(cbgt_md_id, kv_bytes, &table_id,  &mod_node))
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_merge_one_group: fetch (table id, mod node) from kv_bytes on table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_merge_one_group: fetch (table id, mod node) from kv_bytes on table %ld type %s failed\n",
                                 CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TABLE_ID(cbgt_md)));
 
             cbytes_clean(&user_rowkey, LOC_CBGT_0140);
@@ -4372,7 +4372,7 @@ EC_BOOL __cbgt_merge_one_group(const UINT32 cbgt_md_id, const CVECTOR *kv_bytes_
             return (EC_FALSE);
         }
 #if 0
-        sys_log(LOGSTDOUT, "[DEBUG] __cbgt_merge_one_group: table_name = ");
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_merge_one_group: table_name = ");
         __cbgt_print_user_table_key(LOGSTDOUT, cbytes_buf(&user_rowkey));
         sys_print(LOGSTDOUT, " mod_node = (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                     MOD_NODE_TCID_STR(&mod_node),
@@ -4389,7 +4389,7 @@ EC_BOOL __cbgt_merge_one_group(const UINT32 cbgt_md_id, const CVECTOR *kv_bytes_
                              CBGT_O_RDWR,
                              &mod_node))
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_merge_one_group: cbgt start user table %ld on table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_merge_one_group: cbgt start user table %ld on table %ld type %s failed\n",
                             table_id, CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TABLE_ID(cbgt_md)));
             cbytes_clean(&user_rowkey, LOC_CBGT_0141);
             task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cbgt_end, ERR_MODULE_ID);
@@ -4421,7 +4421,7 @@ EC_BOOL __cbgt_merge_one_group(const UINT32 cbgt_md_id, const CVECTOR *kv_bytes_
 
         if(EC_FALSE == cbgt_fetch_row(cbgt_md_id, kv_bytes, &table_name))
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_merge_one_group: fetch row from kv_bytes on table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_merge_one_group: fetch row from kv_bytes on table %ld type %s failed\n",
                                 CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TABLE_ID(cbgt_md)));
 
             task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cbgt_end, ERR_MODULE_ID);
@@ -4433,7 +4433,7 @@ EC_BOOL __cbgt_merge_one_group(const UINT32 cbgt_md_id, const CVECTOR *kv_bytes_
 
         if(EC_FALSE == cbgt_fetch_from_rmc(cbgt_md_id, kv_bytes, &table_id,  &mod_node))
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_merge_one_group: fetch (table id, mod node) from kv_bytes on table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_merge_one_group: fetch (table id, mod node) from kv_bytes on table %ld type %s failed\n",
                                 CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TABLE_ID(cbgt_md)));
 
             task_dea(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, FI_cbgt_end, ERR_MODULE_ID);
@@ -4497,7 +4497,7 @@ EC_BOOL __cbgt_merge_groups(const UINT32 cbgt_md_id)
     cbtree = CBGT_GDB_CBTREE(gdb);
     if(NULL_PTR == cbtree)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_merge_groups: cbtree is null\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_merge_groups: cbtree is null\n");
         return (EC_FALSE);
     }
     
@@ -4523,14 +4523,14 @@ EC_BOOL __cbgt_merge_groups(const UINT32 cbgt_md_id)
             kv_bytes = cbytes_new(0);
             if(NULL_PTR == kv_bytes)
             {
-                sys_log(LOGSTDOUT, "error:__cbgt_merge_groups: new cbytes failed\n");
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_merge_groups: new cbytes failed\n");
                 cvector_clean_with_location_no_lock(&kv_bytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CBGT_0151);
                 return (EC_FALSE);
             }
             
-            if(EC_FALSE == cbytes_set(kv_bytes, kvGettLenHs(kv), kv))
+            if(EC_FALSE == cbytes_set(kv_bytes, kv, kvGettLenHs(kv)))
             {
-                sys_log(LOGSTDOUT, "error:__cbgt_merge_groups: set cbytes failed\n");
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_merge_groups: set cbytes failed\n");
                 cbytes_free(kv_bytes, LOC_CBGT_0152);
                 cvector_clean_with_location_no_lock(&kv_bytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CBGT_0153);
                 return (EC_FALSE);
@@ -4548,7 +4548,7 @@ EC_BOOL __cbgt_merge_groups(const UINT32 cbgt_md_id)
 
         if(EC_FALSE == __cbgt_merge_one_group(cbgt_md_id, &kv_bytes_vec))
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_merge_groups: merge group on table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_merge_groups: merge group on table %ld type %s failed\n",
                                 CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TABLE_ID(cbgt_md)));
             cvector_clean_with_location_no_lock(&kv_bytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CBGT_0154);
             return (EC_FALSE);
@@ -4559,7 +4559,7 @@ EC_BOOL __cbgt_merge_groups(const UINT32 cbgt_md_id)
     /*handle the left*/
     if(0 < cvector_size(&kv_bytes_vec) && EC_FALSE == __cbgt_merge_one_group(cbgt_md_id, &kv_bytes_vec))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_merge_groups: merge group on table %ld type %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_merge_groups: merge group on table %ld type %s failed\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TABLE_ID(cbgt_md)));
         cvector_clean_with_location_no_lock(&kv_bytes_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CBGT_0156);
         return (EC_FALSE);
@@ -4590,12 +4590,12 @@ EC_BOOL cbgt_merge(const UINT32 cbgt_md_id)
     mod_mgr = CBGT_MD_MOD_MGR(cbgt_md);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0158);
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG] cbgt_merge: CBGT module %ld: table %ld type %s\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDNULL, "[DEBUG] cbgt_merge: CBGT module %ld: table %ld type %s\n",
                         cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
 #endif
     if(EC_TRUE == cbgt_is_user_server(cbgt_md_id) || EC_TRUE == cbgt_is_user_client(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_merge: table %ld type %s should never reach here\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge: table %ld type %s should never reach here\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         return (EC_FALSE);
     }
@@ -4640,7 +4640,7 @@ EC_BOOL cbgt_merge(const UINT32 cbgt_md_id)
 
     if(EC_FALSE == cbgt_is_colf_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_merge: table %ld type %s is not colf server\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge: table %ld type %s is not colf server\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         return (EC_FALSE);
     }
@@ -4650,7 +4650,7 @@ EC_BOOL cbgt_merge(const UINT32 cbgt_md_id)
     CBGT_MD_MOD_MGR(cbgt_md) = mod_mgr_new(cbgt_md_id, LOAD_BALANCING_OBJ);
     if(NULL_PTR == CBGT_MD_MOD_MGR(cbgt_md))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_merge: new mod mgr for CBGT module %ld after dea old all failed\n", cbgt_md_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge: new mod mgr for CBGT module %ld after dea old all failed\n", cbgt_md_id);
         return (EC_FALSE);
     }    
 
@@ -4658,7 +4658,7 @@ EC_BOOL cbgt_merge(const UINT32 cbgt_md_id)
     if(EC_FALSE == __cbgt_merge_groups(cbgt_md_id))
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0164);
-        sys_log(LOGSTDOUT, "error:cbgt_merge: collect all offset failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge: collect all offset failed\n");
         return (EC_FALSE);
     }
     CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0165);
@@ -4719,19 +4719,19 @@ static EC_BOOL __cbgt_split_no_lock(const UINT32 cbgt_md_id, EC_BOOL *split_flag
 
     if(EC_FALSE == cbgt_is_user_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_split_no_lock: current table %ld is not user table, but split happen on user table only\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_split_no_lock: current table %ld is not user table, but split happen on user table only\n",
                             right_table_id);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cbgt_reserve_table_id(cbgt_md_id, &left_table_id))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_split_no_lock: reserve table id from current table %ld type %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_split_no_lock: reserve table id from current table %ld type %s failed\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         return (EC_FALSE);
     }
 
-    sys_log(LOGCONSOLE, "[DEBUG] __cbgt_split_no_lock: enter\n");
+    dbg_log(SEC_0054_CBGT, 0)(LOGCONSOLE, "[DEBUG] __cbgt_split_no_lock: enter\n");
 
     __cbgt_local_mod_node(cbgt_md_id, &local_mod_node);
     __cbgt_error_mod_node(cbgt_md_id, &left_mod_node);
@@ -4745,7 +4745,7 @@ static EC_BOOL __cbgt_split_no_lock(const UINT32 cbgt_md_id, EC_BOOL *split_flag
     if(NULL_PTR == left_gdb)
     {
         //CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0168);
-        sys_log(LOGSTDOUT, "error:__cbgt_split_no_lock: create table %ld failed\n", left_table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_split_no_lock: create table %ld failed\n", left_table_id);
         cbgt_release_table_id(cbgt_md_id, left_table_id);
         return (EC_FALSE);
     }
@@ -4755,7 +4755,7 @@ static EC_BOOL __cbgt_split_no_lock(const UINT32 cbgt_md_id, EC_BOOL *split_flag
     if(EC_FALSE == cbgt_gdb_split(old_gdb, left_gdb))
     {
         //CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0169);
-        sys_log(LOGSTDOUT, "error:__cbgt_split_no_lock: split table %ld failed\n", local_table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_split_no_lock: split table %ld failed\n", local_table_id);
         cbgt_gdb_close_without_flush(left_gdb);
         cbgt_release_table_id(cbgt_md_id, left_table_id);
         return (EC_FALSE);
@@ -4764,7 +4764,7 @@ static EC_BOOL __cbgt_split_no_lock(const UINT32 cbgt_md_id, EC_BOOL *split_flag
     /*write endkey and table id to parent table*/
     if(EC_FALSE == cbgt_gdb_get_last_key(left_gdb, &last_user_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_split_no_lock: get last key from left gdb %lx of table %ld failed\n", left_gdb, local_table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_split_no_lock: get last key from left gdb %lx of table %ld failed\n", left_gdb, local_table_id);
         cbgt_gdb_close_without_flush(left_gdb);
         cbgt_release_table_id(cbgt_md_id, left_table_id);
         return (EC_FALSE);
@@ -4775,7 +4775,7 @@ static EC_BOOL __cbgt_split_no_lock(const UINT32 cbgt_md_id, EC_BOOL *split_flag
     if(EC_FALSE == __cbgt_make_row_of_colf_table_by_start_end_user_table_key(start_user_rowkey, last_user_rowkey, &left_colf_row))
     {
         //CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0170);
-        sys_log(LOGSTDOUT, "error:__cbgt_split_no_lock: make row of colf table by left user table (startUserRowKey, lastUserRowKey) failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_split_no_lock: make row of colf table by left user table (startUserRowKey, lastUserRowKey) failed\n");
         safe_free(last_user_rowkey, LOC_CBGT_0171);
         cbgt_gdb_close_without_flush(left_gdb);
         cbgt_release_table_id(cbgt_md_id, left_table_id);
@@ -4785,7 +4785,7 @@ static EC_BOOL __cbgt_split_no_lock(const UINT32 cbgt_md_id, EC_BOOL *split_flag
     if(EC_FALSE == __cbgt_make_row_of_colf_table_by_start_end_user_table_key(last_user_rowkey, end_user_rowkey, &right_colf_row))
     {
         //CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0172);
-        sys_log(LOGSTDOUT, "error:__cbgt_split_no_lock: make row of colf table by right user table (lastUserRowKey, endUserRowKey) failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_split_no_lock: make row of colf table by right user table (lastUserRowKey, endUserRowKey) failed\n");
         safe_free(last_user_rowkey, LOC_CBGT_0173);
         cbytes_clean(&left_colf_row, LOC_CBGT_0174);
         cbgt_gdb_close_without_flush(left_gdb);
@@ -4802,7 +4802,7 @@ static EC_BOOL __cbgt_split_no_lock(const UINT32 cbgt_md_id, EC_BOOL *split_flag
                                                           &right_colf_row, right_table_id, &right_mod_node);
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_split_no_lock: register left table %ld to parent (tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_split_no_lock: register left table %ld to parent (tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
                             left_table_id,
                             MOD_NODE_TCID_STR(parent),
                             MOD_NODE_COMM(parent),
@@ -4851,13 +4851,13 @@ EC_BOOL cbgt_split_no_lock(const UINT32 cbgt_md_id)
     /*flush before split*/
     if(EC_FALSE == cbgt_gdb_flush(CBGT_MD_GDB(cbgt_md)))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_split_no_lock: flush table %ld before split failed\n", CBGT_MD_TABLE_ID(cbgt_md));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_no_lock: flush table %ld before split failed\n", CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_split_no_lock(cbgt_md_id, &split_flag))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_split_no_lock: split table %ld failed\n", CBGT_MD_TABLE_ID(cbgt_md));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split_no_lock: split table %ld failed\n", CBGT_MD_TABLE_ID(cbgt_md));
         if(EC_TRUE == split_flag)
         {
             cbgt_gdb_load(CBGT_MD_GDB(cbgt_md));/*restore!*/
@@ -4889,7 +4889,7 @@ EC_BOOL cbgt_split(const UINT32 cbgt_md_id)
     CBGT_MD_CRWLOCK_TABLE_WRLOCK(cbgt_md, LOC_CBGT_0181);
     if(EC_FALSE == cbgt_split_no_lock(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_split: table %ld split failed\n", CBGT_MD_TABLE_ID(cbgt_md));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_split: table %ld split failed\n", CBGT_MD_TABLE_ID(cbgt_md));
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0182);
         return (EC_FALSE);    
     }
@@ -4915,7 +4915,7 @@ EC_BOOL cbgt_unlink(const UINT32 cbgt_md_id, const UINT32 table_id)
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0184);
 
-    sys_log(LOGSTDNULL, "[DEBUG]cbgt_unlink: table id %ld\n", table_id);
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDNULL, "[DEBUG]cbgt_unlink: table id %ld\n", table_id);
 
     cbgt_gdb_unlink(CBGT_MD_GDB(cbgt_md), CBGT_MD_ROOT_PATH(cbgt_md), table_id);
 
@@ -4969,12 +4969,12 @@ EC_BOOL cbgt_merge_table(const UINT32 cbgt_md_id, const CBYTES *left_table_name,
 
     des_table_id  = right_table_id;
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG] cbgt_merge_table: CBGT module %ld: table %ld type %s: try to merge table %ld\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDNULL, "[DEBUG] cbgt_merge_table: CBGT module %ld: table %ld type %s: try to merge table %ld\n",
                         cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)), left_table_id);
 #endif
     if(EC_FALSE == cbgt_is_user_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_merge_table: current table %ld is not user table, but merge can happen on user table only\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge_table: current table %ld is not user table, but merge can happen on user table only\n",
                             des_table_id);
         return (EC_FALSE);
     }
@@ -4984,13 +4984,13 @@ EC_BOOL cbgt_merge_table(const UINT32 cbgt_md_id, const CBYTES *left_table_name,
 
     if(0 != keyCmpHs2(left_end_user_rowkey, right_start_user_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_merge_table: refuse to merge due to not neighbor tables\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge_table: refuse to merge due to not neighbor tables\n");
 #if 0
-        sys_log(LOGSTDOUT, "[DEBUG] cbgt_merge_table: left table name: ");
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_merge_table: left table name: ");
         __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(left_table_name));
         sys_print(LOGSTDOUT, "\n");
 
-        sys_log(LOGSTDOUT, "[DEBUG] cbgt_merge_table: right table name: ");
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_merge_table: right table name: ");
         __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(right_table_name));
         sys_print(LOGSTDOUT, "\n");
 #endif        
@@ -5000,11 +5000,11 @@ EC_BOOL cbgt_merge_table(const UINT32 cbgt_md_id, const CBYTES *left_table_name,
     des_table_name = cbytes_new(0);
     if(EC_FALSE == __cbgt_make_row_of_colf_table_by_start_end_user_table_key(left_start_user_rowkey, right_end_user_rowkey, des_table_name))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_merge_table: make row of colf table by left user table startUserRowKey and right user table endUserRowKey) failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge_table: make row of colf table by left user table startUserRowKey and right user table endUserRowKey) failed\n");
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_merge_table: des table name: ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_merge_table: des table name: ");
     __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(des_table_name));
     sys_print(LOGSTDOUT, "\n");
 #endif
@@ -5020,7 +5020,7 @@ EC_BOOL cbgt_merge_table(const UINT32 cbgt_md_id, const CBYTES *left_table_name,
     if(NULL_PTR == left_gdb)
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0187);
-        sys_log(LOGSTDOUT, "error:cbgt_merge_table: open table %ld for reading/writting failed\n", left_table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge_table: open table %ld for reading/writting failed\n", left_table_id);
         cbytes_free(des_table_name, LOC_CBGT_0188);
         return (EC_FALSE);
     }
@@ -5028,7 +5028,7 @@ EC_BOOL cbgt_merge_table(const UINT32 cbgt_md_id, const CBYTES *left_table_name,
     if(EC_FALSE == cbgt_gdb_merge(right_gdb, left_gdb))
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0189);
-        sys_log(LOGSTDOUT, "error:cbgt_merge_table: merge left table %ld and right table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge_table: merge left table %ld and right table %ld failed\n",
                             left_table_id, right_table_id);
         cbytes_free(des_table_name, LOC_CBGT_0190);
         cbgt_gdb_close_without_flush(left_gdb);
@@ -5046,7 +5046,7 @@ EC_BOOL cbgt_merge_table(const UINT32 cbgt_md_id, const CBYTES *left_table_name,
     if(EC_FALSE == ret)
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0191);
-        sys_log(LOGSTDOUT, "error:cbgt_merge_table: merge register to parent failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_merge_table: merge register to parent failed\n");
         cbytes_free(des_table_name, LOC_CBGT_0192);        
         return (EC_FALSE);
     }
@@ -5151,7 +5151,7 @@ EC_BOOL cbgt_exist_table(const UINT32 cbgt_md_id, const CBYTES *table_name)
 
     if(EC_FALSE == __cbgt_make_rmc_table_key(cbgt_md_id, table_name, &key))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_exist_table: init key failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_exist_table: init key failed\n");
         return (EC_FALSE);
     }
 
@@ -5197,7 +5197,7 @@ EC_BOOL cbgt_create_table_on_root(const UINT32 cbgt_md_id, const CBYTES *table_n
 
     if(EC_FALSE == cbgt_is_root_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_table_on_root: cbgt module #0x%lx was not root server\n", cbgt_md_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_table_on_root: cbgt module #0x%lx was not root server\n", cbgt_md_id);
         return (EC_FALSE);
     }
 
@@ -5208,7 +5208,7 @@ EC_BOOL cbgt_create_table_on_root(const UINT32 cbgt_md_id, const CBYTES *table_n
 
     if(EC_FALSE == cbgt_reserve_table_id(cbgt_md_id, &meta_table_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_table_on_root: reserve table id on root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_table_on_root: reserve table id on root table %ld failed\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -5223,7 +5223,7 @@ EC_BOOL cbgt_create_table_on_root(const UINT32 cbgt_md_id, const CBYTES *table_n
                                        CBGT_O_CREAT,
                                        &meta_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_table_on_root: cbgt start meta table %ld failed\n", meta_table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_table_on_root: cbgt start meta table %ld failed\n", meta_table_id);
         cbgt_release_table_id(cbgt_md_id, meta_table_id);
         return (EC_FALSE);
     }
@@ -5232,7 +5232,7 @@ EC_BOOL cbgt_create_table_on_root(const UINT32 cbgt_md_id, const CBYTES *table_n
     cbytes_mount(&meta_table_row , cbytes_len(table_name), cbytes_buf(table_name));
     if(EC_FALSE == cbgt_insert_register(cbgt_md_id, &meta_table_row, meta_table_id, &meta_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_table_on_root: insert register of meta table %ld into root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_table_on_root: insert register of meta table %ld into root table %ld failed\n",
                            meta_table_id, CBGT_MD_TABLE_ID(cbgt_md));
         cbgt_release_table_id(cbgt_md_id, meta_table_id);
         return (EC_FALSE);
@@ -5246,7 +5246,7 @@ EC_BOOL cbgt_create_table_on_root(const UINT32 cbgt_md_id, const CBYTES *table_n
 
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_table_on_root: create colf tables of user table %.*s on meta table %ld (tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_table_on_root: create colf tables of user table %.*s on meta table %ld (tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             meta_table_id,
                             MOD_NODE_TCID_STR(&meta_mod_node), MOD_NODE_COMM(&meta_mod_node), MOD_NODE_RANK(&meta_mod_node), MOD_NODE_MODI(&meta_mod_node));
@@ -5275,7 +5275,7 @@ EC_BOOL cbgt_create_table_on_meta(const UINT32 cbgt_md_id, const CVECTOR *col_fa
 
     if(EC_FALSE == cbgt_is_meta_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_table_on_meta: cbgt module #0x%lx was not meta server\n", cbgt_md_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_table_on_meta: cbgt module #0x%lx was not meta server\n", cbgt_md_id);
         return (EC_FALSE);
     }
 
@@ -5294,7 +5294,7 @@ EC_BOOL cbgt_create_table_on_meta(const UINT32 cbgt_md_id, const CVECTOR *col_fa
 
         if(EC_FALSE == cbgt_create_colf_on_meta(cbgt_md_id, colf_name))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_create_table_on_meta: cbgt create colf table %.*s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_table_on_meta: cbgt create colf table %.*s failed\n",
                                 cbytes_len(colf_name), cbytes_buf(colf_name));
             return (EC_FALSE);
         }
@@ -5326,7 +5326,7 @@ EC_BOOL cbgt_create_colf_on_meta(const UINT32 cbgt_md_id, const CBYTES  *colf_na
 
     if(EC_FALSE == cbgt_is_meta_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_colf_on_meta: cbgt module #0x%lx was not meta server\n", cbgt_md_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_colf_on_meta: cbgt module #0x%lx was not meta server\n", cbgt_md_id);
         return (EC_FALSE);
     }
 
@@ -5337,7 +5337,7 @@ EC_BOOL cbgt_create_colf_on_meta(const UINT32 cbgt_md_id, const CBYTES  *colf_na
 
     if(EC_FALSE == cbgt_reserve_table_id(cbgt_md_id, &colf_table_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_colf_on_meta: reserve table id on meta table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_colf_on_meta: reserve table id on meta table %ld failed\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -5351,7 +5351,7 @@ EC_BOOL cbgt_create_colf_on_meta(const UINT32 cbgt_md_id, const CBYTES  *colf_na
                                        CBGT_O_CREAT,
                                        &colf_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_colf_on_meta: cbgt start colf table %ld failed\n", colf_table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_colf_on_meta: cbgt start colf table %ld failed\n", colf_table_id);
         cbgt_release_table_id(cbgt_md_id, colf_table_id);
         return (EC_FALSE);
     }
@@ -5360,7 +5360,7 @@ EC_BOOL cbgt_create_colf_on_meta(const UINT32 cbgt_md_id, const CBYTES  *colf_na
     cbytes_mount(&colf_table_row , cbytes_len(colf_name), cbytes_buf(colf_name));
     if(EC_FALSE == cbgt_insert_register(cbgt_md_id, &colf_table_row, colf_table_id, &colf_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_colf_on_meta: insert register of colf table %ld into meta table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_colf_on_meta: insert register of colf table %ld into meta table %ld failed\n",
                            colf_table_id, CBGT_MD_TABLE_ID(cbgt_md));
 
         cbgt_release_table_id(cbgt_md_id, colf_table_id);
@@ -5396,7 +5396,7 @@ EC_BOOL cbgt_create_table_on_colf(const UINT32 cbgt_md_id, const CBYTES *colf_ro
 
     if(EC_FALSE == cbgt_is_colf_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_table_on_colf: cbgt module #0x%lx was not colf server\n", cbgt_md_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_table_on_colf: cbgt module #0x%lx was not colf server\n", cbgt_md_id);
         return (EC_FALSE);
     }
 
@@ -5407,7 +5407,7 @@ EC_BOOL cbgt_create_table_on_colf(const UINT32 cbgt_md_id, const CBYTES *colf_ro
 
     if(EC_FALSE == cbgt_reserve_table_id(cbgt_md_id, &user_table_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_table_on_colf: reserve table id on colf table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_table_on_colf: reserve table id on colf table %ld failed\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -5421,7 +5421,7 @@ EC_BOOL cbgt_create_table_on_colf(const UINT32 cbgt_md_id, const CBYTES *colf_ro
                           CBGT_O_CREAT,
                           &user_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_table_on_colf: cbgt start user table %ld failed\n", user_table_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_table_on_colf: cbgt start user table %ld failed\n", user_table_id);
         cbgt_release_table_id(cbgt_md_id, user_table_id);
         return (EC_FALSE);
     }
@@ -5429,7 +5429,7 @@ EC_BOOL cbgt_create_table_on_colf(const UINT32 cbgt_md_id, const CBYTES *colf_ro
     /*register user table info to col table*/
     if(EC_FALSE == cbgt_insert_register(cbgt_md_id, colf_row, user_table_id, &user_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_create_table_on_colf: insert the new user table %ld into colf table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_create_table_on_colf: insert the new user table %ld into colf table %ld failed\n",
                             user_table_id, CBGT_MD_TABLE_ID(cbgt_md));
 
         cbgt_release_table_id(cbgt_md_id, user_table_id);
@@ -5480,7 +5480,7 @@ static EC_BOOL __cbgt_get_table_and_key_no_lock(const UINT32 cbgt_md_id, const C
 
     value = kvGetValueHs(_kv);
     vlen  = kvGetvLenHs(_kv);
-    cbytes_set(key_bytes, keyGettLenHs(_key), _key);
+    cbytes_set(key_bytes, _key, keyGettLenHs(_key));
 
     counter = 0;
     CBGT_ASSERT(counter + sizeof(word_t) <= vlen);
@@ -5494,7 +5494,7 @@ static EC_BOOL __cbgt_get_table_and_key_no_lock(const UINT32 cbgt_md_id, const C
     CBGT_ASSERT(counter + sizeof(word_t) <= vlen);
     MOD_NODE_MODI(mod_node) = gdbGetWord(value, &counter);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_table_and_key_no_lock: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_table_and_key_no_lock: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node));
 #endif
     return (EC_TRUE);
@@ -5529,7 +5529,7 @@ static EC_BOOL __cbgt_get_table(const UINT32 cbgt_md_id, const CBYTES *table_nam
 
     if(EC_FALSE == __cbgt_make_rmc_table_key(cbgt_md_id, table_name, &key))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_table: make rowkey failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_table: make rowkey failed\n");
         return (EC_FALSE);
     }
 
@@ -5565,7 +5565,7 @@ static EC_BOOL __cbgt_get_table(const UINT32 cbgt_md_id, const CBYTES *table_nam
     CBGT_ASSERT(counter + sizeof(word_t) <= vlen);
     MOD_NODE_MODI(mod_node) = gdbGetWord(value, &counter);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_table: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_table: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node));
 #endif
     return (EC_TRUE);
@@ -5590,20 +5590,20 @@ static EC_BOOL __cbgt_get_rmc_table_and_key_no_lock(const UINT32 cbgt_md_id, con
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0213);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_rmc_table_and_key_no_lock: table name: ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_rmc_table_and_key_no_lock: table name: ");
     __cbgt_print_row(cbgt_md_id, table_name, LOGSTDOUT);
 #endif
 
     cbytes_init(&rmc_rowkey);
     if(EC_FALSE == __cbgt_make_rmc_table_key(cbgt_md_id, table_name, &rmc_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_rmc_table_and_key_no_lock: make rowkey failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_rmc_table_and_key_no_lock: make rowkey failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_get_table_and_key_no_lock(cbgt_md_id, &rmc_rowkey, table_id, mod_node, key_bytes))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_rmc_table_and_key_no_lock: search table %.*s on table %ld type %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_rmc_table_and_key_no_lock: search table %.*s on table %ld type %s failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         cbytes_clean(&rmc_rowkey, LOC_CBGT_0214);
@@ -5611,7 +5611,7 @@ static EC_BOOL __cbgt_get_rmc_table_and_key_no_lock(const UINT32 cbgt_md_id, con
     }
     cbytes_clean(&rmc_rowkey, LOC_CBGT_0215);
 #if 0    
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_rmc_table_and_key_no_lock: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_rmc_table_and_key_no_lock: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node));
 #endif
     return (EC_TRUE);
@@ -5635,18 +5635,18 @@ static EC_BOOL __cbgt_get_rmc_table(const UINT32 cbgt_md_id, const CBYTES *table
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0216);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_rmc_table: table name: ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_rmc_table: table name: ");
     __cbgt_print_row(cbgt_md_id, table_name, LOGSTDOUT);
 #endif
     if(EC_FALSE == __cbgt_get_table(cbgt_md_id, table_name, table_id, mod_node))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_rmc_table: search table %.*s on table %ld type %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_rmc_table: search table %.*s on table %ld type %s failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         return (EC_FALSE);
     }
 #if 0    
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_rmc_table: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_rmc_table: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node));
 #endif
     return (EC_TRUE);
@@ -5671,10 +5671,10 @@ static EC_BOOL __cbgt_get_user_table_and_key_no_lock(const UINT32 cbgt_md_id, co
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0217);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_and_key_no_lock: enter: CBGT Module # %ld: table %ld type %s\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_and_key_no_lock: enter: CBGT Module # %ld: table %ld type %s\n",
                         cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_and_key_no_lock: enter: as user rowkey: ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_and_key_no_lock: enter: as user rowkey: ");
     __cbgt_print_user_table_key(LOGSTDOUT, cbytes_buf(user_table_key));
     sys_print(LOGSTDOUT, "\n");
 #endif
@@ -5682,25 +5682,25 @@ static EC_BOOL __cbgt_get_user_table_and_key_no_lock(const UINT32 cbgt_md_id, co
     cbytes_init(&col_rowkey);
     if(EC_FALSE == __cbgt_make_colf_table_key_by_user_table_key(cbgt_md_id, user_table_key, &col_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_user_table_and_key_no_lock: make col_rowkey failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_user_table_and_key_no_lock: make col_rowkey failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_get_table_and_key_no_lock(cbgt_md_id, &col_rowkey, table_id, mod_node, key_bytes))
     {
 #if 0
-        sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_and_key_no_lock: as user rowkey: ");
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_and_key_no_lock: as user rowkey: ");
         __cbgt_print_user_table_key(LOGSTDOUT, cbytes_buf(user_table_key));
         sys_print(LOGSTDOUT, "\n");
 #endif
-        sys_log(LOGSTDOUT, "error:__cbgt_get_user_table_and_key_no_lock: search user table on table %ld type %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_user_table_and_key_no_lock: search user table on table %ld type %s failed\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         cbytes_clean(&col_rowkey, LOC_CBGT_0218);                            
         return (EC_FALSE);
     }
     cbytes_clean(&col_rowkey, LOC_CBGT_0219);
 #if 0    
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_and_key_no_lock: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_and_key_no_lock: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node));
 #endif
     return (EC_TRUE);
@@ -5724,26 +5724,26 @@ static EC_BOOL __cbgt_get_user_table(const UINT32 cbgt_md_id, const CBYTES *user
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0220);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table: enter: CBGT Module # %ld: table %ld type %s\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table: enter: CBGT Module # %ld: table %ld type %s\n",
                         cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
 
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table: enter: as user rowkey: ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table: enter: as user rowkey: ");
     __cbgt_print_user_table_key(LOGSTDOUT, cbytes_buf(user_rowkey));
     sys_print(LOGSTDOUT, "\n");
 #endif
     if(EC_FALSE == __cbgt_get_table(cbgt_md_id, user_rowkey, table_id, mod_node))
     {
 #if 0    
-        sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table: as user rowkey: ");
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table: as user rowkey: ");
         __cbgt_print_user_table_key(LOGSTDOUT, cbytes_buf(user_rowkey));
         sys_print(LOGSTDOUT, "\n");
 #endif
-        sys_log(LOGSTDOUT, "error:__cbgt_get_user_table: search user table on table %ld type %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_user_table: search user table on table %ld type %s failed\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         return (EC_FALSE);
     }
 #if 0    
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node));
 #endif
     return (EC_TRUE);
@@ -5777,7 +5777,7 @@ EC_BOOL cbgt_get_colf_table_from_root(const UINT32 cbgt_md_id, const CBYTES *tab
 #if 0
     if(EC_FALSE == cbgt_is_root_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_colf_table_from_root: cur table %ld is not root\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_colf_table_from_root: cur table %ld is not root\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -5795,7 +5795,7 @@ EC_BOOL cbgt_get_colf_table_from_root(const UINT32 cbgt_md_id, const CBYTES *tab
                  &ret,FI_cbgt_get_colf_table_from_root, ERR_MODULE_ID, table_name, colf, table_id, mod_node);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_get_colf_table_from_root: get colf table of user table %.*s colf %.*s from root (tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_colf_table_from_root: get colf table of user table %.*s colf %.*s from root (tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 cbytes_len(colf), (char *)cbytes_buf(colf),
                                 MOD_NODE_TCID_STR(root_mod_node), MOD_NODE_COMM(root_mod_node), MOD_NODE_RANK(root_mod_node), MOD_NODE_MODI(root_mod_node));
@@ -5808,14 +5808,14 @@ EC_BOOL cbgt_get_colf_table_from_root(const UINT32 cbgt_md_id, const CBYTES *tab
     /*get meta table*/
     if(EC_FALSE == __cbgt_get_rmc_table(cbgt_md_id, table_name, &meta_table_id, &meta_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_colf_table_from_root: get meta table of user table %.*s from root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_colf_table_from_root: get meta table of user table %.*s from root table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name), CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_mod_node_is_valid(cbgt_md_id, &meta_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_colf_table_from_root: meta table %ld of user table %.*s was not registered to root table %ld\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_colf_table_from_root: meta table %ld of user table %.*s was not registered to root table %ld\n",
                             meta_table_id, cbytes_len(table_name), (char *)cbytes_buf(table_name), CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -5827,12 +5827,12 @@ EC_BOOL cbgt_get_colf_table_from_root(const UINT32 cbgt_md_id, const CBYTES *tab
 
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_colf_table_from_root: get colf table of user table %.*s from meta table %ld on root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_colf_table_from_root: get colf table of user table %.*s from meta table %ld on root table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name), meta_table_id, CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_get_colf_table_from_root: get colf table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_get_colf_table_from_root: get colf table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
                        "of user table %.*s from meta table %ld on root table %ld successfully\n",
                         (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node),
                         cbytes_len(table_name), (char *)cbytes_buf(table_name), meta_table_id, CBGT_MD_TABLE_ID(cbgt_md));
@@ -5867,7 +5867,7 @@ EC_BOOL cbgt_get_colf_table_from_meta(const UINT32 cbgt_md_id, const CBYTES *col
 
     if(EC_FALSE == cbgt_is_meta_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_colf_table_from_meta: cur table %ld is not meta\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_colf_table_from_meta: cur table %ld is not meta\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -5877,14 +5877,14 @@ EC_BOOL cbgt_get_colf_table_from_meta(const UINT32 cbgt_md_id, const CBYTES *col
     /*get colf table*/
     if(EC_FALSE == __cbgt_get_rmc_table(cbgt_md_id, colf, &colf_table_id, &colf_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_colf_table_from_meta: get colf table %.*s from meta table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_colf_table_from_meta: get colf table %.*s from meta table %ld failed\n",
                             cbytes_len(colf), (char *)cbytes_buf(colf), CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_mod_node_is_valid(cbgt_md_id, &colf_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_colf_table_from_meta: colf table %ld of colf %.*s was not registered to meta table %ld\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_colf_table_from_meta: colf table %ld of colf %.*s was not registered to meta table %ld\n",
                             colf_table_id, cbytes_len(colf), (char *)cbytes_buf(colf), CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -5892,7 +5892,7 @@ EC_BOOL cbgt_get_colf_table_from_meta(const UINT32 cbgt_md_id, const CBYTES *col
     (*table_id) = colf_table_id;
     mod_node_clone(&colf_mod_node, mod_node);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_get_colf_table_from_meta: get colf table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_get_colf_table_from_meta: get colf table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
                        "of colf %.*s on meta table %ld successfully\n",
                         (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node),
                         cbytes_len(colf), (char *)cbytes_buf(colf), CBGT_MD_TABLE_ID(cbgt_md));
@@ -5928,7 +5928,7 @@ EC_BOOL cbgt_get_user_table_from_root(const UINT32 cbgt_md_id, const CBYTES *tab
 #if 0
     if(EC_FALSE == cbgt_is_root_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_root: cur table %ld is not root\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_root: cur table %ld is not root\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -5946,7 +5946,7 @@ EC_BOOL cbgt_get_user_table_from_root(const UINT32 cbgt_md_id, const CBYTES *tab
                  &ret,FI_cbgt_get_user_table_from_root, ERR_MODULE_ID, table_name, row, colf, colq, table_id, mod_node);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_root: get user table of table %.*s (%.*s:%.*s:%.*s) from root (tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_root: get user table of table %.*s (%.*s:%.*s:%.*s) from root (tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 cbytes_len(row) , (char *)cbytes_buf(row),
                                 cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -5961,14 +5961,14 @@ EC_BOOL cbgt_get_user_table_from_root(const UINT32 cbgt_md_id, const CBYTES *tab
     /*get meta table*/
     if(EC_FALSE == __cbgt_get_rmc_table(cbgt_md_id, table_name, &meta_table_id, &meta_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_root: get meta table of user table %.*s from root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_root: get meta table of user table %.*s from root table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name), CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_mod_node_is_valid(cbgt_md_id, &meta_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_root: meta table %ld of user table %.*s was not registered to root table %ld\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_root: meta table %ld of user table %.*s was not registered to root table %ld\n",
                             meta_table_id, cbytes_len(table_name), (char *)cbytes_buf(table_name), CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -5980,7 +5980,7 @@ EC_BOOL cbgt_get_user_table_from_root(const UINT32 cbgt_md_id, const CBYTES *tab
 
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_root: get user table of table %.*s (%.*s:%.*s:%.*s) from meta table %ld on root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_root: get user table of table %.*s (%.*s:%.*s:%.*s) from meta table %ld on root table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -5989,7 +5989,7 @@ EC_BOOL cbgt_get_user_table_from_root(const UINT32 cbgt_md_id, const CBYTES *tab
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_get_user_table_from_root: get user table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_get_user_table_from_root: get user table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
                        "of table %.*s (%.*s:%.*s:%.*s) from meta table %ld on root table %ld successfully\n",
                         (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node),
                         cbytes_len(table_name), (char *)cbytes_buf(table_name),
@@ -6029,7 +6029,7 @@ EC_BOOL cbgt_get_user_table_from_meta(const UINT32 cbgt_md_id, const CBYTES *row
 
     if(EC_FALSE == cbgt_is_meta_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_meta: cur table %ld is not meta\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_meta: cur table %ld is not meta\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -6037,14 +6037,14 @@ EC_BOOL cbgt_get_user_table_from_meta(const UINT32 cbgt_md_id, const CBYTES *row
     /*get colf table*/
     if(EC_FALSE == __cbgt_get_rmc_table(cbgt_md_id, colf, &colf_table_id, &colf_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_meta: get colf table of %.*s from meta table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_meta: get colf table of %.*s from meta table %ld failed\n",
                             cbytes_len(colf), (char *)cbytes_buf(colf), CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_mod_node_is_valid(cbgt_md_id, &colf_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_meta: colf table %ld of %.*s was not registered to meta table %ld\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_meta: colf table %ld of %.*s was not registered to meta table %ld\n",
                             colf_table_id, cbytes_len(colf), (char *)cbytes_buf(colf), CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -6056,7 +6056,7 @@ EC_BOOL cbgt_get_user_table_from_meta(const UINT32 cbgt_md_id, const CBYTES *row
 
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_meta: get user table for (%.*s:%.*s:%.*s) from colf table %ld on meta table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_meta: get user table for (%.*s:%.*s:%.*s) from colf table %ld on meta table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -6065,7 +6065,7 @@ EC_BOOL cbgt_get_user_table_from_meta(const UINT32 cbgt_md_id, const CBYTES *row
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_get_user_table_from_meta: get user table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_get_user_table_from_meta: get user table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
                        "for (%.*s:%.*s:%.*s) from colf table %ld on meta table %ld successfully\n",
                         (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node),
                         cbytes_len(row) , (char *)cbytes_buf(row),
@@ -6105,14 +6105,14 @@ EC_BOOL cbgt_get_user_table_from_colf(const UINT32 cbgt_md_id, const CBYTES *row
 
     if(EC_FALSE == cbgt_is_colf_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_colf: cur table %ld is not colf\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_colf: cur table %ld is not colf\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_make_user_table_key(cbgt_md_id, row, colf, colq, &user_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_colf: make rowkey of (%.*s:%.*s:%.*s) on col table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_colf: make rowkey of (%.*s:%.*s:%.*s) on col table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -6123,7 +6123,7 @@ EC_BOOL cbgt_get_user_table_from_colf(const UINT32 cbgt_md_id, const CBYTES *row
     /*get user table*/
     if(EC_FALSE == __cbgt_get_user_table(cbgt_md_id, &user_rowkey, &user_table_id, &user_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_colf: get user table of (%.*s:%.*s:%.*s) from colf table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_colf: get user table of (%.*s:%.*s:%.*s) from colf table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -6137,7 +6137,7 @@ EC_BOOL cbgt_get_user_table_from_colf(const UINT32 cbgt_md_id, const CBYTES *row
 
     if(EC_FALSE == __cbgt_mod_node_is_valid(cbgt_md_id, &user_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_get_user_table_from_colf: user table %ld of (%.*s:%.*s:%.*s) was not registered to colf table %ld\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_get_user_table_from_colf: user table %ld of (%.*s:%.*s:%.*s) was not registered to colf table %ld\n",
                             user_table_id,
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -6149,7 +6149,7 @@ EC_BOOL cbgt_get_user_table_from_colf(const UINT32 cbgt_md_id, const CBYTES *row
     (*table_id) = user_table_id;
     mod_node_clone(&user_mod_node, mod_node);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_get_user_table_from_colf: get user table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_get_user_table_from_colf: get user table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
                        "of (%.*s:%.*s:%.*s) on colf table %ld successfully\n",
                         (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node),
                         cbytes_len(row) , (char *)cbytes_buf(row),
@@ -6192,7 +6192,7 @@ static EC_BOOL __cbgt_open_rmc_table(const UINT32 cbgt_md_id, const UINT32 serve
     //&& EC_FALSE == cbgt_is_colf_server(cbgt_md_id)
     )
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_open_rmc_table: table %ld type %s is not root or meta table\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_rmc_table: table %ld type %s is not root or meta table\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         return (EC_FALSE);
     }
@@ -6229,7 +6229,7 @@ static EC_BOOL __cbgt_open_rmc_table(const UINT32 cbgt_md_id, const UINT32 serve
     if(EC_FALSE == __cbgt_get_rmc_table_and_key_no_lock(cbgt_md_id, table_name, &son_table_id, &son_mod_node, &key_bytes))
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0228);
-        sys_log(LOGSTDOUT, "error:__cbgt_open_rmc_table: get son table %.*s from cur table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_rmc_table: get son table %.*s from cur table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             CBGT_MD_TABLE_ID(cbgt_md));
         cstring_clean(&meta_session_path);
@@ -6237,7 +6237,7 @@ static EC_BOOL __cbgt_open_rmc_table(const UINT32 cbgt_md_id, const UINT32 serve
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_open_rmc_table: get son table table %.*s type %s from cur table %ld type %s "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_open_rmc_table: get son table table %.*s type %s from cur table %ld type %s "
                        "==> table %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        cbytes_len(table_name), (char *)cbytes_buf(table_name), __cbgt_type(server_type),
                        CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)),
@@ -6249,7 +6249,7 @@ static EC_BOOL __cbgt_open_rmc_table(const UINT32 cbgt_md_id, const UINT32 serve
     {
         MOD_NODE  cur_mod_node;
 #if 0
-        sys_log(LOGSTDOUT, "[DEBUG] __cbgt_open_rmc_table: son_mod_node is invalid, try to start %s on table %ld type %s\n",
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_open_rmc_table: son_mod_node is invalid, try to start %s on table %ld type %s\n",
                             __cbgt_type(server_type), CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
 #endif
         __cbgt_local_mod_node(cbgt_md_id, &cur_mod_node);
@@ -6264,7 +6264,7 @@ static EC_BOOL __cbgt_open_rmc_table(const UINT32 cbgt_md_id, const UINT32 serve
                                               &son_mod_node))
         {
             CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0229);
-            sys_log(LOGSTDOUT, "error:__cbgt_open_rmc_table: open table %ld type %s on table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_rmc_table: open table %ld type %s on table %ld type %s failed\n",
                                 son_table_id, __cbgt_type(server_type),
                                 CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
             cbytes_clean(&key_bytes, LOC_CBGT_0230);
@@ -6276,7 +6276,7 @@ static EC_BOOL __cbgt_open_rmc_table(const UINT32 cbgt_md_id, const UINT32 serve
         if(EC_FALSE == __cbgt_mod_node_is_valid(cbgt_md_id, &son_mod_node))
         {
             CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0231);
-            sys_log(LOGSTDOUT, "error:__cbgt_open_rmc_table: open son table %.*s from cur table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_rmc_table: open son table %.*s from cur table %ld failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 CBGT_MD_TABLE_ID(cbgt_md));
             cbytes_clean(&key_bytes, LOC_CBGT_0232);
@@ -6289,7 +6289,7 @@ static EC_BOOL __cbgt_open_rmc_table(const UINT32 cbgt_md_id, const UINT32 serve
         if(CBGT_TYPE_COLF_SERVER == server_type)
         {
             EC_BOOL __ret;
-            sys_log(LOGSTDOUT, "__cbgt_open_rmc_table: before update, colf is ##################################\n");
+            dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "__cbgt_open_rmc_table: before update, colf is ##################################\n");
             task_p2p(cbgt_md_id, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP,
                      &son_mod_node,
                      &__ret, FI_cbgt_traversal, ERR_MODULE_ID, LOGSTDOUT);
@@ -6300,7 +6300,7 @@ static EC_BOOL __cbgt_open_rmc_table(const UINT32 cbgt_md_id, const UINT32 serve
         if(EC_FALSE == cbgt_update_register_no_lock(cbgt_md_id, &key_bytes, son_table_id, &son_mod_node))
         {
             CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0233);
-            sys_log(LOGSTDOUT, "error:__cbgt_open_rmc_table: update register of table %.*s id %ld type %s (tcid %s, comm %ld, rank %ld, modi %ld) "
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_rmc_table: update register of table %.*s id %ld type %s (tcid %s, comm %ld, rank %ld, modi %ld) "
                                 "to table %ld type %s failed\n",
                                cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                son_table_id, __cbgt_type(server_type),
@@ -6316,7 +6316,7 @@ static EC_BOOL __cbgt_open_rmc_table(const UINT32 cbgt_md_id, const UINT32 serve
         if(CBGT_TYPE_COLF_SERVER == server_type)
         {
             EC_BOOL __ret;
-            sys_log(LOGSTDOUT, "__cbgt_open_rmc_table: after update, colf is ##################################\n");
+            dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "__cbgt_open_rmc_table: after update, colf is ##################################\n");
             task_p2p(cbgt_md_id, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP,
                      &son_mod_node,
                      &__ret, FI_cbgt_traversal, ERR_MODULE_ID, LOGSTDOUT);
@@ -6339,7 +6339,7 @@ static EC_BOOL __cbgt_open_rmc_table(const UINT32 cbgt_md_id, const UINT32 serve
         __cbgt_set_colf_table_to_session(cbgt_md_id, &colf_session_path, (*table_id), mod_node);
     }    
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_open_rmc_table: table %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_open_rmc_table: table %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        son_table_id,
                        MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node));
 #endif
@@ -6369,7 +6369,7 @@ static EC_BOOL __cbgt_open_user_table(const UINT32 cbgt_md_id, const CBYTES *use
     }
 #endif/*CBGT_DEBUG_SWITCH*/
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_open_user_table: table name: ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_open_user_table: table name: ");
     __cbgt_print_user_table_key(LOGSTDOUT, cbytes_buf(user_table_key));
     sys_print(LOGSTDOUT, "\n");
 #endif
@@ -6378,7 +6378,7 @@ static EC_BOOL __cbgt_open_user_table(const UINT32 cbgt_md_id, const CBYTES *use
 
     if(EC_FALSE == cbgt_is_colf_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_open_user_table: table %ld type %s is not colf table\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_user_table: table %ld type %s is not colf table\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         return (EC_FALSE);
     }
@@ -6389,13 +6389,13 @@ static EC_BOOL __cbgt_open_user_table(const UINT32 cbgt_md_id, const CBYTES *use
     if(EC_FALSE == __cbgt_get_user_table_and_key_no_lock(cbgt_md_id, user_table_key, &user_table_id, &user_mod_node, &key_bytes))
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0239);
-        sys_log(LOGSTDOUT, "error:__cbgt_open_user_table: get user table %.*s from col table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_user_table: get user table %.*s from col table %ld failed\n",
                             cbytes_len(user_table_key), (char *)cbytes_buf(user_table_key),
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_open_user_table: get user table from col table %ld "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_open_user_table: get user table from col table %ld "
                        "==> table %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        CBGT_MD_TABLE_ID(cbgt_md),
                        user_table_id,
@@ -6406,21 +6406,21 @@ static EC_BOOL __cbgt_open_user_table(const UINT32 cbgt_md_id, const CBYTES *use
     if(EC_FALSE == cbgt_fetch_row_no_lock(cbgt_md_id, &key_bytes, user_table_name))
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0240);
-        sys_log(LOGSTDOUT, "error:__cbgt_open_user_table: fetch colf row key for table %.*s from colf table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_user_table: fetch colf row key for table %.*s from colf table %ld failed\n",
                             cbytes_len(user_table_key), (char *)cbytes_buf(user_table_key),
                             CBGT_MD_TABLE_ID(cbgt_md));
         cbytes_clean(&key_bytes, LOC_CBGT_0241);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbgt_open_user_table: user_table_name buf %lx, len %ld\n", cbytes_buf(user_table_name), cbytes_len(user_table_name));
+    //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_open_user_table: user_table_name buf %lx, len %ld\n", cbytes_buf(user_table_name), cbytes_len(user_table_name));
 
     if(EC_FALSE == CBGT_CHECK_TABLE_EXIST(cbgt_md_id, user_table_id, &user_mod_node))
     {
         MOD_NODE   colf_mod_node;
                
 #if 0
-        sys_log(LOGSTDOUT, "[DEBUG] __cbgt_open_user_table: user_mod_node is invalid, try to start user table on col table %ld\n",
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_open_user_table: user_mod_node is invalid, try to start user table on col table %ld\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
 #endif
 
@@ -6436,7 +6436,7 @@ static EC_BOOL __cbgt_open_user_table(const UINT32 cbgt_md_id, const CBYTES *use
                                               &user_mod_node))
         {
             CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0242);
-            sys_log(LOGSTDOUT, "error:__cbgt_open_user_table: open user table %ld on colf table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_user_table: open user table %ld on colf table %ld failed\n",
                                 user_table_id, CBGT_MD_TABLE_ID(cbgt_md));
             cbytes_clean(&key_bytes, LOC_CBGT_0243);
             return (EC_FALSE);
@@ -6445,7 +6445,7 @@ static EC_BOOL __cbgt_open_user_table(const UINT32 cbgt_md_id, const CBYTES *use
         if(EC_FALSE == __cbgt_mod_node_is_valid(cbgt_md_id, &user_mod_node))
         {
             CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0244);
-            sys_log(LOGSTDOUT, "error:__cbgt_open_user_table: open user table %.*s from colf table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_user_table: open user table %.*s from colf table %ld failed\n",
                                 cbytes_len(user_table_key), (char *)cbytes_buf(user_table_key),
                                 CBGT_MD_TABLE_ID(cbgt_md));
             cbytes_clean(&key_bytes, LOC_CBGT_0245);
@@ -6456,7 +6456,7 @@ static EC_BOOL __cbgt_open_user_table(const UINT32 cbgt_md_id, const CBYTES *use
         if(EC_FALSE == cbgt_update_register_no_lock(cbgt_md_id, &key_bytes, user_table_id, &user_mod_node))
         {
             CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0246);
-            sys_log(LOGSTDOUT, "error:__cbgt_open_user_table: register user table %ld (tcid %s, comm %ld, rank %ld, modi %ld) "
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_open_user_table: register user table %ld (tcid %s, comm %ld, rank %ld, modi %ld) "
                                 "to colf table %ld failed\n",
                                user_table_id,
                                cbytes_len(user_table_key), (char *)cbytes_buf(user_table_key),
@@ -6472,7 +6472,7 @@ static EC_BOOL __cbgt_open_user_table(const UINT32 cbgt_md_id, const CBYTES *use
     (*table_id) = user_table_id;
     mod_node_clone(&user_mod_node, mod_node);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_open_user_table: table %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_open_user_table: table %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        user_table_id,
                        MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node));
 #endif                       
@@ -6505,7 +6505,7 @@ EC_BOOL cbgt_open_colf_table_from_root(const UINT32 cbgt_md_id, const CBYTES *ta
 #if 0
     if(EC_FALSE == cbgt_is_root_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_colf_table_from_root: table %ld is not root table\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_colf_table_from_root: table %ld is not root table\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -6533,7 +6533,7 @@ EC_BOOL cbgt_open_colf_table_from_root(const UINT32 cbgt_md_id, const CBYTES *ta
                  &ret,FI_cbgt_open_colf_table_from_root, ERR_MODULE_ID, table_name, colf, table_id, mod_node);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_open_colf_table_from_root: open colf table of user table %.*s colf %.*s from root (tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_colf_table_from_root: open colf table of user table %.*s colf %.*s from root (tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 cbytes_len(colf), (char *)cbytes_buf(colf),
                                 MOD_NODE_TCID_STR(root_mod_node), MOD_NODE_COMM(root_mod_node), MOD_NODE_RANK(root_mod_node), MOD_NODE_MODI(root_mod_node));
@@ -6548,7 +6548,7 @@ EC_BOOL cbgt_open_colf_table_from_root(const UINT32 cbgt_md_id, const CBYTES *ta
 
     if(EC_FALSE == __cbgt_open_rmc_table(cbgt_md_id, CBGT_TYPE_META_SERVER, table_name, &meta_table_id, &meta_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_colf_table_from_root: open meta table of user table %.*s on root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_colf_table_from_root: open meta table of user table %.*s on root table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             CBGT_MD_TABLE_ID(cbgt_md));
         cstring_clean(&colf_session_path);
@@ -6562,7 +6562,7 @@ EC_BOOL cbgt_open_colf_table_from_root(const UINT32 cbgt_md_id, const CBYTES *ta
 
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_colf_table_from_root: open colf table %.*s of user table %.*s from meta table %ld on root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_colf_table_from_root: open colf table %.*s of user table %.*s from meta table %ld on root table %ld failed\n",
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             meta_table_id, CBGT_MD_TABLE_ID(cbgt_md));
@@ -6572,7 +6572,7 @@ EC_BOOL cbgt_open_colf_table_from_root(const UINT32 cbgt_md_id, const CBYTES *ta
     
     __cbgt_set_colf_table_to_session(cbgt_md_id, &colf_session_path, (*table_id), mod_node);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_colf_table_from_root: open colf table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_colf_table_from_root: open colf table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
                        "of user table %.*s from meta table %ld on root table %ld successfully\n",
                         (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node),
                         cbytes_len(table_name), (char *)cbytes_buf(table_name), meta_table_id, CBGT_MD_TABLE_ID(cbgt_md));
@@ -6603,14 +6603,14 @@ EC_BOOL cbgt_open_colf_table_from_meta(const UINT32 cbgt_md_id, const CBYTES *co
 
     if(EC_FALSE == cbgt_is_meta_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_colf_table_from_meta: table %ld is not meta table\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_colf_table_from_meta: table %ld is not meta table\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_open_rmc_table(cbgt_md_id, CBGT_TYPE_COLF_SERVER, colf, &colf_table_id, &colf_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_colf_table_from_meta: open colf table %.*s on meta table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_colf_table_from_meta: open colf table %.*s on meta table %ld failed\n",
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
@@ -6619,7 +6619,7 @@ EC_BOOL cbgt_open_colf_table_from_meta(const UINT32 cbgt_md_id, const CBYTES *co
     (*table_id) = colf_table_id;
     mod_node_clone(&colf_mod_node, mod_node);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_colf_table_from_meta: open colf table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_colf_table_from_meta: open colf table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
                        "of colf %.*s on meta table %ld successfully\n",
                         (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node),
                         cbytes_len(colf), (char *)cbytes_buf(colf), CBGT_MD_TABLE_ID(cbgt_md));
@@ -6652,7 +6652,7 @@ EC_BOOL cbgt_open_user_table_from_root(const UINT32 cbgt_md_id, const CBYTES *ta
 #if 0
     if(EC_FALSE == cbgt_is_root_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_user_table_from_root: table %ld is not root table\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_user_table_from_root: table %ld is not root table\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -6671,7 +6671,7 @@ EC_BOOL cbgt_open_user_table_from_root(const UINT32 cbgt_md_id, const CBYTES *ta
                  &ret,FI_cbgt_open_user_table_from_root, ERR_MODULE_ID, table_name, row, colf, colq, user_table_name, table_id, mod_node);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_open_user_table_from_root: open user table of (%.*s:%.*s:%.*s) from root failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_user_table_from_root: open user table of (%.*s:%.*s:%.*s) from root failed\n",
                                 cbytes_len(row) , (char *)cbytes_buf(row),
                                 cbytes_len(colf), (char *)cbytes_buf(colf),
                                 cbytes_len(colq), (char *)cbytes_buf(colq));
@@ -6683,7 +6683,7 @@ EC_BOOL cbgt_open_user_table_from_root(const UINT32 cbgt_md_id, const CBYTES *ta
 
     if(EC_FALSE == __cbgt_open_rmc_table(cbgt_md_id, CBGT_TYPE_META_SERVER, table_name, &meta_table_id, &meta_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_user_table_from_root: open meta table of user table %.*s on root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_user_table_from_root: open meta table of user table %.*s on root table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
@@ -6696,7 +6696,7 @@ EC_BOOL cbgt_open_user_table_from_root(const UINT32 cbgt_md_id, const CBYTES *ta
 
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_user_table_from_root: open user table of (%.*s:%.*s:%.*s) from meta table %ld on root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_user_table_from_root: open user table of (%.*s:%.*s:%.*s) from meta table %ld on root table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -6705,7 +6705,7 @@ EC_BOOL cbgt_open_user_table_from_root(const UINT32 cbgt_md_id, const CBYTES *ta
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_root: open user table %.*s {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_root: open user table %.*s {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
                        "for (%.*s:%.*s:%.*s) from meta table %ld on root table %ld successfully\n",
                         cbytes_len(table_name), (char *)cbytes_buf(table_name),
                         (*table_id),
@@ -6738,30 +6738,30 @@ EC_BOOL cbgt_open_user_table_from_meta(const UINT32 cbgt_md_id, const CBYTES * r
     }
 #endif/*CBGT_DEBUG_SWITCH*/
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_meta: row : %.*s\n", cbytes_len(row), (char *)cbytes_buf(row));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_meta: colf: %.*s\n", cbytes_len(colf), (char *)cbytes_buf(colf));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_meta: colq: %.*s\n", cbytes_len(colq), (char *)cbytes_buf(colq));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_meta: row : %.*s\n", cbytes_len(row), (char *)cbytes_buf(row));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_meta: colf: %.*s\n", cbytes_len(colf), (char *)cbytes_buf(colf));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_meta: colq: %.*s\n", cbytes_len(colq), (char *)cbytes_buf(colq));
 #endif
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0253);
 
     if(EC_FALSE == cbgt_is_meta_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_colf_table_from_meta: table %ld is not meta table\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_colf_table_from_meta: table %ld is not meta table\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_open_rmc_table(cbgt_md_id, CBGT_TYPE_COLF_SERVER, colf, &colf_table_id, &colf_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_colf_table_from_meta: open colf table %.*s on meta table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_colf_table_from_meta: open colf table %.*s on meta table %ld failed\n",
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
 
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_colf_table_from_meta: open colf table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_colf_table_from_meta: open colf table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
                        "for colf %.*s on meta table %ld successfully\n",
                         colf_table_id,
                         MOD_NODE_TCID_STR(&colf_mod_node), MOD_NODE_COMM(&colf_mod_node), MOD_NODE_RANK(&colf_mod_node), MOD_NODE_MODI(&colf_mod_node),
@@ -6770,7 +6770,7 @@ EC_BOOL cbgt_open_user_table_from_meta(const UINT32 cbgt_md_id, const CBYTES * r
 #endif
 
 #if 0
-    sys_log(LOGSTDOUT, "##########################################################################################\n");
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "##########################################################################################\n");
     task_p2p(cbgt_md_id, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP,
              &colf_mod_node,
              &ret, FI_cbgt_traversal, ERR_MODULE_ID, LOGSTDOUT);
@@ -6783,7 +6783,7 @@ EC_BOOL cbgt_open_user_table_from_meta(const UINT32 cbgt_md_id, const CBYTES * r
 
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_colf_table_from_meta: open user table of (%.*s:%.*s:%.*s) from colf table %ld on meta table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_colf_table_from_meta: open user table of (%.*s:%.*s:%.*s) from colf table %ld on meta table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -6792,7 +6792,7 @@ EC_BOOL cbgt_open_user_table_from_meta(const UINT32 cbgt_md_id, const CBYTES * r
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_colf_table_from_meta: open user table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_colf_table_from_meta: open user table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
                        "for (%.*s:%.*s:%.*s) from colf table %ld on meta table %ld successfully\n",
                         (*table_id),
                         MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node),
@@ -6822,23 +6822,23 @@ EC_BOOL cbgt_open_user_table_from_colf(const UINT32 cbgt_md_id, const CBYTES * r
     }
 #endif/*CBGT_DEBUG_SWITCH*/
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_colf: row  : %.*s\n", cbytes_len(row), (char *)cbytes_buf(row));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_colf: colf : %.*s\n", cbytes_len(colf), (char *)cbytes_buf(colf));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_colf: colq : %.*s\n", cbytes_len(colq), (char *)cbytes_buf(colq));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_colf: row  : %.*s\n", cbytes_len(row), (char *)cbytes_buf(row));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_colf: colf : %.*s\n", cbytes_len(colf), (char *)cbytes_buf(colf));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_colf: colq : %.*s\n", cbytes_len(colq), (char *)cbytes_buf(colq));
 #endif
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0254);
 
     if(EC_FALSE == cbgt_is_colf_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_user_table_from_colf: table %ld is not colf table\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_user_table_from_colf: table %ld is not colf table\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_make_user_table_key(cbgt_md_id, row, colf, colq, &user_table_key))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_user_table_from_colf: make rowkey of (%.*s:%.*s:%.*s) on colf table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_user_table_from_colf: make rowkey of (%.*s:%.*s:%.*s) on colf table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -6848,7 +6848,7 @@ EC_BOOL cbgt_open_user_table_from_colf(const UINT32 cbgt_md_id, const CBYTES * r
 
     if(EC_FALSE == __cbgt_open_user_table(cbgt_md_id, &user_table_key, user_table_name, table_id, mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_open_user_table_from_colf: open user table of (%.*s:%.*s:%.*s) on colf table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_open_user_table_from_colf: open user table of (%.*s:%.*s:%.*s) on colf table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -6858,9 +6858,9 @@ EC_BOOL cbgt_open_user_table_from_colf(const UINT32 cbgt_md_id, const CBYTES * r
     }
     cbgt_key_clean(cbgt_md_id, &user_table_key);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_colf: user_table_name buf %lx, len %ld\n", cbytes_buf(user_table_name), cbytes_len(user_table_name));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_colf: user_table_name buf %lx, len %ld\n", cbytes_buf(user_table_name), cbytes_len(user_table_name));
 
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_colf: open user table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_open_user_table_from_colf: open user table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} "
                        "for (%.*s:%.*s:%.*s) on colf table %ld successfully\n",
                         (*table_id), MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node),
                         cbytes_len(row) , (char *)cbytes_buf(row),
@@ -6899,7 +6899,7 @@ EC_BOOL cbgt_close_rmc_table(const UINT32 cbgt_md_id, const CBYTES *table_name, 
     //&& EC_FALSE == cbgt_is_colf_server(cbgt_md_id)
     )
     {
-        sys_log(LOGSTDOUT, "error:cbgt_close_rmc_table: table %ld (type %s) is not root/meta table\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_close_rmc_table: table %ld (type %s) is not root/meta table\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         return (EC_FALSE);
     }
@@ -6910,7 +6910,7 @@ EC_BOOL cbgt_close_rmc_table(const UINT32 cbgt_md_id, const CBYTES *table_name, 
     if(EC_FALSE == __cbgt_get_rmc_table_and_key_no_lock(cbgt_md_id, table_name, &_table_id, &table_mod_node, &key_bytes))
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0257);
-        sys_log(LOGSTDOUT, "error:cbgt_close_rmc_table: get table %ld failed from table %ld\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_close_rmc_table: get table %ld failed from table %ld\n",
                             table_id, CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -6918,7 +6918,7 @@ EC_BOOL cbgt_close_rmc_table(const UINT32 cbgt_md_id, const CBYTES *table_name, 
     if(table_id != _table_id)
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0258);
-        sys_log(LOGSTDOUT, "error:cbgt_close_rmc_table: inconsistent fetched table id %ld and expected table id %ld where table name is %.*s\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_close_rmc_table: inconsistent fetched table id %ld and expected table id %ld where table name is %.*s\n",
                             _table_id, table_id, cbytes_len(table_name), cbytes_buf(table_name));
         return (EC_FALSE);
     }
@@ -6926,7 +6926,7 @@ EC_BOOL cbgt_close_rmc_table(const UINT32 cbgt_md_id, const CBYTES *table_name, 
     if(EC_FALSE == cbgt_mess_register_no_lock(cbgt_md_id, &key_bytes, table_id))
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0259);
-        sys_log(LOGSTDOUT, "error:cbgt_close_rmc_table: mess register of table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_close_rmc_table: mess register of table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} failed\n",
                             table_id,
                             MOD_NODE_TCID_STR(&table_mod_node), MOD_NODE_COMM(&table_mod_node), MOD_NODE_RANK(&table_mod_node), MOD_NODE_MODI(&table_mod_node));
         cbytes_clean(&key_bytes, LOC_CBGT_0260);
@@ -6968,7 +6968,7 @@ EC_BOOL cbgt_close_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name,
 
     if( EC_FALSE == cbgt_is_colf_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_close_user_table: table %ld (type %s) is not colf table\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_close_user_table: table %ld (type %s) is not colf table\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         return (EC_FALSE);
     }
@@ -6976,7 +6976,7 @@ EC_BOOL cbgt_close_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name,
 #if 0
         if(1)
         {
-            sys_log(LOGSTDOUT, "cbgt_close_user_table: before close, colf table %ld is ##################################\n", CBGT_MD_TABLE_ID(cbgt_md));
+            dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "cbgt_close_user_table: before close, colf table %ld is ##################################\n", CBGT_MD_TABLE_ID(cbgt_md));
             cbgt_traversal(cbgt_md_id, LOGSTDOUT);
 
             __cbgt_print_colf_table_key(LOGSTDOUT, cbytes_buf(table_name));
@@ -6986,7 +6986,7 @@ EC_BOOL cbgt_close_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name,
 
     if(EC_FALSE == __cbgt_make_rmc_table_key(cbgt_md_id, table_name, &colf_table_key))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_close_user_table: make colf table key failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_close_user_table: make colf table key failed\n");
         return (EC_FALSE);
     }
 
@@ -6997,7 +6997,7 @@ EC_BOOL cbgt_close_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name,
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0265);
         cbytes_clean(&colf_table_key, LOC_CBGT_0266);
-        sys_log(LOGSTDOUT, "error:cbgt_close_user_table: get table %ld failed from table %ld\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_close_user_table: get table %ld failed from table %ld\n",
                             table_id, CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -7006,7 +7006,7 @@ EC_BOOL cbgt_close_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name,
 #if 0
         if(1)
         {
-            sys_log(LOGSTDOUT, "cbgt_close_user_table: after get user table info, colf is ##################################\n");
+            dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "cbgt_close_user_table: after get user table info, colf is ##################################\n");
             cbgt_traversal_no_lock(cbgt_md_id, LOGSTDOUT);
         }
 #endif  
@@ -7014,7 +7014,7 @@ EC_BOOL cbgt_close_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name,
     if(table_id != _table_id)
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0268);
-        sys_log(LOGSTDOUT, "error:cbgt_close_user_table: inconsisent fetched table id %ld and expected table id %ld where table name is ",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_close_user_table: inconsisent fetched table id %ld and expected table id %ld where table name is ",
                             _table_id, table_id);
         __cbgt_print_colf_table_key(LOGSTDOUT, cbytes_buf(table_name));
         sys_print(LOGSTDOUT, "\n");
@@ -7025,7 +7025,7 @@ EC_BOOL cbgt_close_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name,
 #if 0
         if(1)
         {
-            sys_log(LOGSTDOUT, "cbgt_close_user_table: before mess, colf is ##################################\n");
+            dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "cbgt_close_user_table: before mess, colf is ##################################\n");
             cbgt_traversal_no_lock(cbgt_md_id, LOGSTDOUT);
         }
 #endif 
@@ -7033,7 +7033,7 @@ EC_BOOL cbgt_close_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name,
     if(EC_FALSE == cbgt_mess_register_no_lock(cbgt_md_id, &key_bytes, table_id))
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0270);
-        sys_log(LOGSTDOUT, "error:cbgt_close_user_table: mess register of table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_close_user_table: mess register of table {table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)} failed\n",
                             table_id,
                             MOD_NODE_TCID_STR(&table_mod_node), MOD_NODE_COMM(&table_mod_node), MOD_NODE_RANK(&table_mod_node), MOD_NODE_MODI(&table_mod_node));
         cbytes_clean(&key_bytes, LOC_CBGT_0271);
@@ -7051,7 +7051,7 @@ EC_BOOL cbgt_close_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name,
 #if 0
         if(1)
         {
-            sys_log(LOGSTDOUT, "cbgt_close_user_table: after close, colf is ##################################\n");
+            dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "cbgt_close_user_table: after close, colf is ##################################\n");
             cbgt_traversal(cbgt_md_id, LOGSTDOUT);
         }
 #endif     
@@ -7108,13 +7108,13 @@ EC_BOOL cbgt_report_closing(const UINT32 cbgt_md_id)
 
     if(NULL_PTR == table_name)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_report_closing: table name is null\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_report_closing: table name is null\n");
         return (EC_FALSE);
     }
 
     if(NULL_PTR == parent)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_report_closing: parent of table %ld type %s is null\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_report_closing: parent of table %ld type %s is null\n",
                             CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md)));
         return (EC_FALSE);
     }
@@ -7128,7 +7128,7 @@ EC_BOOL cbgt_report_closing(const UINT32 cbgt_md_id)
 
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_report_closing: report meta table %ld closing to root failed\n", table_id);
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_report_closing: report meta table %ld closing to root failed\n", table_id);
             return (EC_FALSE);
         }
         return (EC_TRUE);
@@ -7143,7 +7143,7 @@ EC_BOOL cbgt_report_closing(const UINT32 cbgt_md_id)
 
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_report_closing: report colf table %ld closing to meta failed\n", table_id);
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_report_closing: report colf table %ld closing to meta failed\n", table_id);
             return (EC_FALSE);
         }
         return (EC_TRUE);
@@ -7163,7 +7163,7 @@ EC_BOOL cbgt_report_closing(const UINT32 cbgt_md_id)
 #endif
 
 #if 1
-        sys_log(LOGSTDOUT, "[DEBUG] cbgt_report_closing: user server table %ld and table name is ", table_id);
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_report_closing: user server table %ld and table name is ", table_id);
         __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(table_name));
         sys_print(LOGSTDOUT, "\n");
 #endif
@@ -7175,13 +7175,13 @@ EC_BOOL cbgt_report_closing(const UINT32 cbgt_md_id)
 
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_report_closing: report user table %ld closing to colf failed\n", table_id);
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_report_closing: report user table %ld closing to colf failed\n", table_id);
             return (EC_FALSE);
         }
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "error:cbgt_report_closing: table %ld type %ld is invalid\n",
+    dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_report_closing: table %ld type %ld is invalid\n",
                         CBGT_MD_TABLE_ID(cbgt_md), CBGT_MD_TYPE(cbgt_md));
 
     return (EC_FALSE);
@@ -7211,7 +7211,7 @@ EC_BOOL cbgt_fetch_key_no_lock(const UINT32 cbgt_md_id, const CBYTES *kv_bytes, 
     key  = cbytes_buf(kv_bytes);
     klen = keyGetkLenHs(key);
 
-    cbytes_set(key_bytes, klen, key);
+    cbytes_set(key_bytes, key, klen);
     return (EC_TRUE);
 }
 
@@ -7236,7 +7236,7 @@ EC_BOOL cbgt_fetch_key(const UINT32 cbgt_md_id, const CBYTES *kv_bytes, CBYTES *
     if(EC_FALSE == cbgt_fetch_key_no_lock(cbgt_md_id, kv_bytes, key_bytes))
     {
         //CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0279);
-        sys_log(LOGSTDOUT, "error:cbgt_fetch_key: fetch key from table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_key: fetch key from table %ld failed\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -7265,7 +7265,7 @@ EC_BOOL cbgt_fetch_row_no_lock(const UINT32 cbgt_md_id, const CBYTES *kv_bytes, 
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0281);
 
     kv = cbytes_buf(kv_bytes);
-    cbytes_set(row_bytes, keyGetrLenHs(kv), keyGetRowHs(kv));
+    cbytes_set(row_bytes, keyGetRowHs(kv), keyGetrLenHs(kv));
     return (EC_TRUE);
 }
 
@@ -7290,7 +7290,7 @@ EC_BOOL cbgt_fetch_row(const UINT32 cbgt_md_id, const CBYTES *kv_bytes, CBYTES *
     if(EC_FALSE == cbgt_fetch_row_no_lock(cbgt_md_id, kv_bytes, row_bytes))
     {
         //CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0283);
-        sys_log(LOGSTDOUT, "error:cbgt_fetch_row: fetch key from table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_row: fetch key from table %ld failed\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -7356,7 +7356,7 @@ EC_BOOL cbgt_fetch_from_rmc(const UINT32 cbgt_md_id, const CBYTES *kv_bytes, UIN
     if(EC_FALSE == cbgt_fetch_from_rmc_no_lock(cbgt_md_id, kv_bytes, table_id, mod_node))
     {
         //CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0288);
-        sys_log(LOGSTDOUT, "error:cbgt_fetch_from_rmc: fetch table id and mod node from table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_from_rmc: fetch table id and mod node from table %ld failed\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -7388,7 +7388,7 @@ EC_BOOL cbgt_insert_rfqv_no_lock(const UINT32 cbgt_md_id, const CBYTES *row, con
 
     if(EC_FALSE == cbgt_kv_init(cbgt_md_id, row, colf, colq, val, &kv))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_insert_rfqv_no_lock: init kv failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_insert_rfqv_no_lock: init kv failed\n");
         return (EC_FALSE);
     }
 
@@ -7398,7 +7398,7 @@ EC_BOOL cbgt_insert_rfqv_no_lock(const UINT32 cbgt_md_id, const CBYTES *row, con
     /*split happen only ONCE when idx file full or dat file full*/
     if(EC_TRUE == cbgt_gdb_is_full(gdb))
     {
-        sys_log(LOGSTDOUT, "cbgt_insert_rfqv_no_lock: cbgt %ld, table %ld: data file is full, trigger split\n",
+        dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "cbgt_insert_rfqv_no_lock: cbgt %ld, table %ld: data file is full, trigger split\n",
                             cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md));
         cbgt_split_no_lock(cbgt_md_id);
     }
@@ -7406,7 +7406,7 @@ EC_BOOL cbgt_insert_rfqv_no_lock(const UINT32 cbgt_md_id, const CBYTES *row, con
     gdb = CBGT_MD_GDB(cbgt_md);/*get gdb again due to split may happen before*/
     if(EC_FALSE == cbgt_gdb_insert_key(gdb, cbytes_buf(&kv)))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_insert_rfqv_no_lock: insert kv into gdb %lx failed \n", gdb);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_insert_rfqv_no_lock: insert kv into gdb %lx failed \n", gdb);
         cbgt_kv_clean(cbgt_md_id, &kv);
         return (EC_FALSE);
     }
@@ -7439,7 +7439,7 @@ EC_BOOL cbgt_insert_rfqv(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTE
 
         if(EC_FALSE == __cbgt_make_user_table_key(cbgt_md_id, row, colf, colq, &user_rowkey))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_insert_rfqv: make rowkey of (%.*s:%.*s:%.*s) on colf table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_insert_rfqv: make rowkey of (%.*s:%.*s:%.*s) on colf table %ld failed\n",
                                 cbytes_len(row) , (char *)cbytes_buf(row),
                                 cbytes_len(colf), (char *)cbytes_buf(colf),
                                 cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -7453,7 +7453,7 @@ EC_BOOL cbgt_insert_rfqv(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTE
         {
             CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0293);
             
-            sys_log(LOGSTDOUT, "warn:cbgt_insert_rfqv: user key ");
+            dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:cbgt_insert_rfqv: user key ");
             __cbgt_print_user_table_key(LOGSTDOUT, cbytes_buf(&user_rowkey));
             sys_print(LOGSTDOUT, " not belong to user table ");
             __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(CBGT_MD_TABLE_NAME(cbgt_md)));
@@ -7504,7 +7504,7 @@ EC_BOOL cbgt_update_value_no_lock(const UINT32 cbgt_md_id, const CBYTES *key, CB
 
     if(EC_FALSE == cbgt_gdb_update_val(CBGT_MD_GDB(cbgt_md), cbytes_buf(key), cbytes_buf(val), (uint32_t)cbytes_len(val)))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_update_value_no_lock: update value of table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_update_value_no_lock: update value of table %ld failed\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -7532,7 +7532,7 @@ EC_BOOL cbgt_update_value(const UINT32 cbgt_md_id, const CBYTES *key, CBYTES *va
     if(EC_FALSE == cbgt_update_value_no_lock(cbgt_md_id, key, val))
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0303);
-        sys_log(LOGSTDOUT, "error:cbgt_update_value: update value of table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_update_value: update value of table %ld failed\n",
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -7582,7 +7582,7 @@ EC_BOOL cbgt_mess_register_no_lock(const UINT32 cbgt_md_id, const CBYTES *key, c
     cbytes_mount(&val, counter, buffer);
     if(EC_FALSE == cbgt_update_value_no_lock(cbgt_md_id, key, &val))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_mess_register_no_lock: update table %ld register info in parent table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_mess_register_no_lock: update table %ld register info in parent table %ld failed\n",
                             table_id, CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -7632,7 +7632,7 @@ EC_BOOL cbgt_mess_register(const UINT32 cbgt_md_id, const CBYTES *key, const UIN
     cbytes_mount(&val, counter, buffer);
     if(EC_FALSE == cbgt_update_value(cbgt_md_id, key, &val))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_mess_register: update table %ld register info in parent table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_mess_register: update table %ld register info in parent table %ld failed\n",
                             table_id, CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -7678,7 +7678,7 @@ EC_BOOL cbgt_update_register_no_lock(const UINT32 cbgt_md_id, const CBYTES *key,
     cbytes_mount(&val, counter, buffer);
     if(EC_FALSE == cbgt_update_value_no_lock(cbgt_md_id, key, &val))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_update_register_no_lock: update table %ld register info in parent table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_update_register_no_lock: update table %ld register info in parent table %ld failed\n",
                             table_id, CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -7728,7 +7728,7 @@ EC_BOOL cbgt_update_register(const UINT32 cbgt_md_id, const CBYTES *key, const U
     cbytes_mount(&val, counter, buffer);
     if(EC_FALSE == cbgt_update_value(cbgt_md_id, key, &val))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_update_register: update table %ld register info in parent table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_update_register: update table %ld register info in parent table %ld failed\n",
                             table_id, CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -7785,7 +7785,7 @@ EC_BOOL cbgt_insert_register_no_lock(const UINT32 cbgt_md_id, const CBYTES *row,
 
     if(EC_FALSE == cbgt_insert_rfqv_no_lock(cbgt_md_id, &table_row, &table_colf, &table_colq, &table_val))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_insert_register: insert table %ld register info in parent table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_insert_register: insert table %ld register info in parent table %ld failed\n",
                             table_id, CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -7823,7 +7823,7 @@ EC_BOOL cbgt_insert_register(const UINT32 cbgt_md_id, const CBYTES *row, const U
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0310);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_insert_register: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_insert_register: tabel %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        table_id, MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node));
 #endif
     counter = 0;
@@ -7845,7 +7845,7 @@ EC_BOOL cbgt_insert_register(const UINT32 cbgt_md_id, const CBYTES *row, const U
 
     if(EC_FALSE == cbgt_insert_rfqv(cbgt_md_id, &table_row, &table_colf, &table_colq, &table_val))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_insert_register: insert table %ld register info in parent table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_insert_register: insert table %ld register info in parent table %ld failed\n",
                             table_id, CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
     }
@@ -7875,7 +7875,7 @@ EC_BOOL cbgt_fetch_user_table_no_lock(const UINT32 cbgt_md_id, const CBYTES *row
 
     if(EC_FALSE == cbgt_is_colf_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_fetch_user_table_no_lock: cbgt module #0x%lx was not colf server\n", cbgt_md_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_user_table_no_lock: cbgt module #0x%lx was not colf server\n", cbgt_md_id);
         return (EC_FALSE);
     }
 
@@ -7886,7 +7886,7 @@ EC_BOOL cbgt_fetch_user_table_no_lock(const UINT32 cbgt_md_id, const CBYTES *row
     
     if(EC_FALSE == cbgt_fetch_kv_from_colf_no_lock(cbgt_md_id, row, colf, colq, &kv))
     {
-         sys_log(LOGSTDOUT, "error:cbgt_fetch_user_table_no_lock: search (%.*s:%.*s:%.*s) in colf table %ld failed\n",
+         dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_user_table_no_lock: search (%.*s:%.*s:%.*s) in colf table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -7896,7 +7896,7 @@ EC_BOOL cbgt_fetch_user_table_no_lock(const UINT32 cbgt_md_id, const CBYTES *row
 
     if(EC_FALSE == cbgt_fetch_from_rmc_no_lock(cbgt_md_id, &kv, user_table_id, user_mod_node))
     {
-         sys_log(LOGSTDOUT, "error:cbgt_fetch_user_table_no_lock: fetch user table id and mod node "
+         dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_user_table_no_lock: fetch user table id and mod node "
                            "for user table (%.*s:%.*s:%.*s) in colf table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -7906,7 +7906,7 @@ EC_BOOL cbgt_fetch_user_table_no_lock(const UINT32 cbgt_md_id, const CBYTES *row
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDOUT,"[DEBUG] cbgt_fetch_user_table_no_lock: {user table id %ld, user mod node (tcid %s, comm %ld, rank %ld, modi %ld)}\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT,"[DEBUG] cbgt_fetch_user_table_no_lock: {user table id %ld, user mod node (tcid %s, comm %ld, rank %ld, modi %ld)}\n",
                         (*user_table_id),
                         MOD_NODE_TCID_STR(user_mod_node),
                         MOD_NODE_COMM(user_mod_node),
@@ -7925,7 +7925,7 @@ EC_BOOL cbgt_fetch_user_table_no_lock(const UINT32 cbgt_md_id, const CBYTES *row
         cbytes_init(&col_row);
         if(EC_FALSE == cbgt_fetch_row_no_lock(cbgt_md_id, &kv, &col_row))
         {
-             sys_log(LOGSTDOUT, "error:cbgt_fetch_user_table_no_lock: fetch colf row key for (%.*s:%.*s:%.*s) from colf table %ld failed\n",
+             dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_user_table_no_lock: fetch colf row key for (%.*s:%.*s:%.*s) from colf table %ld failed\n",
                                 cbytes_len(row) , (char *)cbytes_buf(row),
                                 cbytes_len(colf), (char *)cbytes_buf(colf),
                                 cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -7943,7 +7943,7 @@ EC_BOOL cbgt_fetch_user_table_no_lock(const UINT32 cbgt_md_id, const CBYTES *row
                                       CBGT_O_RDWR,
                                       user_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_fetch_user_table_no_lock: cbgt start user table %ld on colf table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_user_table_no_lock: cbgt start user table %ld on colf table %ld failed\n",
                                 (*user_table_id), CBGT_MD_TABLE_ID(cbgt_md));
             cbytes_clean(&col_row, LOC_CBGT_0314);
             cbytes_clean(&kv, LOC_CBGT_0315);
@@ -7954,7 +7954,7 @@ EC_BOOL cbgt_fetch_user_table_no_lock(const UINT32 cbgt_md_id, const CBYTES *row
         /*update colf table*/
         if(EC_FALSE == cbgt_update_register_no_lock(cbgt_md_id, &kv, (*user_table_id), user_mod_node))
         {
-             sys_log(LOGSTDOUT, "error:cbgt_fetch_user_table_no_lock: update register of user table %ld in colf table %ld failed\n",
+             dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_user_table_no_lock: update register of user table %ld in colf table %ld failed\n",
                                (*user_table_id), CBGT_MD_TABLE_ID(cbgt_md));
             __cbgt_end_trigger(cbgt_md_id, user_mod_node);
             cbytes_clean(&kv, LOC_CBGT_0317);
@@ -7983,7 +7983,7 @@ EC_BOOL cbgt_fetch_user_table(const UINT32 cbgt_md_id, const CBYTES *row, const 
 
     if(EC_FALSE == cbgt_is_colf_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_fetch_user_table: cbgt module #0x%lx was not colf server\n", cbgt_md_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_user_table: cbgt module #0x%lx was not colf server\n", cbgt_md_id);
         return (EC_FALSE);
     }
 
@@ -7994,7 +7994,7 @@ EC_BOOL cbgt_fetch_user_table(const UINT32 cbgt_md_id, const CBYTES *row, const 
     if(EC_FALSE == cbgt_fetch_user_table_no_lock(cbgt_md_id, row, colf, colq, user_table_id, user_mod_node))
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0321);
-        sys_log(LOGSTDOUT, "error:cbgt_fetch_user_table: fetch user table failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_user_table: fetch user table failed\n");
         return (EC_FALSE);
     }
     CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0322);
@@ -8025,7 +8025,7 @@ EC_BOOL cbgt_insert_colf(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTE
 
     if(EC_FALSE == cbgt_is_colf_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_insert_colf: cbgt module #0x%lx was not colf server\n", cbgt_md_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_insert_colf: cbgt module #0x%lx was not colf server\n", cbgt_md_id);
         return (EC_FALSE);
     }
 
@@ -8046,7 +8046,7 @@ EC_BOOL cbgt_insert_colf(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTE
     {
         if(EC_FALSE == cbgt_fetch_user_table(cbgt_md_id, row, colf, colq, &user_table_id, &user_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_insert_colf: fetch user table of (%.*s:%.*s:%.*s) in colf table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_insert_colf: fetch user table of (%.*s:%.*s:%.*s) in colf table %ld failed\n",
                                 cbytes_len(row) , (char *)cbytes_buf(row),
                                 cbytes_len(colf), (char *)cbytes_buf(colf),
                                 cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -8054,7 +8054,7 @@ EC_BOOL cbgt_insert_colf(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTE
             return (EC_FALSE);
         }
 #if 0
-        sys_log(LOGSTDOUT, "[DEBUG ]cbgt_insert_colf: open user table (%.*s:%.*s:%.*s) id %ld at (%s,%ld,%ld,%ld) of colf table %ld done\n",
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG ]cbgt_insert_colf: open user table (%.*s:%.*s:%.*s) id %ld at (%s,%ld,%ld,%ld) of colf table %ld done\n",
                                 cbytes_len(row) , (char *)cbytes_buf(row),
                                 cbytes_len(colf), (char *)cbytes_buf(colf),
                                 cbytes_len(colq), (char *)cbytes_buf(colq),  
@@ -8071,7 +8071,7 @@ EC_BOOL cbgt_insert_colf(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTE
 
     if(EC_FALSE == ret || EC_OBSCURE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_insert_colf: insert (%.*s:%.*s:%.*s) into user table %ld on colf table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_insert_colf: insert (%.*s:%.*s:%.*s) into user table %ld on colf table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -8082,7 +8082,7 @@ EC_BOOL cbgt_insert_colf(const UINT32 cbgt_md_id, const CBYTES *row, const CBYTE
 
     if(EC_TRUE == cbgt_gdb_is_full(CBGT_MD_GDB(cbgt_md)))
     {
-        sys_log(LOGSTDOUT, "cbgt_insert_colf: colf table is full, trigger merge\n");
+        dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "cbgt_insert_colf: colf table is full, trigger merge\n");
         cbgt_merge(cbgt_md_id);
         return (EC_TRUE);
     }
@@ -8114,15 +8114,15 @@ static EC_BOOL __cbgt_set_user_table_to_session(const UINT32 cbgt_md_id, const C
 
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
 
-    user_table_name_hex_str = bytes_to_hex_str(cbytes_buf(user_table_name), cbytes_len(user_table_name));
+    user_table_name_hex_str = c_bytes_to_hex_str(cbytes_buf(user_table_name), cbytes_len(user_table_name));
     if(NULL_PTR == user_table_name_hex_str)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_set_user_table_to_session: conv user_table_name from bytes to hex str failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_set_user_table_to_session: conv user_table_name from bytes to hex str failed\n");
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_set_user_table_to_session : user_table_name buf %lx len %ld\n", cbytes_buf(user_table_name), cbytes_len(user_table_name));
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_set_user_table_to_session : user_table_name_hex_str = %s\n", user_table_name_hex_str);
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_set_user_table_to_session : user_table_name buf %lx len %ld\n", cbytes_buf(user_table_name), cbytes_len(user_table_name));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_set_user_table_to_session : user_table_name_hex_str = %s\n", user_table_name_hex_str);
 #endif
     cstring_init(&path, NULL_PTR);
     /*user table name + colf name*/
@@ -8137,13 +8137,13 @@ static EC_BOOL __cbgt_set_user_table_to_session(const UINT32 cbgt_md_id, const C
 
     cbytes_mount(&val, pos, (UINT8 *)buff);
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG] __cbgt_set_colf_table_to_session: %s => %.*s\n", 
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDNULL, "[DEBUG] __cbgt_set_colf_table_to_session: %s => %.*s\n", 
                         (char *)cstring_get_str(&path), 
                         cbytes_len(&val), (char *)cbytes_buf(&val));
 #endif    
     if(EC_FALSE == csession_set_by_name(CBGT_MD_CSESSION_MD_ID(cbgt_md), CBGT_MD_CSESSION_NAME(cbgt_md), &path, &val))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_set_user_table_to_session: csession set by %s failed\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_set_user_table_to_session: csession set by %s failed\n", 
                             (char *)cstring_get_str(CBGT_MD_CSESSION_NAME(cbgt_md)));
         cstring_clean(&path);
         safe_free(user_table_name_hex_str, LOC_CBGT_0324);
@@ -8160,16 +8160,16 @@ static EC_BOOL __cbgt_check_user_csession_item_is_expected_user_table(const CSES
     UINT8  *colf_row_bytes;
     UINT32  colf_row_len;
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_check_user_csession_item_is_expected_user_table: %s [len %ld vs %ld]\n", 
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_check_user_csession_item_is_expected_user_table: %s [len %ld vs %ld]\n", 
                         (char *)CSESSION_ITEM_KEY_STR(user_csession_item),
                         strlen((char *)CSESSION_ITEM_KEY_STR(user_csession_item)),
                         cstring_get_len(CSESSION_ITEM_KEY(user_csession_item)));
 #endif
 #if 1
     /*5 = strlen("user:")*/
-    if(EC_FALSE == hex_str_to_bytes((char *)CSESSION_ITEM_KEY_STR(user_csession_item) + 5, &colf_row_bytes, &colf_row_len))
+    if(EC_FALSE == c_hex_str_to_bytes((char *)CSESSION_ITEM_KEY_STR(user_csession_item) + 5, &colf_row_bytes, &colf_row_len))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_check_user_csession_item_is_expected_user_table: hex str to bytes failed: %s\n", (char *)CSESSION_ITEM_KEY_STR(user_csession_item));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_check_user_csession_item_is_expected_user_table: hex str to bytes failed: %s\n", (char *)CSESSION_ITEM_KEY_STR(user_csession_item));
         return (EC_FALSE);
     }
 
@@ -8212,59 +8212,59 @@ static EC_BOOL __cbgt_get_user_table_from_session(const UINT32 cbgt_md_id, const
 
     cbgt_md = CBGT_MD_GET(cbgt_md_id);
 
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_from_session: colf_session_path %s\n", (char *)cstring_get_str(colf_session_path));
+    //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_from_session: colf_session_path %s\n", (char *)cstring_get_str(colf_session_path));
 
     csession_item_list = clist_new(MM_CSESSION_ITEM, LOC_CBGT_0328);
     if(NULL_PTR == csession_item_list)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_user_table_from_session: new csession item list failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_user_table_from_session: new csession item list failed\n");
         return (EC_FALSE);
     }
     
     if(EC_FALSE == csession_get_children_by_name(CBGT_MD_CSESSION_MD_ID(cbgt_md), CBGT_MD_CSESSION_NAME(cbgt_md), colf_session_path, csession_item_list))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_user_table_from_session: csession get by %s failed\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_user_table_from_session: csession get by %s failed\n", 
                             (char *)cstring_get_str(colf_session_path));
         clist_free_with_modi(csession_item_list, CMPI_ANY_MODI);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_from_session: csession_item_list is \n");
+    //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_from_session: csession_item_list is \n");
     //clist_print_level(LOGSTDOUT, csession_item_list, 0, (CLIST_DATA_LEVEL_PRINT)csession_item_print);    
 
     root_csession_item = (CSESSION_ITEM *)clist_back_no_lock(csession_item_list);
     if(NULL_PTR == root_csession_item)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_user_table_from_session: not found sub csession item under %s\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_user_table_from_session: not found sub csession item under %s\n", 
                             (char *)cstring_get_str(colf_session_path));        
         clist_free_with_modi(csession_item_list, CMPI_ANY_MODI);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_from_session: root_csession_item is:\n");
+    //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_from_session: root_csession_item is:\n");
     //csession_item_print(LOGSTDOUT, root_csession_item, 0);
 
     colf_csession_item = (CSESSION_ITEM *)clist_back_no_lock(CSESSION_ITEM_CHILDREN(root_csession_item));
     if(NULL_PTR == colf_csession_item)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_user_table_from_session: not found colf csession item under %s\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_user_table_from_session: not found colf csession item under %s\n", 
                             (char *)cstring_get_str(colf_session_path));        
         clist_free_with_modi(csession_item_list, CMPI_ANY_MODI);
         return (EC_FALSE);
     }    
 
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_from_session: colf_csession_item is:\n");
+    //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_from_session: colf_csession_item is:\n");
     //csession_item_print(LOGSTDOUT, colf_csession_item, 0);
     
     cbytes_init(&user_table_key_bytes);
     if(EC_FALSE == __cbgt_make_user_table_key(CMPI_ANY_MODI, row, colf, colq, &user_table_key_bytes))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_user_table_from_session: make user table key failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_user_table_from_session: make user table key failed\n");
         clist_free_with_modi(csession_item_list, CMPI_ANY_MODI);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_from_session: current sessions:\n");
+    //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_from_session: current sessions:\n");
     //csession_print(LOGSTDOUT, CBGT_MD_CSESSION_MD_ID(cbgt_md), 0);    
    
     ret = EC_FALSE;
@@ -8277,7 +8277,7 @@ static EC_BOOL __cbgt_get_user_table_from_session(const UINT32 cbgt_md_id, const
             continue;
         }
 
-        //sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_from_session: user_csession_item is:\n");
+        //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_user_table_from_session: user_csession_item is:\n");
         //csession_item_print(LOGSTDOUT, user_csession_item, 0);        
 
         /*check it is expected user table*/
@@ -8308,7 +8308,7 @@ static EC_BOOL __cbgt_get_user_table_from_session(const UINT32 cbgt_md_id, const
         MOD_NODE_MODI(mod_node) = gdbGetWord(buff, &pos);        
 
 #if 0
-        sys_log(LOGSTDOUT, "[DEBUG]__cbgt_get_user_table_from_session: %ld (%s,%ld,%ld,%ld)\n", 
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG]__cbgt_get_user_table_from_session: %ld (%s,%ld,%ld,%ld)\n", 
                             (*user_table_id), 
                             MOD_NODE_TCID_STR(mod_node),
                             MOD_NODE_COMM(mod_node),
@@ -8354,13 +8354,13 @@ static EC_BOOL __cbgt_set_colf_table_to_session(const UINT32 cbgt_md_id, const C
 
     cbytes_mount(&val, pos, (UINT8 *)buff);
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG] __cbgt_set_colf_table_to_session: %s => %.*s\n", 
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDNULL, "[DEBUG] __cbgt_set_colf_table_to_session: %s => %.*s\n", 
                         (char *)cstring_get_str(colf_session_path), 
                         cbytes_len(&val), (char *)cbytes_buf(&val));
 #endif    
     if(EC_FALSE == csession_set_by_name(CBGT_MD_CSESSION_MD_ID(cbgt_md), CBGT_MD_CSESSION_NAME(cbgt_md), colf_session_path, &val))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_set_colf_table_to_session: csession set by %s failed\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_set_colf_table_to_session: csession set by %s failed\n", 
                             (char *)cstring_get_str(CBGT_MD_CSESSION_NAME(cbgt_md)));
         return (EC_FALSE);
     }
@@ -8401,25 +8401,25 @@ static EC_BOOL __cbgt_get_colf_table_from_session(const UINT32 cbgt_md_id, const
     csession_item_list = clist_new(MM_CSESSION_ITEM, LOC_CBGT_0330);
     if(NULL_PTR == csession_item_list)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_colf_table_from_session: new csession item list failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_colf_table_from_session: new csession item list failed\n");
         return (EC_FALSE);
     }
     
     if(EC_FALSE == csession_get_by_name(CBGT_MD_CSESSION_MD_ID(cbgt_md), CBGT_MD_CSESSION_NAME(cbgt_md), colf_session_path, csession_item_list))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_colf_table_from_session: csession get by %s failed\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_colf_table_from_session: csession get by %s failed\n", 
                             (char *)cstring_get_str(CBGT_MD_CSESSION_NAME(cbgt_md)));
         clist_free_with_modi(csession_item_list, CMPI_ANY_MODI);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_colf_table_from_session: csession_item_list is \n");
+    //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_colf_table_from_session: csession_item_list is \n");
     //clist_print_level(LOGSTDOUT, csession_item_list, 0, (CLIST_DATA_LEVEL_PRINT)csession_item_print);
 
     csession_item = (CSESSION_ITEM *)clist_back(csession_item_list);
     if(NULL_PTR == csession_item)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_colf_table_from_session: not found session item for table %.*s\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_colf_table_from_session: not found session item for table %.*s\n", 
                             cbytes_len(table_name), (char *)cbytes_buf(table_name));
         clist_free_with_modi(csession_item_list, CMPI_ANY_MODI);
         return (EC_FALSE);
@@ -8428,7 +8428,7 @@ static EC_BOOL __cbgt_get_colf_table_from_session(const UINT32 cbgt_md_id, const
     csession_item = (CSESSION_ITEM *)clist_back(CSESSION_ITEM_CHILDREN(csession_item));
     if(NULL_PTR == csession_item)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_colf_table_from_session: not found session item for table %.*s colf %.*s\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_colf_table_from_session: not found session item for table %.*s colf %.*s\n", 
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             cbytes_len(colf), (char *)cbytes_buf(colf));
         clist_free_with_modi(csession_item_list, CMPI_ANY_MODI);
@@ -8446,7 +8446,7 @@ static EC_BOOL __cbgt_get_colf_table_from_session(const UINT32 cbgt_md_id, const
     MOD_NODE_RANK(mod_node) = gdbGetWord(buff, &pos);
     MOD_NODE_MODI(mod_node) = gdbGetWord(buff, &pos);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG]__cbgt_get_colf_table_from_session: %ld (%s,%ld,%ld,%ld)\n", 
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG]__cbgt_get_colf_table_from_session: %ld (%s,%ld,%ld,%ld)\n", 
                         (*colf_table_id), 
                         MOD_NODE_TCID_STR(mod_node),
                         MOD_NODE_COMM(mod_node),
@@ -8512,13 +8512,13 @@ static EC_BOOL __cbgt_set_meta_table_to_session(const UINT32 cbgt_md_id, const C
 
     cbytes_mount(&val, pos, (UINT8 *)buff);
 #if 0
-    sys_log(LOGSTDNULL, "[DEBUG] __cbgt_set_meta_table_to_session: %s => %.*s\n", 
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDNULL, "[DEBUG] __cbgt_set_meta_table_to_session: %s => %.*s\n", 
                         (char *)cstring_get_str(meta_session_path), 
                         cbytes_len(&val), (char *)cbytes_buf(&val));
 #endif    
     if(EC_FALSE == csession_set_by_name(CBGT_MD_CSESSION_MD_ID(cbgt_md), CBGT_MD_CSESSION_NAME(cbgt_md), meta_session_path, &val))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_set_meta_table_to_session: csession set by %s failed\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_set_meta_table_to_session: csession set by %s failed\n", 
                             (char *)cstring_get_str(CBGT_MD_CSESSION_NAME(cbgt_md)));
         return (EC_FALSE);
     }
@@ -8584,25 +8584,25 @@ static EC_BOOL __cbgt_get_meta_table_from_session(const UINT32 cbgt_md_id, const
     csession_item_list = clist_new(MM_CSESSION_ITEM, LOC_CBGT_0332);
     if(NULL_PTR == csession_item_list)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_meta_table_from_session: new csession item list failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_meta_table_from_session: new csession item list failed\n");
         return (EC_FALSE);
     }
     
     if(EC_FALSE == csession_get_by_name(CBGT_MD_CSESSION_MD_ID(cbgt_md), CBGT_MD_CSESSION_NAME(cbgt_md), meta_session_path, csession_item_list))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_meta_table_from_session: csession get by %s failed\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_meta_table_from_session: csession get by %s failed\n", 
                             (char *)cstring_get_str(CBGT_MD_CSESSION_NAME(cbgt_md)));
         clist_free_with_modi(csession_item_list, CMPI_ANY_MODI);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] __cbgt_get_meta_table_from_session: csession_item_list is \n");
+    //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_get_meta_table_from_session: csession_item_list is \n");
     //clist_print_level(LOGSTDOUT, csession_item_list, 0, (CLIST_DATA_LEVEL_PRINT)csession_item_print);
 
     csession_item = (CSESSION_ITEM *)clist_back(csession_item_list);
     if(NULL_PTR == csession_item)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_get_meta_table_from_session: not found session item for meta %.*s\n", 
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_get_meta_table_from_session: not found session item for meta %.*s\n", 
                             cbytes_len(table_name), (char *)cbytes_buf(table_name));
         clist_free_with_modi(csession_item_list, CMPI_ANY_MODI);
         return (EC_FALSE);
@@ -8619,7 +8619,7 @@ static EC_BOOL __cbgt_get_meta_table_from_session(const UINT32 cbgt_md_id, const
     MOD_NODE_RANK(mod_node) = gdbGetWord(buff, &pos);
     MOD_NODE_MODI(mod_node) = gdbGetWord(buff, &pos);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG]__cbgt_get_meta_table_from_session: %ld (%s,%ld,%ld,%ld)\n", 
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG]__cbgt_get_meta_table_from_session: %ld (%s,%ld,%ld,%ld)\n", 
                         (*meta_table_id), 
                         MOD_NODE_TCID_STR(mod_node),
                         MOD_NODE_COMM(mod_node),
@@ -8661,13 +8661,13 @@ EC_BOOL cbgt_insert(const UINT32 cbgt_md_id, const CBYTES *table_name, const CBY
     /*note:cbgt_open_colf_table_from_root will check session at first. if hit nothing, ask root for help*/
     if(EC_FALSE == cbgt_open_colf_table_from_root(cbgt_md_id, table_name, colf, &colf_table_id, &colf_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_insert: open colf table %.*s of user table %.*s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_insert: open colf table %.*s of user table %.*s failed\n",
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(table_name), (char *)cbytes_buf(table_name));
         return (EC_FALSE);
     }
 #if 0
-        sys_log(LOGSTDOUT, "[DEBUG] cbgt_insert: open colf table %.*s id %ld at (%s,%ld,%ld,%ld) of user table %.*s done\n",
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_insert: open colf table %.*s id %ld at (%s,%ld,%ld,%ld) of user table %.*s done\n",
                             cbytes_len(colf), (char *)cbytes_buf(colf), colf_table_id, 
                             MOD_NODE_TCID_STR(&colf_mod_node), MOD_NODE_COMM(&colf_mod_node), MOD_NODE_RANK(&colf_mod_node), MOD_NODE_MODI(&colf_mod_node),
                             cbytes_len(table_name), (char *)cbytes_buf(table_name));
@@ -8680,7 +8680,7 @@ EC_BOOL cbgt_insert(const UINT32 cbgt_md_id, const CBYTES *table_name, const CBY
                      &ret,FI_cbgt_insert_colf, ERR_MODULE_ID, row, colf, colq, val);
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_insert: insert (%.*s:%.*s:%.*s) into user table %.*s via colf table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_insert: insert (%.*s:%.*s:%.*s) into user table %.*s via colf table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -8726,13 +8726,13 @@ EC_BOOL cbgt_fetch_kv_from_colf_no_lock(const UINT32 cbgt_md_id, const CBYTES *r
 
     if(EC_FALSE == __cbgt_make_user_table_key(cbgt_md_id, row, colf, colq, &user_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_fetch_kv_from_colf_no_lock: make row key of user table failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_kv_from_colf_no_lock: make row key of user table failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_make_colf_table_key_by_user_table_key(cbgt_md_id, &user_rowkey, &colf_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_fetch_kv_from_colf_no_lock: make row key of colf table failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_kv_from_colf_no_lock: make row key of colf table failed\n");
         cbgt_key_clean(cbgt_md_id, &user_rowkey);
         return (EC_FALSE);
     }
@@ -8744,14 +8744,14 @@ EC_BOOL cbgt_fetch_kv_from_colf_no_lock(const UINT32 cbgt_md_id, const CBYTES *r
     cbtree_key = cbgt_gdb_search_key(colf_gdb, cbytes_buf(&colf_rowkey));
     if(NULL_PTR == cbtree_key)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_fetch_kv_from_colf_no_lock: search in colf table %ld failed\n", CBGT_MD_TABLE_ID(cbgt_md));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_kv_from_colf_no_lock: search in colf table %ld failed\n", CBGT_MD_TABLE_ID(cbgt_md));
         cbgt_key_clean(cbgt_md_id, &colf_rowkey);
         return (EC_FALSE);
     }
     
     key = CBTREE_KEY_LATEST(cbtree_key);
     
-    cbytes_set(kv, kvGettLenHs(key), key);    
+    cbytes_set(kv, key, kvGettLenHs(key));    
     cbgt_key_clean(cbgt_md_id, &colf_rowkey);
         
     return (EC_TRUE);
@@ -8785,13 +8785,13 @@ EC_BOOL cbgt_search_from_colf(const UINT32 cbgt_md_id, const CBYTES *row, const 
 
     if(EC_FALSE == __cbgt_make_user_table_key(cbgt_md_id, row, colf, colq, &user_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_search_from_colf: make row key of user table failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_search_from_colf: make row key of user table failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_make_colf_table_key_by_user_table_key(cbgt_md_id, &user_rowkey, &colf_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_search_from_colf: make row key of colf table failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_search_from_colf: make row key of colf table failed\n");
         cbgt_key_clean(cbgt_md_id, &user_rowkey);
         return (EC_FALSE);
     }
@@ -8806,7 +8806,7 @@ EC_BOOL cbgt_search_from_colf(const UINT32 cbgt_md_id, const CBYTES *row, const 
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0337);
 
-        sys_log(LOGSTDOUT, "error:cbgt_search_from_colf: search in colf table %ld failed\n", CBGT_MD_TABLE_ID(cbgt_md));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_search_from_colf: search in colf table %ld failed\n", CBGT_MD_TABLE_ID(cbgt_md));
 
         cbgt_key_clean(cbgt_md_id, &colf_rowkey);
         return (EC_FALSE);
@@ -8814,7 +8814,7 @@ EC_BOOL cbgt_search_from_colf(const UINT32 cbgt_md_id, const CBYTES *row, const 
 
     key = CBTREE_KEY_LATEST(cbtree_key);
     kv  = key;
-    cbytes_set(val, kvGetvLenHs(kv), kvGetValueHs(kv));/*dump value from kv*/
+    cbytes_set(val, kvGetValueHs(kv), kvGetvLenHs(kv));/*dump value from kv*/
     CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0338);
 
     cbgt_key_clean(cbgt_md_id, &colf_rowkey);
@@ -8847,7 +8847,7 @@ EC_BOOL cbgt_search_from_user(const UINT32 cbgt_md_id, const CBYTES *row, const 
 
     if(EC_FALSE == __cbgt_make_user_table_key(cbgt_md_id, row, colf, colq, &user_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_search_from_user: make rowkey of user table failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_search_from_user: make rowkey of user table failed\n");
         return (EC_FALSE);
     }
 
@@ -8857,14 +8857,14 @@ EC_BOOL cbgt_search_from_user(const UINT32 cbgt_md_id, const CBYTES *row, const 
     if(NULL_PTR == cbtree_key)
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0341);
-        sys_log(LOGSTDOUT, "error:cbgt_search_from_user: search in user table %ld failed\n", CBGT_MD_TABLE_ID(cbgt_md));
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_search_from_user: search in user table %ld failed\n", CBGT_MD_TABLE_ID(cbgt_md));
         cbgt_key_clean(cbgt_md_id, &user_rowkey);
         return (EC_FALSE);
     }
 
     key = CBTREE_KEY_LATEST(cbtree_key);
     kv  = key;
-    cbytes_set(val, kvGetvLenHs(kv), kvGetValueHs(kv));/*dump value from kv*/
+    cbytes_set(val, kvGetValueHs(kv), kvGetvLenHs(kv));/*dump value from kv*/
     
     CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0342);
     cbgt_key_clean(cbgt_md_id, &user_rowkey);
@@ -8903,7 +8903,7 @@ EC_BOOL cbgt_search(const UINT32 cbgt_md_id, const CBYTES *table_name, const CBY
     cbytes_init(&user_table_name);    
     if(EC_FALSE == cbgt_open_user_table_from_root(cbgt_md_id, table_name, row, colf, colq, &user_table_name, &user_table_id, &user_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_search: open user table of %.*s (%.*s:%.*s:%.*s) failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_search: open user table of %.*s (%.*s:%.*s:%.*s) failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -8921,7 +8921,7 @@ EC_BOOL cbgt_search(const UINT32 cbgt_md_id, const CBYTES *table_name, const CBY
 
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_search: search %.*s (%.*s:%.*s:%.*s) in user table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_search: search %.*s (%.*s:%.*s:%.*s) in user table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -8965,11 +8965,11 @@ EC_BOOL cbgt_fetch_from_user(const UINT32 cbgt_md_id, const CBYTES *row, const C
 
     if(EC_FALSE == __cbgt_make_user_table_key(cbgt_md_id, row, colf, colq, &user_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_fetch_from_user: make rowkey of user table failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_from_user: make rowkey of user table failed\n");
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG]cbgt_fetch_from_user: [1] user key ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG]cbgt_fetch_from_user: [1] user key ");
     __cbgt_print_user_table_key(LOGSTDOUT, cbytes_buf(&user_rowkey));
     sys_print(LOGSTDOUT, "\n");
 #endif
@@ -8979,7 +8979,7 @@ EC_BOOL cbgt_fetch_from_user(const UINT32 cbgt_md_id, const CBYTES *row, const C
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0348);
         
-        sys_log(LOGSTDOUT, "warn:cbgt_fetch_from_user: user key ");
+        dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:cbgt_fetch_from_user: user key ");
         __cbgt_print_user_table_key(LOGSTDOUT, cbytes_buf(&user_rowkey));
         sys_print(LOGSTDOUT, " not belong to user table ");
         __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(CBGT_MD_TABLE_NAME(cbgt_md)));
@@ -8988,7 +8988,7 @@ EC_BOOL cbgt_fetch_from_user(const UINT32 cbgt_md_id, const CBYTES *row, const C
         return (EC_OBSCURE);/*ask caller to try again*/
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG]cbgt_fetch_from_user: [2] user key ");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG]cbgt_fetch_from_user: [2] user key ");
     __cbgt_print_user_table_key(LOGSTDOUT, cbytes_buf(&user_rowkey));
     sys_print(LOGSTDOUT, "\n");
 #endif
@@ -8998,7 +8998,7 @@ EC_BOOL cbgt_fetch_from_user(const UINT32 cbgt_md_id, const CBYTES *row, const C
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0350);
         
-        sys_log(LOGSTDOUT, "error:cbgt_fetch_from_user: search (%.*s:%.*s:%.*s) in user table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch_from_user: search (%.*s:%.*s:%.*s) in user table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -9010,7 +9010,7 @@ EC_BOOL cbgt_fetch_from_user(const UINT32 cbgt_md_id, const CBYTES *row, const C
     cbgt_key_clean(cbgt_md_id, &user_rowkey);
 
     kv = CBTREE_KEY_LATEST(cbtree_key);
-    cbytes_set(val, kvGetvLenHs(kv), kvGetValueHs(kv));/*dump value part*/
+    cbytes_set(val, kvGetValueHs(kv), kvGetvLenHs(kv));/*dump value part*/
     
     CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0351);
     return (EC_TRUE);
@@ -9047,11 +9047,11 @@ EC_BOOL cbgt_fetch0(const UINT32 cbgt_md_id, const CBYTES *table_name, const CBY
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0352);
 
 #if 0
-    sys_log(LOGSTDOUT, "------------------------------------------ cbgt_fetch enter ------------------------------------------\n");
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_fetch: table name: %.*s\n", cbytes_len(table_name), (char *)cbytes_buf(table_name));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_fetch: row       : %.*s\n", cbytes_len(row) , (char *)cbytes_buf(row));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_fetch: colf      : %.*s\n", cbytes_len(colf), (char *)cbytes_buf(colf));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_fetch: colq      : %.*s\n", cbytes_len(colq), (char *)cbytes_buf(colq));
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "------------------------------------------ cbgt_fetch enter ------------------------------------------\n");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_fetch: table name: %.*s\n", cbytes_len(table_name), (char *)cbytes_buf(table_name));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_fetch: row       : %.*s\n", cbytes_len(row) , (char *)cbytes_buf(row));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_fetch: colf      : %.*s\n", cbytes_len(colf), (char *)cbytes_buf(colf));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_fetch: colq      : %.*s\n", cbytes_len(colq), (char *)cbytes_buf(colq));
 #endif
     /**
     *   note: why not apply statement: for(ret = EC_OBSCURE, count = 0; count < CBGT_INSERT_TRY_TIMES; count ++)
@@ -9068,7 +9068,7 @@ EC_BOOL cbgt_fetch0(const UINT32 cbgt_md_id, const CBYTES *table_name, const CBY
         /*get user table*/
         if(EC_FALSE == cbgt_open_user_table_from_root(cbgt_md_id, table_name, row, colf, colq, &user_table_name, &user_table_id, &user_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_fetch: open user table of %.*s (%.*s:%.*s:%.*s) failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch: open user table of %.*s (%.*s:%.*s:%.*s) failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 cbytes_len(row) , (char *)cbytes_buf(row),
                                 cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -9078,7 +9078,7 @@ EC_BOOL cbgt_fetch0(const UINT32 cbgt_md_id, const CBYTES *table_name, const CBY
         }
         cbytes_clean(&user_table_name, LOC_CBGT_0354);
 #if 0
-        sys_log(LOGSTDOUT, "[DEBUG]cbgt_fetch: open user table %.*s (%.*s:%.*s:%.*s) in user table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) done\n",
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG]cbgt_fetch: open user table %.*s (%.*s:%.*s:%.*s) in user table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) done\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -9098,7 +9098,7 @@ EC_BOOL cbgt_fetch0(const UINT32 cbgt_md_id, const CBYTES *table_name, const CBY
 
     if(EC_FALSE == ret || EC_OBSCURE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_fetch: fetch value of table %.*s (%.*s:%.*s:%.*s) in user table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch: fetch value of table %.*s (%.*s:%.*s:%.*s) in user table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -9144,11 +9144,11 @@ EC_BOOL __cbgt_fetch(const UINT32 cbgt_md_id, const CBYTES *table_name, const CB
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0355);
 
 #if 0
-    sys_log(LOGSTDOUT, "------------------------------------------ __cbgt_fetch enter ------------------------------------------\n");
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_fetch: table name: %.*s\n", cbytes_len(table_name), (char *)cbytes_buf(table_name));
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_fetch: row       : %.*s\n", cbytes_len(row) , (char *)cbytes_buf(row));
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_fetch: colf      : %.*s\n", cbytes_len(colf), (char *)cbytes_buf(colf));
-    sys_log(LOGSTDOUT, "[DEBUG] __cbgt_fetch: colq      : %.*s\n", cbytes_len(colq), (char *)cbytes_buf(colq));
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "------------------------------------------ __cbgt_fetch enter ------------------------------------------\n");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_fetch: table name: %.*s\n", cbytes_len(table_name), (char *)cbytes_buf(table_name));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_fetch: row       : %.*s\n", cbytes_len(row) , (char *)cbytes_buf(row));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_fetch: colf      : %.*s\n", cbytes_len(colf), (char *)cbytes_buf(colf));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_fetch: colq      : %.*s\n", cbytes_len(colq), (char *)cbytes_buf(colq));
 #endif
 #if 1
     /*get colf table info from session*/
@@ -9157,14 +9157,14 @@ EC_BOOL __cbgt_fetch(const UINT32 cbgt_md_id, const CBYTES *table_name, const CB
     {
         CBYTES      user_table_name;
 
-        //sys_log(LOGSTDOUT, "[DEBUG] __cbgt_fetch: NOT hit colf tabe in session\n");
+        //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_fetch: NOT hit colf tabe in session\n");
 
         cbytes_init(&user_table_name);
         
         /*open colf table*/  
         if(EC_FALSE == cbgt_open_colf_table_from_root(cbgt_md_id, table_name, colf, &colf_table_id, &colf_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_fetch: open colf table %.*s of user table %.*s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_fetch: open colf table %.*s of user table %.*s failed\n",
                                 cbytes_len(colf), (char *)cbytes_buf(colf),
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name));
             cstring_clean(&colf_session_path);
@@ -9180,7 +9180,7 @@ EC_BOOL __cbgt_fetch(const UINT32 cbgt_md_id, const CBYTES *table_name, const CB
 
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_fetch: open user table of %.*s (%.*s:%.*s:%.*s) from colf table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_fetch: open user table of %.*s (%.*s:%.*s:%.*s) from colf table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 cbytes_len(row) , (char *)cbytes_buf(row),
                                 cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -9205,7 +9205,7 @@ EC_BOOL __cbgt_fetch(const UINT32 cbgt_md_id, const CBYTES *table_name, const CB
                          &colf_mod_node, NULL_PTR, FI_cbgt_was_access, ERR_MODULE_ID);
 #endif                         
 #if 0
-        sys_log(LOGSTDOUT, "[DEBUG] __cbgt_fetch: fetched colf table from session: %ld:(tcid %s, comm %ld, rank %ld, modi %ld) done\n",
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_fetch: fetched colf table from session: %ld:(tcid %s, comm %ld, rank %ld, modi %ld) done\n",
                         colf_table_id,
                         MOD_NODE_TCID_STR(&colf_mod_node),
                         MOD_NODE_COMM(&colf_mod_node),
@@ -9217,7 +9217,7 @@ EC_BOOL __cbgt_fetch(const UINT32 cbgt_md_id, const CBYTES *table_name, const CB
         {
             CBYTES      user_table_name;
 
-            //sys_log(LOGSTDOUT, "[DEBUG] __cbgt_fetch: NOT hit user tabe in session\n");
+            //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_fetch: NOT hit user tabe in session\n");
 
             cbytes_init(&user_table_name);
         
@@ -9228,7 +9228,7 @@ EC_BOOL __cbgt_fetch(const UINT32 cbgt_md_id, const CBYTES *table_name, const CB
 
             if(EC_FALSE == ret)
             {
-                sys_log(LOGSTDOUT, "error:__cbgt_fetch: open user table of %.*s (%.*s:%.*s:%.*s) from colf table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_fetch: open user table of %.*s (%.*s:%.*s:%.*s) from colf table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
                                     cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                     cbytes_len(row) , (char *)cbytes_buf(row),
                                     cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -9249,7 +9249,7 @@ EC_BOOL __cbgt_fetch(const UINT32 cbgt_md_id, const CBYTES *table_name, const CB
 #if 0     
         else
         {
-            sys_log(LOGSTDOUT, "[DEBUG] __cbgt_fetch: fetched user table from session: %ld:(tcid %s, comm %ld, rank %ld, modi %ld) done\n",
+            dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_fetch: fetched user table from session: %ld:(tcid %s, comm %ld, rank %ld, modi %ld) done\n",
                                 user_table_id,
                                 MOD_NODE_TCID_STR(&user_mod_node),
                                 MOD_NODE_COMM(&user_mod_node),
@@ -9294,23 +9294,23 @@ EC_BOOL cbgt_fetch(const UINT32 cbgt_md_id, const CBYTES *table_name, const CBYT
 #endif/*CBGT_DEBUG_SWITCH*/
 
 #if 0
-    sys_log(LOGSTDOUT, "------------------------------------------ cbgt_fetch enter ------------------------------------------\n");
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_fetch: table name: %.*s\n", cbytes_len(table_name), (char *)cbytes_buf(table_name));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_fetch: row       : %.*s\n", cbytes_len(row) , (char *)cbytes_buf(row));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_fetch: colf      : %.*s\n", cbytes_len(colf), (char *)cbytes_buf(colf));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_fetch: colq      : %.*s\n", cbytes_len(colq), (char *)cbytes_buf(colq));
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "------------------------------------------ cbgt_fetch enter ------------------------------------------\n");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_fetch: table name: %.*s\n", cbytes_len(table_name), (char *)cbytes_buf(table_name));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_fetch: row       : %.*s\n", cbytes_len(row) , (char *)cbytes_buf(row));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_fetch: colf      : %.*s\n", cbytes_len(colf), (char *)cbytes_buf(colf));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_fetch: colq      : %.*s\n", cbytes_len(colq), (char *)cbytes_buf(colq));
 #endif
 #if 1
     count = 0;
     do
     {
         ret = __cbgt_fetch(cbgt_md_id, table_name, row, colf, colq, val);
-        //sys_log(LOGSTDOUT, "[DEBUG] cbgt_fetch: ret = %ld\n", ret);
+        //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_fetch: ret = %ld\n", ret);
     }while(EC_OBSCURE == ret && ++ count < CBGT_FETCH_TRY_TIMES);
     
     if(EC_FALSE == ret || EC_OBSCURE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_fetch: fetch value of table %.*s (%.*s:%.*s:%.*s) failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_fetch: fetch value of table %.*s (%.*s:%.*s:%.*s) failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -9343,7 +9343,7 @@ EC_BOOL cbgt_delete_from_user(const UINT32 cbgt_md_id, const CBYTES *row, const 
 
     if(EC_FALSE == __cbgt_make_user_table_key(cbgt_md_id, row, colf, colq, &user_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_delete_from_user: make rowkey of (%.*s:%.*s:%.*s) on user table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_from_user: make rowkey of (%.*s:%.*s:%.*s) on user table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -9356,7 +9356,7 @@ EC_BOOL cbgt_delete_from_user(const UINT32 cbgt_md_id, const CBYTES *row, const 
     if(EC_FALSE == __cbgt_cmp_colf_row_and_user_table_key(cbytes_buf(CBGT_MD_TABLE_NAME(cbgt_md)), cbytes_buf(&user_rowkey)))
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0362);
-        sys_log(LOGSTDOUT, "warn:cbgt_delete_from_user: user key ");
+        dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:cbgt_delete_from_user: user key ");
         __cbgt_print_user_table_key(LOGSTDOUT, cbytes_buf(&user_rowkey));
         sys_print(LOGSTDOUT, " not belong to user table ");
         __cbgt_print_colf_table_row(LOGSTDOUT, cbytes_buf(CBGT_MD_TABLE_NAME(cbgt_md)));
@@ -9368,7 +9368,7 @@ EC_BOOL cbgt_delete_from_user(const UINT32 cbgt_md_id, const CBYTES *row, const 
     if(EC_FALSE == cbgt_delete_kv_no_lock(cbgt_md_id, &user_rowkey))
     {
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0364);
-        sys_log(LOGSTDOUT, "error:cbgt_delete_from_user: delete key of (%.*s:%.*s:%.*s) on table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_from_user: delete key of (%.*s:%.*s:%.*s) on table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -9413,7 +9413,7 @@ EC_BOOL cbgt_delete_from_colf(const UINT32 cbgt_md_id, const CBYTES *row, const 
     cbytes_init(&user_table_name);
     if(EC_FALSE == cbgt_open_user_table_from_colf(cbgt_md_id, row, colf, colq, &user_table_name, &user_table_id, &user_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_delete_from_colf: open user table for (%.*s:%.*s:%.*s) in colf table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_from_colf: open user table for (%.*s:%.*s:%.*s) in colf table %ld failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -9433,7 +9433,7 @@ EC_BOOL cbgt_delete_from_colf(const UINT32 cbgt_md_id, const CBYTES *row, const 
 
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_delete_from_colf: delete (%.*s:%.*s:%.*s) from col table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_from_colf: delete (%.*s:%.*s:%.*s) from col table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
                             cbytes_len(colq), (char *)cbytes_buf(colq),
@@ -9489,7 +9489,7 @@ EC_BOOL cbgt_delete(const UINT32 cbgt_md_id, const CBYTES *table_name, const CBY
         /*get user table*/
         if(EC_FALSE == cbgt_open_user_table_from_root(cbgt_md_id, table_name, row, colf, colq, &user_table_name, &user_table_id, &user_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_delete: open user table of table %.*s (%.*s:%.*s:%.*s) failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete: open user table of table %.*s (%.*s:%.*s:%.*s) failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 cbytes_len(row) , (char *)cbytes_buf(row),
                                 cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -9508,7 +9508,7 @@ EC_BOOL cbgt_delete(const UINT32 cbgt_md_id, const CBYTES *table_name, const CBY
 
     if(EC_FALSE == ret || EC_OBSCURE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_delete: delete table %.*s (%.*s:%.*s:%.*s) in user table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete: delete table %.*s (%.*s:%.*s:%.*s) in user table %ld:(tcid %s, comm %ld, rank %ld, modi %ld) failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             cbytes_len(row) , (char *)cbytes_buf(row),
                             cbytes_len(colf), (char *)cbytes_buf(colf),
@@ -9544,7 +9544,7 @@ static EC_BOOL __cbgt_cleanup_colf_table_one_kv(const UINT32 cbgt_md_id, const U
     MOD_NODE_RANK(&user_mod_node) = gdbGetWord(value, &counter);
     MOD_NODE_MODI(&user_mod_node) = gdbGetWord(value, &counter);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_cleanup_colf_table: user table id %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_cleanup_colf_table: user table id %ld (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                        user_table_id,
                        MOD_NODE_TCID_STR(&user_mod_node),
                        MOD_NODE_COMM(&user_mod_node),
@@ -9586,13 +9586,13 @@ EC_BOOL cbgt_cleanup_colf_table(const UINT32 cbgt_md_id, const CBYTES *table_nam
 
     if(EC_FALSE == cbgt_is_colf_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_cleanup_colf_table: cbgt module #0x%lx was not meta server\n", cbgt_md_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_cleanup_colf_table: cbgt module #0x%lx was not meta server\n", cbgt_md_id);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cbytes_cmp(CBGT_MD_TABLE_NAME(cbgt_md), table_name))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_cleanup_colf_table: mismatched table name where %.*s vs %.*s\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_cleanup_colf_table: mismatched table name where %.*s vs %.*s\n",
                            cbytes_len(table_name), cbytes_buf(table_name),
                            cbytes_len(CBGT_MD_TABLE_NAME(cbgt_md)), cbytes_buf(CBGT_MD_TABLE_NAME(cbgt_md)));
         return (EC_FALSE);
@@ -9607,7 +9607,7 @@ EC_BOOL cbgt_cleanup_colf_table(const UINT32 cbgt_md_id, const CBYTES *table_nam
                         cbgt_md_id, 
                         NULL_PTR))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_cleanup_colf_table: scan and clean colf tables failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_cleanup_colf_table: scan and clean colf tables failed\n");
         return (EC_FALSE);
     }
 
@@ -9632,7 +9632,7 @@ static EC_BOOL __cbgt_cleanup_meta_table_one_kv(const UINT32 cbgt_md_id, const U
 
     if(EC_FALSE == __cbgt_open_rmc_table(cbgt_md_id, CBGT_TYPE_COLF_SERVER, &colf_table_name, &colf_table_id, &colf_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_cleanup_meta_table_one_kv: open colf table on meta table %ld failed where colf table is ",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_cleanup_meta_table_one_kv: open colf table on meta table %ld failed where colf table is ",
                             CBGT_MD_TABLE_ID(cbgt_md));
         __cbgt_print_meta_table_key(LOGSTDOUT, kv);
         sys_print(LOGSTDOUT, "\n");
@@ -9646,7 +9646,7 @@ static EC_BOOL __cbgt_cleanup_meta_table_one_kv(const UINT32 cbgt_md_id, const U
              &ret, FI_cbgt_cleanup_colf_table, ERR_MODULE_ID, &colf_table_name);
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_cleanup_meta_table_one_kv: delete colf table from meta table %ld failed where colf table is \n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_cleanup_meta_table_one_kv: delete colf table from meta table %ld failed where colf table is \n",
                             CBGT_MD_TABLE_ID(cbgt_md)
                             );
         __cbgt_print_meta_table_key(LOGSTDOUT, kv);
@@ -9689,13 +9689,13 @@ EC_BOOL cbgt_cleanup_meta_table(const UINT32 cbgt_md_id, const CBYTES *table_nam
 
     if(EC_FALSE == cbgt_is_meta_server(cbgt_md_id))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_cleanup_meta_table: cbgt module #0x%lx was not meta server\n", cbgt_md_id);
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_cleanup_meta_table: cbgt module #0x%lx was not meta server\n", cbgt_md_id);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cbytes_cmp(CBGT_MD_TABLE_NAME(cbgt_md), table_name))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_cleanup_meta_table: mismatched table name where %.*s vs %.*s\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_cleanup_meta_table: mismatched table name where %.*s vs %.*s\n",
                            cbytes_len(table_name), cbytes_buf(table_name),
                            cbytes_len(CBGT_MD_TABLE_NAME(cbgt_md)), cbytes_buf(CBGT_MD_TABLE_NAME(cbgt_md))
                            );
@@ -9711,7 +9711,7 @@ EC_BOOL cbgt_cleanup_meta_table(const UINT32 cbgt_md_id, const CBYTES *table_nam
                         cbgt_md_id, 
                         NULL_PTR))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_cleanup_meta_table: scan and clean meta tables failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_cleanup_meta_table: scan and clean meta tables failed\n");
         return (EC_FALSE);
     }
 
@@ -9755,7 +9755,7 @@ EC_BOOL cbgt_delete_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name
                  &ret, FI_cbgt_delete_user_table, ERR_MODULE_ID, table_name);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_delete_user_table: delete user table %.*s from table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_user_table: delete user table %.*s from table %ld type %s failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md))
                                 );
@@ -9766,7 +9766,7 @@ EC_BOOL cbgt_delete_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name
 
     if(EC_FALSE == __cbgt_open_rmc_table(cbgt_md_id, CBGT_TYPE_META_SERVER, table_name, &meta_table_id, &meta_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_delete_user_table: open meta table %.*s on root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_user_table: open meta table %.*s on root table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
@@ -9778,7 +9778,7 @@ EC_BOOL cbgt_delete_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name
              &ret, FI_cbgt_cleanup_meta_table, ERR_MODULE_ID, table_name);
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_delete_user_table: delete meta table %.*s from root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_user_table: delete meta table %.*s from root table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             CBGT_MD_TABLE_ID(cbgt_md)
                             );
@@ -9790,13 +9790,13 @@ EC_BOOL cbgt_delete_user_table(const UINT32 cbgt_md_id, const CBYTES *table_name
 
     if(EC_FALSE == __cbgt_make_root_table_key(cbgt_md_id, table_name, &root_rowkey))/*delete meta register info*/
     {
-        sys_log(LOGSTDOUT, "error:cbgt_delete_user_table: make rowkey of root table failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_user_table: make rowkey of root table failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cbgt_delete_kv(cbgt_md_id, &root_rowkey))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_delete_user_table: delete user table %.*s register from cbgt %ld table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_user_table: delete user table %.*s register from cbgt %ld table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md));
         cbytes_clean(&root_rowkey, LOC_CBGT_0379);
@@ -9838,7 +9838,7 @@ EC_BOOL cbgt_delete_colf_table(const UINT32 cbgt_md_id, const CBYTES *table_name
                  &ret, FI_cbgt_delete_colf_table, ERR_MODULE_ID, table_name, colf_name);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_delete_colf_table: delete colf table %.*s:%.*s from table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_colf_table: delete colf table %.*s:%.*s from table %ld type %s failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 cbytes_len(colf_name), (char *)cbytes_buf(colf_name),
                                 CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md))
@@ -9855,7 +9855,7 @@ EC_BOOL cbgt_delete_colf_table(const UINT32 cbgt_md_id, const CBYTES *table_name
 
         if(EC_FALSE == __cbgt_open_rmc_table(cbgt_md_id, CBGT_TYPE_META_SERVER, table_name, &meta_table_id, &meta_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_delete_colf_table: open meta table %.*s on root table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_colf_table: open meta table %.*s on root table %ld failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 CBGT_MD_TABLE_ID(cbgt_md));
             return (EC_FALSE);
@@ -9868,7 +9868,7 @@ EC_BOOL cbgt_delete_colf_table(const UINT32 cbgt_md_id, const CBYTES *table_name
                  &ret, FI_cbgt_delete_colf_table, ERR_MODULE_ID, table_name, colf_name);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_delete_colf_table: delete colf table %.*s:%.*s from root table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_colf_table: delete colf table %.*s:%.*s from root table %ld failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 cbytes_len(colf_name), (char *)cbytes_buf(colf_name),
                                 CBGT_MD_TABLE_ID(cbgt_md)
@@ -9886,7 +9886,7 @@ EC_BOOL cbgt_delete_colf_table(const UINT32 cbgt_md_id, const CBYTES *table_name
 
         if(EC_FALSE == __cbgt_open_rmc_table(cbgt_md_id, CBGT_TYPE_COLF_SERVER, colf_name, &colf_table_id, &colf_mod_node))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_delete_colf_table: open colf table %.*s on meta table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_colf_table: open colf table %.*s on meta table %ld failed\n",
                                 cbytes_len(colf_name), (char *)cbytes_buf(colf_name),
                                 CBGT_MD_TABLE_ID(cbgt_md));
             return (EC_FALSE);
@@ -9898,7 +9898,7 @@ EC_BOOL cbgt_delete_colf_table(const UINT32 cbgt_md_id, const CBYTES *table_name
                  &ret, FI_cbgt_cleanup_colf_table, ERR_MODULE_ID, colf_name);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_delete_colf_table: delete colf table %.*s:%.*s from root table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_colf_table: delete colf table %.*s:%.*s from root table %ld failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 cbytes_len(colf_name), (char *)cbytes_buf(colf_name),
                                 CBGT_MD_TABLE_ID(cbgt_md)
@@ -9911,7 +9911,7 @@ EC_BOOL cbgt_delete_colf_table(const UINT32 cbgt_md_id, const CBYTES *table_name
 
         if(EC_FALSE == __cbgt_make_meta_table_key(cbgt_md_id, colf_name, &meta_rowkey))
         {
-            sys_log(LOGSTDOUT, "error:cbgt_delete_colf_table: make rowkey from colf %.*s of cbgt %ld meta table %ld\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_colf_table: make rowkey from colf %.*s of cbgt %ld meta table %ld\n",
                                 cbytes_len(colf_name), (char *)cbytes_buf(colf_name),
                                 cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md));
             return (EC_FALSE);
@@ -9919,7 +9919,7 @@ EC_BOOL cbgt_delete_colf_table(const UINT32 cbgt_md_id, const CBYTES *table_name
 
         if(EC_FALSE == cbgt_delete_kv(cbgt_md_id, &meta_rowkey))/*delete colf register info*/
         {
-            sys_log(LOGSTDOUT, "error:cbgt_delete_colf_table: delete colf table %.*s register from cbgt %ld table %ld failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_delete_colf_table: delete colf table %.*s register from cbgt %ld table %ld failed\n",
                                 cbytes_len(colf_name), (char *)cbytes_buf(colf_name),
                                 cbgt_md_id, CBGT_MD_TABLE_ID(cbgt_md));
             cbytes_clean(&meta_rowkey, LOC_CBGT_0382);
@@ -9966,7 +9966,7 @@ EC_BOOL cbgt_add_colf_table(const UINT32 cbgt_md_id, const CBYTES *table_name, c
                  &ret, FI_cbgt_add_colf_table, ERR_MODULE_ID, table_name, colf_name);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_add_colf_table: add colf table %.*s:%.*s from table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_add_colf_table: add colf table %.*s:%.*s from table %ld type %s failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 cbytes_len(colf_name), (char *)cbytes_buf(colf_name),
                                 CBGT_MD_TABLE_ID(cbgt_md), __cbgt_type(CBGT_MD_TYPE(cbgt_md))
@@ -9978,7 +9978,7 @@ EC_BOOL cbgt_add_colf_table(const UINT32 cbgt_md_id, const CBYTES *table_name, c
 
     if(EC_FALSE == __cbgt_open_rmc_table(cbgt_md_id, CBGT_TYPE_META_SERVER, table_name, &meta_table_id, &meta_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_add_colf_table: open meta table %.*s on root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_add_colf_table: open meta table %.*s on root table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
@@ -9991,7 +9991,7 @@ EC_BOOL cbgt_add_colf_table(const UINT32 cbgt_md_id, const CBYTES *table_name, c
              &ret, FI_cbgt_create_colf_on_meta, ERR_MODULE_ID, colf_name);
     if(EC_FALSE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_add_colf_table: add colf table %.*s:%.*s from root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_add_colf_table: add colf table %.*s:%.*s from root table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             cbytes_len(colf_name), (char *)cbytes_buf(colf_name),
                             CBGT_MD_TABLE_ID(cbgt_md)
@@ -10023,7 +10023,7 @@ static EC_BOOL __cbgt_pcre_compile(const CSTRING *pattern_cstr, pcre **pattern_r
     re = pcre_compile((char *)cstring_get_str(pattern_cstr), 0, &errstr, &erroffset, NULL_PTR);
     if(NULL_PTR == re)
     {
-        sys_log(LOGSTDOUT, "error:__cbgt_pcre_compile: pcre compile pattern %s at %d:%s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_pcre_compile: pcre compile pattern %s at %d:%s failed\n",
                             (char *)cstring_get_str(pattern_cstr), erroffset, errstr);
         return (EC_FALSE);
     }
@@ -10048,16 +10048,16 @@ static EC_BOOL __cbgt_select_from_table(const UINT32 cbgt_md_id, const UINT8 *kv
     {
         CBYTES *kv_bytes;
         /*matched*/
-        //sys_log(LOGSTDOUT, "[DEBUG] __cbgt_select_from_table: matched kv %lx\n", kv);
+        //dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] __cbgt_select_from_table: matched kv %lx\n", kv);
 
         kv_bytes = cbytes_new(0);
         if(NULL == kv_bytes)
         {
-            sys_log(LOGSTDOUT, "error:__cbgt_select_from_table: new kv cbytes failed\n");
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:__cbgt_select_from_table: new kv cbytes failed\n");
             return (EC_FALSE);
         }
 
-        cbytes_set(kv_bytes, kvGettLenHs(kv), kv);
+        cbytes_set(kv_bytes, kv, kvGettLenHs(kv));
         cvector_push(kv_vec, (void *)kv_bytes);
     }
     return (EC_TRUE);
@@ -10090,14 +10090,14 @@ EC_BOOL cbgt_select_from_user(const UINT32 cbgt_md_id, const CSTRING *row_patter
 
     if(EC_FALSE == __cbgt_pcre_compile(row_pattern, &row_re))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_user: pcre compile row pattern %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_user: pcre compile row pattern %s failed\n",
                             (char *)cstring_get_str(row_pattern));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __cbgt_pcre_compile(colf_pattern, &colf_re))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_user: pcre compile colf pattern %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_user: pcre compile colf pattern %s failed\n",
                             (char *)cstring_get_str(colf_pattern));
         __cbgt_pcre_free(row_re);
         return (EC_FALSE);
@@ -10105,7 +10105,7 @@ EC_BOOL cbgt_select_from_user(const UINT32 cbgt_md_id, const CSTRING *row_patter
 
     if(EC_FALSE == __cbgt_pcre_compile(colq_pattern, &colq_re))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_user: pcre compile colq pattern %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_user: pcre compile colq pattern %s failed\n",
                             (char *)cstring_get_str(colq_pattern));
         __cbgt_pcre_free(row_re);
         __cbgt_pcre_free(colf_re);
@@ -10114,7 +10114,7 @@ EC_BOOL cbgt_select_from_user(const UINT32 cbgt_md_id, const CSTRING *row_patter
 
      if(EC_FALSE == __cbgt_pcre_compile(val_pattern, &val_re))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_user: pcre compile val pattern %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_user: pcre compile val pattern %s failed\n",
                             (char *)cstring_get_str(val_pattern));
         __cbgt_pcre_free(row_re);
         __cbgt_pcre_free(colf_re);
@@ -10137,7 +10137,7 @@ EC_BOOL cbgt_select_from_user(const UINT32 cbgt_md_id, const CSTRING *row_patter
                         row_re, colf_re, colq_re, val_re, ret_kv_vec
                         ))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_user: scan and select from user table failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_user: scan and select from user table failed\n");
         CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0387);
         __cbgt_pcre_free(row_re);
         __cbgt_pcre_free(colf_re);
@@ -10148,7 +10148,7 @@ EC_BOOL cbgt_select_from_user(const UINT32 cbgt_md_id, const CSTRING *row_patter
     
     CBGT_MD_CRWLOCK_TABLE_UNLOCK(cbgt_md, LOC_CBGT_0388);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_from_user: ret_kv_vec is\n");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_from_user: ret_kv_vec is\n");
     cvector_print_no_lock(LOGSTDOUT, ret_kv_vec, (CVECTOR_DATA_PRINT)__cbgt_kvPrintHs);
 #endif
     __cbgt_pcre_free(row_re);
@@ -10187,7 +10187,7 @@ EC_BOOL cbgt_select_from_colf(const UINT32 cbgt_md_id, const UINT32 cached_mode,
     colf_kv_vec = cvector_new(0, MM_CBYTES, LOC_CBGT_0390);
     if(NULL_PTR == colf_kv_vec)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_colf: new colf table kv vec failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_colf: new colf table kv vec failed\n");
         return (EC_FALSE);
     }
 
@@ -10208,7 +10208,7 @@ EC_BOOL cbgt_select_from_colf(const UINT32 cbgt_md_id, const UINT32 cached_mode,
 
     if(0 == cvector_size(colf_kv_vec))
     {
-        sys_log(LOGSTDOUT, "warn:cbgt_select_from_colf: no matching colf table\n");
+        dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:cbgt_select_from_colf: no matching colf table\n");
         cvector_free(colf_kv_vec, LOC_CBGT_0393);
         return (EC_TRUE);
     }
@@ -10216,7 +10216,7 @@ EC_BOOL cbgt_select_from_colf(const UINT32 cbgt_md_id, const UINT32 cached_mode,
     report_vec = cvector_new(0, MM_CVECTOR, LOC_CBGT_0394);
     if(NULL_PTR == report_vec)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_colf: new report vec failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_colf: new report vec failed\n");
         cvector_clean_with_location(colf_kv_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CBGT_0395);
         cvector_free(colf_kv_vec, LOC_CBGT_0396);
         return (EC_FALSE);
@@ -10275,7 +10275,7 @@ EC_BOOL cbgt_select_from_colf(const UINT32 cbgt_md_id, const UINT32 cached_mode,
                                                 CBGT_O_RDWR,
                                                 &user_mod_node))
             {
-                sys_log(LOGSTDOUT, "error:cbgt_select_from_colf: cbgt start user table %ld on colf table %ld failed\n",
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_colf: cbgt start user table %ld on colf table %ld failed\n",
                                     user_table_id, CBGT_MD_TABLE_ID(cbgt_md));
                 continue;
             }
@@ -10285,7 +10285,7 @@ EC_BOOL cbgt_select_from_colf(const UINT32 cbgt_md_id, const UINT32 cached_mode,
             /*update register info of user table*/
             if(EC_FALSE == cbgt_update_register(cbgt_md_id, colf_kv_bytes, user_table_id, &user_mod_node))
             {
-                sys_log(LOGSTDOUT, "error:cbgt_select_from_colf: update register of user table %.*s id %ld (tcid %s, comm %ld, rank %ld, modi %ld) "
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_colf: update register of user table %.*s id %ld (tcid %s, comm %ld, rank %ld, modi %ld) "
                                     "to colf table %ld failed\n",
                                    cbytes_len(&user_table_name), (char *)cbytes_buf(&user_table_name),
                                    user_table_id,
@@ -10304,11 +10304,11 @@ EC_BOOL cbgt_select_from_colf(const UINT32 cbgt_md_id, const UINT32 cached_mode,
             user_table_kv_vec = cvector_new(0, MM_CBYTES, LOC_CBGT_0397);
             if(NULL_PTR == user_table_kv_vec)
             {
-                sys_log(LOGSTDOUT, "error:cbgt_select_from_colf: new user table kv vec failed\n");
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_colf: new user table kv vec failed\n");
                 break;
             }
 #if 0
-            sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_from_colf: user_table_kv_vec addr %lx (%ld)\n", user_table_kv_vec, user_table_kv_vec);
+            dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_from_colf: user_table_kv_vec addr %lx (%ld)\n", user_table_kv_vec, user_table_kv_vec);
 #endif
             /*select from cached colf table*/
             ret = EC_FALSE;
@@ -10379,7 +10379,7 @@ EC_BOOL cbgt_select_from_meta(const UINT32 cbgt_md_id, const UINT32 cached_mode,
 
     if(EC_FALSE == __cbgt_pcre_compile(colf_pattern, &colf_re))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_meta: pcre compile colf pattern %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_meta: pcre compile colf pattern %s failed\n",
                             (char *)cstring_get_str(colf_pattern));
         return (EC_FALSE);
     }
@@ -10387,7 +10387,7 @@ EC_BOOL cbgt_select_from_meta(const UINT32 cbgt_md_id, const UINT32 cached_mode,
     meta_kv_vec = cvector_new(0, MM_CBYTES, LOC_CBGT_0404);
     if(NULL_PTR == meta_kv_vec)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_meta: new meta table kv vec failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_meta: new meta table kv vec failed\n");
         __cbgt_pcre_free(colf_re);
         return (EC_FALSE);
     }
@@ -10412,7 +10412,7 @@ EC_BOOL cbgt_select_from_meta(const UINT32 cbgt_md_id, const UINT32 cached_mode,
 
     if(0 == cvector_size(meta_kv_vec))
     {
-        sys_log(LOGSTDOUT, "warn:cbgt_select_from_meta: no matching colf table\n");
+        dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:cbgt_select_from_meta: no matching colf table\n");
         cvector_clean_with_location(meta_kv_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CBGT_0407);
         cvector_free(meta_kv_vec, LOC_CBGT_0408);
         return (EC_TRUE);
@@ -10421,7 +10421,7 @@ EC_BOOL cbgt_select_from_meta(const UINT32 cbgt_md_id, const UINT32 cached_mode,
     report_vec = cvector_new(0, MM_CVECTOR, LOC_CBGT_0409);
     if(NULL_PTR == report_vec)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_meta: new report vec failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_meta: new report vec failed\n");
         cvector_clean_with_location(meta_kv_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CBGT_0410);
         cvector_free(meta_kv_vec, LOC_CBGT_0411);
         return (EC_FALSE);
@@ -10454,7 +10454,7 @@ EC_BOOL cbgt_select_from_meta(const UINT32 cbgt_md_id, const UINT32 cached_mode,
         MOD_NODE_RANK(&colf_mod_node) = gdbGetWord(value, &counter);
         MOD_NODE_MODI(&colf_mod_node) = gdbGetWord(value, &counter);
 #if 0
-        sys_log(LOGSTDOUT, "[DEBUG]cbgt_select_from_meta:colf table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+        dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG]cbgt_select_from_meta:colf table id %ld, (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                             colf_table_id,
                             MOD_NODE_TCID_STR(&colf_mod_node),
                             MOD_NODE_COMM(&colf_mod_node),
@@ -10480,7 +10480,7 @@ EC_BOOL cbgt_select_from_meta(const UINT32 cbgt_md_id, const UINT32 cached_mode,
                                                 CBGT_O_RDWR,
                                                 &colf_mod_node))
             {
-                sys_log(LOGSTDOUT, "error:cbgt_select_from_meta: cbgt start colf table %ld on meta table %ld failed\n",
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_meta: cbgt start colf table %ld on meta table %ld failed\n",
                                     colf_table_id, CBGT_MD_TABLE_ID(cbgt_md));
                 continue;
             }
@@ -10491,7 +10491,7 @@ EC_BOOL cbgt_select_from_meta(const UINT32 cbgt_md_id, const UINT32 cached_mode,
             /*update register info of user table*/
             if(EC_FALSE == cbgt_update_register(cbgt_md_id, meta_kv_bytes, colf_table_id, &colf_mod_node))
             {
-                sys_log(LOGSTDOUT, "error:cbgt_select_from_meta: update register of colf table %.*s id %ld (tcid %s, comm %ld, rank %ld, modi %ld) "
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_meta: update register of colf table %.*s id %ld (tcid %s, comm %ld, rank %ld, modi %ld) "
                                     "to meta table %ld failed\n",
                                    cbytes_len(&colf_table_name), (char *)cbytes_buf(&colf_table_name),
                                    colf_table_id,
@@ -10509,7 +10509,7 @@ EC_BOOL cbgt_select_from_meta(const UINT32 cbgt_md_id, const UINT32 cached_mode,
             user_table_kv_vec = cvector_new(0, MM_CBYTES, LOC_CBGT_0412);
             if(NULL_PTR == user_table_kv_vec)
             {
-                sys_log(LOGSTDOUT, "error:cbgt_select_from_meta: new user table kv vec failed\n");
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_meta: new user table kv vec failed\n");
                 break;
             }
 
@@ -10580,15 +10580,15 @@ EC_BOOL cbgt_select_from_root(const UINT32 cbgt_md_id, const UINT32 cached_mode,
     cbgt_md     = CBGT_MD_GET(cbgt_md_id);
     CBGT_MD_WAS_ACCESS(cbgt_md, LOC_CBGT_0418);
 #if 0
-    sys_log(LOGSTDOUT, "------------------------------------------ cbgt_select_from_root enter ------------------------------------------\n");
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_from_root: table_pattern: %s\n"  , (char *)cstring_get_str(table_pattern));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_from_root: row_pattern  : %s\n"  , (char *)cstring_get_str(row_pattern));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_from_root: colf_pattern : %s\n"  , (char *)cstring_get_str(colf_pattern));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_from_root: colq_pattern : %s\n"  , (char *)cstring_get_str(colq_pattern));
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "------------------------------------------ cbgt_select_from_root enter ------------------------------------------\n");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_from_root: table_pattern: %s\n"  , (char *)cstring_get_str(table_pattern));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_from_root: row_pattern  : %s\n"  , (char *)cstring_get_str(row_pattern));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_from_root: colf_pattern : %s\n"  , (char *)cstring_get_str(colf_pattern));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_from_root: colq_pattern : %s\n"  , (char *)cstring_get_str(colq_pattern));
 #endif
     if(EC_FALSE == __cbgt_pcre_compile(table_pattern, &table_re))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_root: pcre compile table pattern %s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_root: pcre compile table pattern %s failed\n",
                             (char *)cstring_get_str(colf_pattern));
         return (EC_FALSE);
     }
@@ -10596,7 +10596,7 @@ EC_BOOL cbgt_select_from_root(const UINT32 cbgt_md_id, const UINT32 cached_mode,
     root_kv_vec = cvector_new(0, MM_CBYTES, LOC_CBGT_0419);
     if(NULL_PTR == root_kv_vec)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_root: new root table kv vec failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_root: new root table kv vec failed\n");
         __cbgt_pcre_free(table_re);
         return (EC_FALSE);
     }
@@ -10621,7 +10621,7 @@ EC_BOOL cbgt_select_from_root(const UINT32 cbgt_md_id, const UINT32 cached_mode,
 
     if(0 == cvector_size(root_kv_vec))
     {
-        sys_log(LOGSTDOUT, "warn:cbgt_select_from_root: no matching user table\n");
+        dbg_log(SEC_0054_CBGT, 1)(LOGSTDOUT, "warn:cbgt_select_from_root: no matching user table\n");
         cvector_free(root_kv_vec, LOC_CBGT_0422);
         return (EC_TRUE);
     }
@@ -10629,7 +10629,7 @@ EC_BOOL cbgt_select_from_root(const UINT32 cbgt_md_id, const UINT32 cached_mode,
     report_vec = cvector_new(0, MM_CVECTOR, LOC_CBGT_0423);
     if(NULL_PTR == report_vec)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_from_root: new report vec failed\n");
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_root: new report vec failed\n");
         cvector_clean_with_location(root_kv_vec, (CVECTOR_DATA_LOCATION_CLEANER)cbytes_free, LOC_CBGT_0424);
         cvector_free(root_kv_vec, LOC_CBGT_0425);
         return (EC_FALSE);
@@ -10688,7 +10688,7 @@ EC_BOOL cbgt_select_from_root(const UINT32 cbgt_md_id, const UINT32 cached_mode,
                                                 CBGT_O_RDWR,
                                                 &meta_mod_node))
             {
-                sys_log(LOGSTDOUT, "error:cbgt_select_from_root: cbgt start meta table %ld on root table %ld failed\n",
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_root: cbgt start meta table %ld on root table %ld failed\n",
                                     meta_table_id, CBGT_MD_TABLE_ID(cbgt_md));
                 continue;
             }
@@ -10699,7 +10699,7 @@ EC_BOOL cbgt_select_from_root(const UINT32 cbgt_md_id, const UINT32 cached_mode,
             /*update register info of meta table*/
             if(EC_FALSE == cbgt_update_register(cbgt_md_id, root_kv_bytes, meta_table_id, &meta_mod_node))
             {
-                sys_log(LOGSTDOUT, "error:cbgt_select_from_root: update register of meta table %.*s id %ld (tcid %s, comm %ld, rank %ld, modi %ld) "
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_root: update register of meta table %.*s id %ld (tcid %s, comm %ld, rank %ld, modi %ld) "
                                    "to root table %ld failed\n",
                                    cbytes_len(&meta_table_name), (char *)cbytes_buf(&meta_table_name),
                                    meta_table_id,
@@ -10717,7 +10717,7 @@ EC_BOOL cbgt_select_from_root(const UINT32 cbgt_md_id, const UINT32 cached_mode,
             user_table_kv_vec = cvector_new(0, MM_CBYTES, LOC_CBGT_0426);
             if(NULL_PTR == user_table_kv_vec)
             {
-                sys_log(LOGSTDOUT, "error:cbgt_select_from_root: new user table kv vec failed\n");
+                dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_from_root: new user table kv vec failed\n");
                 break;
             }
 
@@ -10793,7 +10793,7 @@ EC_BOOL cbgt_select_in_meta(const UINT32 cbgt_md_id, const UINT32 cached_mode, c
                  ret_kv_vec);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_select_in_meta: select %.*s (%s)(%s)(%s) from cbgt %ld table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_in_meta: select %.*s (%s)(%s)(%s) from cbgt %ld table %ld type %s failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 (char *)cstring_get_str(row_pattern),
                                 (char *)cstring_get_str(colf_pattern),
@@ -10805,16 +10805,16 @@ EC_BOOL cbgt_select_in_meta(const UINT32 cbgt_md_id, const UINT32 cached_mode, c
         return (EC_TRUE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "------------------------------------------ cbgt_select_in_meta enter ------------------------------------------\n");
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_in_meta: table name  : %.*s\n", cbytes_len(table_name), (char *)cbytes_buf(table_name));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_in_meta: row_pattern : %s\n"  , (char *)cstring_get_str(row_pattern));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_in_meta: colf_pattern: %s\n"  , (char *)cstring_get_str(colf_pattern));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_in_meta: colq_pattern: %s\n"  , (char *)cstring_get_str(colq_pattern));
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "------------------------------------------ cbgt_select_in_meta enter ------------------------------------------\n");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_in_meta: table name  : %.*s\n", cbytes_len(table_name), (char *)cbytes_buf(table_name));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_in_meta: row_pattern : %s\n"  , (char *)cstring_get_str(row_pattern));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_in_meta: colf_pattern: %s\n"  , (char *)cstring_get_str(colf_pattern));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_in_meta: colq_pattern: %s\n"  , (char *)cstring_get_str(colq_pattern));
 #endif
     /*get meta table*/
     if(EC_FALSE == __cbgt_open_rmc_table(cbgt_md_id, CBGT_TYPE_META_SERVER, table_name, &meta_table_id, &meta_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_in_meta: open meta table of user table %.*s on root table %ld failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_in_meta: open meta table of user table %.*s on root table %ld failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             CBGT_MD_TABLE_ID(cbgt_md));
         return (EC_FALSE);
@@ -10830,7 +10830,7 @@ EC_BOOL cbgt_select_in_meta(const UINT32 cbgt_md_id, const UINT32 cached_mode, c
 
     if(EC_FALSE == ret || EC_OBSCURE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_in_meta: select %.*s (%s)(%s)(%s) failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_in_meta: select %.*s (%s)(%s)(%s) failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             (char *)cstring_get_str(row_pattern),
                             (char *)cstring_get_str(colf_pattern),
@@ -10875,7 +10875,7 @@ EC_BOOL cbgt_select_in_colf(const UINT32 cbgt_md_id, const UINT32 cached_mode, c
                  ret_kv_vec);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_select_in_colf: select %.*s:%.*s (%s)(%s)from cbgt %ld table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_in_colf: select %.*s:%.*s (%s)(%s)from cbgt %ld table %ld type %s failed\n",
                                 cbytes_len(table_name), (char *)cbytes_buf(table_name),
                                 cbytes_len(colf_name), (char *)cbytes_buf(colf_name),
                                 (char *)cstring_get_str(row_pattern),
@@ -10887,16 +10887,16 @@ EC_BOOL cbgt_select_in_colf(const UINT32 cbgt_md_id, const UINT32 cached_mode, c
         return (EC_TRUE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "------------------------------------------ cbgt_select_in_colf enter ------------------------------------------\n");
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_in_colf: table name  : %.*s\n", cbytes_len(table_name), (char *)cbytes_buf(table_name));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_in_colf: colf name   : %.*s\n", cbytes_len(colf_name), (char *)cbytes_buf(colf_name));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_in_colf: colq_pattern: %s\n"  , (char *)cstring_get_str(colq_pattern));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select_in_colf: ts_pattern  : %s\n"  , (char *)cstring_get_str(ts_pattern));
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "------------------------------------------ cbgt_select_in_colf enter ------------------------------------------\n");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_in_colf: table name  : %.*s\n", cbytes_len(table_name), (char *)cbytes_buf(table_name));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_in_colf: colf name   : %.*s\n", cbytes_len(colf_name), (char *)cbytes_buf(colf_name));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_in_colf: colq_pattern: %s\n"  , (char *)cstring_get_str(colq_pattern));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select_in_colf: ts_pattern  : %s\n"  , (char *)cstring_get_str(ts_pattern));
 #endif
     /*open colf table*/
     if(EC_FALSE == cbgt_open_colf_table_from_root(cbgt_md_id, table_name, colf_name, &colf_table_id, &colf_mod_node))
     {
-        sys_log(LOGSTDOUT, "error:cbgt_insert: open colf table %.*s:%.*s failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_insert: open colf table %.*s:%.*s failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             cbytes_len(colf_name), (char *)cbytes_buf(colf_name));
         return (EC_FALSE);
@@ -10914,7 +10914,7 @@ EC_BOOL cbgt_select_in_colf(const UINT32 cbgt_md_id, const UINT32 cached_mode, c
 
     if(EC_FALSE == ret || EC_OBSCURE == ret)
     {
-        sys_log(LOGSTDOUT, "error:cbgt_select_in_colf: select in %.*s:%.*s (%s)(%s) failed\n",
+        dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select_in_colf: select in %.*s:%.*s (%s)(%s) failed\n",
                             cbytes_len(table_name), (char *)cbytes_buf(table_name),
                             cbytes_len(colf_name), (char *)cbytes_buf(colf_name),
                             (char *)cstring_get_str(row_pattern),
@@ -10951,7 +10951,7 @@ EC_BOOL cbgt_select(const UINT32 cbgt_md_id, const UINT32 cached_mode, const CST
                  ret_kv_vec);
         if(EC_FALSE == ret)
         {
-            sys_log(LOGSTDOUT, "error:cbgt_select: select %s (%s)(%s)(%s) from cbgt %ld table %ld type %s failed\n",
+            dbg_log(SEC_0054_CBGT, 0)(LOGSTDOUT, "error:cbgt_select: select %s (%s)(%s)(%s) from cbgt %ld table %ld type %s failed\n",
                                 (char *)cstring_get_str(table_pattern),
                                 (char *)cstring_get_str(row_pattern),
                                 (char *)cstring_get_str(colf_pattern),
@@ -10963,11 +10963,11 @@ EC_BOOL cbgt_select(const UINT32 cbgt_md_id, const UINT32 cached_mode, const CST
         return (EC_TRUE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "------------------------------------------ cbgt_select enter ------------------------------------------\n");
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select: table_pattern: %s\n"  , (char *)cstring_get_str(table_pattern));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select: row_pattern  : %s\n"  , (char *)cstring_get_str(row_pattern));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select: colf_pattern : %s\n"  , (char *)cstring_get_str(colf_pattern));
-    sys_log(LOGSTDOUT, "[DEBUG] cbgt_select: colq_pattern : %s\n"  , (char *)cstring_get_str(colq_pattern));
+    dbg_log(SEC_0054_CBGT, 5)(LOGSTDOUT, "------------------------------------------ cbgt_select enter ------------------------------------------\n");
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select: table_pattern: %s\n"  , (char *)cstring_get_str(table_pattern));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select: row_pattern  : %s\n"  , (char *)cstring_get_str(row_pattern));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select: colf_pattern : %s\n"  , (char *)cstring_get_str(colf_pattern));
+    dbg_log(SEC_0054_CBGT, 9)(LOGSTDOUT, "[DEBUG] cbgt_select: colq_pattern : %s\n"  , (char *)cstring_get_str(colq_pattern));
 #endif    
     return cbgt_select_from_root(cbgt_md_id, cached_mode, 
                                 table_pattern, row_pattern, colf_pattern, colq_pattern, val_pattern, 

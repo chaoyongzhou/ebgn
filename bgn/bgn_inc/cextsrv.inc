@@ -15,7 +15,7 @@ extern "C"{
 #include "type.h"
 #include "mm.h"
 #include "log.h"
-#include "croutine.h"
+#include "cmutex.h"
 #include "cmisc.h"
 
 #include "csocket.h"
@@ -36,24 +36,26 @@ typedef struct
 
 typedef struct
 {
+    UINT32      srv_ipaddr;
     UINT32      srv_port;
     int         srv_sockfd;
     int         rsvd;
     UINT32      md_id;
 
-    CROUTINE_MUTEX      cmutex;
+    CMUTEX      cmutex;
 
 }CEXTSRV;
 
+#define CEXTSRV_IPADDR(cextsrv)               ((cextsrv)->srv_ipaddr)
 #define CEXTSRV_PORT(cextsrv)                 ((cextsrv)->srv_port)
 #define CEXTSRV_SOCKFD(cextsrv)               ((cextsrv)->srv_sockfd)
 #define CEXTSRV_MD_ID(cextsrv)                ((cextsrv)->md_id)
 #define CEXTSRV_CMUTEX(cextsrv)               (&((cextsrv)->cmutex))
 
-#define CEXTSRV_CMUTEX_INIT(cextsrv, location)          (croutine_mutex_init(CEXTSRV_CMUTEX(cextsrv), CMUTEX_PROCESS_PRIVATE, location))
-#define CEXTSRV_CMUTEX_LOCK(cextsrv, location)          (croutine_mutex_lock(CEXTSRV_CMUTEX(cextsrv), location))
-#define CEXTSRV_CMUTEX_UNLOCK(cextsrv, location)        (croutine_mutex_unlock(CEXTSRV_CMUTEX(cextsrv), location))
-#define CEXTSRV_CMUTEX_CLEAN(cextsrv, location)         (croutine_mutex_clean(CEXTSRV_CMUTEX(cextsrv), location))
+#define CEXTSRV_CMUTEX_INIT(cextsrv, location)          (cmutex_init(CEXTSRV_CMUTEX(cextsrv), CMUTEX_PROCESS_PRIVATE, location))
+#define CEXTSRV_CMUTEX_LOCK(cextsrv, location)          (cmutex_lock(CEXTSRV_CMUTEX(cextsrv), location))
+#define CEXTSRV_CMUTEX_UNLOCK(cextsrv, location)        (cmutex_unlock(CEXTSRV_CMUTEX(cextsrv), location))
+#define CEXTSRV_CMUTEX_CLEAN(cextsrv, location)         (cmutex_clean(CEXTSRV_CMUTEX(cextsrv), location))
 
 
 #endif/*_CEXTSRV_INC*/

@@ -21,7 +21,7 @@ uint8_t btreeSplit(const BTree *src_tree, const RawFile *src_rawFile,
 
     if (src_tree == NULL)
     {
-        sys_log(LOGSTDOUT, "error:btreeSplit: src tree is null\n");
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeSplit: src tree is null\n");
         return 0;/*fail*/
     }
     trav = btreeInitTraversal(src_tree);
@@ -38,29 +38,29 @@ uint8_t btreeSplit(const BTree *src_tree, const RawFile *src_rawFile,
 
         if(RAW_FILE_FAIL == rawFileRead32(src_rawFile, &data_len, offset))
         {
-            sys_log(LOGSTDOUT,"error:btreeSplit: read data_len at offset %d failed where count reaches %d\n", offset, count);
+            dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT,"error:btreeSplit: read data_len at offset %d failed where count reaches %d\n", offset, count);
             btreeDestroyTraversal(trav);
             return 0;
         }
 
-        kv = (uint8_t *)SAFE_MALLOC(data_len, LOC_BTREE_0047);
+        kv = (uint8_t *)SAFE_MALLOC(data_len, LOC_BTREE_0141);
         if(NULL == kv)
         {
-            sys_log(LOGSTDOUT, "error:btreeSplit: alloc %d bytes failed\n", data_len);
+            dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeSplit: alloc %d bytes failed\n", data_len);
             return 0;
         }
 
         if(RAW_FILE_FAIL == rawFileRead8s(src_rawFile, kv, data_len, &kv_len, offset + sizeof(uint32_t)) || kv_len != data_len)
         {
-            sys_log(LOGSTDOUT,"error:btreeSplit: read kv %ld bytes at offset %d failed where count reaches %d, kv_len = %d\n",
+            dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT,"error:btreeSplit: read kv %ld bytes at offset %d failed where count reaches %d, kv_len = %d\n",
                     data_len, offset + sizeof(uint32_t), count, kv_len);
 
-            SAFE_FREE(kv, LOC_BTREE_0048);
+            SAFE_FREE(kv, LOC_BTREE_0142);
             btreeDestroyTraversal(trav);
             return 0;
         }
 
-        //sys_log(LOGSTDOUT, "[DEBUG] btreeSplit: read kv[1]: ");
+        //dbg_log(SEC_0130_BTREE, 9)(LOGSTDOUT, "[DEBUG] btreeSplit: read kv[1]: ");
         //kvPrintHs(LOGSTDOUT, kv);
 
         key = kv;
@@ -68,7 +68,7 @@ uint8_t btreeSplit(const BTree *src_tree, const RawFile *src_rawFile,
         rawFileAppend8slen(des_rawFile_left, kv, kv_len, &filePos);
         btreeInsert(des_tree_left, key, filePos, 0);
 
-        SAFE_FREE(kv, LOC_BTREE_0049);
+        SAFE_FREE(kv, LOC_BTREE_0143);
     }
 
     for(;
@@ -83,29 +83,29 @@ uint8_t btreeSplit(const BTree *src_tree, const RawFile *src_rawFile,
 
         if(RAW_FILE_FAIL == rawFileRead32(src_rawFile, &data_len, offset))
         {
-            sys_log(LOGSTDOUT,"error:btreeSplit: read data_len at offset %d failed where count reaches %d\n", offset, count);
+            dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT,"error:btreeSplit: read data_len at offset %d failed where count reaches %d\n", offset, count);
             btreeDestroyTraversal(trav);
             return 0;
         }
 
-        kv = (uint8_t *)SAFE_MALLOC(data_len, LOC_BTREE_0050);
+        kv = (uint8_t *)SAFE_MALLOC(data_len, LOC_BTREE_0144);
         if(NULL == kv)
         {
-            sys_log(LOGSTDOUT, "error:btreeSplit: alloc %d bytes failed\n", data_len);
+            dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeSplit: alloc %d bytes failed\n", data_len);
             return 0;
         }
 
         if(RAW_FILE_FAIL == rawFileRead8s(src_rawFile, kv, data_len, &kv_len, offset + sizeof(uint32_t)) || kv_len != data_len)
         {
-            sys_log(LOGSTDOUT,"error:btreeSplit: read kv %ld bytes at offset %d failed where count reaches %d, kv_len = %d\n",
+            dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT,"error:btreeSplit: read kv %ld bytes at offset %d failed where count reaches %d, kv_len = %d\n",
                     data_len, offset + sizeof(uint32_t), count, kv_len);
 
-            SAFE_FREE(kv, LOC_BTREE_0051);
+            SAFE_FREE(kv, LOC_BTREE_0145);
             btreeDestroyTraversal(trav);
             return 0;
         }
 
-        //sys_log(LOGSTDOUT, "[DEBUG] btreeSplit: read kv[2]: ");
+        //dbg_log(SEC_0130_BTREE, 9)(LOGSTDOUT, "[DEBUG] btreeSplit: read kv[2]: ");
         //kvPrintHs(LOGSTDOUT, kv);
 
         key = kv;
@@ -113,7 +113,7 @@ uint8_t btreeSplit(const BTree *src_tree, const RawFile *src_rawFile,
         rawFileAppend8slen(des_rawFile_right, kv, kv_len, &filePos);
         btreeInsert(des_tree_right, key, filePos, 0);
 
-        SAFE_FREE(kv, LOC_BTREE_0052);
+        SAFE_FREE(kv, LOC_BTREE_0146);
     }
 
     btreeDestroyTraversal(trav);
@@ -128,7 +128,7 @@ uint8_t btreeCompact(const BTree *src_tree, const RawFile *src_rawFile,
 
     if (src_tree == NULL)
     {
-        sys_log(LOGSTDOUT, "error:btreeCompact: src tree is null\n");
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:btreeCompact: src tree is null\n");
         return 0;/*fail*/
     }
     trav = btreeInitTraversal(src_tree);
@@ -145,19 +145,19 @@ uint8_t btreeCompact(const BTree *src_tree, const RawFile *src_rawFile,
 
         if(RAW_FILE_FAIL == rawFileRead32(src_rawFile, &data_len, offset))
         {
-            sys_log(LOGSTDOUT,"error:btreeCompact: read data_len at offset %d failed\n", offset);
+            dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT,"error:btreeCompact: read data_len at offset %d failed\n", offset);
             btreeDestroyTraversal(trav);
             return 0;
         }
 
-        MEM_CHECK(kv = (uint8_t *)SAFE_MALLOC(data_len, LOC_BTREE_0053));
+        MEM_CHECK(kv = (uint8_t *)SAFE_MALLOC(data_len, LOC_BTREE_0147));
 
         if(RAW_FILE_FAIL == rawFileRead8slen(src_rawFile, kv, data_len, &kv_len, offset) || kv_len != data_len)
         {
-            sys_log(LOGSTDOUT,"error:btreeCompact: read kv %ld bytes at offset %d failed where kv_len = %d\n",
+            dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT,"error:btreeCompact: read kv %ld bytes at offset %d failed where kv_len = %d\n",
                     data_len, offset, kv_len);
 
-            SAFE_FREE(kv, LOC_BTREE_0054);
+            SAFE_FREE(kv, LOC_BTREE_0148);
             btreeDestroyTraversal(trav);
             return 0;
         }
@@ -167,7 +167,7 @@ uint8_t btreeCompact(const BTree *src_tree, const RawFile *src_rawFile,
         rawFileAppend8slen(des_rawFile, kv, kv_len, &filePos);
         btreeInsert(des_tree, key, filePos, 0);
 
-        SAFE_FREE(kv, LOC_BTREE_0055);
+        SAFE_FREE(kv, LOC_BTREE_0149);
     }
 
     btreeDestroyTraversal(trav);

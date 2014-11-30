@@ -188,7 +188,7 @@ static EC_BOOL __dhcp_if_add_route(int sock, const char *netcard, const uint32_t
 
     if( 0 != getsockopt( sock, SOL_SOCKET, SO_DOMAIN, (char *)&domain, &info_len ) )
     {
-        sys_log(LOGSTDERR, "error: __dhcp_if_add_route: socket %d failed to get DOMAIN\n", sock);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDERR, "error: __dhcp_if_add_route: socket %d failed to get DOMAIN\n", sock);
         return (EC_FALSE);
     }
 #endif
@@ -214,7 +214,7 @@ static EC_BOOL __dhcp_if_add_route(int sock, const char *netcard, const uint32_t
     
     if (ioctl(sock, SIOCADDRT, &rt) < 0)
     {
-        sys_log(LOGSTDOUT, "error:__dhcp_if_add_route: add route of dev %s failed, errno = %d, errstr = %s\n", 
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:__dhcp_if_add_route: add route of dev %s failed, errno = %d, errstr = %s\n", 
                             netcard, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -229,7 +229,7 @@ INET_INFO *dhcp_if_new(const char *netcard_name, const uint32_t rbuf_max)
     {
         if(EC_FALSE == dhcp_if_init(info, netcard_name, rbuf_max))
         {
-            sys_log(LOGSTDOUT, "error:dhcp_if_new: init failed\n");
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_new: init failed\n");
             SAFE_FREE(info, LOC_DHCP_0002);
             return (NULL_PTR);
         }
@@ -246,7 +246,7 @@ EC_BOOL dhcp_if_init(INET_INFO *info, const char *netcard_name, const uint32_t r
         info->rbuf = (unsigned char *)SAFE_MALLOC(rbuf_max, LOC_DHCP_0003);
         if(NULL_PTR == info->rbuf)
         {
-            sys_log(LOGSTDOUT, "error:dhcp_if_init: alloc %d bytes failed\n", rbuf_max);
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_init: alloc %d bytes failed\n", rbuf_max);
             return (EC_FALSE);
         }
         memset(info->rbuf, 0, rbuf_max);
@@ -291,7 +291,7 @@ int dhcp_if_register_lpf (INET_INFO *info)
     sock = csocket_open(PF_PACKET, SOCK_PACKET, htons((short)ETH_P_ALL));
     if (sock < 0)
     {
-        sys_log(LOGSTDERR, "error:dhcp_if_register_lpf: failed to create raw socket!\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDERR, "error:dhcp_if_register_lpf: failed to create raw socket!\n");
         return (-1);
     }
 
@@ -303,7 +303,7 @@ int dhcp_if_register_lpf (INET_INFO *info)
     strncpy (sa.sa_data, (const char *)&(info->ifr_hw), sizeof(sa.sa_data));
     if (0 != bind (sock, &sa, sizeof sa))
     {
-        sys_log(LOGSTDERR, "dhcp_if_register_lpf: bind error! errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDERR, "dhcp_if_register_lpf: bind error! errno = %d, errstr = %s\n",
                            errno, strerror(errno) );
         close(sock);
         return (-1);
@@ -434,13 +434,13 @@ EC_BOOL dhcp_if_enable_onboot(const char *netcard, const INET_INFO *info)
     pos += snprintf(&(script[ pos ]), IFCFG_SCRIPT_MAX - pos, "IPV6INIT=no\n");
     pos += snprintf(&(script[ pos ]), IFCFG_SCRIPT_MAX - pos, "NAME=\"%s\"\n", netcard);
 
-    //sys_log(LOGSTDOUT, "script:\n%s\n", script);
+    //dbg_log(SEC_0084_DHCP, 5)(LOGSTDOUT, "script:\n%s\n", script);
 
     snprintf(ifcfg_fname, IFCFG_FNAME_MAX, "/etc/sysconfig/network-scripts/ifcfg-%s", netcard);
     fp = fopen(ifcfg_fname, "w");
     if(NULL_PTR == fp)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_enable_onboot: open file %s to write failed, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_enable_onboot: open file %s to write failed, errno = %d, errstr = %s\n",
                            ifcfg_fname, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -457,7 +457,7 @@ EC_BOOL dhcp_if_set_mcast_route(int sock, const char *netcard)
                                         c_uint32_ston(DHCP_DEFAULT_MCAST_ROUTE_MASK_STR), 
                                         c_uint32_ston(DHCP_DEFAULT_MCAST_ROUTE_GATEWAY_STR)))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_set_mcast_route: add default route des=%s, mask=%s, gw=%s info failed for %s\n", 
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_set_mcast_route: add default route des=%s, mask=%s, gw=%s info failed for %s\n", 
                             DHCP_DEFAULT_MCAST_ROUTE_IPADDR_STR,
                             DHCP_DEFAULT_MCAST_ROUTE_MASK_STR,
                             DHCP_DEFAULT_MCAST_ROUTE_GATEWAY_STR,
@@ -475,14 +475,14 @@ EC_BOOL dhcp_if_get_info(const char *netcard, INET_INFO *info)
     sock = csocket_open(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_get_info: Can't create socket for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_get_info: Can't create socket for %s\n", netcard);
         return (EC_FALSE);
     }
 
     /*get netcard hw addr*/
     if(EC_FALSE == dhcp_if_get_hw_addr_info(sock, netcard, info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_get_info: get hardware address info failed for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_get_info: get hardware address info failed for %s\n", netcard);
         close(sock);
         return (EC_FALSE);
     }
@@ -490,7 +490,7 @@ EC_BOOL dhcp_if_get_info(const char *netcard, INET_INFO *info)
     /*get ipv4 addr*/
     if(EC_FALSE == dhcp_if_get_ipv4_addr_info(sock, netcard, info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_get_info: get ipv4 address info failed for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_get_info: get ipv4 address info failed for %s\n", netcard);
         close(sock);
         return (EC_FALSE);
     }
@@ -498,7 +498,7 @@ EC_BOOL dhcp_if_get_info(const char *netcard, INET_INFO *info)
     /*get subnet mask*/
     if(EC_FALSE == dhcp_if_get_subnet_mask_info(sock, netcard, info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_get_info: get subnet mask info failed for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_get_info: get subnet mask info failed for %s\n", netcard);
         close(sock);
         return (EC_FALSE);
     }
@@ -506,7 +506,7 @@ EC_BOOL dhcp_if_get_info(const char *netcard, INET_INFO *info)
     /*get broadcast address*/
     if(EC_FALSE == dhcp_if_get_bcast_addr_info(sock, netcard, info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_get_info: get broadcast address info failed for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_get_info: get broadcast address info failed for %s\n", netcard);
         close(sock);
         return (EC_FALSE);
     }
@@ -522,14 +522,14 @@ EC_BOOL dhcp_if_set_info(const char *netcard, INET_INFO *info)
     sock = csocket_open(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_set_info: Can't create socket for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_set_info: Can't create socket for %s\n", netcard);
         return (EC_FALSE);
     }
 
     /*set ipv4 addr*/
     if(EC_FALSE == dhcp_if_set_ipv4_addr_info(sock, netcard, info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_set_info: set ipv4 address info failed for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_set_info: set ipv4 address info failed for %s\n", netcard);
         close(sock);
         return (EC_FALSE);
     }
@@ -537,7 +537,7 @@ EC_BOOL dhcp_if_set_info(const char *netcard, INET_INFO *info)
     /*set subnet mask*/
     if(EC_FALSE == dhcp_if_set_subnet_mask_info(sock, netcard, info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_set_info: set subnet mask info failed for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_set_info: set subnet mask info failed for %s\n", netcard);
         close(sock);
         return (EC_FALSE);
     }
@@ -545,7 +545,7 @@ EC_BOOL dhcp_if_set_info(const char *netcard, INET_INFO *info)
     /*set broadcast address*/
     if(EC_FALSE == dhcp_if_set_bcast_addr_info(sock, netcard, info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_set_info: set broadcast address info failed for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_set_info: set broadcast address info failed for %s\n", netcard);
         close(sock);
         return (EC_FALSE);
     }
@@ -554,7 +554,7 @@ EC_BOOL dhcp_if_set_info(const char *netcard, INET_INFO *info)
     /*set default route info*/
     if(EC_FALSE == dhcp_if_set_mcast_route(sock, netcard))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_set_info: add default route info failed for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_set_info: add default route info failed for %s\n", netcard);
         close(sock);
         return (EC_FALSE);
     }
@@ -570,14 +570,14 @@ EC_BOOL dhcp_if_chk_info(const char *netcard, const INET_INFO *info)
     sock = csocket_open(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_chk_info: Can't create socket for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_chk_info: Can't create socket for %s\n", netcard);
         return (EC_FALSE);
     }
 
     /*get ipv4 addr*/
     if(EC_FALSE == dhcp_if_chk_ipv4_addr_info(sock, netcard, info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_chk_info: chk ipv4 address info failed for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_chk_info: chk ipv4 address info failed for %s\n", netcard);
         close(sock);
         return (EC_FALSE);
     }
@@ -585,7 +585,7 @@ EC_BOOL dhcp_if_chk_info(const char *netcard, const INET_INFO *info)
     /*get subnet mask*/
     if(EC_FALSE == dhcp_if_chk_subnet_mask_info(sock, netcard, info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_chk_info: chk subnet mask info failed for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_chk_info: chk subnet mask info failed for %s\n", netcard);
         close(sock);
         return (EC_FALSE);
     }
@@ -593,7 +593,7 @@ EC_BOOL dhcp_if_chk_info(const char *netcard, const INET_INFO *info)
     /*get broadcast address*/
     if(EC_FALSE == dhcp_if_chk_bcast_addr_info(sock, netcard, info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_chk_info: chk broadcast address info failed for %s\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_chk_info: chk broadcast address info failed for %s\n", netcard);
         close(sock);
         return (EC_FALSE);
     }
@@ -614,7 +614,7 @@ EC_BOOL dhcp_if_get_hw_addr_info(int sock, const char *netcard, INET_INFO *info)
     strcpy(ifr_hw->ifr_name, netcard);
     if (ioctl(sock, SIOCGIFHWADDR, ifr_hw) < 0)
     {
-        sys_log(LOGSTDOUT,"error:dhcp_if_get_hw_addr_info: getting hardware address failed for %s, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT,"error:dhcp_if_get_hw_addr_info: getting hardware address failed for %s, errno = %d, errstr = %s\n",
                            netcard, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -628,7 +628,7 @@ EC_BOOL dhcp_if_get_hw_addr_info(int sock, const char *netcard, INET_INFO *info)
             memcpy(&(info->hw_address.hbuf[1]), sa->sa_data, 6);
             break;
         default:
-            sys_log(LOGSTDOUT,"error:dhcp_if_get_hw_addr_info: Unsupported device type %ld for %s\n",
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT,"error:dhcp_if_get_hw_addr_info: Unsupported device type %ld for %s\n",
                               (long int)sa->sa_family, netcard);
             return (EC_FALSE);
     }
@@ -647,7 +647,7 @@ EC_BOOL dhcp_if_get_subnet_mask_info(int sock, const char *netcard, INET_INFO *i
 
     if (ioctl(sock, SIOCGIFNETMASK, ifr_mask) < 0)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_get_subnet_mask_info: getting subnet mask failed for %s, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_get_subnet_mask_info: getting subnet mask failed for %s, errno = %d, errstr = %s\n",
                            netcard, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -664,7 +664,7 @@ EC_BOOL dhcp_if_set_subnet_mask_info(int sock, const char *netcard, const INET_I
 
     if (ioctl(sock, SIOCSIFNETMASK, &ifr_mask) < 0)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_set_subnet_mask_info: set subnet mask failed for %s, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_set_subnet_mask_info: set subnet mask failed for %s, errno = %d, errstr = %s\n",
                             netcard, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -683,7 +683,7 @@ EC_BOOL dhcp_if_chk_subnet_mask_info(int sock, const char *netcard, const INET_I
 
     if (ioctl(sock, SIOCGIFNETMASK, &ifr_mask) < 0)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_chk_subnet_mask_info: getting subnet mask failed for %s, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_chk_subnet_mask_info: getting subnet mask failed for %s, errno = %d, errstr = %s\n",
                            netcard, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -692,7 +692,7 @@ EC_BOOL dhcp_if_chk_subnet_mask_info(int sock, const char *netcard, const INET_I
     sa_2nd = ( struct sockaddr_in * )&(info->ifr_mask.ifr_netmask);
     if(sa_1st->sin_addr.s_addr != sa_2nd->sin_addr.s_addr)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_chk_subnet_mask_info: got %s subnet mask %s != %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_chk_subnet_mask_info: got %s subnet mask %s != %s\n",
                             netcard, c_inet_ntos(sa_1st->sin_addr), c_inet_ntos(sa_2nd->sin_addr));
         return (EC_FALSE);
     }
@@ -712,7 +712,7 @@ EC_BOOL dhcp_if_get_bcast_addr_info(int sock, const char *netcard, INET_INFO *in
 
     if (ioctl(sock, SIOCGIFBRDADDR, ifr_bcast) < 0)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_get_bcast_addr_info: getting broadcast address failed for %s, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_get_bcast_addr_info: getting broadcast address failed for %s, errno = %d, errstr = %s\n",
                             netcard, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -722,7 +722,7 @@ EC_BOOL dhcp_if_get_bcast_addr_info(int sock, const char *netcard, INET_INFO *in
         struct sockaddr_in *sa;
         sa = ((struct sockaddr_in *)&(info->ifr_bcast.ifr_broadaddr));
 
-        sys_log(LOGSTDOUT, "[DEBUG] dhcp_if_get_bcast_addr_info: bcast family %d port %d %s (%08lx)\n",
+        dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_if_get_bcast_addr_info: bcast family %d port %d %s (%08lx)\n",
                             sa->sin_family, sa->sin_port, c_inet_ntos(sa->sin_addr),(sa->sin_addr)
                             );
     }
@@ -739,7 +739,7 @@ EC_BOOL dhcp_if_set_bcast_addr_info(int sock, const char *netcard, const INET_IN
 
     if (ioctl(sock, SIOCSIFBRDADDR, &ifr_bcast) < 0)
     {
-        sys_log(LOGSTDOUT,"error:dhcp_if_set_bcast_addr_info: set broadcast address failed for %s, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT,"error:dhcp_if_set_bcast_addr_info: set broadcast address failed for %s, errno = %d, errstr = %s\n",
                            netcard, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -758,7 +758,7 @@ EC_BOOL dhcp_if_chk_bcast_addr_info(int sock, const char *netcard, const INET_IN
 
     if (ioctl(sock, SIOCGIFBRDADDR, &ifr_bcast) < 0)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_chk_bcast_addr_info: getting broadcast failed for %s, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_chk_bcast_addr_info: getting broadcast failed for %s, errno = %d, errstr = %s\n",
                            netcard, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -767,7 +767,7 @@ EC_BOOL dhcp_if_chk_bcast_addr_info(int sock, const char *netcard, const INET_IN
     sa_2nd = ( struct sockaddr_in * )&(info->ifr_bcast.ifr_broadaddr );
     if(sa_1st->sin_addr.s_addr != sa_2nd->sin_addr.s_addr)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_chk_bcast_addr_info: got %s broadcast %s != %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_chk_bcast_addr_info: got %s broadcast %s != %s\n",
                             netcard, c_inet_ntos(sa_1st->sin_addr), c_inet_ntos(sa_2nd->sin_addr));
         return (EC_FALSE);
     }
@@ -786,7 +786,7 @@ EC_BOOL dhcp_if_get_ipv4_addr_info(int sock, const char *netcard, INET_INFO *inf
 
     if (ioctl(sock, SIOCGIFADDR, ifr_ipv4) < 0)
     {
-        sys_log(LOGSTDOUT,"error:dhcp_if_get_ipv4_addr_info: getting ipv4 address failed for %s, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT,"error:dhcp_if_get_ipv4_addr_info: getting ipv4 address failed for %s, errno = %d, errstr = %s\n",
                            netcard, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -796,7 +796,7 @@ EC_BOOL dhcp_if_get_ipv4_addr_info(int sock, const char *netcard, INET_INFO *inf
         struct sockaddr_in *sa;
         sa = ((struct sockaddr_in *)&(info->ifr_ipv4.ifr_addr));
 
-        sys_log(LOGSTDOUT, "[DEBUG] dhcp_if_get_ipv4_addr_info: ipv4 family %d port %d %s (%08lx)\n",
+        dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_if_get_ipv4_addr_info: ipv4 family %d port %d %s (%08lx)\n",
                             sa->sin_family, sa->sin_port, c_inet_ntos(sa->sin_addr),(sa->sin_addr)
                             );
     }
@@ -814,7 +814,7 @@ EC_BOOL dhcp_if_set_ipv4_addr_info(int sock, const char *netcard, const INET_INF
 
     if (ioctl(sock, SIOCSIFADDR, &ifr_ipv4) < 0)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_set_ipv4_addr_info: set ipv4 address failed for %s, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_set_ipv4_addr_info: set ipv4 address failed for %s, errno = %d, errstr = %s\n",
                            netcard, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -833,7 +833,7 @@ EC_BOOL dhcp_if_chk_ipv4_addr_info(int sock, const char *netcard, const INET_INF
 
     if (ioctl(sock, SIOCGIFADDR, &ifr_ipv4) < 0)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_chk_ipv4_addr_info: getting ipv4 address failed for %s, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_chk_ipv4_addr_info: getting ipv4 address failed for %s, errno = %d, errstr = %s\n",
                            netcard, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -842,7 +842,7 @@ EC_BOOL dhcp_if_chk_ipv4_addr_info(int sock, const char *netcard, const INET_INF
     sa_2nd = ( struct sockaddr_in * )&(info->ifr_ipv4.ifr_broadaddr );
     if(sa_1st->sin_addr.s_addr != sa_2nd->sin_addr.s_addr)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_chk_ipv4_addr_info: got %s ipv4 address %s != %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_chk_ipv4_addr_info: got %s ipv4 address %s != %s\n",
                             netcard, c_inet_ntos(sa_1st->sin_addr), c_inet_ntos(sa_2nd->sin_addr));
         return (EC_FALSE);
     }
@@ -1043,7 +1043,7 @@ ssize_t dhcp_if_decode_udp_ip_header(
     if ((udp_packets_length_checked > 4) &&
         ((udp_packets_length_checked / udp_packets_length_overflow) < 2))
      {
-        sys_log(LOGSTDNULL, "dhcp_if_decode_udp_ip_header: %d udp packets in %d too long - dropped\n",
+        dbg_log(SEC_0084_DHCP, 5)(LOGSTDNULL, "dhcp_if_decode_udp_ip_header: %d udp packets in %d too long - dropped\n",
              udp_packets_length_overflow,
              udp_packets_length_checked);
         udp_packets_length_overflow = 0;
@@ -1064,7 +1064,7 @@ ssize_t dhcp_if_decode_udp_ip_header(
       ++ip_packets_bad_checksum;
       if (ip_packets_seen > 4 && (ip_packets_seen / ip_packets_bad_checksum) < 2)
       {
-          sys_log(LOGSTDNULL, "dhcp_if_decode_udp_ip_header: %d bad IP checksums seen in %d packets\n",
+          dbg_log(SEC_0084_DHCP, 5)(LOGSTDNULL, "dhcp_if_decode_udp_ip_header: %d bad IP checksums seen in %d packets\n",
                 ip_packets_bad_checksum, ip_packets_seen);
           ip_packets_seen = ip_packets_bad_checksum = 0;
       }
@@ -1097,7 +1097,7 @@ ssize_t dhcp_if_decode_udp_ip_header(
       udp_packets_bad_checksum++;
       if (udp_packets_seen > 4 && (udp_packets_seen / udp_packets_bad_checksum) < 2)
       {
-          sys_log(LOGSTDOUT, "dhcp_if_decode_udp_ip_header: %d bad udp checksums in %d packets\n",
+          dbg_log(SEC_0084_DHCP, 5)(LOGSTDOUT, "dhcp_if_decode_udp_ip_header: %d bad udp checksums in %d packets\n",
                 udp_packets_bad_checksum, udp_packets_seen);
           udp_packets_seen = udp_packets_bad_checksum = 0;
       }
@@ -1153,7 +1153,7 @@ ssize_t dhcp_if_send ( const INET_INFO *inet_info,
                      (const struct sockaddr *)&sa, sizeof(sa));
     if (result < 0)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_packet_send: errno = %d, errstr = %s [fudge = %d, len %d]\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_packet_send: errno = %d, errstr = %s [fudge = %d, len %d]\n",
                             errno, strerror(errno), fudge, ibufp + len - fudge);
     }
     return result;
@@ -1206,7 +1206,7 @@ ssize_t dhcp_if_recv ( INET_INFO *inet_info,
 
     if ((unsigned)length < paylen)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_packet_recv: Internal inconsistency, errno = %d, errstr = %s\n",
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_packet_recv: Internal inconsistency, errno = %d, errstr = %s\n",
                             errno, strerror(errno));
     }
 
@@ -1224,14 +1224,14 @@ EC_BOOL dhcp_if_check_ipv4_defined(const char *netcard)
     info = dhcp_if_new(netcard, 0);
     if(NULL_PTR == info)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_check_ipv4_defined: new inet_info for %s failed\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_check_ipv4_defined: new inet_info for %s failed\n", netcard);
         return (EC_FALSE);
     }
 
     sock = dhcp_if_register_lpf(info);
     if(-1 == sock)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_check_ipv4_defined: register lpf for %s failed\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_check_ipv4_defined: register lpf for %s failed\n", netcard);
         dhcp_if_free(info);
         return (EC_FALSE);
     }
@@ -1239,13 +1239,13 @@ EC_BOOL dhcp_if_check_ipv4_defined(const char *netcard)
     ipv4_addr = dhcp_if_get_ipv4_addr(info);
     if(0 == ipv4_addr)
     {
-        sys_log(LOGSTDOUT, "error:dhcp_if_check_ipv4_defined: ipv4 addr for %s not defined\n", netcard);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_if_check_ipv4_defined: ipv4 addr for %s not defined\n", netcard);
         close(sock);
         dhcp_if_free(info);
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] dhcp_if_check_ipv4_defined: %s defined ipv4 addr %s\n", netcard, c_uint32_ntos(ipv4_addr));
+    dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_if_check_ipv4_defined: %s defined ipv4 addr %s\n", netcard, c_uint32_ntos(ipv4_addr));
 
     close(sock);
     dhcp_if_free(info);
@@ -1257,11 +1257,11 @@ void dhcp_print_hw_addr(LOG *log, const HARDWARE *hw)
     switch(hw->hbuf[0])
     {
         case HTYPE_ETHER:
-        sys_log(LOGSTDOUT, "hw addr: %02X:%02X:%02X:%02X:%02X:%02X\n",
+        dbg_log(SEC_0084_DHCP, 5)(LOGSTDOUT, "hw addr: %02X:%02X:%02X:%02X:%02X:%02X\n",
                             hw->hbuf[1],hw->hbuf[2],hw->hbuf[3],hw->hbuf[4],hw->hbuf[5],hw->hbuf[6]);
         break;
         default:
-        sys_log(LOGSTDOUT, "error:dhcp_print_hw_addr:invalid hw type %d\n", hw->hbuf[0]);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_print_hw_addr:invalid hw type %d\n", hw->hbuf[0]);
     }
     return;
 }
@@ -1276,7 +1276,7 @@ EC_BOOL dhcp_packet_set_caddr(DHCP_PACKET *dhcp_pkt, const HARDWARE *hw)
         memcpy(dhcp_pkt->chaddr, hw->hbuf + 1, 6);
         return (EC_TRUE);
         default:
-        sys_log(LOGSTDOUT, "error:dhcp_packet_set_caddr:invalid hw type %d\n", hw->hbuf[0]);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_packet_set_caddr:invalid hw type %d\n", hw->hbuf[0]);
     }
     return (EC_FALSE);
 }
@@ -1288,7 +1288,7 @@ EC_BOOL dhcp_packet_get_caddr(const DHCP_PACKET *dhcp_pkt, HARDWARE *hw)
         case HTYPE_ETHER:
         if(6 != dhcp_pkt->hlen)
         {
-            sys_log(LOGSTDOUT, "error:dhcp_packet_get_caddr: invalid hlen %d != 6\n", dhcp_pkt->hlen);
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_packet_get_caddr: invalid hlen %d != 6\n", dhcp_pkt->hlen);
             return (EC_FALSE);
         }
 
@@ -1296,7 +1296,7 @@ EC_BOOL dhcp_packet_get_caddr(const DHCP_PACKET *dhcp_pkt, HARDWARE *hw)
         memcpy(hw->hbuf + 1, dhcp_pkt->chaddr, 6);
         return (EC_TRUE);
         default:
-        sys_log(LOGSTDOUT, "error:dhcp_packet_get_caddr:invalid hw type %d\n", dhcp_pkt->htype);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_packet_get_caddr:invalid hw type %d\n", dhcp_pkt->htype);
     }
     return (EC_FALSE);
 }
@@ -1313,12 +1313,12 @@ EC_BOOL dhcp_packet_chk_caddr(const DHCP_PACKET *dhcp_pkt, const HARDWARE *hw)
         case HTYPE_ETHER:
         if(0 != memcmp(dhcp_pkt->chaddr, hw->hbuf + 1, 6))
         {
-            sys_log(LOGSTDOUT, "error:dhcp_packet_chk_caddr: chk chaddr failed\n");
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_packet_chk_caddr: chk chaddr failed\n");
             return (EC_FALSE);
         }
         break;
         default:
-        sys_log(LOGSTDOUT, "error:dhcp_packet_chk_caddr:invalid hw type %d\n", dhcp_pkt->htype);
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_packet_chk_caddr:invalid hw type %d\n", dhcp_pkt->htype);
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -1380,7 +1380,7 @@ EC_BOOL dhcp_packet_get_options(const DHCP_PACKET *dhcp_pkt, INET_INFO *info)
             }
             default:
             {
-                sys_log(LOGSTDOUT, "error:dhcp_packet_get_options: invalid code %d\n", code);
+                dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_packet_get_options: invalid code %d\n", code);
                 return (EC_FALSE);
             }
         }
@@ -1600,7 +1600,7 @@ EC_BOOL dhcp_packet_send(const DHCP_PACKET *dhcp_pkt, const uint16_t des_port, c
                             &sockaddr_broadcast,
                             (HARDWARE *)0);
 
-    //sys_log(LOGSTDOUT, "[DEBUG] dhcp_packet_send: send %d bytes (pkt_len = %d)\n", sent_len, pkt_len);
+    //dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_packet_send: send %d bytes (pkt_len = %d)\n", sent_len, pkt_len);
 
     if(0 < sent_len)
     {
@@ -1628,17 +1628,17 @@ EC_BOOL dhcp_packet_recv(DHCP_PACKET **recv_dhcp_pkt, INET_INFO *recv_info)
 
     if(0 >= recv_info->rbuf_len)
     {
-        //sys_log(LOGSTDOUT, "error:dhcp_packet_recv: recv nothing, len %d\n", recv_info->rbuf_len);
+        //dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_packet_recv: recv nothing, len %d\n", recv_info->rbuf_len);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] dhcp_packet_recv: recv %d bytes\n", recv_info->rbuf_len);
+    //dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_packet_recv: recv %d bytes\n", recv_info->rbuf_len);
 
     dhcp_pkt = (DHCP_PACKET *)(recv_info->rbuf);
 
     if(EC_FALSE == dhcp_packet_get_options(dhcp_pkt, recv_info))
     {
-        sys_log(LOGSTDNULL, "error:dhcp_packet_recv: get options failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDNULL, "error:dhcp_packet_recv: get options failed\n");
         return (EC_FALSE);
     }
     (*recv_dhcp_pkt) = dhcp_pkt;
@@ -1667,25 +1667,25 @@ EC_BOOL dhcp_req_packet_chk(const DHCP_PACKET *dhcp_pkt)
 {
     if(BOOTREQUEST != dhcp_pkt->op)
     {
-        sys_log(LOGSTDOUT, "warn:dhcp_req_packet_chk: invalid op %d\n", dhcp_pkt->op);
+        dbg_log(SEC_0084_DHCP, 1)(LOGSTDOUT, "warn:dhcp_req_packet_chk: invalid op %d\n", dhcp_pkt->op);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == dhcp_packet_chk_cookie(dhcp_pkt))
     {
-        sys_log(LOGSTDOUT, "warn:dhcp_req_packet_chk: invalid cookie\n");
+        dbg_log(SEC_0084_DHCP, 1)(LOGSTDOUT, "warn:dhcp_req_packet_chk: invalid cookie\n");
         return (EC_FALSE);
     }
 
     if(HTYPE_ETHER != dhcp_pkt->htype)
     {
-        sys_log(LOGSTDOUT, "warn:dhcp_req_packet_chk: invalid htype %d\n", dhcp_pkt->htype);
+        dbg_log(SEC_0084_DHCP, 1)(LOGSTDOUT, "warn:dhcp_req_packet_chk: invalid htype %d\n", dhcp_pkt->htype);
         return (EC_FALSE);
     }
 
     if(6 != dhcp_pkt->hlen)
     {
-        sys_log(LOGSTDOUT, "warn:dhcp_req_packet_chk: invalid hlen %d\n", dhcp_pkt->hlen);
+        dbg_log(SEC_0084_DHCP, 1)(LOGSTDOUT, "warn:dhcp_req_packet_chk: invalid hlen %d\n", dhcp_pkt->hlen);
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -1727,19 +1727,19 @@ EC_BOOL dhcp_rsp_packet_chk(const DHCP_PACKET *dhcp_pkt, const INET_INFO *info)
 {
     if(BOOTREPLY != dhcp_pkt->op)
     {
-        sys_log(LOGSTDOUT, "warn:dhcp_rsp_packet_chk: invalid op %d\n", dhcp_pkt->op);
+        dbg_log(SEC_0084_DHCP, 1)(LOGSTDOUT, "warn:dhcp_rsp_packet_chk: invalid op %d\n", dhcp_pkt->op);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == dhcp_packet_chk_cookie(dhcp_pkt))
     {
-        sys_log(LOGSTDOUT, "warn:dhcp_rsp_packet_chk: invalid cookie\n");
+        dbg_log(SEC_0084_DHCP, 1)(LOGSTDOUT, "warn:dhcp_rsp_packet_chk: invalid cookie\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == dhcp_packet_chk_caddr(dhcp_pkt, &(info->hw_address)))
     {
-        sys_log(LOGSTDOUT, "warn:dhcp_rsp_packet_chk: invalid hw addr\n");
+        dbg_log(SEC_0084_DHCP, 1)(LOGSTDOUT, "warn:dhcp_rsp_packet_chk: invalid hw addr\n");
         return (EC_FALSE);
     }
 
@@ -1753,7 +1753,7 @@ EC_BOOL dhcp_req_packet_handle(const DHCP_PACKET *req_dhcp_pkt, const INET_INFO 
 
     if(EC_FALSE == dhcp_packet_get_caddr(req_dhcp_pkt, &client_hw_addr))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_req_packet_handle: get client hw addr from req dhcp packet failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_req_packet_handle: get client hw addr from req dhcp packet failed\n");
         return (EC_FALSE);
     }
 
@@ -1761,13 +1761,13 @@ EC_BOOL dhcp_req_packet_handle(const DHCP_PACKET *req_dhcp_pkt, const INET_INFO 
     memset(rsp_dhcp_pkt, 0, sizeof(DHCP_PACKET));
     if(EC_FALSE == reserve_ipv4_addr(&client_hw_addr, &client_ipv4_addr))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_req_packet_handle: reserve client ipv4 addr from pool failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_req_packet_handle: reserve client ipv4 addr from pool failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == dhcp_rsp_packet_set(rsp_dhcp_pkt, info, client_ipv4_addr, &client_hw_addr))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_req_packet_handle: set rsp dhcp packet failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_req_packet_handle: set rsp dhcp packet failed\n");
         return (EC_FALSE);
     }
 
@@ -1784,11 +1784,11 @@ EC_BOOL dhcp_rsp_packet_handle(const DHCP_PACKET *rsp_dhcp_pkt, INET_INFO *recv_
 
     if(EC_FALSE == dhcp_packet_get_options(rsp_dhcp_pkt, recv_inet_info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_rsp_packet_handle: get options failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_rsp_packet_handle: get options failed\n");
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] dhcp_rsp_packet_handle: client %s, mask %s, bcast %s, mcast %s:%d\n",
+    dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_rsp_packet_handle: client %s, mask %s, bcast %s, mcast %s:%d\n",
                          c_uint32_ntos(dhcp_if_get_ipv4_addr(recv_inet_info)),
                          c_uint32_ntos(dhcp_if_get_subnet_mask(recv_inet_info)),
                          c_uint32_ntos(dhcp_if_get_bcast_addr(recv_inet_info)),
@@ -1799,26 +1799,26 @@ EC_BOOL dhcp_rsp_packet_handle(const DHCP_PACKET *rsp_dhcp_pkt, INET_INFO *recv_
 #if 1
     if(EC_FALSE == dhcp_if_set_info(recv_inet_info->name, recv_inet_info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_rsp_packet_handle: set netcard recv_inet_info failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_rsp_packet_handle: set netcard recv_inet_info failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == dhcp_if_chk_info(recv_inet_info->name, recv_inet_info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_rsp_packet_handle: chk netcard recv_inet_info failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_rsp_packet_handle: chk netcard recv_inet_info failed\n");
         return (EC_FALSE);
     }
 
 #if 0/*not suitable for CDLinux*/
     if(EC_FALSE == dhcp_if_enable_onboot(recv_inet_info->name, recv_inet_info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_rsp_packet_handle: enable netcard onboot failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_rsp_packet_handle: enable netcard onboot failed\n");
         return (EC_FALSE);
     }
 #endif    
     return (EC_TRUE);
 #else
-    sys_log(LOGSTDOUT, "[DEBUG] dhcp_rsp_packet_handle: NOT SET IPADDR TO NETCARD!\n");
+    dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_rsp_packet_handle: NOT SET IPADDR TO NETCARD!\n");
     return (EC_FALSE);
 #endif
 }
@@ -1829,12 +1829,12 @@ DHCP_PACKET * dhcp_client_wait_rsp(const INET_INFO *send_inet_info, INET_INFO *r
     CTIMET start;
     CTIMET cur;
 
-    c_time(start);
-    for(c_time(cur); CTIMET_DIFF(start, cur) < 0.0 + 3/*3 seconds*/; c_time(cur))
+    c_time(&start);
+    for(c_time(&cur); CTIMET_DIFF(start, cur) < 0.0 + 3/*3 seconds*/; c_time(&cur))
     {
         if(EC_FALSE == dhcp_packet_recv(&rsp_dhcp_pkt, recv_inet_info))
         {
-            //sys_log(LOGSTDOUT, "error:dhcp_client_do: recv rsp dhcp packet failed\n");
+            //dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_client_do: recv rsp dhcp packet failed\n");
             continue;
         }
 
@@ -1843,14 +1843,14 @@ DHCP_PACKET * dhcp_client_wait_rsp(const INET_INFO *send_inet_info, INET_INFO *r
             continue;
         }
 
-        //sys_log(LOGSTDOUT, "[DEBUG] dhcp_client_do: after recv rsp dhcp packet\n");
+        //dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_client_do: after recv rsp dhcp packet\n");
 
         if(EC_TRUE == dhcp_rsp_packet_chk(rsp_dhcp_pkt, send_inet_info))
         {
             return (rsp_dhcp_pkt);
         }
 
-        sys_log(LOGSTDOUT, "error:dhcp_client_do: chk rsp dhcp packet failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_client_do: chk rsp dhcp packet failed\n");
         //usleep(10);
     }
 
@@ -1869,7 +1869,7 @@ EC_BOOL dhcp_server_do(const char *netcard, const UINT32 mcast_addr, const UINT3
     assert(send_inet_info = dhcp_if_new(netcard, DHCP_PACKET_BUFF_MAX));
     if(EC_FALSE == dhcp_if_register_send(send_inet_info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_server_do: register dhcp send failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_server_do: register dhcp send failed\n");
         dhcp_if_free(send_inet_info);
         return (EC_FALSE);
     }
@@ -1877,7 +1877,7 @@ EC_BOOL dhcp_server_do(const char *netcard, const UINT32 mcast_addr, const UINT3
     assert(recv_inet_info = dhcp_if_new(netcard, DHCP_PACKET_BUFF_MAX));
     if(EC_FALSE == dhcp_if_register_recv(recv_inet_info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_server_do: register dhcp recv failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_server_do: register dhcp recv failed\n");
         dhcp_if_free(recv_inet_info);
         return (EC_FALSE);
     }
@@ -1889,7 +1889,7 @@ EC_BOOL dhcp_server_do(const char *netcard, const UINT32 mcast_addr, const UINT3
     send_inet_info->mcast.sin_port   = htons(_mcast_port);/*<65535*/
     send_inet_info->mcast.sin_addr.s_addr = htonl(_mcast_addr);
 
-    sys_log(LOGSTDOUT, "[DEBUG] dhcp_server_do: start bcast on netcard %s with mcast %s:%ld\n",
+    dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_server_do: start bcast on netcard %s with mcast %s:%ld\n",
                         netcard, c_word_to_ipv4(mcast_addr), mcast_port);
 
     for(;;)
@@ -1899,7 +1899,7 @@ EC_BOOL dhcp_server_do(const char *netcard, const UINT32 mcast_addr, const UINT3
 
         if(EC_FALSE == dhcp_packet_recv(&req_dhcp_pkt, recv_inet_info))
         {
-            //sys_log(LOGSTDOUT, "error:dhcp_server_do: recv req dhcp packet failed\n");
+            //dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_server_do: recv req dhcp packet failed\n");
             continue;
         }
 
@@ -1908,29 +1908,29 @@ EC_BOOL dhcp_server_do(const char *netcard, const UINT32 mcast_addr, const UINT3
             continue;
         }
 
-        sys_log(LOGSTDOUT, "[DEBUG] dhcp_server_do: after recv req dhcp packet\n");
+        dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_server_do: after recv req dhcp packet\n");
 
         if(EC_FALSE == dhcp_req_packet_chk(req_dhcp_pkt))
         {
-            sys_log(LOGSTDOUT, "error:dhcp_server_do: chk req dhcp packet failed\n");
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_server_do: chk req dhcp packet failed\n");
             continue;
         }
 
         if(EC_FALSE == dhcp_req_packet_handle(req_dhcp_pkt, send_inet_info, &rsp_dhcp_pkt))
         {
-            sys_log(LOGSTDOUT, "error:dhcp_server_do: handle req dhcp packet failed\n");
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_server_do: handle req dhcp packet failed\n");
             continue;
         }
 
-        sys_log(LOGSTDOUT, "[DEBUG] dhcp_server_do: after handle req dhcp packet\n");
+        dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_server_do: after handle req dhcp packet\n");
 
         if(EC_FALSE == dhcp_packet_send(&rsp_dhcp_pkt, DHCP_CLIENT_PORT, send_inet_info))
         {
-            sys_log(LOGSTDOUT, "error:dhcp_server_do: send rsp dhcp packet failed\n");
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_server_do: send rsp dhcp packet failed\n");
             continue;
         }
 
-        sys_log(LOGSTDOUT, "[DEBUG] dhcp_server_do: after send rsp dhcp packet\n");
+        dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_server_do: after send rsp dhcp packet\n");
 
         /*start mcast udp server*/
         super_start_mcast_udp_server(0);
@@ -1952,7 +1952,7 @@ EC_BOOL dhcp_client_do(const char *netcard, UINT32 *mcast_addr, UINT32 *mcast_po
     assert(send_inet_info = dhcp_if_new(netcard, DHCP_PACKET_BUFF_MAX));
     if(EC_FALSE == dhcp_if_register_send(send_inet_info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_client_do: register dhcp send failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_client_do: register dhcp send failed\n");
         dhcp_if_free(send_inet_info);
         return (EC_FALSE);
     }
@@ -1960,7 +1960,7 @@ EC_BOOL dhcp_client_do(const char *netcard, UINT32 *mcast_addr, UINT32 *mcast_po
     assert(recv_inet_info = dhcp_if_new(netcard, DHCP_PACKET_BUFF_MAX));
     if(EC_FALSE == dhcp_if_register_recv(recv_inet_info))
     {
-        sys_log(LOGSTDOUT, "error:dhcp_client_do: register dhcp recv failed\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_client_do: register dhcp recv failed\n");
         dhcp_if_free(recv_inet_info);
         return (EC_FALSE);
     }
@@ -1974,37 +1974,37 @@ EC_BOOL dhcp_client_do(const char *netcard, UINT32 *mcast_addr, UINT32 *mcast_po
 
         if(EC_FALSE == dhcp_req_packet_set(&req_dhcp_pkt, send_inet_info))
         {
-            sys_log(LOGSTDOUT, "error:dhcp_client_do: set req dhcp packet failed\n");
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_client_do: set req dhcp packet failed\n");
             continue;
         }
 
         if(EC_FALSE == dhcp_packet_send(&req_dhcp_pkt, DHCP_SERVER_PORT, send_inet_info))
         {
-            sys_log(LOGSTDOUT, "error:dhcp_client_do: send req dhcp packet failed\n");
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_client_do: send req dhcp packet failed\n");
             continue;
         }
-        sys_log(LOGSTDOUT, "[DEBUG] dhcp_client_do: after send req dhcp packet\n");
+        dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_client_do: after send req dhcp packet\n");
 
         rsp_dhcp_pkt = dhcp_client_wait_rsp(send_inet_info, recv_inet_info);
         if(NULL_PTR == rsp_dhcp_pkt)
         {
-            sys_log(LOGSTDOUT, "error:dhcp_client_do: wait rsp dhcp packet failed\n");
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_client_do: wait rsp dhcp packet failed\n");
             continue;
         }
-        sys_log(LOGSTDOUT, "error:dhcp_client_do: after wait rsp dhcp packet\n");
+        dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_client_do: after wait rsp dhcp packet\n");
 
         if(EC_FALSE == dhcp_rsp_packet_chk(rsp_dhcp_pkt, send_inet_info))
         {
-            sys_log(LOGSTDOUT, "error:dhcp_client_do: chk rsp dhcp packet failed\n");
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_client_do: chk rsp dhcp packet failed\n");
             continue;
         }
 
         if(EC_FALSE == dhcp_rsp_packet_handle(rsp_dhcp_pkt, recv_inet_info))
         {
-            sys_log(LOGSTDOUT, "error:dhcp_client_do: handle rsp dhcp packet failed\n");
+            dbg_log(SEC_0084_DHCP, 0)(LOGSTDOUT, "error:dhcp_client_do: handle rsp dhcp packet failed\n");
             continue;
         }
-        sys_log(LOGSTDOUT, "[DEBUG] dhcp_client_do: after handle rsp dhcp packet\n");
+        dbg_log(SEC_0084_DHCP, 9)(LOGSTDOUT, "[DEBUG] dhcp_client_do: after handle rsp dhcp packet\n");
 
         /*terminate*/
         break;

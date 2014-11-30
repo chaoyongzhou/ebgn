@@ -34,22 +34,43 @@ EC_BOOL cepoll_free(CEPOLL *cepoll);
 
 EC_BOOL cepoll_add(CEPOLL *cepoll, const int sockfd, const uint32_t events);
 
-EC_BOOL cepoll_del(CEPOLL *cepoll, const int sockfd);
+EC_BOOL cepoll_del(CEPOLL *cepoll, const int sockfd, const uint32_t events);
 
 EC_BOOL cepoll_mod(CEPOLL *cepoll, const int sockfd, const uint32_t events);
 
-EC_BOOL cepoll_add_client_event(CEPOLL *cepoll, const uint32_t events, CSOCKET_CNODE *csocket_cnode);
+EC_BOOL cepoll_set_reader(CEPOLL *cepoll, const int sockfd, CEPOLL_EVENT_HANDLER rd_handler, void *arg);
 
-EC_BOOL cepoll_add_srv_event(CEPOLL *cepoll, const uint32_t events, TASKS_CFG *tasks_cfg);
+EC_BOOL cepoll_set_writer(CEPOLL *cepoll, const int sockfd, CEPOLL_EVENT_HANDLER wr_handler, void *arg);
 
-EC_BOOL cepoll_mod_client_event(CEPOLL *cepoll, const uint32_t events, CSOCKET_CNODE *csocket_cnode);
+EC_BOOL cepoll_set_shutdown(CEPOLL *cepoll, const int sockfd, CEPOLL_EVENT_HANDLER shutdown_handler, void *arg);
 
-EC_BOOL cepoll_mod_srv_event(CEPOLL *cepoll, const uint32_t events, TASKS_CFG *tasks_cfg);
+EC_BOOL cepoll_set_timeout(CEPOLL *cepoll, const int sockfd, const uint32_t timeout_nsec, CEPOLL_EVENT_HANDLER timeout_handler, void *arg);
 
-EC_BOOL cepoll_del_event(CEPOLL *cepoll, const int sockfd);
+EC_BOOL cepoll_del_events(CEPOLL *cepoll, const int sockfd, const uint32_t events);
+
+EC_BOOL cepoll_del_event(CEPOLL *cepoll, const int sockfd, const uint32_t event);
+
+EC_BOOL cepoll_set_event(CEPOLL *cepoll, const int sockfd, const uint32_t event, CEPOLL_EVENT_HANDLER handler, void *arg);
+
+EC_BOOL cepoll_del_all(CEPOLL *cepoll, const int sockfd);
+
+EC_BOOL cepoll_set_used(CEPOLL *cepoll, const int sockfd);
+
+EC_BOOL cepoll_set_not_used(CEPOLL *cepoll, const int sockfd);
+
+EC_BOOL cepoll_update_atime(CEPOLL *cepoll, const int sockfd);
+
+EC_BOOL cepoll_set_events(CEPOLL *cepoll, const int sockfd, const uint32_t events);
+
+EC_BOOL cepoll_set_loop_handler(CEPOLL *cepoll, CEPOLL_LOOP_HANDLER handler, void *arg);
+
+EC_BOOL cepoll_handle(CEPOLL *cepoll,  const int sockfd, const uint32_t events, CEPOLL_NODE  *cepoll_node);
+
+EC_BOOL cepoll_timeout(CEPOLL *cepoll);
+
+EC_BOOL cepoll_del_timeout_event(CEPOLL *cepoll, const int sockfd);
 
 EC_BOOL cepoll_wait(CEPOLL *cepoll, int timeout_ms);
-
 
 
 #endif/*_CEPOLL_H*/

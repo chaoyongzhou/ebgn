@@ -150,7 +150,7 @@ void api_ui_cp_add_param(API_UI_INSTANCE* instance, API_UI_ELEM* element, char* 
             case API_UI_ELEM_TYPE_TCID:
                 new_node->type = API_UI_PARAM_TYPE_INTEGER;
                 new_node->x.value = (UINT32_TO_INT32(c_ipv4_to_word(word)));
-                //sys_log(LOGCONSOLE, "[DEBUG]word [%s] -> %ld\n", word, new_node->x.value);
+                //dbg_log(SEC_0010_API, 0)(LOGCONSOLE, "[DEBUG]word [%s] -> %ld\n", word, new_node->x.value);
                 break;
 
             default:
@@ -861,7 +861,7 @@ void api_ui_cp(int argc, char** argv, EC_BOOL interactive, size_t buffer_sz, API
         api_ui_cp_handle_word(instance, argv[i]);
     }
 #if 0
-    sys_log(LOGSTDOUT, "instance state %d, interactive %d <--> CMD_PROC_EXEC_STATE(%d), EC_FALSE(%d)\n",
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "instance state %d, interactive %d <--> CMD_PROC_EXEC_STATE(%d), EC_FALSE(%d)\n",
                     instance->state, instance->interactive,
                     CMD_PROC_EXEC_STATE, EC_FALSE);
 #endif
@@ -879,10 +879,10 @@ void api_ui_cp(int argc, char** argv, EC_BOOL interactive, size_t buffer_sz, API
         }
     }
 #endif
-    //sys_log(LOGSTDOUT, "before api_ui_unregister");
+    //dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "before api_ui_unregister");
     api_ui_unregister();
 
-    //sys_log(LOGSTDOUT, "before api_ui_cp_Cleanup");
+    //dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "before api_ui_cp_Cleanup");
     api_ui_cp_cleanup(instance);
     instance = NULL;
 

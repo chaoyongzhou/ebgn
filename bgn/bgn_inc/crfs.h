@@ -22,49 +22,64 @@ extern "C"{
 #include "cvector.h"
 
 #include "csocket.h"
-
+#include "cbtimer.h"
 #include "mod.inc"
 
 #include "crfsnp.h"
 #include "crfsdn.h"
 #include "crfsnpmgr.h"
+#include "crfsmc.h"
+#include "crfsbk.h"
+#include "crfsdt.inc"
+
+#define CRFS_MAX_MODI                       ((UINT32)32)
+
+#define CRFS_CHECK_DN_EXPIRE_IN_NSEC        ((uint32_t) 60) /*check once in 60 seconds*/
+
+#define CRFS_MAX_REPLICA_NUM                ((UINT32) 2)
 
 #define CRFS_FILE_PAD_CHAR                  (0x00)
 //#define CRFS_FILE_PAD_CHAR                  ((uint8_t)'.')
 
 #define CRFS_BIGFILE_MAX_SIZE               ((uint64_t)(((uint64_t)1) << 46))/*64TB*/
 
-#define CRFS_OP_WRITE                       ((UINT8)  1)
-#define CRFS_OP_READ                        ((UINT8)  2)
-#define CRFS_OP_GET_WORDSIZE                ((UINT8)  3)
-#define CRFS_OP_QLIST_PATH                  ((UINT8)  4)
-#define CRFS_OP_MKDIR                       ((UINT8)  5)
-#define CRFS_OP_EXISTS                      ((UINT8)  6)
-#define CRFS_OP_IS_FILE                     ((UINT8)  7)
-#define CRFS_OP_IS_DIR                      ((UINT8)  8)
-#define CRFS_OP_IS_QFILE                    ((UINT8)  9)
-#define CRFS_OP_IS_QDIR                     ((UINT8) 10)
+#define CRFS_ERR_STATE                      ((UINT32)  0)
+#define CRFS_WORK_STATE                     ((UINT32)  1)
+#define CRFS_SYNC_STATE                     ((UINT32)  2)
+#define CRFS_REPLAY_STATE                   ((UINT32)  4)
 
 typedef struct
 {
     /* used counter >= 0 */
-    UINT32      usedcounter;
-    EC_BOOL     terminate_flag;
+    UINT32         usedcounter;
+    EC_BOOL        terminate_flag;
+    UINT32         state;
 
-    MOD_MGR    *crfsdn_mod_mgr;
-    MOD_MGR    *crfsnpp_mod_mgr;
+    CBTIMER_NODE  *cbtimer_node;
 
-    CRFSDN     *crfsdn;
-    CRFSNP_MGR *crfsnpmgr;/*namespace pool*/    
+    MOD_MGR       *crfsdn_mod_mgr;
+    MOD_MGR       *crfsnpp_mod_mgr;
+
+    CRFSDN        *crfsdn;
+    CRFSNP_MGR    *crfsnpmgr;/*namespace pool*/
+    CRFSMC        *crfsmc;   /*memcache RFS  */
+    CRFSBK        *crfsbk;   /*backup RFS    */
+
+    CVECTOR        crfs_neighbor_vec;/*item is MOD_NODE*/
 
     CROUTINE_RWLOCK     crwlock;
 }CRFS_MD;
 
 #define CRFS_MD_TERMINATE_FLAG(crfs_md)  ((crfs_md)->terminate_flag)
+#define CRFS_MD_STATE(crfs_md)           ((crfs_md)->state)
+#define CRFS_MD_CBTIMER_NODE(crfs_md)    ((crfs_md)->cbtimer_node)
 #define CRFS_MD_DN_MOD_MGR(crfs_md)      ((crfs_md)->crfsdn_mod_mgr)
 #define CRFS_MD_NPP_MOD_MGR(crfs_md)     ((crfs_md)->crfsnpp_mod_mgr)
 #define CRFS_MD_DN(crfs_md)              ((crfs_md)->crfsdn)
 #define CRFS_MD_NPP(crfs_md)             ((crfs_md)->crfsnpmgr)
+#define CRFS_MD_MCACHE(crfs_md)          ((crfs_md)->crfsmc)
+#define CRFS_MD_BACKUP(crfs_md)          ((crfs_md)->crfsbk)
+#define CRFS_MD_NEIGHBOR_VEC(crfs_md)    (&((crfs_md)->crfs_neighbor_vec))
 #define CRFS_CRWLOCK(crfs_md)            (&((crfs_md)->crwlock))
 
 #if 0
@@ -78,31 +93,32 @@ typedef struct
 
 #if 1
 #define CRFS_INIT_LOCK(crfs_md, location)  do{\
-    sys_log(LOGSTDOUT, "[DEBUG] CRFS_INIT_LOCK: CRFS_CRWLOCK %p, at %s:%ld\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+    sys_log(LOGSTDNULL, "[DEBUG] CRFS_INIT_LOCK: CRFS_CRWLOCK %p, at %s:%ld\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
     croutine_rwlock_init(CRFS_CRWLOCK(crfs_md), CMUTEX_PROCESS_PRIVATE, location);\
 }while(0)
 
 #define CRFS_CLEAN_LOCK(crfs_md, location) do{\
-    sys_log(LOGSTDOUT, "[DEBUG] CRFS_CLEAN_LOCK: CRFS_CRWLOCK %p, at %s:%ld\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+    sys_log(LOGSTDNULL, "[DEBUG] CRFS_CLEAN_LOCK: CRFS_CRWLOCK %p, at %s:%ld\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
     croutine_rwlock_clean(CRFS_CRWLOCK(crfs_md), location);\
 }while(0)    
 
 #define CRFS_RDLOCK(crfs_md, location)     do{\
-    sys_log(LOGSTDOUT, "[DEBUG] CRFS_RDLOCK: CRFS_CRWLOCK %p, at %s:%ld\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+    sys_log(LOGSTDNULL, "[DEBUG] CRFS_RDLOCK: CRFS_CRWLOCK %p, at %s:%ld\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
     croutine_rwlock_rdlock(CRFS_CRWLOCK(crfs_md), location);\
-    sys_log(LOGSTDOUT, "[DEBUG] CRFS_RDLOCK: CRFS_CRWLOCK %p, at %s:%ld done\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+    sys_log(LOGSTDNULL, "[DEBUG] CRFS_RDLOCK: CRFS_CRWLOCK %p, at %s:%ld done\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
 }while(0)
 
 #define CRFS_WRLOCK(crfs_md, location)     do{\
-    sys_log(LOGSTDOUT, "[DEBUG] CRFS_WRLOCK: CRFS_CRWLOCK %p, at %s:%ld\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+    sys_log(LOGSTDNULL, "[DEBUG] CRFS_WRLOCK: CRFS_CRWLOCK %p, at %s:%ld\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
     croutine_rwlock_wrlock(CRFS_CRWLOCK(crfs_md), location);\
-    sys_log(LOGSTDOUT, "[DEBUG] CRFS_WRLOCK: CRFS_CRWLOCK %p, at %s:%ld done\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+    sys_log(LOGSTDNULL, "[DEBUG] CRFS_WRLOCK: CRFS_CRWLOCK %p, at %s:%ld done\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
 }while(0)
 #define CRFS_UNLOCK(crfs_md, location)     do{\
-    sys_log(LOGSTDOUT, "[DEBUG] CRFS_UNLOCK: CRFS_CRWLOCK %p, at %s:%ld\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+    sys_log(LOGSTDNULL, "[DEBUG] CRFS_UNLOCK: CRFS_CRWLOCK %p, at %s:%ld\n", CRFS_CRWLOCK(crfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
     croutine_rwlock_unlock(CRFS_CRWLOCK(crfs_md), location);\
 }while(0)
 #endif
+
 
 
 
@@ -127,7 +143,7 @@ UINT32 crfs_free_module_static_mem(const UINT32 crfs_md_id);
 * start CRFS module
 *
 **/
-UINT32 crfs_start(const CSTRING *crfsnp_root_dir, const CSTRING *crfsdn_root_dir);
+UINT32 crfs_start(const CSTRING *crfs_root_dir);
 
 /**
 *
@@ -136,24 +152,17 @@ UINT32 crfs_start(const CSTRING *crfsnp_root_dir, const CSTRING *crfsdn_root_dir
 **/
 void crfs_end(const UINT32 crfs_md_id);
 
-
-/**
-*
-* initialize mod mgr of CRFS module
-*
-**/
 UINT32 crfs_set_npp_mod_mgr(const UINT32 crfs_md_id, const MOD_MGR * src_mod_mgr);
 
 UINT32 crfs_set_dn_mod_mgr(const UINT32 crfs_md_id, const MOD_MGR * src_mod_mgr);
 
-/**
-*
-* get mod mgr of CRFS module
-*
-**/
 MOD_MGR * crfs_get_npp_mod_mgr(const UINT32 crfs_md_id);
 
 MOD_MGR * crfs_get_dn_mod_mgr(const UINT32 crfs_md_id);
+
+EC_BOOL crfs_add_npp(const UINT32 crfs_md_id, const UINT32 crfsnpp_tcid, const UINT32 crfsnpp_rank);
+
+EC_BOOL crfs_add_dn(const UINT32 crfs_md_id, const UINT32 crfsdn_tcid, const UINT32 crfsdn_rank);
 
 CRFSNP_FNODE *crfs_fnode_new(const UINT32 crfs_md_id);
 
@@ -163,6 +172,14 @@ EC_BOOL crfs_fnode_clean(const UINT32 crfs_md_id, CRFSNP_FNODE *crfsnp_fnode);
 
 EC_BOOL crfs_fnode_free(const UINT32 crfs_md_id, CRFSNP_FNODE *crfsnp_fnode);
 
+
+EC_BOOL crfs_set_state(const UINT32 crfs_md_id, const UINT32 crfs_state);
+UINT32  crfs_get_state(const UINT32 crfs_md_id);
+EC_BOOL crfs_is_state(const UINT32 crfs_md_id, const UINT32 crfs_state);
+
+EC_BOOL crfs_create_backup(const UINT32 crfs_md_id, const CSTRING *crfsnp_root_dir_bk, const CSTRING *crfsdn_root_dir_bk, const CSTRING *crfs_op_fname);
+EC_BOOL crfs_open_backup(const UINT32 crfs_md_id, const CSTRING *crfsnp_root_dir_bk, const CSTRING *crfsdn_root_dir_bk, const CSTRING *crfs_op_fname);
+EC_BOOL crfs_close_backup(const UINT32 crfs_md_id);
 
 /**
 *
@@ -224,13 +241,8 @@ EC_BOOL crfs_is_npp_and_dn(const UINT32 crfs_md_id);
 EC_BOOL crfs_create_npp(const UINT32 crfs_md_id, 
                              const UINT32 crfsnp_model, 
                              const UINT32 crfsnp_max_num, 
-                             const UINT32 crfsnp_1st_chash_algo_id, 
                              const UINT32 crfsnp_2nd_chash_algo_id, 
                              const CSTRING *crfsnp_db_root_dir);
-
-EC_BOOL crfs_add_npp(const UINT32 crfs_md_id, const UINT32 crfsnpp_tcid, const UINT32 crfsnpp_rank);
-
-EC_BOOL crfs_add_dn(const UINT32 crfs_md_id, const UINT32 crfsdn_tcid, const UINT32 crfsdn_rank);
 
 /**
 *
@@ -245,6 +257,13 @@ EC_BOOL crfs_find_dir(const UINT32 crfs_md_id, const CSTRING *dir_path);
 *
 **/
 EC_BOOL crfs_find_file(const UINT32 crfs_md_id, const CSTRING *file_path);
+
+/**
+*
+*  check existing of a big file
+*
+**/
+EC_BOOL crfs_find_file_b(const UINT32 crfs_md_id, const CSTRING *file_path);
 
 /**
 *
@@ -276,20 +295,6 @@ EC_BOOL crfs_is_dir(const UINT32 crfs_md_id, const CSTRING *dir_path);
 
 /**
 *
-*  set home dir of a name node
-*
-**/
-EC_BOOL crfs_set(const UINT32 crfs_md_id, const CSTRING *home_dir, const UINT32 crfsnp_id);
-
-/**
-*
-*  unset/unbind home dir of a name node
-*
-**/
-EC_BOOL crfs_unset(const UINT32 crfs_md_id, const CSTRING *home_dir, const UINT32 crfsnp_id);
-
-/**
-*
 *  reserve space from dn
 *
 **/
@@ -307,7 +312,7 @@ EC_BOOL crfs_release_dn(const UINT32 crfs_md_id, const CRFSNP_FNODE *crfsnp_fnod
 *  write a file
 *
 **/
-EC_BOOL crfs_write(const UINT32 crfs_md_id, const CSTRING *file_path, const CBYTES *cbytes);
+EC_BOOL crfs_write(const UINT32 crfs_md_id, const CSTRING *file_path, const CBYTES *cbytes, const UINT32 expire_nsec);
 
 #if 0
 /**
@@ -322,7 +327,7 @@ EC_BOOL crfs_write_cache(const UINT32 crfs_md_id, const CSTRING *file_path, cons
 *  read a file
 *
 **/
-EC_BOOL crfs_read(const UINT32 crfs_md_id, const CSTRING *file_path, CBYTES *cbytes);
+EC_BOOL crfs_read(const UINT32 crfs_md_id, const CSTRING *file_path, CBYTES *cbytes, UINT32 *expires_timestamp, const EC_BOOL need_expired_content);
 
 /**
 *
@@ -336,28 +341,35 @@ EC_BOOL crfs_write_e(const UINT32 crfs_md_id, const CSTRING *file_path, UINT32 *
 *  read a file from offset
 *
 **/
-EC_BOOL crfs_read_e(const UINT32 crfs_md_id, const CSTRING *file_path, UINT32 *offset, const UINT32 max_len, CBYTES *cbytes);
+EC_BOOL crfs_read_e(const UINT32 crfs_md_id, const CSTRING *file_path, UINT32 *offset, const UINT32 max_len, CBYTES *cbytes, UINT32 *expires_timestamp, const EC_BOOL need_expired_content);
 
 /**
 *
 *  create a big file at offset
 *
 **/
-EC_BOOL crfs_create_b(const UINT32 crfs_md_id, const CSTRING *file_path);
+EC_BOOL crfs_create_b(const UINT32 crfs_md_id, const CSTRING *file_path, const uint64_t *file_size);
 
 /**
 *
 *  write a big file at offset
 *
 **/
-EC_BOOL crfs_write_b(const UINT32 crfs_md_id, const CSTRING *file_path, uint64_t *offset, const UINT32 max_len, const CBYTES *cbytes);
+EC_BOOL crfs_write_b(const UINT32 crfs_md_id, const CSTRING *file_path, uint64_t *offset, const CBYTES *cbytes);
 
 /**
 *
 *  read a file from offset
 *
 **/
-EC_BOOL crfs_read_b(const UINT32 crfs_md_id, const CSTRING *file_path, uint64_t *offset, const UINT32 max_len, CBYTES *cbytes);
+EC_BOOL crfs_read_b(const UINT32 crfs_md_id, const CSTRING *file_path, uint64_t *offset, const UINT32 max_len, CBYTES *cbytes, UINT32 *expires_timestamp, const EC_BOOL need_expired_content);
+
+/**
+*
+*  fetch block description from offset
+*
+**/
+EC_BOOL crfs_fetch_block_fd_b(const UINT32 crfs_md_id, const CSTRING *file_path, const uint64_t offset, UINT32 *expires_timestamp, const EC_BOOL need_expired_content, uint32_t *block_size, int *block_fd);
 
 /**
 *
@@ -450,45 +462,6 @@ EC_BOOL crfs_write_e_dn(const UINT32 crfs_md_id, CRFSNP_FNODE *crfsnp_fnode, UIN
 **/
 EC_BOOL crfs_read_e_dn(const UINT32 crfs_md_id, const CRFSNP_FNODE *crfsnp_fnode, UINT32 *offset, const UINT32 max_len, CBYTES *cbytes);
 
-/*when found missed segment in bnode*/
-static EC_BOOL __crfs_write_b_seg_dn_miss(const UINT32 crfs_md_id, 
-                                              CRFSNP *crfsnp, 
-                                              const uint32_t parent_pos, 
-                                              UINT32 *offset, const CBYTES *cbytes,
-                                              const uint32_t key_1st_hash, const uint32_t key_2nd_hash, 
-                                              const uint32_t klen, const uint8_t *key);
-static EC_BOOL __crfs_write_b_seg_dn_hit(const UINT32 crfs_md_id, 
-                                           CRFSNP *crfsnp,
-                                           const uint32_t node_pos, 
-                                           UINT32 *offset, const CBYTES *cbytes,
-                                           const uint32_t key_1st_hash, const uint32_t key_2nd_hash, 
-                                           const uint32_t klen, const uint8_t *key);
-static EC_BOOL __crfs_write_b_seg_dn(const UINT32 crfs_md_id, 
-                                             CRFSNP *crfsnp, const uint32_t parent_pos, 
-                                             const uint32_t seg_no, UINT32 *offset, 
-                                             const UINT32 max_len, const CBYTES *cbytes);
-static EC_BOOL __crfs_write_b_dn(const UINT32 crfs_md_id, const uint32_t crfsnp_id, const uint32_t parent_pos, uint64_t *offset, const UINT32 max_len, const CBYTES *cbytes);
-
-static EC_BOOL __crfs_read_b_seg_dn_miss(const UINT32 crfs_md_id, 
-                                                    UINT32 *offset, 
-                                                    const UINT32 max_len, CBYTES *cbytes);
-static EC_BOOL __crfs_read_b_seg_dn_hit(const UINT32 crfs_md_id, 
-                                                CRFSNP *crfsnp, 
-                                                const uint32_t node_pos, 
-                                                UINT32 *offset, 
-                                                CBYTES *cbytes);
-
-static EC_BOOL __crfs_read_b_seg_dn(const UINT32 crfs_md_id, 
-                                            CRFSNP *crfsnp, 
-                                            const uint32_t parent_pos, 
-                                            const uint32_t seg_no, UINT32 *offset, 
-                                            const UINT32 max_len, CBYTES *cbytes);                                                
-/**
-*
-*  read data node at offset from the specific big file
-*
-**/
-static EC_BOOL __crfs_read_b_dn(const UINT32 crfs_md_id, const uint32_t crfsnp_id, const uint32_t parent_pos, uint64_t *offset, const UINT32 max_len, CBYTES *cbytes);
 
 /**
 *
@@ -502,21 +475,14 @@ EC_BOOL crfs_write_npp(const UINT32 crfs_md_id, const CSTRING *file_path, const 
 *  read a fnode from name node
 *
 **/
-EC_BOOL crfs_read_npp(const UINT32 crfs_md_id, const CSTRING *file_path, CRFSNP_FNODE *crfsnp_fnode);
-
-/**
-*
-*  write a bnode to name node
-*
-**/
-static EC_BOOL __crfs_write_b_npp(const UINT32 crfs_md_id, const CSTRING *file_path);
+EC_BOOL crfs_read_npp(const UINT32 crfs_md_id, const CSTRING *file_path, CRFSNP_FNODE *crfsnp_fnode, UINT32 *expires_timestamp);
 
 /**
 *
 *  read a bnode from name node
 *
 **/
-static EC_BOOL __crfs_read_b_npp(const UINT32 crfs_md_id, const CSTRING *file_path, uint32_t *crfsnp_id, uint32_t *parent_pos);
+static EC_BOOL __crfs_read_b_npp(const UINT32 crfs_md_id, const CSTRING *file_path, uint32_t *crfsnp_id, uint32_t *parent_pos, UINT32 *expires_timestamp);
 
 /**
 *
@@ -527,10 +493,10 @@ EC_BOOL crfs_update_npp(const UINT32 crfs_md_id, const CSTRING *file_path, const
 
 /**
 *
-*  delete a file or dir from current npp
+*  renew a fnode to name node
 *
 **/
-EC_BOOL crfs_delete_npp(const UINT32 crfs_md_id, const CSTRING *path, const UINT32 dflag, uint32_t *crfsnp_id, CVECTOR *crfsnp_item_vec);
+EC_BOOL crfs_renew(const UINT32 crfs_md_id, const CSTRING *file_path, const UINT32 expires_timestamp);
 
 /**
 *
@@ -543,10 +509,38 @@ EC_BOOL crfs_delete_dn(const UINT32 crfs_md_id, const UINT32 crfsnp_id, const CR
 
 /**
 *
+*  delete a file
+*
+**/
+EC_BOOL crfs_delete_file(const UINT32 crfs_md_id, const CSTRING *path);
+
+/**
+*
+*  delete a big file
+*
+**/
+EC_BOOL crfs_delete_file_b(const UINT32 crfs_md_id, const CSTRING *path);
+
+/**
+*
+*  delete a dir from all npp and all dn
+*
+**/
+EC_BOOL crfs_delete_dir(const UINT32 crfs_md_id, const CSTRING *path);
+
+/**
+*
 *  delete a file or dir from all npp and all dn
 *
 **/
 EC_BOOL crfs_delete(const UINT32 crfs_md_id, const CSTRING *path, const UINT32 dflag);
+
+/**
+*
+*  update a file 
+*
+**/
+EC_BOOL crfs_update(const UINT32 crfs_md_id, const CSTRING *file_path, const CBYTES *cbytes, const UINT32 expire_nsec);
 
 /**
 *
@@ -560,7 +554,22 @@ EC_BOOL crfs_qfile(const UINT32 crfs_md_id, const CSTRING *file_path, CRFSNP_ITE
 *  query a dir
 *
 **/
-EC_BOOL crfs_qdir(const UINT32 crfs_md_id, const CSTRING *dir_path, CVECTOR  *crfsnp_item_vec);
+EC_BOOL crfs_qdir(const UINT32 crfs_md_id, const CSTRING *dir_path, CRFSNP_ITEM  *crfsnp_item);
+
+
+/**
+*
+*  query and list full path of a file or dir of one np
+*
+**/
+EC_BOOL crfs_qlist_path_of_np(const UINT32 crfs_md_id, const CSTRING *file_path, const UINT32 crfsnp_id, CVECTOR  *path_cstr_vec);
+
+/**
+*
+*  query and list short name of a file or dir of one np
+*
+**/
+EC_BOOL crfs_qlist_seg_of_np(const UINT32 crfs_md_id, const CSTRING *file_path, const UINT32 crfsnp_id, CVECTOR  *seg_cstr_vec);
 
 /**
 *
@@ -609,6 +618,27 @@ EC_BOOL crfs_file_size(const UINT32 crfs_md_id, const CSTRING *path_cstr, uint64
 
 /**
 *
+*  get big file store size of specific file given full path name
+*
+**/
+EC_BOOL crfs_store_size_b(const UINT32 crfs_md_id, const CSTRING *path_cstr, uint64_t *store_size, UINT32 *expires_timestamp);
+
+/**
+*
+*  get file md5sum of specific file given full path name
+*
+**/
+EC_BOOL crfs_file_md5sum(const UINT32 crfs_md_id, const CSTRING *path_cstr, CMD5_DIGEST *md5sum);
+
+/**
+*
+*  get a seg md5sum of specific bigfile given full path name
+*
+**/
+EC_BOOL crfs_file_md5sum_b(const UINT32 crfs_md_id, const CSTRING *path_cstr, const UINT32 seg_no, CMD5_DIGEST *md5sum);
+
+/**
+*
 *  mkdir in current name node pool
 *
 **/
@@ -620,6 +650,13 @@ EC_BOOL crfs_mkdir(const UINT32 crfs_md_id, const CSTRING *path_cstr);
 *
 **/
 EC_BOOL crfs_search(const UINT32 crfs_md_id, const CSTRING *path_cstr, const UINT32 dflag);
+
+/**
+*
+*  empty recycle
+*
+**/
+EC_BOOL crfs_recycle(const UINT32 crfs_md_id);
 
 /**
 *
@@ -660,9 +697,58 @@ EC_BOOL crfs_show_path_depth(const UINT32 crfs_md_id, const CSTRING *path, LOG *
 
 EC_BOOL crfs_show_path(const UINT32 crfs_md_id, const CSTRING *path, LOG *log);
 
+EC_BOOL crfs_expire_dn(const UINT32 crfs_md_id);
+
+EC_BOOL crfs_write_r(const UINT32 crfs_md_id, const CSTRING *file_path, const CBYTES *cbytes, const UINT32 expire_nsec, const UINT32 replica_num);
+
+EC_BOOL crfs_update_r(const UINT32 crfs_md_id, const CSTRING *file_path, const CBYTES *cbytes, const UINT32 expire_nsec, const UINT32 replica_num);
+
+EC_BOOL crfs_delete_r(const UINT32 crfs_md_id, const CSTRING *path, const UINT32 dflag, const UINT32 replica_num);
+
+EC_BOOL crfs_renew_r(const UINT32 crfs_md_id, const CSTRING *file_path, const UINT32 expires_timestamp, const UINT32 replica_num);
+
+EC_BOOL crfs_write_b_r(const UINT32 crfs_md_id, const CSTRING *file_path, uint64_t *offset, const CBYTES *cbytes, const UINT32 replica_num);
+
+EC_BOOL crfs_np_snapshot(const UINT32 crfs_md_id, const UINT32 crfsnp_id, const CSTRING *des_path);
+
+EC_BOOL crfs_npp_snapshot(const UINT32 crfs_md_id, const CSTRING *des_path);
+
+EC_BOOL crfs_disk_snapshot(const UINT32 crfs_md_id, const UINT32 disk_no, const CSTRING *des_path);
+
+EC_BOOL crfs_dn_snapshot(const UINT32 crfs_md_id, const CSTRING *des_path);
+
+EC_BOOL crfs_vol_snapshot(const UINT32 crfs_md_id, const CSTRING *des_path);
+
+EC_BOOL crfs_all_snapshot(const UINT32 crfs_md_id, const CSTRING *des_path);
+
+EC_BOOL crfs_start_sync(const UINT32 crfs_md_id);
+
+EC_BOOL crfs_end_sync(const UINT32 crfs_md_id);
+
+EC_BOOL crfs_show_backup(const UINT32 crfs_md_id, LOG *log);
+
+EC_BOOL crfs_replay(const UINT32 crfs_md_id);
+
+/**
+*
+*  transfer files from one RFS to another RFS based on file name hash value in consistency hash table
+*
+**/
+EC_BOOL crfs_transfer(const UINT32 crfs_md_id, const UINT32 crfsc_md_id, const CSTRING *dir_path, const CRFSDT_PNODE *crfsdt_pnode);
+EC_BOOL crfs_transfer_pre(const UINT32 crfs_md_id, const UINT32 crfsc_md_id, const CSTRING *dir_path, const CRFSDT_PNODE *crfsdt_pnode);
+EC_BOOL crfs_transfer_handle(const UINT32 crfs_md_id, const UINT32 crfsc_md_id, const CSTRING *dir_path, const CRFSDT_PNODE *crfsdt_pnode);
+EC_BOOL crfs_transfer_post(const UINT32 crfs_md_id, const UINT32 crfsc_md_id, const CSTRING *dir_path, const CRFSDT_PNODE *crfsdt_pnode);
+EC_BOOL crfs_transfer_recycle(const UINT32 crfs_md_id, const UINT32 crfsc_md_id, const CSTRING *dir_path, const CRFSDT_PNODE *crfsdt_pnode);
+
 EC_BOOL crfs_rdlock(const UINT32 crfs_md_id, const UINT32 location);
 EC_BOOL crfs_wrlock(const UINT32 crfs_md_id, const UINT32 location);
 EC_BOOL crfs_unlock(const UINT32 crfs_md_id, const UINT32 location);
+
+EC_BOOL crfs_forward(const UINT32 crfs_md_id, const CSTRING *url_list_fname, const UINT32 rfs_srv_tcid, const CSTRING *proxy_srv);
+
+EC_BOOL crfs_cmp_finger(const UINT32 crfs_md_id, const CSTRING *url_list_fname, const UINT32 rfs_srv_tcid, const CSTRING *proxy_srv);
+
+EC_BOOL crfs_cleanup(const UINT32 crfs_md_id, const CSTRING *url_list_fname, const UINT32 rfs_srv_tcid);
 
 #endif /*_CRFS_H*/
 

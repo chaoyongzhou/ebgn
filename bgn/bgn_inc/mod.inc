@@ -42,7 +42,7 @@ typedef struct _MOD_NODE
     UINT32         hops;              /* hops from src to des, used when sync taskcomm and it will be changed by remote caller*/
     UINT32         load;              /* the load on this mod_node*/
     UINT32         stat;
-    CLOAD_STAT     cload_stat;              /* defined and used by application, default 0 is invalid*/
+    CLOAD_STAT     cload_stat;        /* defined and used by application, default 0 is invalid*/
 }MOD_NODE;
 
 typedef struct _MOD_MGR

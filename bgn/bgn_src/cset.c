@@ -67,7 +67,7 @@ EC_BOOL cset_add(CSET *cset, void *data, EC_BOOL (*cmp)(const void *, const void
 {
     if(NULL_PTR != clist_search_front(cset, data, (NULL_PTR == cmp) ? cset_data_cmp_default: cmp))
     {
-        //sys_log(LOGSTDOUT, "error:cset_add: cset %lx, data %lx find duplicate when add\n", cset);
+        //dbg_log(SEC_0128_CSET, 0)(LOGSTDOUT, "error:cset_add: cset %lx, data %lx find duplicate when add\n", cset);
         return (EC_FALSE);
     }
 

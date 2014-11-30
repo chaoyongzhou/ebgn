@@ -330,6 +330,10 @@ EC_BOOL mod_mgr_last_remote(const MOD_MGR *mod_mgr, UINT32 *remote_mod_node_pos)
 EC_BOOL mod_mgr_next_remote(const MOD_MGR *mod_mgr, UINT32 *remote_mod_node_pos);
 EC_BOOL mod_mgr_prev_remote(const MOD_MGR *mod_mgr, UINT32 *remote_mod_node_pos);
 
+MOD_NODE *mod_mgr_search(const UINT32 tcid, const UINT32 comm, const UINT32 rank, const UINT32 modi, const MOD_MGR *mod_mgr);
+
+EC_BOOL mod_mgr_has(const UINT32 tcid, const UINT32 comm, const UINT32 rank, const UINT32 modi, const MOD_MGR *mod_mgr);
+
 /*local mod node load operation*/
 EC_BOOL mod_mgr_local_mod_load_set(const UINT32 load, const MOD_NODE *check_local_mod_node, const MOD_NODE *except_mod_node, MOD_MGR *mod_mgr);
 

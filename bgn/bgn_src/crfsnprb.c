@@ -26,6 +26,36 @@ extern "C"{
 #include "crfsnprb.h"
 #include "crfsnp.h"
 
+/*when found free head is invalid, re-construct the free nodes link*/
+EC_BOOL crfsnprb_pool_fix(CRFSNPRB_POOL *pool)
+{
+    uint32_t node_pos;
+    uint32_t fix_num;
+
+    CRFSNPRB_POOL_FREE_HEAD(pool) = CRFSNPRB_ERR_POS;
+
+    for(node_pos = 0, fix_num = 0; node_pos < CRFSNPRB_POOL_NODE_MAX_NUM(pool); node_pos ++)
+    {
+        CRFSNPRB_NODE *node;
+
+        node = CRFSNPRB_POOL_NODE(pool, node_pos);  
+
+        if(CRFSNPRB_NODE_USED == CRFSNPRB_NODE_USED_FLAG(node))
+        {
+            continue;
+        }
+
+        CRFSNPRB_POOL_FREE_HEAD(pool) = node_pos;
+        CRFSNPRB_NODE_NEXT_POS(node)  = CRFSNPRB_POOL_FREE_HEAD(pool);
+
+        fix_num ++;
+    }
+    dbg_log(SEC_0100_CRFSNPRB, 9)(LOGSTDOUT, "[DEBUG] crfsnprb_pool_fix: used %u, fix %u, max %u\n", 
+                       CRFSNPRB_POOL_NODE_USED_NUM(pool), 
+                       fix_num, 
+                       CRFSNPRB_POOL_NODE_MAX_NUM(pool));
+    return (EC_TRUE);
+}
 
 /*new a CRFSNPRB_NODE and return its position*/
 uint32_t crfsnprb_node_new(CRFSNPRB_POOL *pool)
@@ -36,11 +66,29 @@ uint32_t crfsnprb_node_new(CRFSNPRB_POOL *pool)
     node_pos_t = CRFSNPRB_POOL_FREE_HEAD(pool);
     if(CRFSNPRB_ERR_POS == node_pos_t)
     {
-        sys_log(LOGSTDERR, "error:crfsnprb_node_new: no free node in pool\n");
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_node_new: no free node in pool\n");
         return (CRFSNPRB_ERR_POS);
     }
+
+    if(CRFSNPRB_POOL_FREE_HEAD(pool) >= CRFSNPRB_POOL_NODE_MAX_NUM(pool))
+    {
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_node_new: found conflict: free head %u >= max num %u\n",
+                            CRFSNPRB_POOL_FREE_HEAD(pool), CRFSNPRB_POOL_NODE_MAX_NUM(pool));
+        //crfsnprb_pool_fix(pool);
+        return (CRFSNPRB_ERR_POS);
+    }
+
+    ASSERT(CRFSNPRB_POOL_FREE_HEAD(pool) < CRFSNPRB_POOL_NODE_MAX_NUM(pool));
     
     node = CRFSNPRB_POOL_NODE(pool, node_pos_t);
+#if 0    
+    dbg_log(SEC_0100_CRFSNPRB, 9)(LOGSTDNULL, "[DEBUG] crfsnprb_node_new: pool %p, max %u, used %u, free head %u, next %u\n", 
+                       pool,
+                       CRFSNPRB_POOL_NODE_MAX_NUM(pool),
+                       CRFSNPRB_POOL_NODE_USED_NUM(pool),
+                       CRFSNPRB_POOL_FREE_HEAD(pool),
+                       CRFSNPRB_NODE_NEXT_POS(node));
+#endif                       
     CRFSNPRB_POOL_FREE_HEAD(pool) = CRFSNPRB_NODE_NEXT_POS(node);
     CRFSNPRB_POOL_NODE_USED_NUM(pool) ++;
     
@@ -57,7 +105,11 @@ void crfsnprb_node_free(CRFSNPRB_POOL *pool, const uint32_t node_pos)
     {
         CRFSNPRB_NODE *node;
 
+        ASSERT(node_pos < CRFSNPRB_POOL_NODE_MAX_NUM(pool));
+        
         node = CRFSNPRB_POOL_NODE(pool, node_pos);
+        ASSERT(CRFSNPRB_NODE_USED == CRFSNPRB_NODE_USED_FLAG(node));
+        
         CRFSNPRB_NODE_USED_FLAG(node)  = CRFSNPRB_NODE_NOT_USED;
         CRFSNPRB_NODE_PARENT_POS(node) = CRFSNPRB_ERR_POS;
         CRFSNPRB_NODE_RIGHT_POS(node)  = CRFSNPRB_ERR_POS;
@@ -91,7 +143,9 @@ void crfsnprb_node_clean(CRFSNPRB_POOL *pool, const uint32_t node_pos)
 {
     CRFSNPRB_NODE *node;
 
-    node  = CRFSNPRB_POOL_NODE(pool, node_pos);    
+    ASSERT(node_pos < CRFSNPRB_POOL_NODE_MAX_NUM(pool));
+    
+    node = CRFSNPRB_POOL_NODE(pool, node_pos);    
     
     CRFSNPRB_NODE_PARENT_POS(node) = CRFSNPRB_ERR_POS;
     CRFSNPRB_NODE_RIGHT_POS(node)  = CRFSNPRB_ERR_POS;
@@ -107,7 +161,7 @@ void crfsnprb_node_set_next(CRFSNPRB_POOL *pool, const uint32_t node_pos, const 
 {
     CRFSNPRB_NODE *node;
 
-    node  = CRFSNPRB_POOL_NODE(pool, node_pos);
+    node = CRFSNPRB_POOL_NODE(pool, node_pos);
     CRFSNPRB_NODE_NEXT_POS(node) = next_pos;
 
     return;
@@ -492,7 +546,8 @@ static void __crfsnprb_tree_erase_color(CRFSNPRB_POOL *pool, const uint32_t node
     return;
 }
 
-static void __crfsnprb_tree_erase(CRFSNPRB_POOL *pool, const uint32_t node_pos, uint32_t *root_pos)
+/*note: erase from tree but not recycle to free nodes pool*/
+EC_BOOL crfsnprb_tree_erase(CRFSNPRB_POOL *pool, const uint32_t node_pos, uint32_t *root_pos)
 {
     CRFSNPRB_NODE *node;
 
@@ -645,7 +700,7 @@ static void __crfsnprb_tree_erase(CRFSNPRB_POOL *pool, const uint32_t node_pos, 
     {
         __crfsnprb_tree_erase_color(pool, child_pos, parent_pos, root_pos);
     }
-    return;
+    return (EC_TRUE);
 }
 
 static uint32_t __crfsnprb_tree_count_node_num(const CRFSNPRB_POOL *pool, const uint32_t node_pos)
@@ -961,7 +1016,12 @@ EC_BOOL crfsnprb_tree_insert_data(CRFSNPRB_POOL *pool, uint32_t *root_pos, const
 
     /*not found data in the rbtree*/
     new_pos_t = crfsnprb_node_new(pool);
-    if(CRFSNPRB_ERR_POS != new_pos_t)
+    if(CRFSNPRB_ERR_POS == new_pos_t)
+    {
+        (*insert_pos) = CRFSNPRB_ERR_POS;
+        return (EC_FALSE);
+    }
+    else
     {
         CRFSNPRB_NODE *node;        
 
@@ -1008,7 +1068,7 @@ EC_BOOL crfsnprb_tree_delete_data(CRFSNPRB_POOL *pool, uint32_t *root_pos, const
         return (EC_FALSE);
     }
 
-    __crfsnprb_tree_erase(pool, node_pos, root_pos);
+    crfsnprb_tree_erase(pool, node_pos, root_pos);
     crfsnprb_node_free(pool, node_pos);
 
     (*delete_pos) = node_pos;
@@ -1018,7 +1078,7 @@ EC_BOOL crfsnprb_tree_delete_data(CRFSNPRB_POOL *pool, uint32_t *root_pos, const
 
 EC_BOOL crfsnprb_tree_delete(CRFSNPRB_POOL *pool, uint32_t *root_pos, const uint32_t node_pos)
 {
-    __crfsnprb_tree_erase(pool, node_pos, root_pos);
+    crfsnprb_tree_erase(pool, node_pos, root_pos);
     crfsnprb_node_free(pool, node_pos);
     return (EC_TRUE);
 }
@@ -1061,7 +1121,7 @@ EC_BOOL crfsnprb_pool_init(CRFSNPRB_POOL *pool, const uint32_t node_max_num, con
 
     if(CRFSNPRB_POOL_MAX_SIZE < node_max_num)
     {
-        sys_log(LOGSTDERR, "error:crfsnprb_pool_init: node_max_num %u overflow!\n", node_max_num);
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_pool_init: node_max_num %u overflow!\n", node_max_num);
         return (EC_FALSE);
     }
 
@@ -1073,8 +1133,15 @@ EC_BOOL crfsnprb_pool_init(CRFSNPRB_POOL *pool, const uint32_t node_max_num, con
     {
         crfsnprb_node_init(pool, node_pos);
         crfsnprb_node_set_next(pool, node_pos, node_pos + 1);
+
+        if(0 == ((node_pos + 1) % 100000))
+        {
+            dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDOUT, "info:crfsnprb_pool_init: init node %u - %u of max %u done\n", 
+                               node_pos - 99999, node_pos, node_max_num);
+        }        
     }
-    crfsnprb_node_set_next(pool, node_max_num - 1, CRFSNPRB_ERR_POS);
+    dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDOUT, "info:crfsnprb_pool_init: init %u nodes done\n", node_max_num);
+    crfsnprb_node_set_next(pool, node_max_num - 1, CRFSNPRB_ERR_POS);/*overwrite the last one*/
     
     CRFSNPRB_POOL_FREE_HEAD(pool) = 0;/*the free nodes head*/
     return (EC_TRUE);
@@ -1101,7 +1168,7 @@ void crfsnprb_pool_print(LOG *log, const CRFSNPRB_POOL *pool)
                  CRFSNPRB_POOL_FREE_HEAD(pool),
                  CRFSNPRB_POOL_NODE_SIZEOF(pool));
 
-    if(1)
+    if(0)
     {
         for(node_pos = 0; node_pos < node_max_num; node_pos ++)
         {
@@ -1252,7 +1319,7 @@ EC_BOOL crfsnprb_flush(const CRFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize = sizeof(uint32_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CRFSNPRB_POOL_FREE_HEAD(pool))))
     {
-        sys_log(LOGSTDOUT, "error:crfsnprb_flush: write CRFSNPRB_POOL_FREE_HEAD at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDOUT, "error:crfsnprb_flush: write CRFSNPRB_POOL_FREE_HEAD at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1260,7 +1327,7 @@ EC_BOOL crfsnprb_flush(const CRFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint32_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CRFSNPRB_POOL_NODE_MAX_NUM(pool))))
     {
-        sys_log(LOGSTDOUT, "error:crfsnprb_flush: write CRFSNPRB_POOL_NODE_MAX_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDOUT, "error:crfsnprb_flush: write CRFSNPRB_POOL_NODE_MAX_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }    
 
@@ -1268,7 +1335,7 @@ EC_BOOL crfsnprb_flush(const CRFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint32_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CRFSNPRB_POOL_NODE_USED_NUM(pool))))
     {
-        sys_log(LOGSTDOUT, "error:crfsnprb_flush: write CRFSNPRB_POOL_NODE_USED_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDOUT, "error:crfsnprb_flush: write CRFSNPRB_POOL_NODE_USED_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }     
 
@@ -1276,7 +1343,7 @@ EC_BOOL crfsnprb_flush(const CRFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint32_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CRFSNPRB_POOL_NODE_SIZEOF(pool))))
     {
-        sys_log(LOGSTDOUT, "error:crfsnprb_flush: write CRFSNPRB_POOL_NODE_SIZEOF at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDOUT, "error:crfsnprb_flush: write CRFSNPRB_POOL_NODE_SIZEOF at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
    
@@ -1284,7 +1351,7 @@ EC_BOOL crfsnprb_flush(const CRFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = CRFSNPRB_POOL_NODE_MAX_NUM(pool) * CRFSNPRB_POOL_NODE_SIZEOF(pool);    
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)CRFSNPRB_POOL_NODE_TBL(pool)))
     {
-        sys_log(LOGSTDOUT, "error:crfsnprb_flush: write CRFSNPRB_POOL_NODE_TBL at offset %u of fd %d failed where CRFSNPRB_POOL_NODE_MAX_NUM is %u\n", 
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDOUT, "error:crfsnprb_flush: write CRFSNPRB_POOL_NODE_TBL at offset %u of fd %d failed where CRFSNPRB_POOL_NODE_MAX_NUM is %u\n", 
                             (*offset), fd, CRFSNPRB_POOL_NODE_MAX_NUM(pool));
         return (EC_FALSE);
     }
@@ -1303,7 +1370,7 @@ EC_BOOL crfsnprb_load(CRFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize = sizeof(uint32_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(CRFSNPRB_POOL_FREE_HEAD(pool))))
     {
-        sys_log(LOGSTDOUT, "error:crfsnprb_load: load CRFSNPRB_POOL_FREE_HEAD at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDOUT, "error:crfsnprb_load: load CRFSNPRB_POOL_FREE_HEAD at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1311,7 +1378,7 @@ EC_BOOL crfsnprb_load(CRFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint32_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(node_max_num)))
     {
-        sys_log(LOGSTDOUT, "error:crfsnprb_load: load CRFSNPRB_POOL_NODE_MAX_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDOUT, "error:crfsnprb_load: load CRFSNPRB_POOL_NODE_MAX_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
     CRFSNPRB_POOL_NODE_MAX_NUM(pool) = node_max_num;
@@ -1320,7 +1387,7 @@ EC_BOOL crfsnprb_load(CRFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint32_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(node_used_num)))
     {
-        sys_log(LOGSTDOUT, "error:crfsnprb_load: load CRFSNPRB_POOL_NODE_USED_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDOUT, "error:crfsnprb_load: load CRFSNPRB_POOL_NODE_USED_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
     CRFSNPRB_POOL_NODE_MAX_NUM(pool) = node_used_num;    
@@ -1329,7 +1396,7 @@ EC_BOOL crfsnprb_load(CRFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint32_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(node_sizeof)))
     {
-        sys_log(LOGSTDOUT, "error:crfsnprb_load: load CRFSNPRB_POOL_NODE_SIZEOF at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDOUT, "error:crfsnprb_load: load CRFSNPRB_POOL_NODE_SIZEOF at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
     CRFSNPRB_POOL_NODE_SIZEOF(pool) = node_sizeof;
@@ -1338,7 +1405,7 @@ EC_BOOL crfsnprb_load(CRFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = CRFSNPRB_POOL_NODE_MAX_NUM(pool) * CRFSNPRB_POOL_NODE_SIZEOF(pool);    
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)CRFSNPRB_POOL_NODE_TBL(pool)))
     {
-        sys_log(LOGSTDOUT, "error:crfsnprb_load: load CRFSNPRB_POOL_NODE_TBL at offset %u of fd %d failed where CRFSNPRB_POOL_NODE_MAX_NUM is %u\n", 
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDOUT, "error:crfsnprb_load: load CRFSNPRB_POOL_NODE_TBL at offset %u of fd %d failed where CRFSNPRB_POOL_NODE_MAX_NUM is %u\n", 
                             (*offset), fd, CRFSNPRB_POOL_NODE_MAX_NUM(pool));
         return (EC_FALSE);
     }
@@ -1363,7 +1430,7 @@ EC_BOOL crfsnprb_node_debug_cmp(const CRFSNPRB_NODE *node_1st, const CRFSNPRB_NO
 {
     if(CRFSNPRB_NODE_USED_FLAG(node_1st) != CRFSNPRB_NODE_USED_FLAG(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent CRFSNPRB_NODE_USED_FLAG: %u != %u\n", 
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent CRFSNPRB_NODE_USED_FLAG: %u != %u\n", 
                             CRFSNPRB_NODE_USED_FLAG(node_1st), CRFSNPRB_NODE_USED_FLAG(node_2nd));
         return (EC_FALSE);
     }
@@ -1376,28 +1443,28 @@ EC_BOOL crfsnprb_node_debug_cmp(const CRFSNPRB_NODE *node_1st, const CRFSNPRB_NO
 
     if(CRFSNPRB_NODE_COLOR(node_1st) != CRFSNPRB_NODE_COLOR(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent CRFSNPRB_NODE_COLOR: %u != %u\n", 
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent CRFSNPRB_NODE_COLOR: %u != %u\n", 
                             CRFSNPRB_NODE_COLOR(node_1st), CRFSNPRB_NODE_COLOR(node_2nd));
         return (EC_FALSE);
     }  
 
     if(CRFSNPRB_NODE_PARENT_POS(node_1st) != CRFSNPRB_NODE_PARENT_POS(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent CRFSNPRB_NODE_PARENT_POS: %u != %u\n", 
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent CRFSNPRB_NODE_PARENT_POS: %u != %u\n", 
                             CRFSNPRB_NODE_PARENT_POS(node_1st), CRFSNPRB_NODE_PARENT_POS(node_2nd));
         return (EC_FALSE);
     }  
 
     if(CRFSNPRB_NODE_RIGHT_POS(node_1st) != CRFSNPRB_NODE_RIGHT_POS(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent CRFSNPRB_NODE_RIGHT_POS: %u != %u\n", 
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent CRFSNPRB_NODE_RIGHT_POS: %u != %u\n", 
                             CRFSNPRB_NODE_RIGHT_POS(node_1st), CRFSNPRB_NODE_RIGHT_POS(node_2nd));
         return (EC_FALSE);
     }
 
     if(CRFSNPRB_NODE_LEFT_POS(node_1st) != CRFSNPRB_NODE_LEFT_POS(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent CRFSNPRB_NODE_LEFT_POS: %u != %u\n", 
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent CRFSNPRB_NODE_LEFT_POS: %u != %u\n", 
                             CRFSNPRB_NODE_LEFT_POS(node_1st), CRFSNPRB_NODE_LEFT_POS(node_2nd));
         return (EC_FALSE);
     }    
@@ -1406,7 +1473,7 @@ EC_BOOL crfsnprb_node_debug_cmp(const CRFSNPRB_NODE *node_1st, const CRFSNPRB_NO
     {
         if(0 != node_cmp_data(node_1st, node_2nd))
         {
-            sys_log(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent data part\n");
+            dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent data part\n");
             return (EC_FALSE);
         }
     }
@@ -1414,7 +1481,7 @@ EC_BOOL crfsnprb_node_debug_cmp(const CRFSNPRB_NODE *node_1st, const CRFSNPRB_NO
     {
         if(CRFSNPRB_NODE_NEXT_POS(node_1st) != CRFSNPRB_NODE_NEXT_POS(node_2nd))
         {
-            sys_log(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent CRFSNPRB_NODE_NEXT_POS: %u != %u\n", 
+            dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_node_debug_cmp: inconsistent CRFSNPRB_NODE_NEXT_POS: %u != %u\n", 
                                 CRFSNPRB_NODE_NEXT_POS(node_1st), CRFSNPRB_NODE_NEXT_POS(node_2nd));
             return (EC_FALSE);
         }    
@@ -1429,28 +1496,28 @@ EC_BOOL crfsnprb_debug_cmp(const CRFSNPRB_POOL *pool_1st, const CRFSNPRB_POOL *p
     
     if(CRFSNPRB_POOL_FREE_HEAD(pool_1st) != CRFSNPRB_POOL_FREE_HEAD(pool_2nd))
     {
-        sys_log(LOGSTDERR, "error:crfsnprb_debug_cmp: inconsistent CRFSNPRB_POOL_FREE_HEAD: %u != %u\n", 
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_debug_cmp: inconsistent CRFSNPRB_POOL_FREE_HEAD: %u != %u\n", 
                             CRFSNPRB_POOL_FREE_HEAD(pool_1st), CRFSNPRB_POOL_FREE_HEAD(pool_2nd));
         return (EC_FALSE);
     }
 
     if(CRFSNPRB_POOL_NODE_MAX_NUM(pool_1st) != CRFSNPRB_POOL_NODE_MAX_NUM(pool_2nd))
     {
-        sys_log(LOGSTDERR, "error:crfsnprb_debug_cmp: inconsistent CRFSNPRB_POOL_NODE_MAX_NUM: %u != %u\n", 
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_debug_cmp: inconsistent CRFSNPRB_POOL_NODE_MAX_NUM: %u != %u\n", 
                             CRFSNPRB_POOL_NODE_MAX_NUM(pool_1st), CRFSNPRB_POOL_NODE_MAX_NUM(pool_2nd));
         return (EC_FALSE);
     }
 
     if(CRFSNPRB_POOL_NODE_USED_NUM(pool_1st) != CRFSNPRB_POOL_NODE_USED_NUM(pool_2nd))
     {
-        sys_log(LOGSTDERR, "error:crfsnprb_debug_cmp: inconsistent CRFSNPRB_POOL_NODE_USED_NUM: %u != %u\n", 
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_debug_cmp: inconsistent CRFSNPRB_POOL_NODE_USED_NUM: %u != %u\n", 
                             CRFSNPRB_POOL_NODE_USED_NUM(pool_1st), CRFSNPRB_POOL_NODE_USED_NUM(pool_2nd));
         return (EC_FALSE);
     }    
 
     if(CRFSNPRB_POOL_NODE_SIZEOF(pool_1st) != CRFSNPRB_POOL_NODE_SIZEOF(pool_2nd))
     {
-        sys_log(LOGSTDERR, "error:crfsnprb_debug_cmp: inconsistent CRFSNPRB_POOL_NODE_SIZEOF: %u != %u\n", 
+        dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_debug_cmp: inconsistent CRFSNPRB_POOL_NODE_SIZEOF: %u != %u\n", 
                             CRFSNPRB_POOL_NODE_SIZEOF(pool_1st), CRFSNPRB_POOL_NODE_SIZEOF(pool_2nd));
         return (EC_FALSE);
     }  
@@ -1466,7 +1533,7 @@ EC_BOOL crfsnprb_debug_cmp(const CRFSNPRB_POOL *pool_1st, const CRFSNPRB_POOL *p
 
         if(EC_FALSE == crfsnprb_node_debug_cmp(node_1st, node_2nd, node_cmp_data))
         {
-            sys_log(LOGSTDERR, "error:crfsnprb_debug_cmp: inconsistent node at pos %u\n", node_pos);
+            dbg_log(SEC_0100_CRFSNPRB, 0)(LOGSTDERR, "error:crfsnprb_debug_cmp: inconsistent node at pos %u\n", node_pos);
             return (EC_FALSE);
         }
     }

@@ -22,6 +22,10 @@ EC_BOOL cbytecode_pack_uint32(const UINT32 *in_buff, const UINT32 data_num, UINT
 EC_BOOL cbytecode_pack_uint32_size(const UINT32 data_num, UINT32 *size);
 EC_BOOL cbytecode_unpack_uint32(const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, UINT32 *out_buff, const UINT32 data_num);
 
+EC_BOOL cbytecode_pack_uint32_t(const UINT32 *in_buff, const UINT32 data_num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+EC_BOOL cbytecode_pack_uint32_t_size(const UINT32 data_num, UINT32 *size);
+EC_BOOL cbytecode_unpack_uint32_t(const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, UINT32 *out_buff, const UINT32 data_num);
+
 EC_BOOL cbytecode_pack_uint16(const UINT16 *in_buff, const UINT32 data_num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
 EC_BOOL cbytecode_pack_uint16_size(const UINT32 data_num, UINT32 *size);
 EC_BOOL cbytecode_unpack_uint16(const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, UINT16 *out_buff, const UINT32 data_num);

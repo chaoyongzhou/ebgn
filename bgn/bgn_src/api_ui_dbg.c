@@ -409,16 +409,16 @@ char* ui_show_mem(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &rank);
     api_ui_param_str(param, 3, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "tcid = %d, rank = %d, where = %s\n", tcid, rank, where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "tcid = %d, rank = %d, where = %s\n", tcid, rank, where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_mem beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_mem beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_mem end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_mem end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0009);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0418);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -449,7 +449,7 @@ char* ui_show_mem(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0010);
+    cvector_free(report_vec, LOC_API_0419);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -469,16 +469,16 @@ char* ui_show_mem_all(API_UI_PARAM * param)
 
     api_ui_param_str(param, 1, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "enter ui_show_mem_all where = %s\n", where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "enter ui_show_mem_all where = %s\n", where);
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_ANY_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_mem_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_mem_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_mem_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_mem_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0011);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0420);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -509,7 +509,7 @@ char* ui_show_mem_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0012);
+    cvector_free(report_vec, LOC_API_0421);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -535,16 +535,16 @@ char*  ui_diag_mem(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &rank);
     api_ui_param_str(param, 3, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "tcid = %d, rank = %d, where = %s\n", tcid, rank, where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "tcid = %d, rank = %d, where = %s\n", tcid, rank, where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_diag_mem beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_diag_mem beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_diag_mem end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_diag_mem end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0013);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0422);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -575,7 +575,7 @@ char*  ui_diag_mem(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0014);
+    cvector_free(report_vec, LOC_API_0423);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -595,16 +595,16 @@ char* ui_diag_mem_all(API_UI_PARAM * param)
 
     api_ui_param_str(param, 1, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "enter ui_diag_mem_all where = %s\n", where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "enter ui_diag_mem_all where = %s\n", where);
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_ANY_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_diag_mem_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_diag_mem_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_diag_mem_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_diag_mem_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0015);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0424);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -635,7 +635,7 @@ char* ui_diag_mem_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0016);
+    cvector_free(report_vec, LOC_API_0425);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -656,13 +656,13 @@ char*  ui_clean_mem(API_UI_PARAM * param)
     api_ui_param_int(param, 1, &tcid);
     api_ui_param_int(param, 2, &rank);
 
-    sys_log(LOGSTDOUT, "tcid = %d, rank = %d\n", tcid, rank);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "tcid = %d, rank = %d\n", tcid, rank);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_clean_mem beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_clean_mem beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_clean_mem end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_clean_mem end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -686,13 +686,13 @@ char* ui_clean_mem_all(API_UI_PARAM * param)
     UINT32 remote_mod_node_num;
     UINT32 remote_mod_node_idx;
 
-    sys_log(LOGSTDOUT, "enter ui_clean_mem_all\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "enter ui_clean_mem_all\n");
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_ANY_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_clean_mem_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_clean_mem_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_clean_mem_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_clean_mem_all end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -725,13 +725,13 @@ char *ui_switch_log(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &rank);
     api_ui_param_int(param, 3, &on_off);
 
-    sys_log(LOGSTDOUT, "switch tcid %s, rank %d log to %d\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), rank, on_off);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "switch tcid %s, rank %d log to %d\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), rank, on_off);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_switch_log beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_switch_log beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_switch_log end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_switch_log end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -766,13 +766,13 @@ char *ui_switch_log_all(API_UI_PARAM * param)
 
     api_ui_param_int(param, 1, &on_off);
 
-    sys_log(LOGSTDOUT, "switch all log to %d\n", on_off);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "switch all log to %d\n", on_off);
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_ANY_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_switch_log_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_switch_log_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_switch_log_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_switch_log_all end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -811,13 +811,13 @@ char *ui_enable_to_rank_node(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &rank);
     api_ui_param_int(param, 3, &des_rank);
 
-    sys_log(LOGSTDOUT, "enable tcid %s rank %d to rank %d\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), rank, des_rank);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "enable tcid %s rank %d to rank %d\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), rank, des_rank);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_enable_to_rank_node beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_enable_to_rank_node beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_enable_to_rank_node end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_enable_to_rank_node end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -845,13 +845,13 @@ char *ui_enable_all_to_rank_node(API_UI_PARAM * param)
 
     api_ui_param_int(param, 1, &des_rank);
 
-    sys_log(LOGSTDOUT, "disable all to rank %d\n", des_rank);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "disable all to rank %d\n", des_rank);
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_ANY_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_enable_all_to_rank_node beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_enable_all_to_rank_node beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_enable_all_to_rank_node end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_enable_all_to_rank_node end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -883,13 +883,13 @@ char *ui_disable_to_rank_node(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &rank);
     api_ui_param_int(param, 3, &des_rank);
 
-    sys_log(LOGSTDOUT, "disable tcid %s rank %d to rank %d\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), rank, des_rank);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "disable tcid %s rank %d to rank %d\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), rank, des_rank);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_disable_to_rank_node beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_disable_to_rank_node beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_disable_to_rank_node end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_disable_to_rank_node end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -917,13 +917,13 @@ char *ui_disable_all_to_rank_node(API_UI_PARAM * param)
 
     api_ui_param_int(param, 1, &des_rank);
 
-    sys_log(LOGSTDOUT, "disable all to rank %d\n", des_rank);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "disable all to rank %d\n", des_rank);
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_ANY_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_disable_all_to_rank_node beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_disable_all_to_rank_node beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_disable_all_to_rank_node end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_disable_all_to_rank_node end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -960,16 +960,16 @@ char *ui_show_queue(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &rank);
     api_ui_param_str(param, 3, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "show queue tcid %s, rank %d, where = %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), rank, where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "show queue tcid %s, rank %d, where = %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), rank, where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_queue beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_queue beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_queue end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_queue end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0017);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0426);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1000,7 +1000,7 @@ char *ui_show_queue(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0018);
+    cvector_free(report_vec, LOC_API_0427);
     mod_mgr_free(mod_mgr);
 
     return (NULL_PTR);
@@ -1021,16 +1021,16 @@ char *ui_show_queue_all(API_UI_PARAM * param)
 
     api_ui_param_str(param, 1, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "switch ui_show_queue_all where = %s\n", where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "switch ui_show_queue_all where = %s\n", where);
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_ANY_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_queue_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_queue_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_queue_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_queue_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0019);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0428);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1061,7 +1061,7 @@ char *ui_show_queue_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0020);
+    cvector_free(report_vec, LOC_API_0429);
     mod_mgr_free(mod_mgr);
 
     return (NULL_PTR);
@@ -1085,16 +1085,16 @@ char *ui_show_client(API_UI_PARAM * param)
     api_ui_param_int(param, 1, &tcid);
     api_ui_param_str(param, 2, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "show work client tcid %s where %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "show work client tcid %s where %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_client beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_client beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_client end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_client end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0021);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0430);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1125,7 +1125,7 @@ char *ui_show_client(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0022);
+    cvector_free(report_vec, LOC_API_0431);
     mod_mgr_free(mod_mgr);
 
     return (NULL_PTR);
@@ -1146,16 +1146,16 @@ char *ui_show_client_all(API_UI_PARAM * param)
 
     api_ui_param_str(param, 1, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "show work client all where = %s\n", where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "show work client all where = %s\n", where);
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_client_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_client_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_client_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_client_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0023);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0432);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1186,7 +1186,7 @@ char *ui_show_client_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0024);
+    cvector_free(report_vec, LOC_API_0433);
     mod_mgr_free(mod_mgr);
 
     return (NULL_PTR);
@@ -1211,16 +1211,16 @@ char* ui_show_thread(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &rank);
     api_ui_param_str(param, 3, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "tcid = %d, rank = %d, where = %s\n", tcid, rank, where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "tcid = %d, rank = %d, where = %s\n", tcid, rank, where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_thread beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_thread beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_thread end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_thread end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0025);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0434);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1251,7 +1251,7 @@ char* ui_show_thread(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0026);
+    cvector_free(report_vec, LOC_API_0435);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -1271,16 +1271,16 @@ char* ui_show_thread_all(API_UI_PARAM * param)
 
     api_ui_param_str(param, 1, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "enter ui_show_thread_all where = %s\n", where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "enter ui_show_thread_all where = %s\n", where);
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_ANY_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_thread_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_thread_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_thread_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_thread_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0027);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0436);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1311,7 +1311,7 @@ char* ui_show_thread_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0028);
+    cvector_free(report_vec, LOC_API_0437);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -1335,16 +1335,16 @@ char* ui_show_route(API_UI_PARAM * param)
     api_ui_param_int(param, 1, &tcid);
     api_ui_param_str(param, 2, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "tcid = %d, where = %s\n", tcid, where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "tcid = %d, where = %s\n", tcid, where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_route beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_route beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_route end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_route end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0029);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0438);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1375,7 +1375,7 @@ char* ui_show_route(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0030);
+    cvector_free(report_vec, LOC_API_0439);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -1395,16 +1395,16 @@ char* ui_show_route_all(API_UI_PARAM * param)
 
     api_ui_param_str(param, 1, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "enter ui_show_route_all where = %s\n", where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "enter ui_show_route_all where = %s\n", where);
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_route_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_route_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_route_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_route_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0031);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0440);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1435,7 +1435,7 @@ char* ui_show_route_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0032);
+    cvector_free(report_vec, LOC_API_0441);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -1461,16 +1461,16 @@ char* ui_show_rank_node(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &rank);
     api_ui_param_str(param, 3, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "tcid = %d, rank = %d, where = %s\n", tcid, rank, where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "tcid = %d, rank = %d, where = %s\n", tcid, rank, where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), INT32_TO_UINT32(rank), CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_rank_node beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_rank_node beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_rank_node end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_rank_node end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0033);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0442);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1501,7 +1501,7 @@ char* ui_show_rank_node(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0034);
+    cvector_free(report_vec, LOC_API_0443);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -1521,16 +1521,16 @@ char* ui_show_rank_node_all(API_UI_PARAM * param)
 
     api_ui_param_str(param, 1, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "enter ui_show_rank_node_all where = %s\n", where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "enter ui_show_rank_node_all where = %s\n", where);
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_ANY_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_rank_node_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_rank_node_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_rank_node_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_rank_node_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0035);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0444);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1561,7 +1561,7 @@ char* ui_show_rank_node_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0036);
+    cvector_free(report_vec, LOC_API_0445);
     mod_mgr_free(mod_mgr);
 
     return(NULL_PTR);
@@ -1580,19 +1580,19 @@ char *ui_shutdown_work(API_UI_PARAM * param)
 
     api_ui_param_int(param, 1, &tcid);
 
-    sys_log(LOGSTDOUT, "shutdown work tcid %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)));
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "shutdown work tcid %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)));
 
     if(EC_TRUE == task_brd_check_is_dbg_tcid(INT32_TO_UINT32(tcid)))
     {
-        sys_log(LOGSTDOUT, "error:tcid = %d is debug taskcomm\n", tcid);
+        dbg_log(SEC_0010_API, 0)(LOGSTDOUT, "error:tcid = %d is debug taskcomm\n", tcid);
         return (NULL_PTR);
     }
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_shutdown_work beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_shutdown_work beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_shutdown_work end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_shutdown_work end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_PREEMPT, TASK_NOT_NEED_RSP_FLAG, TASK_NEED_NONE_RSP);
@@ -1618,16 +1618,16 @@ char *ui_shutdown_work_all(API_UI_PARAM * param)
     UINT32 remote_mod_node_num;
     UINT32 remote_mod_node_idx;
 
-    sys_log(LOGSTDOUT, "shutdown work all\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "shutdown work all\n");
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
     mod_mgr_excl(CMPI_ANY_DBG_TCID, CMPI_ANY_COMM, CMPI_FWD_RANK, CMPI_ANY_MODI, mod_mgr);
     mod_mgr_excl(CMPI_ANY_MON_TCID, CMPI_ANY_COMM, CMPI_FWD_RANK, CMPI_ANY_MODI, mod_mgr);
 
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_shutdown_work_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_shutdown_work_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_shutdown_work_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_shutdown_work_all end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_PREEMPT, TASK_NOT_NEED_RSP_FLAG, TASK_NEED_NONE_RSP);
@@ -1657,13 +1657,13 @@ char *ui_shutdown_dbg(API_UI_PARAM * param)
 
     api_ui_param_int(param, 1, &tcid);
 
-    sys_log(LOGSTDOUT, "shutdown dbg tcid %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)));
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "shutdown dbg tcid %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)));
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_shutdown_dbg beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_shutdown_dbg beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_shutdown_dbg end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_shutdown_dbg end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_PREEMPT, TASK_NOT_NEED_RSP_FLAG, TASK_NEED_NONE_RSP);
@@ -1689,13 +1689,13 @@ char *ui_shutdown_dbg_all(API_UI_PARAM * param)
     UINT32 remote_mod_node_num;
     UINT32 remote_mod_node_idx;
 
-    sys_log(LOGSTDOUT, "shutdown dbg all\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "shutdown dbg all\n");
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_DBG_TCID, CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ANY_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_shutdown_dbg_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_shutdown_dbg_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_shutdown_dbg_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_shutdown_dbg_all end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_PREEMPT, TASK_NOT_NEED_RSP_FLAG, TASK_NEED_NONE_RSP);
@@ -1725,13 +1725,13 @@ char *ui_shutdown_mon(API_UI_PARAM * param)
 
     api_ui_param_int(param, 1, &tcid);
 
-    sys_log(LOGSTDOUT, "shutdown mon tcid %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)));
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "shutdown mon tcid %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)));
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_shutdown_mon beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_shutdown_mon beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_shutdown_mon end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_shutdown_mon end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_PREEMPT, TASK_NOT_NEED_RSP_FLAG, TASK_NEED_NONE_RSP);
@@ -1757,13 +1757,13 @@ char *ui_shutdown_mon_all(API_UI_PARAM * param)
     UINT32 remote_mod_node_num;
     UINT32 remote_mod_node_idx;
 
-    sys_log(LOGSTDOUT, "shutdown mon all\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "shutdown mon all\n");
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_MON_TCID, CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ANY_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_shutdown_mon_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_shutdown_mon_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_shutdown_mon_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_shutdown_mon_all end ----------------------------------\n");
 #endif
 #if 1
     task_mgr = task_new(mod_mgr, TASK_PRIO_PREEMPT, TASK_NOT_NEED_RSP_FLAG, TASK_NEED_NONE_RSP);
@@ -1799,16 +1799,16 @@ char *ui_show_taskcomm(API_UI_PARAM * param)
     api_ui_param_int(param, 1, &tcid);
     api_ui_param_str(param, 2, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "show taskcomm tcid %s where = %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "show taskcomm tcid %s where = %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_taskcomm beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_taskcomm beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_taskcomm end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_taskcomm end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0037);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0446);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1840,7 +1840,7 @@ char *ui_show_taskcomm(API_UI_PARAM * param)
         taskc_mgr_free(taskc_mgr);
     }
 
-    cvector_free(report_vec, LOC_API_0038);
+    cvector_free(report_vec, LOC_API_0447);
     mod_mgr_free(mod_mgr);
 
     return (NULL_PTR);
@@ -1862,16 +1862,16 @@ char *ui_show_taskcomm_all(API_UI_PARAM * param)
 
     api_ui_param_str(param, 1, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "show taskcomm all where = %s\n", where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "show taskcomm all where = %s\n", where);
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_taskcomm_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_taskcomm_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_show_taskcomm_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_show_taskcomm_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0039);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0448);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1903,7 +1903,7 @@ char *ui_show_taskcomm_all(API_UI_PARAM * param)
         taskc_mgr_free(taskc_mgr);
     }
 
-    cvector_free(report_vec, LOC_API_0040);
+    cvector_free(report_vec, LOC_API_0449);
     mod_mgr_free(mod_mgr);
 
     return (NULL_PTR);
@@ -1925,22 +1925,22 @@ char *ui_run_shell(API_UI_PARAM * param)
     CVECTOR *report_vec;
     LOG   *des_log;
 
-    cmd_line = cstring_new(NULL_PTR, LOC_API_0041);
+    cmd_line = cstring_new(NULL_PTR, LOC_API_0450);
 
     api_ui_param_cstring(param, 1, cmd_line);
     api_ui_param_int(param, 2, &tcid);
     api_ui_param_str(param, 3, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "run shell %s on tcid %s where %s\n", (char *)cstring_get_str(cmd_line), c_word_to_ipv4(INT32_TO_UINT32(tcid)), where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "run shell %s on tcid %s where %s\n", (char *)cstring_get_str(cmd_line), c_word_to_ipv4(INT32_TO_UINT32(tcid)), where);
 
     mod_mgr = ui_gen_mod_mgr(INT32_TO_UINT32(tcid), CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_run_shell beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_run_shell beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_run_shell end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_run_shell end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0042);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0451);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -1972,7 +1972,7 @@ char *ui_run_shell(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0043);
+    cvector_free(report_vec, LOC_API_0452);
     mod_mgr_free(mod_mgr);
 
     cstring_free(cmd_line);
@@ -1994,20 +1994,20 @@ char *ui_run_shell_all(API_UI_PARAM * param)
     CVECTOR *report_vec;
     LOG   *des_log;
 
-    cmd_line = cstring_new(NULL_PTR, LOC_API_0044);
+    cmd_line = cstring_new(NULL_PTR, LOC_API_0453);
     api_ui_param_cstring(param, 1, cmd_line);
     api_ui_param_str(param, 2, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "run shell %s all where = %s\n", (char *)cstring_get_str(cmd_line), where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "run shell %s all where = %s\n", (char *)cstring_get_str(cmd_line), where);
 
     mod_mgr = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_FWD_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_run_shell_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_run_shell_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_run_shell_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_run_shell_all end ----------------------------------\n");
 #endif
 
-    report_vec = cvector_new(0, MM_LOG, LOC_API_0045);
+    report_vec = cvector_new(0, MM_LOG, LOC_API_0454);
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_HIGH, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
     remote_mod_node_num = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -2039,7 +2039,7 @@ char *ui_run_shell_all(API_UI_PARAM * param)
         log_cstr_close(log);
     }
 
-    cvector_free(report_vec, LOC_API_0046);
+    cvector_free(report_vec, LOC_API_0455);
     mod_mgr_free(mod_mgr);
 
     cstring_free(cmd_line);
@@ -2065,7 +2065,7 @@ char *ui_ping_taskcomm(API_UI_PARAM * param)
 
     des_log = ui_get_log(where);
 
-    sys_log(LOGSTDOUT, "show taskcomm tcid %s where = %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "show taskcomm tcid %s where = %s\n", c_word_to_ipv4(INT32_TO_UINT32(tcid)), where);
 
     ret = EC_FALSE; /*initialization*/
 
@@ -2127,13 +2127,13 @@ char* ui_mon_all(API_UI_PARAM * param)
     api_ui_param_int(param, 2, &times);
     api_ui_param_str(param, 3, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "ui_mon_all: oid = %d, times = %d, where = %s\n", oid, times, where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "ui_mon_all: oid = %d, times = %d, where = %s\n", oid, times, where);
 
     mod_mgr_def = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_ANY_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_mon_all beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_mon_all beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr_def);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_mon_all end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_mon_all end ----------------------------------\n");
 #endif
 
     des_log = ui_get_log(where);
@@ -2167,7 +2167,7 @@ char* ui_mon_all(API_UI_PARAM * param)
     for(; 0 < times; times --)
     {
         pause();
-        //sys_log(LOGCONSOLE, "ui_mon_all: times %d\n", times);
+        //dbg_log(SEC_0010_API, 0)(LOGCONSOLE, "ui_mon_all: times %d\n", times);
     }
 
     ctimer_clean();
@@ -2222,13 +2222,13 @@ char* ui_mon_oid(API_UI_PARAM * param)
     api_ui_param_int(param, 4, &rank);
     api_ui_param_str(param, 5, where, UI_DEBUG_BUFFER_SIZE - 1);
 
-    sys_log(LOGSTDOUT, "ui_mon_all: oid = %d, times = %d, tcid = %d, rank = %d, where = %s\n", oid, times, tcid, rank, where);
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "ui_mon_all: oid = %d, times = %d, tcid = %d, rank = %d, where = %s\n", oid, times, tcid, rank, where);
 
     mod_mgr_def = ui_gen_mod_mgr(CMPI_ANY_TCID, CMPI_ANY_RANK, CMPI_ERROR_TCID, CMPI_ERROR_RANK, 0);/*super_md_id = 0*/
 #if 1
-    sys_log(LOGSTDOUT, "------------------------------------ ui_mon_oid beg ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_mon_oid beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr_def);
-    sys_log(LOGSTDOUT, "------------------------------------ ui_mon_oid end ----------------------------------\n");
+    dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "------------------------------------ ui_mon_oid end ----------------------------------\n");
 #endif
 
     des_log = ui_get_log(where);
@@ -2262,7 +2262,7 @@ char* ui_mon_oid(API_UI_PARAM * param)
     for(; 0 < times; times --)
     {
         pause();
-        //sys_log(LOGCONSOLE, "ui_mon_oid: times %d\n", times);
+        //dbg_log(SEC_0010_API, 0)(LOGCONSOLE, "ui_mon_oid: times %d\n", times);
     }
 
     ctimer_clean();

@@ -22,7 +22,9 @@ typedef struct
     UINT32 size;
 
     void **data;
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)    
     CMUTEX    cmutex;
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/    
 }CARRAY;
 
 typedef void (*CARRAY_DATA_HANDLER)(void *);
@@ -30,11 +32,23 @@ typedef EC_BOOL (*CARRAY_DATA_CMP)(const void *, const void *);
 typedef void (*CARRAY_DATA_CLEANER)(void *);
 typedef void (*CARRAY_DATA_PRINT)(void *);
 
-#define CARRAY_INIT_LOCK(carray, __location__)          cmutex_init((CMUTEX *)&((carray)->cmutex), CMUTEX_PROCESS_PRIVATE, (__location__))
-#define CARRAY_CLEAN_LOCK(carray, __location__)         cmutex_clean((CMUTEX *)&((carray)->cmutex), (__location__))
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)    
+#define CARRAY_CMUTEX(carray)                           ((CMUTEX *)&((carray)->cmutex))
+#define CARRAY_INIT_LOCK(carray, __location__)          cmutex_init(CARRAY_CMUTEX(carray), CMUTEX_PROCESS_PRIVATE, (__location__))
+#define CARRAY_CLEAN_LOCK(carray, __location__)         cmutex_clean(CARRAY_CMUTEX(carray), (__location__))
 
-#define CARRAY_LOCK(carray, __location__)               cmutex_lock((CMUTEX *)&((carray)->cmutex), (__location__))
-#define CARRAY_UNLOCK(carray, __location__)             cmutex_unlock((CMUTEX *)&((carray)->cmutex), (__location__))
+#define CARRAY_LOCK(carray, __location__)               cmutex_lock(CARRAY_CMUTEX(carray), (__location__))
+#define CARRAY_UNLOCK(carray, __location__)             cmutex_unlock(CARRAY_CMUTEX(carray), (__location__))
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/  
+
+#if (SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)    
+#define CARRAY_INIT_LOCK(carray, __location__)          do{}while(0)
+#define CARRAY_CLEAN_LOCK(carray, __location__)         do{}while(0)
+
+#define CARRAY_LOCK(carray, __location__)               do{}while(0)
+#define CARRAY_UNLOCK(carray, __location__)             do{}while(0)
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)*/  
+
 
 CARRAY *carray_new(const UINT32 size, const void *init_val, const UINT32 location);
 

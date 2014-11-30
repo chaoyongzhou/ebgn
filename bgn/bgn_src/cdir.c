@@ -127,13 +127,13 @@ UINT32 cdir_start(const CVECTOR *node_tcid_vec)
 
     task_brd = task_brd_default_get();
 
-    sys_log(LOGSTDOUT, "info:cdir_start: input node_tcid_vec is\n");
+    dbg_log(SEC_0111_CDIR, 3)(LOGSTDOUT, "info:cdir_start: input node_tcid_vec is\n");
     cvector_print(LOGSTDOUT, node_tcid_vec, NULL_PTR);
 
     cvector_init(&(cdir_md->node_tcid_vec), cvector_size(node_tcid_vec), MM_UINT32, CVECTOR_LOCK_ENABLE, LOC_CDIR_0001);
     cvector_clone_with_prev_filter(node_tcid_vec, &(cdir_md->node_tcid_vec), task_brd, (CVECTOR_DATA_PREV_FILTER)task_brd_check_tcid_connected, NULL_PTR, NULL_PTR);
 
-    sys_log(LOGSTDOUT, "info:cdir_start: output node_tcid_vec is\n");
+    dbg_log(SEC_0111_CDIR, 3)(LOGSTDOUT, "info:cdir_start: output node_tcid_vec is\n");
     cvector_print(LOGSTDOUT, &(cdir_md->node_tcid_vec), NULL_PTR);
 
     /*default setting which will be override after cdir_set_mod_mgr calling*/
@@ -141,8 +141,8 @@ UINT32 cdir_start(const CVECTOR *node_tcid_vec)
 
     cdir_md->usedcounter = 1;
 
-    sys_log(LOGSTDOUT, "cdir_start: start CDIR module #%ld\n", cdir_md_id);
-    //sys_log(LOGSTDOUT, "========================= cdir_start: CDIR table info:\n");
+    dbg_log(SEC_0111_CDIR, 5)(LOGSTDOUT, "cdir_start: start CDIR module #%ld\n", cdir_md_id);
+    //dbg_log(SEC_0111_CDIR, 3)(LOGSTDOUT, "========================= cdir_start: CDIR table info:\n");
     //cdir_print_module_status(cdir_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -161,7 +161,7 @@ void cdir_end(const UINT32 cdir_md_id)
     cdir_md = CDIR_MD_GET(cdir_md_id);
     if(NULL_PTR == cdir_md)
     {
-        sys_log(LOGSTDOUT,"error:cdir_end: cdir_md_id = %ld not exist.\n", cdir_md_id);
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT,"error:cdir_end: cdir_md_id = %ld not exist.\n", cdir_md_id);
         dbg_exit(MD_CDIR, cdir_md_id);
     }
 
@@ -174,7 +174,7 @@ void cdir_end(const UINT32 cdir_md_id)
 
     if ( 0 == cdir_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:cdir_end: cdir_md_id = %ld is not started.\n", cdir_md_id);
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT,"error:cdir_end: cdir_md_id = %ld is not started.\n", cdir_md_id);
         dbg_exit(MD_CDIR, cdir_md_id);
     }
 
@@ -192,12 +192,12 @@ void cdir_end(const UINT32 cdir_md_id)
 
     cdir_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "cdir_end: stop CDIR module #%ld\n", cdir_md_id);
+    dbg_log(SEC_0111_CDIR, 5)(LOGSTDOUT, "cdir_end: stop CDIR module #%ld\n", cdir_md_id);
     cbc_md_free(MD_CDIR, cdir_md_id);
 
     breathing_static_mem();
 
-    //sys_log(LOGSTDOUT, "========================= cdir_end: CDIR table info:\n");
+    //dbg_log(SEC_0111_CDIR, 3)(LOGSTDOUT, "========================= cdir_end: CDIR table info:\n");
     //cdir_print_module_status(cdir_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -296,7 +296,7 @@ UINT32 cdir_set_mod_mgr(const UINT32 cdir_md_id, const MOD_MGR * src_mod_mgr)
     cdir_md = CDIR_MD_GET(cdir_md_id);
     des_mod_mgr = cdir_md->mod_mgr;
 
-    sys_log(LOGSTDOUT, "info:cdir_set_mod_mgr: cdir_md_id: %ld, src_mod_mgr is\n", cdir_md_id, src_mod_mgr);
+    dbg_log(SEC_0111_CDIR, 3)(LOGSTDOUT, "info:cdir_set_mod_mgr: cdir_md_id: %ld, src_mod_mgr is\n", cdir_md_id, src_mod_mgr);
     mod_mgr_print(LOGSTDOUT, src_mod_mgr);
 
     node_tcid_num = cvector_size(&(cdir_md->node_tcid_vec));
@@ -304,16 +304,16 @@ UINT32 cdir_set_mod_mgr(const UINT32 cdir_md_id, const MOD_MGR * src_mod_mgr)
 
     cvector_clone_with_prev_filter(&(cdir_md->node_tcid_vec), node_tcid_vec, (void *)node_tcid_vec, (CVECTOR_DATA_PREV_FILTER)cdir_tcid_filter_out, NULL_PTR, NULL_PTR);
 
-    sys_log(LOGSTDOUT, "info:cdir_set_mod_mgr: output tcid_vec is\n");
+    dbg_log(SEC_0111_CDIR, 3)(LOGSTDOUT, "info:cdir_set_mod_mgr: output tcid_vec is\n");
     cvector_print(LOGSTDOUT, node_tcid_vec, NULL_PTR);
 
     mod_mgr_limited_clone_with_tcid_filter(cdir_md_id, src_mod_mgr, node_tcid_vec, des_mod_mgr);
 
     cvector_free(node_tcid_vec, LOC_CDIR_0004);
 
-    sys_log(LOGSTDOUT, "====================================cdir_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
+    dbg_log(SEC_0111_CDIR, 5)(LOGSTDOUT, "====================================cdir_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
     mod_mgr_print(LOGSTDOUT, des_mod_mgr);
-    sys_log(LOGSTDOUT, "====================================cdir_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
+    dbg_log(SEC_0111_CDIR, 5)(LOGSTDOUT, "====================================cdir_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
     return (0);
 }
 
@@ -368,7 +368,7 @@ UINT32 cdir_dir_split(const UINT32 cdir_md_id, CSTRING *home, CSTRING *dir, CLIS
     {
         if(0 != cdir_dir_split(cdir_md_id, NULL_PTR, home, dir_clist))
         {
-            sys_log(LOGSTDOUT, "error:cdir_dir_split: invalid home\n");
+            dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_dir_split: invalid home\n");
             return ((UINT32)-1);
         }
     }
@@ -385,7 +385,7 @@ UINT32 cdir_dir_split(const UINT32 cdir_md_id, CSTRING *home, CSTRING *dir, CLIS
         {
             if(NULL_PTR == clist_pop_back(dir_clist))
             {
-                sys_log(LOGSTDOUT, "error:cdir_dir_split: invalid dir\n");
+                dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_dir_split: invalid dir\n");
                 return ((UINT32)-1);
             }
             continue;
@@ -468,7 +468,7 @@ UINT32 cdir_basename(const UINT32 cdir_md_id, const CSTRING *file_name, CSTRING 
 
     if(0 != cdir_dir_split(cdir_md_id, NULL_PTR, tmp_file_name, dir_clist))
     {
-        sys_log(LOGSTDOUT, "error:cdir_basename: invalid file name %s\n", (char *)cstring_get_str(file_name));
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_basename: invalid file name %s\n", (char *)cstring_get_str(file_name));
 
         clist_clean(dir_clist, NULL_PTR);
         clist_free(dir_clist, LOC_CDIR_0007);
@@ -516,7 +516,7 @@ UINT32 cdir_dirname(const UINT32 cdir_md_id, const CSTRING *file_name, CSTRING *
 
     if(0 != cdir_dir_split(cdir_md_id, NULL_PTR, tmp_file_name, dir_clist))
     {
-        sys_log(LOGSTDOUT, "error:cdir_dirname: invalid file name %s\n", (char *)cstring_get_str(file_name));
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_dirname: invalid file name %s\n", (char *)cstring_get_str(file_name));
 
         clist_clean(dir_clist, NULL_PTR);
         clist_free(dir_clist, LOC_CDIR_0011);
@@ -761,7 +761,7 @@ UINT32 cdir_seg_rmv(const UINT32 cdir_md_id, const CDIR_SEG *cdir_seg)
         sub_cdir_node = cdir_node_new(cdir_md_id);
         if(NULL_PTR == sub_cdir_node)
         {
-            sys_log(LOGSTDOUT, "error:cdir_seg_rmv: failed to open sub dir %s\n",(char *)CDIR_SEG_NAME_STR(cdir_seg));
+            dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_seg_rmv: failed to open sub dir %s\n",(char *)CDIR_SEG_NAME_STR(cdir_seg));
             return ((UINT32)-1);
         }
 
@@ -774,7 +774,7 @@ UINT32 cdir_seg_rmv(const UINT32 cdir_md_id, const CDIR_SEG *cdir_seg)
         return (0);
     }
 
-    sys_log(LOGSTDOUT, "error:cdir_seg_rmv: invalid seg type %ld when handle %s\n",
+    dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_seg_rmv: invalid seg type %ld when handle %s\n",
                         CDIR_SEG_TYPE(cdir_seg),
                         (char *)CDIR_SEG_NAME_STR(cdir_seg));
     return ((UINT32)-1);
@@ -814,7 +814,7 @@ EC_BOOL cdir_seg_is_dir(const UINT32 cdir_md_id, const CDIR_SEG *cdir_seg)
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "error:cdir_seg_is_dir: invalid seg type %ld\n", CDIR_SEG_TYPE(cdir_seg));
+    dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_seg_is_dir: invalid seg type %ld\n", CDIR_SEG_TYPE(cdir_seg));
     return (EC_FALSE);
 }
 
@@ -841,7 +841,7 @@ UINT32 cdir_seg_copy_to_node_tcid(const UINT32 cdir_md_id, const CDIR_SEG *cdir_
     }
 #endif/*CDIR_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT,"error:cdir_seg_copy_to_node_tcid: incompleted implementation!!!\n");
+    dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT,"error:cdir_seg_copy_to_node_tcid: incompleted implementation!!!\n");
 
     //CDIR_SEG_TYPE(cdir_seg_des) = CDIR_SEG_TYPE(cdir_seg_src);
     //cstring_clone(CDIR_SEG_NAME(cdir_seg_src), CDIR_SEG_NAME(cdir_seg_des));
@@ -1111,7 +1111,7 @@ UINT32 cdir_node_clone(const UINT32 cdir_md_id, const CDIR_NODE *cdir_node_src, 
     cdir_md = CDIR_MD_GET(cdir_md_id);
     mod_mgr = cdir_md->mod_mgr;
 
-    sys_log(LOGSTDOUT, "error:cdir_node_clone: incompleted implementation!!!\n");
+    dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_node_clone: incompleted implementation!!!\n");
 #if 0
     cdir_node_clean(cdir_md_id, cdir_node_des);
     cstring_clone(CDIR_NODE_NAME(cdir_node_src), CDIR_NODE_NAME(cdir_node_des));
@@ -1131,7 +1131,7 @@ UINT32 cdir_node_clone(const UINT32 cdir_md_id, const CDIR_NODE *cdir_node_src, 
         cdir_seg_des = cdir_seg_new(cdir_md_id);
         if(NULL_PTR == cdir_seg_des)
         {
-            sys_log(LOGSTDOUT, "error:cdir_node_clone: failed to new CDIR_SEG when cdir_seg_pos = %ld and src seg name %s\n",
+            dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_node_clone: failed to new CDIR_SEG when cdir_seg_pos = %ld and src seg name %s\n",
                                cdir_seg_pos, (char *)CDIR_SEG_NAME_STR(cdir_seg_src));
             return ((UINT32)-1);
         }
@@ -1146,7 +1146,7 @@ UINT32 cdir_node_clone(const UINT32 cdir_md_id, const CDIR_NODE *cdir_node_src, 
             sub_cdir_node_src = cdir_node_new(cdir_md_id);
             if(NULL_PTR == sub_cdir_node_src)
             {
-                sys_log(LOGSTDOUT, "error:cdir_node_clone: failed to new sub CDIR_SEG src when cdir_seg_pos = %ld and src seg name %s\n",
+                dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_node_clone: failed to new sub CDIR_SEG src when cdir_seg_pos = %ld and src seg name %s\n",
                                    cdir_seg_pos, (char *)CDIR_SEG_NAME_STR(cdir_seg_src));
                 return ((UINT32)-1);
             }
@@ -1154,7 +1154,7 @@ UINT32 cdir_node_clone(const UINT32 cdir_md_id, const CDIR_NODE *cdir_node_src, 
             sub_cdir_node_des = cdir_node_new(cdir_md_id);
             if(NULL_PTR == sub_cdir_node_des)
             {
-                sys_log(LOGSTDOUT, "error:cdir_node_clone: failed to new sub CDIR_SEG des when cdir_seg_pos = %ld and src seg name %s\n",
+                dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_node_clone: failed to new sub CDIR_SEG des when cdir_seg_pos = %ld and src seg name %s\n",
                                    cdir_seg_pos, (char *)CDIR_SEG_NAME_STR(cdir_seg_src));
                 cdir_node_free(cdir_md_id, sub_cdir_node_src);
                 return ((UINT32)-1);
@@ -1162,7 +1162,7 @@ UINT32 cdir_node_clone(const UINT32 cdir_md_id, const CDIR_NODE *cdir_node_src, 
 
             if(0 != cdir_read_on_node_tcid(cdir_md_id, CDIR_SEG_NAME(cdir_seg_src), sub_cdir_node_src, MOD_MGR_LOCAL_MOD_TCID(mod_mgr)))
             {
-                sys_log(LOGSTDOUT, "error:cdir_node_clone: failed to read sub CDIR_NODE src when cdir_seg_pos = %ld and src seg name %s\n",
+                dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_node_clone: failed to read sub CDIR_NODE src when cdir_seg_pos = %ld and src seg name %s\n",
                                    cdir_seg_pos, (char *)CDIR_SEG_NAME_STR(cdir_seg_src));
                 cdir_node_free(cdir_md_id, sub_cdir_node_src);
                 cdir_node_free(cdir_md_id, sub_cdir_node_des);
@@ -1326,7 +1326,7 @@ EC_BOOL cdir_is_dir_on_node_tcid(const UINT32 cdir_md_id, const CSTRING *path_na
         EC_BOOL ret;
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cdir_is_dir_on_node_tcid, ERR_MODULE_ID, path_name, node_tcid))
         {
-            sys_log(LOGSTDOUT, "error:cdir_is_dir_on_node_tcid: something wrong when make task to check dir %s on tcid %s\n",
+            dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_is_dir_on_node_tcid: something wrong when make task to check dir %s on tcid %s\n",
                             (char *)cstring_get_str(path_name), c_word_to_ipv4(node_tcid));
             return (EC_FALSE);
         }
@@ -1377,7 +1377,7 @@ UINT32 cdir_create_on_node_tcid(const UINT32 cdir_md_id, const CSTRING *dir_name
         UINT32 ret;
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cdir_create_on_node_tcid, ERR_MODULE_ID, dir_name, mode, node_tcid))
         {
-            sys_log(LOGSTDOUT, "error:cdir_create_on_node_tcid: something wrong when make task to create dir %s on tcid %s\n",
+            dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_create_on_node_tcid: something wrong when make task to create dir %s on tcid %s\n",
                                 (char *)cstring_get_str(dir_name), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
@@ -1386,7 +1386,7 @@ UINT32 cdir_create_on_node_tcid(const UINT32 cdir_md_id, const CSTRING *dir_name
     /*TODO: here need to check dir_name to make sure it is under home directory => to prevent malicious crack*/
     if(0 != mkdir((char *)cstring_get_str(dir_name), mode))
     {
-        sys_log(LOGSTDOUT, "error:cdir_create_on_node_tcid: failed to create dir %s with mode %o\n", (char *)cstring_get_str(dir_name), mode);
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_create_on_node_tcid: failed to create dir %s with mode %o\n", (char *)cstring_get_str(dir_name), mode);
         return ((UINT32)-1);
     }
 
@@ -1440,7 +1440,7 @@ UINT32 cdir_read_on_node_tcid(const UINT32 cdir_md_id, const CSTRING *dir_name, 
         UINT32 ret;
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cdir_read_on_node_tcid, ERR_MODULE_ID, dir_name, cdir_node, node_tcid))
         {
-            sys_log(LOGSTDOUT, "error:cdir_read_on_node_tcid: something wrong when make task to open dir %s on tcid %s\n",
+            dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_read_on_node_tcid: something wrong when make task to open dir %s on tcid %s\n",
                                 (char *)cstring_get_str(dir_name), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
@@ -1452,23 +1452,23 @@ UINT32 cdir_read_on_node_tcid(const UINT32 cdir_md_id, const CSTRING *dir_name, 
     path_name = cstring_new(cstring_get_str(dir_name), LOC_CDIR_0019);
     if(NULL_PTR == path_name)
     {
-        sys_log(LOGSTDOUT, "error:cdir_read_on_node_tcid: failed to new a CSTRING\n");
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_read_on_node_tcid: failed to new a CSTRING\n");
         return ((UINT32)-1);
     }
 
-    //sys_log(LOGSTDOUT, "[before] path_name: \n");
+    //dbg_log(SEC_0111_CDIR, 5)(LOGSTDOUT, "[before] path_name: \n");
     //cstring_print(LOGSTDOUT, path_name);
 
     cstring_append_char(path_name, '/');
     from = cstring_get_len(path_name);
 
-    //sys_log(LOGSTDOUT, "[after] from = %ld, path_name: \n", from);
+    //dbg_log(SEC_0111_CDIR, 5)(LOGSTDOUT, "[after] from = %ld, path_name: \n", from);
     //cstring_print(LOGSTDOUT, path_name);
 
     dir = opendir((char *)cstring_get_str(dir_name));
     if(NULL_PTR == dir)
     {
-        sys_log(LOGSTDOUT, "error:cdir_read_on_node_tcid: failed to open dir %s\n", (char *)cstring_get_str(dir_name));
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_read_on_node_tcid: failed to open dir %s\n", (char *)cstring_get_str(dir_name));
         cstring_free(path_name);
         return ((UINT32)-1);
     }
@@ -1482,7 +1482,7 @@ UINT32 cdir_read_on_node_tcid(const UINT32 cdir_md_id, const CSTRING *dir_name, 
         {
             break;
         }
-        //sys_log(LOGSTDOUT, "cdir_open: check [%s] ... ", file->d_name);
+        //dbg_log(SEC_0111_CDIR, 5)(LOGSTDOUT, "cdir_open: check [%s] ... ", file->d_name);
         /*skip hidden files*/
         if(0 == strncmp(file->d_name, ".", 1))
         {
@@ -1591,7 +1591,7 @@ UINT32 cdir_clean_on_node_tcid(const UINT32 cdir_md_id, const CDIR_NODE *cdir_no
 
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cdir_clean_on_node_tcid, ERR_MODULE_ID, cdir_node, node_tcid))
         {
-            sys_log(LOGSTDOUT, "error:cdir_clean_on_node_tcid: something wrong when make task to clean dir %s on tcid %s\n",
+            dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_clean_on_node_tcid: something wrong when make task to clean dir %s on tcid %s\n",
                                 (char *)CDIR_NODE_NAME(cdir_node), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
@@ -1658,7 +1658,7 @@ UINT32 cdir_rmv_on_node_tcid(const UINT32 cdir_md_id, const CDIR_NODE *cdir_node
 
         if(0 != task_tcid_mono(mod_mgr, TASK_DEFAULT_LIVE, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP, node_tcid, &ret, FI_cdir_rmv_on_node_tcid, ERR_MODULE_ID, cdir_node, node_tcid))
         {
-            sys_log(LOGSTDOUT, "error:cdir_rmv_on_node_tcid: something wrong when make task to rmv dir %s on tcid %s\n",
+            dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_rmv_on_node_tcid: something wrong when make task to rmv dir %s on tcid %s\n",
                                 (char *)CDIR_NODE_NAME(cdir_node), c_word_to_ipv4(node_tcid));
             return ((UINT32)-1);
         }
@@ -1667,7 +1667,7 @@ UINT32 cdir_rmv_on_node_tcid(const UINT32 cdir_md_id, const CDIR_NODE *cdir_node
 
     if(NULL_PTR == CDIR_NODE_NAME_STR(cdir_node))
     {
-        sys_log(LOGSTDOUT, "error:cdir_rmv_on_node_tcid: node name is null\n");
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_rmv_on_node_tcid: node name is null\n");
         return ((UINT32)-1);
     }
 
@@ -1675,7 +1675,7 @@ UINT32 cdir_rmv_on_node_tcid(const UINT32 cdir_md_id, const CDIR_NODE *cdir_node
 
     if(0 != rmdir((char *)CDIR_NODE_NAME_STR(cdir_node)))
     {
-        sys_log(LOGSTDOUT, "error:cdir_rmv_on_node_tcid: failed to rmv dir %s with errno = %d, errstr = %s\n", (char *)CDIR_NODE_NAME_STR(cdir_node), errno, strerror(errno));
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_rmv_on_node_tcid: failed to rmv dir %s with errno = %d, errstr = %s\n", (char *)CDIR_NODE_NAME_STR(cdir_node), errno, strerror(errno));
         return ((UINT32)-1);
     }
 
@@ -1745,13 +1745,13 @@ EC_BOOL cdir_search_trans(const UINT32 cdir_md_id, const CSTRING *dir_name, UINT
     if(node_tcid_pos < node_tcid_num)
     {
         (*node_tcid) = (UINT32)cvector_get(node_tcid_list, node_tcid_pos);
-        sys_log(LOGSTDOUT, "info:cdir_search_trans: dir %s found on node_tcid %s\n",
+        dbg_log(SEC_0111_CDIR, 3)(LOGSTDOUT, "info:cdir_search_trans: dir %s found on node_tcid %s\n",
                             (char *)cstring_get_str(dir_name), c_word_to_ipv4(*node_tcid));
         carray_free(ret_list, LOC_CDIR_0021);
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "info:cdir_search_trans: dir %s NOT found\n", (char *)cstring_get_str(dir_name));
+    dbg_log(SEC_0111_CDIR, 3)(LOGSTDOUT, "info:cdir_search_trans: dir %s NOT found\n", (char *)cstring_get_str(dir_name));
     carray_free(ret_list, LOC_CDIR_0022);
     return (EC_FALSE);
 }
@@ -1819,16 +1819,16 @@ UINT32 cdir_create_trans(const UINT32 cdir_md_id, const CSTRING *dir_name, const
     cdir_md = CDIR_MD_GET(cdir_md_id);
     mod_mgr = cdir_md->mod_mgr;
 
-    //sys_log(LOGSTDOUT, "info:cdir_create_trans: cdir_md_id: %ld, src_mod_mgr is\n", cdir_md_id, mod_mgr);
+    //dbg_log(SEC_0111_CDIR, 3)(LOGSTDOUT, "info:cdir_create_trans: cdir_md_id: %ld, src_mod_mgr is\n", cdir_md_id, mod_mgr);
     //mod_mgr_print(LOGSTDOUT, mod_mgr);
 
-    //sys_log(LOGSTDOUT, "info:cdir_create_trans: node_tcid_vec is:\n");
+    //dbg_log(SEC_0111_CDIR, 3)(LOGSTDOUT, "info:cdir_create_trans: node_tcid_vec is:\n");
     //cvector_print(LOGSTDOUT, &(cdir_md->node_tcid_vec), NULL_PTR);
 
     mod_node = mod_mgr_find_min_load_with_tcid_vec_filter(mod_mgr, &(cdir_md->node_tcid_vec));
     if(NULL_PTR == mod_node)
     {
-        sys_log(LOGSTDOUT, "error:cdir_create_trans: failed to filter mod_node with node tcid vec\n");
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_create_trans: failed to filter mod_node with node tcid vec\n");
         cvector_print(LOGSTDOUT, &(cdir_md->node_tcid_vec), NULL_PTR);
         return ((UINT32)-1);
     }
@@ -1865,7 +1865,7 @@ UINT32 cdir_read_trans(const UINT32 cdir_md_id, const CSTRING *dir_name, CDIR_NO
 
     if(EC_FALSE == cdir_search_trans(cdir_md_id, dir_name, &node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cdir_read_trans: failed to search dir %s\n", (char *)cstring_get_str(dir_name));
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_read_trans: failed to search dir %s\n", (char *)cstring_get_str(dir_name));
         return ((UINT32)-1);
     }
 
@@ -1901,7 +1901,7 @@ UINT32 cdir_clean_trans(const UINT32 cdir_md_id, const CDIR_NODE *cdir_node)
 
     if(EC_FALSE == cdir_search_trans(cdir_md_id, CDIR_NODE_NAME(cdir_node), &node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cdir_clean_trans: failed to search dir %s\n", (char *)CDIR_NODE_NAME(cdir_node));
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_clean_trans: failed to search dir %s\n", (char *)CDIR_NODE_NAME(cdir_node));
         return ((UINT32)-1);
     }
 
@@ -1937,7 +1937,7 @@ UINT32 cdir_rmv_trans(const UINT32 cdir_md_id, const CDIR_NODE *cdir_node)
 
     if(EC_FALSE == cdir_search_trans(cdir_md_id, CDIR_NODE_NAME(cdir_node), &node_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cdir_rmv_trans: failed to search dir %s\n", (char *)CDIR_NODE_NAME(cdir_node));
+        dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_rmv_trans: failed to search dir %s\n", (char *)CDIR_NODE_NAME(cdir_node));
         return ((UINT32)-1);
     }
 
@@ -1984,7 +1984,7 @@ UINT32 cdir_sync(const UINT32 cdir_md_id, const CSTRING *src_dir_name, const UIN
     }
 #endif/*CDIR_DEBUG_SWITCH*/
 
-    sys_log(LOGSTDOUT, "error:cdir_sync: sorry incomplete implementation...\n");
+    dbg_log(SEC_0111_CDIR, 0)(LOGSTDOUT, "error:cdir_sync: sorry incomplete implementation...\n");
     return (0);
 }
 

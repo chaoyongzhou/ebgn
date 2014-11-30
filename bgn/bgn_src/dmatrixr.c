@@ -41,7 +41,7 @@ extern "C"{
 
 #include "cbc.h"
 
-#include "croutine.h"
+#include "cmutex.h"
 
 #define DMATRIXR_MD_CAPACITY()                  (cbc_md_capacity(MD_DMATRIXR))
 
@@ -172,7 +172,7 @@ void dmatrix_r_end(const UINT32 dmatrixr_md_id)
     dmatrixr_md = DMATRIXR_MD_GET(dmatrixr_md_id);
     if(NULL_PTR == dmatrixr_md)
     {
-        sys_log(LOGSTDOUT,"error:dmatrix_r_end: dmatrixr_md_id = %ld not exist.\n", dmatrixr_md_id);
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDOUT,"error:dmatrix_r_end: dmatrixr_md_id = %ld not exist.\n", dmatrixr_md_id);
         dbg_exit(MD_DMATRIXR, dmatrixr_md_id);
     }
 
@@ -185,7 +185,7 @@ void dmatrix_r_end(const UINT32 dmatrixr_md_id)
 
     if ( 0 == dmatrixr_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:dmatrix_r_end: dmatrixr_md_id = %ld is not started.\n", dmatrixr_md_id);
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDOUT,"error:dmatrix_r_end: dmatrixr_md_id = %ld is not started.\n", dmatrixr_md_id);
         dbg_exit(MD_DMATRIXR, dmatrixr_md_id);
     }
 
@@ -242,17 +242,17 @@ UINT32 dmatrix_r_set_mod_mgr(const UINT32 dmatrixr_md_id, const MOD_MGR * src_mo
     dmatrixr_md = DMATRIXR_MD_GET(dmatrixr_md_id);
     des_mod_mgr = dmatrixr_md->mod_mgr;
 
-    //sys_log(LOGSTDOUT, "dmatrix_r_set_mod_mgr: md_id %d, src_mod_mgr %lx\n", dmatrixr_md_id, src_mod_mgr);
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "dmatrix_r_set_mod_mgr: md_id %d, src_mod_mgr %lx\n", dmatrixr_md_id, src_mod_mgr);
     //mod_mgr_print(LOGSTDOUT, src_mod_mgr);
 
     mod_mgr_limited_clone(dmatrixr_md_id, src_mod_mgr, des_mod_mgr);
 
-    //sys_log(LOGSTDOUT, "dmatrix_r_set_mod_mgr: md_id %d, des_mod_mgr %lx\n", dmatrixr_md_id, des_mod_mgr);
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "dmatrix_r_set_mod_mgr: md_id %d, des_mod_mgr %lx\n", dmatrixr_md_id, des_mod_mgr);
     //mod_mgr_print(LOGSTDOUT, des_mod_mgr);
 
-    //sys_log(LOGSTDOUT, "====================================dmatrix_r_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "====================================dmatrix_r_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
     //mod_mgr_print(LOGSTDOUT, des_mod_mgr);
-    //sys_log(LOGSTDOUT, "====================================dmatrix_r_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "====================================dmatrix_r_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
 
 
     return (0);
@@ -298,7 +298,7 @@ MATRIX_BLOCK *dmatrix_r_get_row_block(const UINT32 dmatrixr_md_id, const MATRIX 
 {
     if(pos >= MATRIX_GET_COL_BLOCKS_NUM(matrixr))
     {
-        sys_log(LOGSTDOUT, "error:dmatrix_r_get_row_block: pos %ld overflow where col blocks num of matrix is %ld\n", pos, MATRIX_GET_COL_BLOCKS_NUM(matrixr));
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDOUT, "error:dmatrix_r_get_row_block: pos %ld overflow where col blocks num of matrix is %ld\n", pos, MATRIX_GET_COL_BLOCKS_NUM(matrixr));
         return (NULL_PTR);
     }
 
@@ -319,7 +319,7 @@ UINT32 dmatrix_r_clean_adc_cache(const UINT32 dmatrixr_md_id, const UINT32 row_n
     matrixr_md_id = dmatrixr_md->matrixr_md_id;
     mod_mgr = dmatrixr_md->mod_mgr;
 
-    //sys_log(LOGSTDOUT, "dmatrix_r_clean_adc_cache: %ld clean up\n", MOD_MGR_LOCAL_MOD_POS(mod_mgr));
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "dmatrix_r_clean_adc_cache: %ld clean up\n", MOD_MGR_LOCAL_MOD_POS(mod_mgr));
 
     local_matrix_row_block = dmatrix_r_get_row_block(dmatrixr_md_id, dmatrixr_md->src_matrixr, MOD_MGR_LOCAL_MOD_POS(mod_mgr));
     matrix_r_block_get_col_num(matrixr_md_id, local_matrix_row_block, &col_num_of_local_matrix_row_block);
@@ -368,7 +368,7 @@ UINT32 dmatrix_r_clean_cache(const UINT32 dmatrixr_md_id, const UINT32 row_num_o
     dmatrix_r_clean_adc_cache(dmatrixr_md_id, row_num_of_src_matrix_row_block);
     dmatrix_r_clean_mul_cache(dmatrixr_md_id, row_num_of_src_matrix_row_block);
 
-    //sys_log(LOGSTDOUT, "dmatrix_r_clean_cache: dmatrixr_md_id = %ld, spy on ccond times = %ld\n", dmatrixr_md_id, croutine_cond_spy(&(dmatrixr_md->ccond), LOC_DMATRIXR_0005);
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "dmatrix_r_clean_cache: dmatrixr_md_id = %ld, spy on ccond times = %ld\n", dmatrixr_md_id, croutine_cond_spy(&(dmatrixr_md->ccond), LOC_DMATRIXR_0005);
     croutine_cond_reserve(&(dmatrixr_md->ccond), col_blocks_num, LOC_DMATRIXR_0006);
     return (0);
 }
@@ -389,7 +389,7 @@ UINT32 dmatrix_r_append_row_block(const UINT32 dmatrixr_md_id, const MATRIX_BLOC
 
     if( NULL_PTR == matrixr_row_block )
     {
-        sys_log(LOGSTDERR,"error:dmatrix_r_append_row_block: matrixr_row_block is null pointer\n");
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR,"error:dmatrix_r_append_row_block: matrixr_row_block is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -431,7 +431,7 @@ UINT32 dmatrix_r_append_row_block(const UINT32 dmatrixr_md_id, const MATRIX_BLOC
         /*validity checking*/
         if(sub_col_num != MATRIX_GET_COL_NUM(matrixr))
         {
-            sys_log(LOGSTDERR, "error:dmatrix_r_append_row_block: col num mismatched: matrixr_block (%ld, %ld), matrixr (%ld, %ld)\n",
+            dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR, "error:dmatrix_r_append_row_block: col num mismatched: matrixr_block (%ld, %ld), matrixr (%ld, %ld)\n",
                             sub_row_num, sub_col_num, row_num, col_num);
             return ((UINT32)(-1));
         }
@@ -464,7 +464,7 @@ UINT32 dmatrix_r_append_col_block(const UINT32 dmatrixr_md_id, const MATRIX_BLOC
 
     if( NULL_PTR == matrixr_col_block )
     {
-        sys_log(LOGSTDERR,"error:dmatrix_r_append_col_block: matrixr_col_block is null pointer\n");
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR,"error:dmatrix_r_append_col_block: matrixr_col_block is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -506,7 +506,7 @@ UINT32 dmatrix_r_append_col_block(const UINT32 dmatrixr_md_id, const MATRIX_BLOC
         /*validity checking*/
         if(sub_row_num != MATRIX_GET_ROW_NUM(matrixr))
         {
-            sys_log(LOGSTDERR, "error:dmatrix_r_append_col_block: row num mismatched: matrixr_block (%ld, %ld), matrixr (%ld, %ld)\n",
+            dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR, "error:dmatrix_r_append_col_block: row num mismatched: matrixr_block (%ld, %ld), matrixr (%ld, %ld)\n",
                             sub_row_num, sub_col_num, row_num, col_num);
             return ((UINT32)(-1));
         }
@@ -535,7 +535,7 @@ UINT32 dmatrix_r_deliver_row_blocks(const UINT32 dmatrixr_md_id, const MATRIX *m
 
     if( NULL_PTR == matrixr )
     {
-        sys_log(LOGSTDERR,"error:dmatrix_r_deliver_row_blocks: matrixr is null pointer\n");
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR,"error:dmatrix_r_deliver_row_blocks: matrixr is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -576,7 +576,7 @@ UINT32 dmatrix_r_deliver_col_blocks(const UINT32 dmatrixr_md_id, const MATRIX *m
 
     if( NULL_PTR == matrixr )
     {
-        sys_log(LOGSTDERR,"error:dmatrix_r_deliver_col_blocks: matrixr is null pointer\n");
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR,"error:dmatrix_r_deliver_col_blocks: matrixr is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -621,7 +621,7 @@ UINT32 dmatrix_r_deliver_rows_p(const UINT32 dmatrixr_md_id, const MATRIX *matri
 
     if( NULL_PTR == matrixr )
     {
-        sys_log(LOGSTDERR,"error:dmatrix_r_deliver_rows_p: matrixr is null pointer\n");
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR,"error:dmatrix_r_deliver_rows_p: matrixr is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -642,7 +642,7 @@ UINT32 dmatrix_r_deliver_rows_p(const UINT32 dmatrixr_md_id, const MATRIX *matri
     remote_mod_node_num = mod_mgr_remote_mod_node_num(mod_mgr);
     if(0 == remote_mod_node_num)
     {
-        sys_log(LOGSTDERR, "error:dmatrix_r_deliver_rows_p: remote mod node num of mod_mgr %lx is 0!\n", mod_mgr);
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR, "error:dmatrix_r_deliver_rows_p: remote mod node num of mod_mgr %lx is 0!\n", mod_mgr);
         return ((UINT32)(-1));
     }
 
@@ -682,7 +682,7 @@ UINT32 dmatrix_r_deliver_cols_p(const UINT32 dmatrixr_md_id, const MATRIX *matri
 
     if( NULL_PTR == matrixr )
     {
-        sys_log(LOGSTDERR,"error:dmatrix_r_deliver_cols_p: matrixr is null pointer\n");
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR,"error:dmatrix_r_deliver_cols_p: matrixr is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -703,7 +703,7 @@ UINT32 dmatrix_r_deliver_cols_p(const UINT32 dmatrixr_md_id, const MATRIX *matri
     remote_mod_node_num = mod_mgr_remote_mod_node_num(mod_mgr);
     if(0 == remote_mod_node_num)
     {
-        sys_log(LOGSTDERR, "error:dmatrix_r_deliver_cols_p: remote mod node num of mod_mgr %lx is 0!\n", mod_mgr);
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR, "error:dmatrix_r_deliver_cols_p: remote mod node num of mod_mgr %lx is 0!\n", mod_mgr);
         return ((UINT32)(-1));
     }
 
@@ -734,7 +734,7 @@ UINT32 dmatrix_r_clone_row_block(const UINT32 dmatrixr_md_id, MATRIX_BLOCK *des_
 
     dmatrixr_md = DMATRIXR_MD_GET(dmatrixr_md_id);
 
-    //sys_log(LOGSTDOUT, "dmatrix_r_clone_row_block: dmatrixr_md_id = %ld, spy on ccond times = %ld\n", dmatrixr_md_id, croutine_cond_spy(&(dmatrixr_md->ccond), LOC_DMATRIXR_0007);
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "dmatrix_r_clone_row_block: dmatrixr_md_id = %ld, spy on ccond times = %ld\n", dmatrixr_md_id, croutine_cond_spy(&(dmatrixr_md->ccond), LOC_DMATRIXR_0007);
 
     matrix_r_clone_block(dmatrixr_md->matrixr_md_id, dmatrixr_md->matrixr_row_block_of_adc, des_matrix_block);
 
@@ -752,7 +752,7 @@ UINT32 dmatrix_r_adc_row_block(const UINT32 dmatrixr_md_id, const MATRIX_BLOCK *
     croutine_mutex_lock(&(dmatrixr_md->cmutex), LOC_DMATRIXR_0008);
 
 #if 0
-    sys_log(LOGSTDOUT, "dmatrix_r_adc_row_block: type checking: (%ld, %ld), (%ld, %ld)\n",
+    dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "dmatrix_r_adc_row_block: type checking: (%ld, %ld), (%ld, %ld)\n",
                     MATRIX_GET_ROW_NUM(MATRIX_GET_ROTATED_FLAG(src_matrix_row_block), src_matrix_row_block),
                     MATRIX_GET_COL_NUM(MATRIX_GET_ROTATED_FLAG(src_matrix_row_block), src_matrix_row_block),
                     MATRIX_GET_ROW_NUM(MATRIX_GET_ROTATED_FLAG(dmatrixr_md->matrixr_row_block_of_adc), dmatrixr_md->matrixr_row_block_of_adc),
@@ -763,7 +763,7 @@ UINT32 dmatrix_r_adc_row_block(const UINT32 dmatrixr_md_id, const MATRIX_BLOCK *
     matrix_r_block_adc(dmatrixr_md->matrixr_md_id, src_matrix_row_block, dmatrixr_md->matrixr_row_block_of_adc);
 
     croutine_cond_release(&(dmatrixr_md->ccond), LOC_DMATRIXR_0009);
-    //sys_log(LOGSTDOUT, "dmatrix_r_adc_row_block: dmatrixr_md_id = %ld, spy on ccond times = %ld\n", dmatrixr_md_id, croutine_cond_spy(&(dmatrixr_md->ccond), LOC_DMATRIXR_0010);
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "dmatrix_r_adc_row_block: dmatrixr_md_id = %ld, spy on ccond times = %ld\n", dmatrixr_md_id, croutine_cond_spy(&(dmatrixr_md->ccond), LOC_DMATRIXR_0010);
 
     croutine_mutex_unlock(&(dmatrixr_md->cmutex), LOC_DMATRIXR_0011);
     return (0);
@@ -789,9 +789,9 @@ UINT32 dmatrix_r_mul_row_block(const UINT32 dmatrixr_md_id, const MATRIX_BLOCK *
     matrixr_md_id = dmatrixr_md->matrixr_md_id;
     mod_mgr = dmatrixr_md->mod_mgr;
 
-    //sys_log(LOGSTDOUT, "====================================dmatrix_r_mul_row_block: mod_mgr %lx beg====================================\n", mod_mgr);
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "====================================dmatrix_r_mul_row_block: mod_mgr %lx beg====================================\n", mod_mgr);
     //mod_mgr_print(LOGSTDOUT, mod_mgr);
-    //sys_log(LOGSTDOUT, "====================================dmatrix_r_mul_row_block: mod_mgr %lx end====================================\n", mod_mgr);
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "====================================dmatrix_r_mul_row_block: mod_mgr %lx end====================================\n", mod_mgr);
 
     local_mod_node_pos = MOD_MGR_LOCAL_MOD_POS(mod_mgr);
 
@@ -826,7 +826,7 @@ UINT32 dmatrix_r_mul_row_block(const UINT32 dmatrixr_md_id, const MATRIX_BLOCK *
     /*when task_wait come back, all mul result blocks adc to remote*/
     task_wait(task_mgr, TASK_ALWAYS_LIVE, TASK_NOT_NEED_RESCHEDULE_FLAG, NULL_PTR);
 
-    //sys_log(LOGSTDOUT, "dmatrix_r_mul_row_block: dmatrixr_md_id = %ld, spy on ccond times = %ld\n", dmatrixr_md_id, croutine_cond_spy(&(dmatrixr_md->ccond), LOC_DMATRIXR_0012);
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "dmatrix_r_mul_row_block: dmatrixr_md_id = %ld, spy on ccond times = %ld\n", dmatrixr_md_id, croutine_cond_spy(&(dmatrixr_md->ccond), LOC_DMATRIXR_0012);
 
     /*when croutine_cond_wait come back, all remote result blocks adc to local*/
     croutine_cond_wait(&(dmatrixr_md->ccond), LOC_DMATRIXR_0013);
@@ -856,19 +856,19 @@ UINT32 dmatrix_r_mul_p(const UINT32 dmatrixr_md_id, const MATRIX *src_matrix_1, 
 
     if( NULL_PTR == src_matrix_1 )
     {
-        sys_log(LOGSTDERR,"error:dmatrix_r_mul_p: src_matrix_1 is null pointer\n");
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR,"error:dmatrix_r_mul_p: src_matrix_1 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == src_matrix_2 )
     {
-        sys_log(LOGSTDERR,"error:dmatrix_r_mul_p: src_matrix_2 is null pointer\n");
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR,"error:dmatrix_r_mul_p: src_matrix_2 is null pointer\n");
         return ((UINT32)(-1));
     }
 
     if( NULL_PTR == des_matrix)
     {
-        sys_log(LOGSTDERR,"error:dmatrix_r_mul_p: des_matrix is null pointer\n");
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR,"error:dmatrix_r_mul_p: des_matrix is null pointer\n");
         return ((UINT32)(-1));
     }
 
@@ -889,7 +889,7 @@ UINT32 dmatrix_r_mul_p(const UINT32 dmatrixr_md_id, const MATRIX *src_matrix_1, 
     if(  MATRIX_GET_COL_NUM(src_matrix_1)
       != MATRIX_GET_ROW_NUM(src_matrix_2) )
     {
-        sys_log(LOGSTDERR,"error:dmatrix_r_mul_p: not matchable matrix: col num of src_matrix_1 = %ld, row num of src_matrix_2 = %ld\n",
+        dbg_log(SEC_0105_DMATRIXR, 0)(LOGSTDERR,"error:dmatrix_r_mul_p: not matchable matrix: col num of src_matrix_1 = %ld, row num of src_matrix_2 = %ld\n",
                         MATRIX_GET_COL_NUM(src_matrix_1),
                         MATRIX_GET_ROW_NUM(src_matrix_2));
         return ((UINT32)(-1));
@@ -901,9 +901,9 @@ UINT32 dmatrix_r_mul_p(const UINT32 dmatrixr_md_id, const MATRIX *src_matrix_1, 
     row_num = MATRIX_GET_ROW_NUM(src_matrix_1);
     col_num = MATRIX_GET_COL_NUM(src_matrix_2);
 
-    //sys_log(LOGSTDOUT, "dmatrix_r_mul_p:matrix_r_new_matrix beg ============================================================\n");
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "dmatrix_r_mul_p:matrix_r_new_matrix beg ============================================================\n");
     matrix_r_new_matrix(matrixr_md_id, row_num, col_num, &tmp_matrix);
-    //sys_log(LOGSTDOUT, "dmatrix_r_mul_p:matrix_r_new_matrix end ============================================================\n");
+    //dbg_log(SEC_0105_DMATRIXR, 5)(LOGSTDOUT, "dmatrix_r_mul_p:matrix_r_new_matrix end ============================================================\n");
 
     MATRIX_ROW_BLOCKS_DOUBLE_LOOP_NEXT(src_matrix_1, tmp_matrix, block_row_idx)
     {

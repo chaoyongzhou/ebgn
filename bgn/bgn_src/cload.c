@@ -26,7 +26,7 @@ extern "C"{
 
 #define CLOAD_TCID_ASSERT_RETURN_LOAD(info, tcid) do{\
     if(0 == (tcid) || ((tcid) & 0xFFFFFFFF) == 0xFFFFFFFF) {\
-        sys_log(LOGSTDOUT, "[DEBUG]%s error: tcid = %s\n", (info), c_word_to_ipv4(tcid));\
+        dbg_log(SEC_0086_CLOAD, 9)(LOGSTDOUT, "[DEBUG]%s error: tcid = %s\n", (info), c_word_to_ipv4(tcid));\
         return ((UINT32)-1);\
     }\
     return ((UINT32)0);\
@@ -40,7 +40,7 @@ CLOAD_STAT *cload_stat_new()
     alloc_static_mem(MD_TASK, CMPI_ANY_MODI, MM_CLOAD_STAT, &cload_stat, LOC_CLOAD_0001);
     if(NULL_PTR == cload_stat)
     {
-        sys_log(LOGSTDOUT, "error:cload_stat_new: new cload stat failed\n");
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_stat_new: new cload stat failed\n");
         return (NULL_PTR);
     }
     cload_stat_init(cload_stat);
@@ -150,14 +150,14 @@ CLOAD_NODE *cload_node_new(const UINT32 tcid, const UINT32 comm, const UINT32 si
 
     if(0 == tcid || 0xffffffff == (tcid & 0xffffffff) || 0x10000 < size)/*shit! debug here!*/
     {
-        sys_log(LOGSTDOUT, "error:cload_node_new: invalid tcid %s or size %ld\n", c_word_to_ipv4(tcid), size);
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_new: invalid tcid %s or size %ld\n", c_word_to_ipv4(tcid), size);
         return (NULL_PTR);
     }
 
     alloc_static_mem(MD_TASK, CMPI_ANY_MODI, MM_CLOAD_NODE, &cload_node, LOC_CLOAD_0003);
     if(NULL_PTR == cload_node)
     {
-        sys_log(LOGSTDOUT, "error:cload_node_new: new cload node failed\n");
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_new: new cload node failed\n");
         return (NULL_PTR);
     }
     cload_node_init(cload_node, tcid, comm, size);
@@ -220,7 +220,7 @@ EC_BOOL cload_node_update(const CLOAD_NODE *cload_node_src, CLOAD_NODE *cload_no
 
     if(CLOAD_NODE_TCID(cload_node_des) != CLOAD_NODE_TCID(cload_node_src))
     {
-        sys_log(LOGSTDOUT, "error:cload_node_update: tcid not matched: src tcid %s, des tcid %s\n",
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_update: tcid not matched: src tcid %s, des tcid %s\n",
                             CLOAD_NODE_TCID_STR(cload_node_src), CLOAD_NODE_TCID_STR(cload_node_des));
         return (EC_FALSE);
     }
@@ -244,7 +244,7 @@ EC_BOOL cload_node_update(const CLOAD_NODE *cload_node_src, CLOAD_NODE *cload_no
                 cload_stat_des = (CLOAD_STAT *)cvector_get(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node_des), pos);
 
                 cload_stat_update(cload_stat_src, cload_stat_des);
-                //sys_log(LOGSTDOUT, "[DEBUG] cload_node_update[1]: load_src %ld, load_des %ld => %ld\n", load_src, load_des, CLOAD_MAKE(load_des, load_src));
+                //dbg_log(SEC_0086_CLOAD, 9)(LOGSTDOUT, "[DEBUG] cload_node_update[1]: load_src %ld, load_des %ld => %ld\n", load_src, load_des, CLOAD_MAKE(load_des, load_src));
             }
         }
     }
@@ -261,7 +261,7 @@ EC_BOOL cload_node_update(const CLOAD_NODE *cload_node_src, CLOAD_NODE *cload_no
                 cload_stat_des = (CLOAD_STAT *)cvector_get(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node_des), pos);
 
                 cload_stat_update(cload_stat_src, cload_stat_des);
-                //sys_log(LOGSTDOUT, "[DEBUG] cload_node_update[1]: load_src %ld, load_des %ld => %ld\n", load_src, load_des, CLOAD_MAKE(load_des, load_src));
+                //dbg_log(SEC_0086_CLOAD, 9)(LOGSTDOUT, "[DEBUG] cload_node_update[1]: load_src %ld, load_des %ld => %ld\n", load_src, load_des, CLOAD_MAKE(load_des, load_src));
             }
         }
         for(;pos < src_size; pos ++)
@@ -329,7 +329,7 @@ CLOAD_STAT * cload_node_get(CLOAD_NODE *cload_node, const UINT32 rank)
     cload_stat = (CLOAD_STAT *)cvector_get(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node), rank);
     if(NULL_PTR == cload_stat)
     {
-        sys_log(LOGSTDOUT, "error:cload_node_get: rank overflow where tcid %s, rank %ld but size %ld\n",
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_get: rank overflow where tcid %s, rank %ld but size %ld\n",
                     CLOAD_NODE_TCID_STR(cload_node), rank, cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)));
         return (NULL_PTR);
     }
@@ -341,7 +341,7 @@ EC_BOOL cload_node_set(CLOAD_NODE *cload_node, const UINT32 rank, const CLOAD_ST
 {
     UINT32 pos;
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cload_node_set_que: try to set tcid %s rank %ld load %ld\n", CLOAD_NODE_TCID_STR(cload_node), rank, load);
+    //dbg_log(SEC_0086_CLOAD, 9)(LOGSTDOUT, "[DEBUG] cload_node_set_que: try to set tcid %s rank %ld load %ld\n", CLOAD_NODE_TCID_STR(cload_node), rank, load);
 
     for(pos = cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)); pos <= rank; pos ++)
     {
@@ -358,7 +358,7 @@ EC_BOOL cload_node_set(CLOAD_NODE *cload_node, const UINT32 rank, const CLOAD_ST
         cload_stat_clone(cload_stat_src, cload_stat_des);
         return (EC_TRUE);
     }
-    sys_log(LOGSTDOUT, "error:cload_node_set_que: unknown issue where tcid %s, rank %ld but rank load vec size %ld\n",
+    dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_set_que: unknown issue where tcid %s, rank %ld but rank load vec size %ld\n",
                     CLOAD_NODE_TCID_STR(cload_node), rank, cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)));
     return (EC_FALSE);
 }
@@ -367,7 +367,7 @@ EC_BOOL cload_node_set_que(CLOAD_NODE *cload_node, const UINT32 rank, const UINT
 {
     UINT32 pos;
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cload_node_set_que: try to set tcid %s rank %ld load %ld\n", CLOAD_NODE_TCID_STR(cload_node), rank, load);
+    //dbg_log(SEC_0086_CLOAD, 9)(LOGSTDOUT, "[DEBUG] cload_node_set_que: try to set tcid %s rank %ld load %ld\n", CLOAD_NODE_TCID_STR(cload_node), rank, load);
 
     for(pos = cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)); pos <= rank; pos ++)
     {
@@ -384,7 +384,7 @@ EC_BOOL cload_node_set_que(CLOAD_NODE *cload_node, const UINT32 rank, const UINT
         cload_stat_set_que(cload_stat, que_load);
         return (EC_TRUE);
     }
-    sys_log(LOGSTDOUT, "error:cload_node_set_que: unknown issue where tcid %s, rank %ld, que load %ld but rank load vec size %ld\n",
+    dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_set_que: unknown issue where tcid %s, rank %ld, que load %ld but rank load vec size %ld\n",
                     CLOAD_NODE_TCID_STR(cload_node), rank, que_load, cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)));
     return (EC_FALSE);
 }
@@ -396,7 +396,7 @@ UINT32 cload_node_get_que(CLOAD_NODE *cload_node, const UINT32 rank)
     cload_stat = (CLOAD_STAT *)cvector_get(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node), rank);
     if(NULL_PTR == cload_stat)
     {
-        sys_log(LOGSTDOUT, "error:cload_node_get_que: rank overflow where tcid %s, rank %ld but size %ld\n",
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_get_que: rank overflow where tcid %s, rank %ld but size %ld\n",
                     CLOAD_NODE_TCID_STR(cload_node), rank, cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)));
         return ((UINT32)0);
     }
@@ -423,7 +423,7 @@ EC_BOOL cload_node_inc_que(CLOAD_NODE *cload_node, const UINT32 rank)
         cload_stat_inc_que(cload_stat);
         return (EC_TRUE);
     }
-    sys_log(LOGSTDOUT, "error:cload_node_inc_que: unknown issue where tcid %s, rank %ld, but rank load vec size %ld\n",
+    dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_inc_que: unknown issue where tcid %s, rank %ld, but rank load vec size %ld\n",
                     CLOAD_NODE_TCID_STR(cload_node), rank, cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)));
     return (EC_FALSE);
 }
@@ -447,7 +447,7 @@ EC_BOOL cload_node_dec_que(CLOAD_NODE *cload_node, const UINT32 rank)
         cload_stat_dec_que(cload_stat);
         return (EC_TRUE);
     }
-    sys_log(LOGSTDOUT, "error:cload_node_dec_que: unknown issue where tcid %s, rank %ld, but rank load vec size %ld\n",
+    dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_dec_que: unknown issue where tcid %s, rank %ld, but rank load vec size %ld\n",
                     CLOAD_NODE_TCID_STR(cload_node), rank, cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)));
     return (EC_FALSE);
 }
@@ -490,7 +490,7 @@ UINT32 cload_node_get_obj(CLOAD_NODE *cload_node, const UINT32 rank)
     cload_stat = (CLOAD_STAT *)cvector_get(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node), rank);
     if(NULL_PTR == cload_stat)
     {
-        sys_log(LOGSTDOUT, "error:cload_node_get_obj: rank overflow where tcid %s, rank %ld but size %ld\n",
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_get_obj: rank overflow where tcid %s, rank %ld but size %ld\n",
                     CLOAD_NODE_TCID_STR(cload_node), rank, cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)));
         return ((UINT32)0);
     }
@@ -505,7 +505,7 @@ UINT32 cload_node_get_cpu(CLOAD_NODE *cload_node, const UINT32 rank)
     cload_stat = (CLOAD_STAT *)cvector_get(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node), rank);
     if(NULL_PTR == cload_stat)
     {
-        sys_log(LOGSTDOUT, "error:cload_node_get_cpu: rank overflow where tcid %s, rank %ld but size %ld\n",
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_get_cpu: rank overflow where tcid %s, rank %ld but size %ld\n",
                     CLOAD_NODE_TCID_STR(cload_node), rank, cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)));
         return ((UINT32)0);
     }
@@ -520,7 +520,7 @@ UINT32 cload_node_get_mem(CLOAD_NODE *cload_node, const UINT32 rank)
     cload_stat = (CLOAD_STAT *)cvector_get(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node), rank);
     if(NULL_PTR == cload_stat)
     {
-        sys_log(LOGSTDOUT, "error:cload_node_get_mem: rank overflow where tcid %s, rank %ld but size %ld\n",
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_get_mem: rank overflow where tcid %s, rank %ld but size %ld\n",
                     CLOAD_NODE_TCID_STR(cload_node), rank, cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)));
         return ((UINT32)0);
     }
@@ -535,7 +535,7 @@ UINT32 cload_node_get_dsk(CLOAD_NODE *cload_node, const UINT32 rank)
     cload_stat = (CLOAD_STAT *)cvector_get(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node), rank);
     if(NULL_PTR == cload_stat)
     {
-        sys_log(LOGSTDOUT, "error:cload_node_get_dsk: rank overflow where tcid %s, rank %ld but size %ld\n",
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_get_dsk: rank overflow where tcid %s, rank %ld but size %ld\n",
                     CLOAD_NODE_TCID_STR(cload_node), rank, cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)));
         return ((UINT32)0);
     }
@@ -550,7 +550,7 @@ UINT32 cload_node_get_net(CLOAD_NODE *cload_node, const UINT32 rank)
     cload_stat = (CLOAD_STAT *)cvector_get(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node), rank);
     if(NULL_PTR == cload_stat)
     {
-        sys_log(LOGSTDOUT, "error:cload_node_get_net: rank overflow where tcid %s, rank %ld but size %ld\n",
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_node_get_net: rank overflow where tcid %s, rank %ld but size %ld\n",
                     CLOAD_NODE_TCID_STR(cload_node), rank, cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node)));
         return ((UINT32)0);
     }
@@ -608,7 +608,7 @@ EC_BOOL cload_mgr_add(CLIST *cload_mgr, const CLOAD_NODE *cload_node)
 {
     if(NULL_PTR != clist_search_front(cload_mgr, (void *)cload_node, (CLIST_DATA_DATA_CMP)cload_node_cmp_tcid))
     {
-        sys_log(LOGSTDOUT, "error:cload_mgr_add: cload node of tcid %s already exist\n", CLOAD_NODE_TCID_STR(cload_node));
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_mgr_add: cload node of tcid %s already exist\n", CLOAD_NODE_TCID_STR(cload_node));
         return (EC_FALSE);
     }
     clist_push_back(cload_mgr, (void *)cload_node);
@@ -622,7 +622,7 @@ EC_BOOL cload_mgr_rmv(CLIST *cload_mgr, const CLOAD_NODE *cload_node)
     clist_data = clist_search_front(cload_mgr, (void *)cload_node, (CLIST_DATA_DATA_CMP)cload_node_cmp_tcid);
     if(NULL_PTR == clist_data)
     {
-        sys_log(LOGSTDOUT, "error:cload_mgr_rmv: cload node of tcid %s not exist\n", CLOAD_NODE_TCID_STR(cload_node));
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_mgr_rmv: cload node of tcid %s not exist\n", CLOAD_NODE_TCID_STR(cload_node));
         return (EC_FALSE);
     }
     clist_rmv(cload_mgr, clist_data);
@@ -657,28 +657,9 @@ CLOAD_NODE * cload_mgr_search(const CLIST *cload_mgr, const UINT32 tcid)
     clist_data = clist_search_front(cload_mgr, (void *)&cload_node, (CLIST_DATA_DATA_CMP)cload_node_cmp_tcid);
     if(NULL_PTR == clist_data)
     {
-        //sys_log(LOGSTDOUT, "warn:cload_mgr_search: cload node of tcid %s not exist\n", c_word_to_ipv4(tcid));
+        //dbg_log(SEC_0086_CLOAD, 1)(LOGSTDOUT, "warn:cload_mgr_search: cload node of tcid %s not exist\n", c_word_to_ipv4(tcid));
         return (NULL_PTR);
     }
-
-#if 0
-    {
-        TASK_BRD *task_brd;
-        task_brd = task_brd_default_get();
-        task_brd->dbg_counter ++;
-
-        if(EC_TRUE == task_brd->dbg_flag && 500 < task_brd->dbg_counter
-        && c_ipv4_to_word("10.10.10.2") == TASK_BRD_TCID(task_brd) && CMPI_CDFS_RANK == TASK_BRD_RANK(task_brd))
-        {
-            int *a;
-
-            task_brd->dbg_flag = EC_FALSE;
-
-            a = 0;
-            (*a) = 0;
-        }
-    }
-#endif
 
     return (CLOAD_NODE *)CLIST_DATA_DATA(clist_data);
 }
@@ -693,7 +674,7 @@ CLOAD_STAT * cload_mgr_get(const CLIST *cload_mgr, const UINT32 tcid, const UINT
         return cload_node_get(cload_node, rank);
     }
 
-    sys_log(LOGSTDOUT, "error:cload_mgr_get: no cload node for tcid %s rank %ld\n", c_word_to_ipv4(tcid), rank);
+    dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_mgr_get: no cload node for tcid %s rank %ld\n", c_word_to_ipv4(tcid), rank);
     return (NULL_PTR);
 }
 
@@ -701,7 +682,7 @@ EC_BOOL cload_mgr_set(CLIST *cload_mgr, const UINT32 tcid, const UINT32 rank, co
 {
     CLOAD_NODE *cload_node;
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cload_mgr_set: try to set tcid %s rank %ld load %ld\n", c_word_to_ipv4(tcid), rank, load);
+    //dbg_log(SEC_0086_CLOAD, 9)(LOGSTDOUT, "[DEBUG] cload_mgr_set: try to set tcid %s rank %ld load %ld\n", c_word_to_ipv4(tcid), rank, load);
 
     cload_node = cload_mgr_search(cload_mgr, tcid);
     if(NULL_PTR != cload_node)
@@ -712,7 +693,7 @@ EC_BOOL cload_mgr_set(CLIST *cload_mgr, const UINT32 tcid, const UINT32 rank, co
     cload_node = cload_node_new(tcid, CMPI_ANY_COMM, rank + 1);
     if(NULL_PTR == cload_node)
     {
-        sys_log(LOGSTDOUT, "error:cload_mgr_set_que: new cload node for tcid %s, size %ld failed\n",
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_mgr_set_que: new cload node for tcid %s, size %ld failed\n",
                             c_word_to_ipv4(tcid), rank + 1);
         return (EC_FALSE);
     }
@@ -725,7 +706,7 @@ EC_BOOL cload_mgr_set_que(CLIST *cload_mgr, const UINT32 tcid, const UINT32 rank
 {
     CLOAD_NODE *cload_node;
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cload_mgr_set: try to set tcid %s rank %ld load %ld\n", c_word_to_ipv4(tcid), rank, que_load);
+    //dbg_log(SEC_0086_CLOAD, 9)(LOGSTDOUT, "[DEBUG] cload_mgr_set: try to set tcid %s rank %ld load %ld\n", c_word_to_ipv4(tcid), rank, que_load);
 
     cload_node = cload_mgr_search(cload_mgr, tcid);
     if(NULL_PTR != cload_node)
@@ -736,7 +717,7 @@ EC_BOOL cload_mgr_set_que(CLIST *cload_mgr, const UINT32 tcid, const UINT32 rank
     cload_node = cload_node_new(tcid, CMPI_ANY_COMM, rank + 1);
     if(NULL_PTR == cload_node)
     {
-        sys_log(LOGSTDOUT, "error:cload_mgr_set_que: new cload node for tcid %s, size %ld failed\n",
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_mgr_set_que: new cload node for tcid %s, size %ld failed\n",
                             c_word_to_ipv4(tcid), rank + 1);
         return (EC_FALSE);
     }
@@ -833,7 +814,7 @@ EC_BOOL cload_mgr_del(CLIST *cload_mgr, const UINT32 tcid)
     clist_data = clist_search_front(cload_mgr, (void *)&cload_node_t, (CLIST_DATA_DATA_CMP)cload_node_cmp_tcid);
     if(NULL_PTR == clist_data)
     {
-        sys_log(LOGSTDOUT, "error:cload_mgr_del: cload node of tcid %s not exist\n", c_word_to_ipv4(tcid));
+        //dbg_log(SEC_0086_CLOAD, 7)(LOGSTDOUT, "error:cload_mgr_del: cload node of tcid %s not exist\n", c_word_to_ipv4(tcid));
         return (EC_FALSE);
     }
 
@@ -855,7 +836,7 @@ EC_BOOL cload_mgr_inc_que(CLIST *cload_mgr, const UINT32 tcid, const UINT32 rank
     cload_node = cload_node_new(tcid, CMPI_ANY_COMM, rank + 1);
     if(NULL_PTR == cload_node)
     {
-        sys_log(LOGSTDOUT, "error:cload_mgr_inc_que: new cload node for tcid %s, size %ld failed\n",
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_mgr_inc_que: new cload node for tcid %s, size %ld failed\n",
                             c_word_to_ipv4(tcid), rank + 1);
         return (EC_FALSE);
     }
@@ -877,7 +858,7 @@ EC_BOOL cload_mgr_dec_que(CLIST *cload_mgr, const UINT32 tcid, const UINT32 rank
     cload_node = cload_node_new(tcid, CMPI_ANY_COMM, rank + 1);
     if(NULL_PTR == cload_node)
     {
-        sys_log(LOGSTDOUT, "error:cload_mgr_dec_que: new cload node for tcid %s, size %ld failed\n",
+        dbg_log(SEC_0086_CLOAD, 0)(LOGSTDOUT, "error:cload_mgr_dec_que: new cload node for tcid %s, size %ld failed\n",
                             c_word_to_ipv4(tcid), rank + 1);
         return (EC_FALSE);
     }

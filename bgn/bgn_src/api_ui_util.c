@@ -62,7 +62,7 @@ void api_ui_parse_cmdline(char* cmdline, int* argc_ptr, char*** argv_ptr) {
     i = strlen(cmdline);
     i++;
 
-    cpy_cmdline = (char*)api_ui_malloc(sizeof(char) * i, LOC_API_0075);
+    cpy_cmdline = (char*)api_ui_malloc(sizeof(char) * i, LOC_API_0499);
     if(cpy_cmdline != NULL)
     {
         strcpy(cpy_cmdline, cmdline);
@@ -74,9 +74,9 @@ void api_ui_parse_cmdline(char* cmdline, int* argc_ptr, char*** argv_ptr) {
     strtok_init(cpy_cmdline,(char *)" ",&token_instance);
     while (next_token(&token_instance) != NULL)
         (*argc_ptr)++;
-    api_ui_free(cpy_cmdline, LOC_API_0076);
+    api_ui_free(cpy_cmdline, LOC_API_0500);
 
-    (*argv_ptr) = (char**)api_ui_malloc(sizeof(char*) * (*argc_ptr), LOC_API_0077);
+    (*argv_ptr) = (char**)api_ui_malloc(sizeof(char*) * (*argc_ptr), LOC_API_0501);
 
     if ( (*argv_ptr) != NULL)
     {

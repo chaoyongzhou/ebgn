@@ -78,7 +78,7 @@ EC_BOOL chash_vec_insert(CHASH_VEC *chash_vec, const UINT32 klen, const UINT32 v
     chash_list = (CLIST *)cvector_get(CHASH_VEC_HASH_LIST_VEC(chash_vec), chash_list_pos);
     if(NULL == chash_list)
     {
-        sys_log(LOGSTDOUT, "error:chash_vec_insert: chash list at pos %ld is null\n", chash_list_pos);
+        dbg_log(SEC_0115_CHASHVEC, 0)(LOGSTDOUT, "error:chash_vec_insert: chash list at pos %ld is null\n", chash_list_pos);
         return (EC_FALSE);
     }
 
@@ -99,7 +99,7 @@ EC_BOOL chash_vec_remove(CHASH_VEC *chash_vec, const UINT32 klen, const UINT8 *k
     chash_list = (CLIST *)cvector_get(CHASH_VEC_HASH_LIST_VEC(chash_vec), chash_list_pos);
     if(NULL == chash_list)
     {
-        sys_log(LOGSTDOUT, "error:chash_vec_remove: chash list at pos %ld is null\n", chash_list_pos);
+        dbg_log(SEC_0115_CHASHVEC, 0)(LOGSTDOUT, "error:chash_vec_remove: chash list at pos %ld is null\n", chash_list_pos);
         return (EC_FALSE);
     }
 
@@ -115,7 +115,7 @@ EC_BOOL chash_vec_fetch(CHASH_VEC *chash_vec, const UINT32 klen, const UINT8 *ke
     chash_list = (CLIST *)cvector_get(CHASH_VEC_HASH_LIST_VEC(chash_vec), chash_list_pos);
     if(NULL == chash_list)
     {
-        sys_log(LOGSTDOUT, "error:chash_vec_fetch: chash list at pos %ld is null\n", chash_list_pos);
+        dbg_log(SEC_0115_CHASHVEC, 0)(LOGSTDOUT, "error:chash_vec_fetch: chash list at pos %ld is null\n", chash_list_pos);
         return (EC_FALSE);
     }
 

@@ -141,8 +141,8 @@ UINT32 csession_start()
 
     csession_md->usedcounter = 1;
 
-    sys_log(LOGSTDOUT, "csession_start: start CSESSION module #%ld\n", csession_md_id);
-    //sys_log(LOGSTDOUT, "========================= csession_start: CSESSION table info:\n");
+    dbg_log(SEC_0025_CSESSION, 5)(LOGSTDOUT, "csession_start: start CSESSION module #%ld\n", csession_md_id);
+    //dbg_log(SEC_0025_CSESSION, 3)(LOGSTDOUT, "========================= csession_start: CSESSION table info:\n");
     //csession_print_module_status(csession_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -162,7 +162,7 @@ void csession_end(const UINT32 csession_md_id)
     csession_md = CSESSION_MD_GET(csession_md_id);
     if(NULL_PTR == csession_md)
     {
-        sys_log(LOGSTDOUT,"error:csession_end: csession_md_id = %ld not exist.\n", csession_md_id);
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT,"error:csession_end: csession_md_id = %ld not exist.\n", csession_md_id);
         dbg_exit(MD_CSESSION, csession_md_id);
     }
     /* if the module is occupied by others,then decrease counter only */
@@ -174,7 +174,7 @@ void csession_end(const UINT32 csession_md_id)
 
     if ( 0 == csession_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:csession_end: csession_md_id = %ld is not started.\n", csession_md_id);
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT,"error:csession_end: csession_md_id = %ld is not started.\n", csession_md_id);
         dbg_exit(MD_CSESSION, csession_md_id);
     }
 
@@ -195,12 +195,12 @@ void csession_end(const UINT32 csession_md_id)
 
     csession_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "csession_end: stop CSESSION module #%ld\n", csession_md_id);
+    dbg_log(SEC_0025_CSESSION, 5)(LOGSTDOUT, "csession_end: stop CSESSION module #%ld\n", csession_md_id);
     cbc_md_free(MD_CSESSION, csession_md_id);
 
     breathing_static_mem();
 
-    //sys_log(LOGSTDOUT, "========================= csession_end: CSESSION table info:\n");
+    //dbg_log(SEC_0025_CSESSION, 3)(LOGSTDOUT, "========================= csession_end: CSESSION table info:\n");
     //csession_print_module_status(csession_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -308,13 +308,13 @@ CSESSION_NODE *csession_node_new(const UINT32 csession_md_id, const CSTRING *nam
     alloc_static_mem(MD_CSESSION, csession_md_id, MM_CSESSION_NODE, &csession_node, LOC_CSESSION_0010);
     if(NULL_PTR == csession_node)
     {
-        sys_log(LOGSTDOUT, "error:csession_node_new:alloc csession node failed\n");
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_node_new:alloc csession node failed\n");
         return (NULL_PTR);
     }
 
     if(EC_FALSE == csession_node_init(csession_md_id, csession_node))
     {
-        sys_log(LOGSTDOUT, "error:csession_node_new: init csession node failed\n");
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_node_new: init csession node failed\n");
         free_static_mem(MD_CSESSION, csession_md_id, MM_CSESSION_NODE, csession_node, LOC_CSESSION_0011);
         return (NULL_PTR);
     }
@@ -396,7 +396,7 @@ EC_BOOL csession_node_is_expired(const UINT32 csession_md_id, const CSESSION_NOD
         REAL diff_nsec;
 
         diff_nsec = CTIMET_DIFF(CSESSION_NODE_ACCESS_TIME(csession_node), (*cur_time));
-        sys_log(LOGSTDNULL, "[DEBUG] cbtimer_node_is_expire: diff_nsec %.2f, expire_nsec %ld\n",
+        dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] cbtimer_node_is_expire: diff_nsec %.2f, expire_nsec %ld\n",
                             diff_nsec, CSESSION_NODE_EXPIRE_NSEC(csession_node));
         if(diff_nsec >= 0.0 + CSESSION_NODE_EXPIRE_NSEC(csession_node))
         {
@@ -408,7 +408,7 @@ EC_BOOL csession_node_is_expired(const UINT32 csession_md_id, const CSESSION_NOD
 
 EC_BOOL csession_node_match_name(const CSESSION_NODE *csession_node, const CSTRING *name)
 {
-    if(EC_TRUE == cstring_cmp(CSESSION_NODE_NAME(csession_node), name))
+    if(EC_TRUE == cstring_is_equal(CSESSION_NODE_NAME(csession_node), name))
     {
         return (EC_TRUE);
     }
@@ -437,8 +437,8 @@ void csession_node_print(LOG *log, const CSESSION_NODE *csession_node, const UIN
                    (char *)CSESSION_NODE_NAME_STR(csession_node),
                    CSESSION_NODE_ID(csession_node),
                    CSESSION_NODE_EXPIRE_NSEC(csession_node),
-                   create_time->tm_year + 1900, create_time->tm_mon + 1, create_time->tm_mday, create_time->tm_hour, create_time->tm_min, create_time->tm_sec,
-                   access_time->tm_year + 1900, access_time->tm_mon + 1, access_time->tm_mday, access_time->tm_hour, access_time->tm_min, access_time->tm_sec
+                   TIME_IN_YMDHMS(create_time),
+                   TIME_IN_YMDHMS(access_time)
              );
 
     clist_print_level(log, CSESSION_NODE_CACHE_TREE(csession_node), level + 1, (CLIST_DATA_LEVEL_PRINT)csession_item_print);
@@ -466,13 +466,13 @@ CSESSION_ITEM *csession_item_new(const UINT32 csession_md_id, const CSTRING *key
     alloc_static_mem(MD_CSESSION, csession_md_id, MM_CSESSION_ITEM, &csession_item, LOC_CSESSION_0016);
     if(NULL_PTR == csession_item)
     {
-        sys_log(LOGSTDOUT, "error:csession_item_new:alloc csession item failed\n");
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_item_new:alloc csession item failed\n");
         return (NULL_PTR);
     }
 
     if(EC_FALSE == csession_item_init(csession_md_id, csession_item))
     {
-        sys_log(LOGSTDOUT, "error:csession_item_new:init csession item failed\n");
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_item_new:init csession item failed\n");
         free_static_mem(MD_CSESSION, csession_md_id, MM_CSESSION_ITEM, csession_item, LOC_CSESSION_0017);
         return (NULL_PTR);
     }
@@ -555,7 +555,7 @@ EC_BOOL csession_item_free(const UINT32 csession_md_id, CSESSION_ITEM *csession_
 
 EC_BOOL csession_item_match_key(const CSESSION_ITEM *csession_item, const CSTRING *key)
 {
-    if(EC_TRUE == cstring_cmp(CSESSION_ITEM_KEY(csession_item), key))
+    if(EC_TRUE == cstring_is_equal(CSESSION_ITEM_KEY(csession_item), key))
     {
         return (EC_TRUE);
     }
@@ -688,7 +688,7 @@ EC_BOOL csession_add(const UINT32 csession_md_id, const CSTRING *name, const UIN
     if(NULL_PTR != csession_node)
     {
         CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0026);
-        sys_log(LOGSTDOUT, "error:csession_add: session %s already exists, refuse to add again\n", (char *)cstring_get_str(name));
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_add: session %s already exists, refuse to add again\n", (char *)cstring_get_str(name));
         return (EC_FALSE);
     }
 
@@ -696,7 +696,7 @@ EC_BOOL csession_add(const UINT32 csession_md_id, const CSTRING *name, const UIN
     if(NULL_PTR == csession_node)
     {
         CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0027);
-        sys_log(LOGSTDOUT, "error:csession_add: new csession node with name %s failed\n", (char *)cstring_get_str(name));
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_add: new csession node with name %s failed\n", (char *)cstring_get_str(name));
         return (EC_FALSE);
     }
     
@@ -730,13 +730,13 @@ EC_BOOL csession_rmv_by_name(const UINT32 csession_md_id, const CSTRING *name)
     if(NULL_PTR == clist_data)
     {
         CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0030);
-        sys_log(LOGSTDOUT, "csession_rmv_by_name: session %s not exist, remove nothing\n", (char *)cstring_get_str(name));
+        dbg_log(SEC_0025_CSESSION, 5)(LOGSTDOUT, "csession_rmv_by_name: session %s not exist, remove nothing\n", (char *)cstring_get_str(name));
         return (EC_TRUE);
     }
 
     csession_node = (CSESSION_NODE *)clist_rmv(CSESSION_MD_SESSION_LIST(csession_md), clist_data);
     csession_node_free(csession_md_id, csession_node);
-    sys_log(LOGSTDOUT, "csession_rmv_by_name: session %s was removed\n", (char *)cstring_get_str(name));
+    dbg_log(SEC_0025_CSESSION, 5)(LOGSTDOUT, "csession_rmv_by_name: session %s was removed\n", (char *)cstring_get_str(name));
     CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0031);
     return (EC_TRUE);
 }
@@ -765,13 +765,13 @@ EC_BOOL csession_rmv_by_id(const UINT32 csession_md_id, const UINT32 session_id)
     if(NULL_PTR == clist_data)
     {
         CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0033);
-        sys_log(LOGSTDOUT, "csession_rmv_by_id: session %ld not exist, remove nothing\n", session_id);
+        dbg_log(SEC_0025_CSESSION, 5)(LOGSTDOUT, "csession_rmv_by_id: session %ld not exist, remove nothing\n", session_id);
         return (EC_TRUE);
     }
 
     csession_node = (CSESSION_NODE *)clist_rmv(CSESSION_MD_SESSION_LIST(csession_md), clist_data);
     csession_node_free(csession_md_id, csession_node);
-    sys_log(LOGSTDOUT, "csession_rmv_by_id: session %ld was removed\n", session_id);
+    dbg_log(SEC_0025_CSESSION, 5)(LOGSTDOUT, "csession_rmv_by_id: session %ld was removed\n", session_id);
     CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0034);
     return (EC_TRUE);
 }
@@ -804,7 +804,7 @@ EC_BOOL csession_rmv_by_name_regex(const UINT32 csession_md_id, const CSTRING *s
     name_re = pcre_compile((char *)cstring_get_str(session_name_regex), 0, &errstr, &erroffset, NULL_PTR);
     if(NULL_PTR == name_re)
     {
-        sys_log(LOGSTDOUT, "error:csession_rmv_by_name_regex: pcre compile name pattern %s at %d:%s failed\n",
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_rmv_by_name_regex: pcre compile name pattern %s at %d:%s failed\n",
                             (char *)cstring_get_str(session_name_regex), erroffset, errstr);
         return (EC_FALSE);
     }
@@ -829,7 +829,7 @@ EC_BOOL csession_rmv_by_name_regex(const UINT32 csession_md_id, const CSTRING *s
         csession_node_name = CSESSION_NODE_NAME(csession_node);
         if(0 > pcre_exec(name_re, NULL_PTR, (char *)cstring_get_str(csession_node_name), cstring_get_len(csession_node_name), 0, 0, ovec, ovec_count))
         {
-            sys_log(LOGSTDNULL, "[DEBUG] csession_rmv_by_name_regex: session name %s not matched regex %s\n",
+            dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] csession_rmv_by_name_regex: session name %s not matched regex %s\n",
                                (char *)cstring_get_str(csession_node_name),
                                (char *)cstring_get_str(session_name_regex));
             continue;
@@ -839,7 +839,7 @@ EC_BOOL csession_rmv_by_name_regex(const UINT32 csession_md_id, const CSTRING *s
         clist_data = CLIST_DATA_PREV(clist_data);
         clist_rmv_no_lock(CSESSION_MD_SESSION_LIST(csession_md), clist_data_rmv);
 
-        sys_log(LOGSTDOUT, "csession_rmv_by_name_regex: session %s would be removed\n", (char *)cstring_get_str(csession_node_name));
+        dbg_log(SEC_0025_CSESSION, 5)(LOGSTDOUT, "csession_rmv_by_name_regex: session %s would be removed\n", (char *)cstring_get_str(csession_node_name));
         csession_node_free(csession_md_id, csession_node);
     }
     CLIST_UNLOCK(CSESSION_MD_SESSION_LIST(csession_md), LOC_CSESSION_0037);
@@ -877,7 +877,7 @@ EC_BOOL csession_rmv_by_id_regex(const UINT32 csession_md_id, const CSTRING *ses
     id_re = pcre_compile((char *)cstring_get_str(session_id_regex), 0, &errstr, &erroffset, NULL_PTR);
     if(NULL_PTR == id_re)
     {
-        sys_log(LOGSTDOUT, "error:csession_rmv_by_id_regex: pcre compile id pattern %s at %d:%s failed\n",
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_rmv_by_id_regex: pcre compile id pattern %s at %d:%s failed\n",
                             (char *)cstring_get_str(session_id_regex), erroffset, errstr);
         return (EC_FALSE);
     }
@@ -905,7 +905,7 @@ EC_BOOL csession_rmv_by_id_regex(const UINT32 csession_md_id, const CSTRING *ses
         snprintf(csession_node_id_str, sizeof(csession_node_id_str)/sizeof(csession_node_id_str[0]), "%ld", CSESSION_NODE_ID(csession_node));
         if(0 > pcre_exec(id_re, NULL_PTR, (char *)csession_node_id_str, strlen(csession_node_id_str), 0, 0, ovec, ovec_count))
         {
-            sys_log(LOGSTDNULL, "[DEBUG] csession_rmv_by_id_regex: session id %ld not matched regex %s\n",
+            dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] csession_rmv_by_id_regex: session id %ld not matched regex %s\n",
                                CSESSION_NODE_ID(csession_node),
                                (char *)cstring_get_str(session_id_regex));
             continue;
@@ -915,7 +915,7 @@ EC_BOOL csession_rmv_by_id_regex(const UINT32 csession_md_id, const CSTRING *ses
         clist_data = CLIST_DATA_PREV(clist_data);
         clist_rmv_no_lock(CSESSION_MD_SESSION_LIST(csession_md), clist_data_rmv);
 
-        sys_log(LOGSTDOUT, "csession_rmv_by_id_regex: session %s would be removed\n", (char *)cstring_get_str(csession_node_name));
+        dbg_log(SEC_0025_CSESSION, 5)(LOGSTDOUT, "csession_rmv_by_id_regex: session %s would be removed\n", (char *)cstring_get_str(csession_node_name));
         csession_node_free(csession_md_id, csession_node);
     }
     CLIST_UNLOCK(CSESSION_MD_SESSION_LIST(csession_md), LOC_CSESSION_0041);
@@ -1002,7 +1002,7 @@ EC_BOOL csession_set(const UINT32 csession_md_id, CSESSION_NODE *csession_node, 
     path_cloned = cstring_new(cstring_get_str(path), LOC_CSESSION_0045);
     if(NULL_PTR == path_cloned)
     {
-        sys_log(LOGSTDOUT, "error:csession_set: clone string %s failed\n", (char *)cstring_get_str(path));
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_set: clone string %s failed\n", (char *)cstring_get_str(path));
         return (EC_FALSE);
     }
 
@@ -1029,7 +1029,7 @@ EC_BOOL csession_set(const UINT32 csession_md_id, CSESSION_NODE *csession_node, 
         csession_item = csession_item_new(csession_md_id, &key, NULL_PTR);
         if(NULL_PTR == csession_item)
         {
-            sys_log(LOGSTDOUT, "error:csession_set: new session item for key %s at %ld # failed\n",
+            dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_set: new session item for key %s at %ld # failed\n",
                                (char *)cstring_get_str(&key),
                                seg_idx);
             cstring_free(path_cloned);
@@ -1045,7 +1045,7 @@ EC_BOOL csession_set(const UINT32 csession_md_id, CSESSION_NODE *csession_node, 
 
     if(NULL_PTR == csession_item)
     {
-        sys_log(LOGSTDOUT, "error:csession_set: not found item for path %s\n", (char *)cstring_get_str(path));
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_set: not found item for path %s\n", (char *)cstring_get_str(path));
         cstring_free(path_cloned);
         return (EC_FALSE);
     }
@@ -1053,7 +1053,7 @@ EC_BOOL csession_set(const UINT32 csession_md_id, CSESSION_NODE *csession_node, 
     cbytes_clean(CSESSION_ITEM_VAL(csession_item), LOC_CSESSION_0046);
     if(EC_FALSE == cbytes_clone(val, CSESSION_ITEM_VAL(csession_item)))
     {
-        sys_log(LOGSTDOUT, "error:csession_set: set val to path %s failed and maybe corrupted\n", (char *)cstring_get_str(path));
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_set: set val to path %s failed and maybe corrupted\n", (char *)cstring_get_str(path));
         cstring_free(path_cloned);
         return (EC_FALSE);
     }
@@ -1094,7 +1094,7 @@ EC_BOOL csession_set_by_name(const UINT32 csession_md_id, const CSTRING *session
     if(EC_FALSE == csession_set(csession_md_id, csession_node, path, val))
     {
         CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0050);
-        sys_log(LOGSTDOUT, "error:csession_set_by_name: set val of %s to session %s failed\n",
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_set_by_name: set val of %s to session %s failed\n",
                             (char *)cstring_get_str(path),
                             (char *)cstring_get_str(session_name)
                             );
@@ -1135,7 +1135,7 @@ EC_BOOL csession_set_by_id(const UINT32 csession_md_id, const UINT32 session_id,
     if(EC_FALSE == csession_set(csession_md_id, csession_node, path, val))
     {
         CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0054);
-        sys_log(LOGSTDOUT, "error:csession_set_by_id: set val of %s to session %ld failed\n",
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_set_by_id: set val of %s to session %ld failed\n",
                             (char *)cstring_get_str(path),
                             session_id
                             );
@@ -1180,7 +1180,7 @@ static EC_BOOL __csession_get_depth(const UINT32 csession_md_id, const CLIST *ca
         key = CSESSION_ITEM_KEY(csession_item);
         val = CSESSION_ITEM_VAL(csession_item);
 
-        //sys_log(LOGSTDNULL, "[DEBUG] __csession_get_depth: seg = %s, check key %s\n", segs[ seg_idx ], cstring_get_str(key));
+        //dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] __csession_get_depth: seg = %s, check key %s\n", segs[ seg_idx ], cstring_get_str(key));
 
         if(0 != STRCMP(segs[ seg_idx ], (char *)cstring_get_str(key)))
         {
@@ -1191,7 +1191,7 @@ static EC_BOOL __csession_get_depth(const UINT32 csession_md_id, const CLIST *ca
         new_csession_item = csession_item_new(csession_md_id, key, val);
         if(NULL_PTR == new_csession_item)
         {
-            sys_log(LOGSTDOUT, "error:__csession_get_depth: new csession item failed\n");
+            dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:__csession_get_depth: new csession item failed\n");
             CLIST_UNLOCK(cache_tree, LOC_CSESSION_0057);
             return (EC_FALSE);
         }
@@ -1201,14 +1201,14 @@ static EC_BOOL __csession_get_depth(const UINT32 csession_md_id, const CLIST *ca
                                              segs, seg_idx + 1, seg_num,
                                              CSESSION_ITEM_CHILDREN(new_csession_item)))
         {
-            sys_log(LOGSTDOUT, "error:__csession_get_depth: get in depth failed\n");
+            dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:__csession_get_depth: get in depth failed\n");
             CLIST_UNLOCK(cache_tree, LOC_CSESSION_0058);
             csession_item_free(csession_md_id, new_csession_item);
             return (EC_FALSE);
         }
 
         /*add new csession item to list for return*/
-        //sys_log(LOGSTDNULL, "[DEBUG] __csession_get_depth: seg = %s, check key %s [matched][pushed]\n", segs[ seg_idx ], cstring_get_str(key));
+        //dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] __csession_get_depth: seg = %s, check key %s [matched][pushed]\n", segs[ seg_idx ], cstring_get_str(key));
         //csession_item_print(LOGSTDNULL, new_csession_item, 0);
         clist_push_back(csession_item_list, (void *)new_csession_item);
     }
@@ -1246,11 +1246,11 @@ static EC_BOOL __csession_get_key_regex_depth(const UINT32 csession_md_id, const
         return (EC_TRUE);
     }
 
-    //sys_log(LOGSTDNULL, "[DEBUG] __csession_get_key_regex_depth: seg = %s\n", segs[ seg_idx ]);
+    //dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] __csession_get_key_regex_depth: seg = %s\n", segs[ seg_idx ]);
     seg_re = pcre_compile(segs[ seg_idx ], 0, &errstr, &erroffset, NULL_PTR);
     if(NULL_PTR == seg_re)
     {
-        sys_log(LOGSTDOUT, "error:__csession_get_key_regex_depth: pcre compile seg pattern %s at %d:%s failed\n",
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:__csession_get_key_regex_depth: pcre compile seg pattern %s at %d:%s failed\n",
                             segs[ seg_idx ], erroffset, errstr);
         return (EC_FALSE);
     }
@@ -1269,19 +1269,19 @@ static EC_BOOL __csession_get_key_regex_depth(const UINT32 csession_md_id, const
         key = CSESSION_ITEM_KEY(csession_item);
         val = CSESSION_ITEM_VAL(csession_item);
 
-        //sys_log(LOGSTDNULL, "[DEBUG] __csession_get_key_regex_depth: seg = %s, check key %s\n", segs[ seg_idx ], cstring_get_str(key));
+        //dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] __csession_get_key_regex_depth: seg = %s, check key %s\n", segs[ seg_idx ], cstring_get_str(key));
         if(0 > pcre_exec(seg_re, NULL_PTR, (char *)cstring_get_str(key), cstring_get_len(key), 0, 0, ovec, ovec_count))
         {
-            //sys_log(LOGSTDNULL, "[DEBUG] __csession_get_key_regex_depth: key %s not matched regex %s\n", (char *)cstring_get_str(key), segs[ seg_idx ]);
+            //dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] __csession_get_key_regex_depth: key %s not matched regex %s\n", (char *)cstring_get_str(key), segs[ seg_idx ]);
             continue;
         }
-        //sys_log(LOGSTDNULL, "[DEBUG] __csession_get_key_regex_depth: seg = %s, check key %s [matched]\n", segs[ seg_idx ], cstring_get_str(key));
+        //dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] __csession_get_key_regex_depth: seg = %s, check key %s [matched]\n", segs[ seg_idx ], cstring_get_str(key));
 
         /*in depth!*/
         new_csession_item = csession_item_new(csession_md_id, key, val);
         if(NULL_PTR == new_csession_item)
         {
-            sys_log(LOGSTDOUT, "error:__csession_get_key_regex_depth: new csession item failed\n");
+            dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:__csession_get_key_regex_depth: new csession item failed\n");
             CLIST_UNLOCK(cache_tree, LOC_CSESSION_0061);
             pcre_free(seg_re);
             return (EC_FALSE);
@@ -1292,7 +1292,7 @@ static EC_BOOL __csession_get_key_regex_depth(const UINT32 csession_md_id, const
                                              segs, seg_idx + 1, seg_num,
                                              CSESSION_ITEM_CHILDREN(new_csession_item)))
         {
-            sys_log(LOGSTDOUT, "error:__csession_get_key_regex_depth: get in depth failed\n");
+            dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:__csession_get_key_regex_depth: get in depth failed\n");
             CLIST_UNLOCK(cache_tree, LOC_CSESSION_0062);
             pcre_free(seg_re);
             csession_item_free(csession_md_id, new_csession_item);
@@ -1300,7 +1300,7 @@ static EC_BOOL __csession_get_key_regex_depth(const UINT32 csession_md_id, const
         }
 
         /*add new csession item to list for return*/
-        //sys_log(LOGSTDNULL, "[DEBUG] __csession_get_key_regex_depth: seg = %s, check key %s [matched][pushed]\n", segs[ seg_idx ], cstring_get_str(key));
+        //dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] __csession_get_key_regex_depth: seg = %s, check key %s [matched][pushed]\n", segs[ seg_idx ], cstring_get_str(key));
         //csession_item_print(LOGSTDNULL, new_csession_item, 0);
         clist_push_back(csession_item_list, (void *)new_csession_item);
     }
@@ -1334,7 +1334,7 @@ EC_BOOL csession_get(const UINT32 csession_md_id, const CSESSION_NODE *csession_
     path_cloned = cstring_new(cstring_get_str(path), LOC_CSESSION_0064);
     if(NULL_PTR == path_cloned)
     {
-        sys_log(LOGSTDOUT, "error:csession_get: clone string %s failed\n", (char *)cstring_get_str(path));
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get: clone string %s failed\n", (char *)cstring_get_str(path));
         return (EC_FALSE);
     }
 
@@ -1344,7 +1344,7 @@ EC_BOOL csession_get(const UINT32 csession_md_id, const CSESSION_NODE *csession_
     sub_cache_tree = CSESSION_NODE_CACHE_TREE(csession_node);
     if(EC_FALSE == __csession_get_depth(csession_md_id, sub_cache_tree, (const char **)segs, 0, seg_num, csession_item_list))
     {
-        sys_log(LOGSTDOUT, "error:csession_get: get in depth failed\n");
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get: get in depth failed\n");
         cstring_free(path_cloned);
         return (EC_FALSE);
     }
@@ -1375,7 +1375,7 @@ EC_BOOL csession_get_key_regex(const UINT32 csession_md_id, const CSESSION_NODE 
     path_cloned = cstring_new(cstring_get_str(path), LOC_CSESSION_0065);
     if(NULL_PTR == path_cloned)
     {
-        sys_log(LOGSTDOUT, "error:csession_get_key_regex: clone string %s failed\n", (char *)cstring_get_str(path));
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_key_regex: clone string %s failed\n", (char *)cstring_get_str(path));
         return (EC_FALSE);
     }
 
@@ -1385,7 +1385,7 @@ EC_BOOL csession_get_key_regex(const UINT32 csession_md_id, const CSESSION_NODE 
     sub_cache_tree = CSESSION_NODE_CACHE_TREE(csession_node);
     if(EC_FALSE == __csession_get_key_regex_depth(csession_md_id, sub_cache_tree, (const char **)segs, 0, seg_num, csession_item_list))
     {
-        sys_log(LOGSTDOUT, "error:csession_get_key_regex: get in depth failed\n");
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_key_regex: get in depth failed\n");
         cstring_free(path_cloned);
         return (EC_FALSE);
     }
@@ -1424,7 +1424,7 @@ EC_BOOL csession_get_by_name(const UINT32 csession_md_id, const CSTRING *session
     if(EC_FALSE == csession_get(csession_md_id, csession_node, path, csession_item_list))
     {
         CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0068);
-        sys_log(LOGSTDOUT, "error:csession_get_by_name: get items of %s from session %s failed\n",
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_by_name: get items of %s from session %s failed\n",
                             (char *)cstring_get_str(path),
                             (char *)cstring_get_str(session_name)
                             );
@@ -1466,7 +1466,7 @@ EC_BOOL csession_get_by_id(const UINT32 csession_md_id, const UINT32 session_id,
     if(EC_FALSE == csession_get(csession_md_id, csession_node, path, csession_item_list))
     {
         CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0073);
-        sys_log(LOGSTDOUT, "error:csession_get_by_id: get items of %s from session %ld failed\n",
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_by_id: get items of %s from session %ld failed\n",
                             (char *)cstring_get_str(path),
                             session_id
                             );
@@ -1513,7 +1513,7 @@ static EC_BOOL __csession_get_children_depth(const UINT32 csession_md_id, const 
             new_csession_item = csession_item_new(csession_md_id, key, val);
             if(NULL_PTR == new_csession_item)
             {
-                sys_log(LOGSTDOUT, "error:__csession_get_children_depth: new csession item failed\n");
+                dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:__csession_get_children_depth: new csession item failed\n");
                 CLIST_UNLOCK(cache_tree, LOC_CSESSION_0077);
                 return (EC_FALSE);
             } 
@@ -1545,7 +1545,7 @@ static EC_BOOL __csession_get_children_depth(const UINT32 csession_md_id, const 
         new_csession_item = csession_item_new(csession_md_id, key, val);
         if(NULL_PTR == new_csession_item)
         {
-            sys_log(LOGSTDOUT, "error:__csession_get_children_depth: new csession item failed\n");
+            dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:__csession_get_children_depth: new csession item failed\n");
             CLIST_UNLOCK(cache_tree, LOC_CSESSION_0080);
             return (EC_FALSE);
         }
@@ -1555,14 +1555,14 @@ static EC_BOOL __csession_get_children_depth(const UINT32 csession_md_id, const 
                                              segs, seg_idx + 1, seg_num,
                                              CSESSION_ITEM_CHILDREN(new_csession_item)))
         {
-            sys_log(LOGSTDOUT, "error:__csession_get_children_depth: get in depth failed\n");
+            dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:__csession_get_children_depth: get in depth failed\n");
             CLIST_UNLOCK(cache_tree, LOC_CSESSION_0081);
             csession_item_free(csession_md_id, new_csession_item);
             return (EC_FALSE);
         }
 
         /*add new csession item to list for return*/
-        //sys_log(LOGSTDNULL, "[DEBUG] __csession_get_children_depth: seg = %s, check key %s [matched][pushed]\n", segs[ seg_idx ], cstring_get_str(key));
+        //dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] __csession_get_children_depth: seg = %s, check key %s [matched][pushed]\n", segs[ seg_idx ], cstring_get_str(key));
         //csession_item_print(LOGSTDNULL, new_csession_item, 0);
         clist_push_back(csession_item_list, (void *)new_csession_item);
     }
@@ -1593,7 +1593,7 @@ EC_BOOL csession_get_children(const UINT32 csession_md_id, const CSESSION_NODE *
     path_cloned = cstring_new(cstring_get_str(path), LOC_CSESSION_0083);
     if(NULL_PTR == path_cloned)
     {
-        sys_log(LOGSTDOUT, "error:csession_get_children: clone string %s failed\n", (char *)cstring_get_str(path));
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_children: clone string %s failed\n", (char *)cstring_get_str(path));
         return (EC_FALSE);
     }
 
@@ -1603,7 +1603,7 @@ EC_BOOL csession_get_children(const UINT32 csession_md_id, const CSESSION_NODE *
     sub_cache_tree = CSESSION_NODE_CACHE_TREE(csession_node);
     if(EC_FALSE == __csession_get_children_depth(csession_md_id, sub_cache_tree, (const char **)segs, 0, seg_num, csession_item_list))
     {
-        sys_log(LOGSTDOUT, "error:csession_get_children: get in depth failed\n");
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_children: get in depth failed\n");
         cstring_free(path_cloned);
         return (EC_FALSE);
     }
@@ -1642,7 +1642,7 @@ EC_BOOL csession_get_children_by_name(const UINT32 csession_md_id, const CSTRING
     if(EC_FALSE == csession_get_children(csession_md_id, csession_node, path, csession_item_list))
     {
         CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0086);
-        sys_log(LOGSTDOUT, "error:csession_get_children_by_name: get items of %s from session %s failed\n",
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_children_by_name: get items of %s from session %s failed\n",
                             (char *)cstring_get_str(path),
                             (char *)cstring_get_str(session_name)
                             );
@@ -1683,7 +1683,7 @@ EC_BOOL csession_get_by_name_regex(const UINT32 csession_md_id, const CSTRING *s
     name_re = pcre_compile((char *)cstring_get_str(session_name_regex), 0, &errstr, &erroffset, NULL_PTR);
     if(NULL_PTR == name_re)
     {
-        sys_log(LOGSTDOUT, "error:csession_get_by_name_regex: pcre compile name pattern %s at %d:%s failed\n",
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_by_name_regex: pcre compile name pattern %s at %d:%s failed\n",
                             (char *)cstring_get_str(session_name_regex), erroffset, errstr);
         return (EC_FALSE);
     }
@@ -1708,7 +1708,7 @@ EC_BOOL csession_get_by_name_regex(const UINT32 csession_md_id, const CSTRING *s
         csession_node_name = CSESSION_NODE_NAME(csession_node);
         if(0 > pcre_exec(name_re, NULL_PTR, (char *)cstring_get_str(csession_node_name), cstring_get_len(csession_node_name), 0, 0, ovec, ovec_count))
         {
-            sys_log(LOGSTDNULL, "[DEBUG] csession_get_by_name_regex: session name %s not matched regex %s\n",
+            dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] csession_get_by_name_regex: session name %s not matched regex %s\n",
                                (char *)cstring_get_str(csession_node_name),
                                (char *)cstring_get_str(session_name_regex));
             continue;
@@ -1718,7 +1718,7 @@ EC_BOOL csession_get_by_name_regex(const UINT32 csession_md_id, const CSTRING *s
         new_csession_node = csession_node_new(CMPI_ANY_MODI, CSESSION_NODE_NAME(csession_node), CSESSION_NODE_EXPIRE_NSEC(csession_node));
         if(NULL_PTR == new_csession_node)
         {
-            sys_log(LOGSTDOUT, "error:csession_get_by_name_regex:alloc csession node failed\n");
+            dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_by_name_regex:alloc csession node failed\n");
             CLIST_UNLOCK(CSESSION_MD_SESSION_LIST(csession_md), LOC_CSESSION_0091);
             CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0092);
             pcre_free(name_re);
@@ -1732,7 +1732,7 @@ EC_BOOL csession_get_by_name_regex(const UINT32 csession_md_id, const CSTRING *s
 
         if(EC_FALSE == csession_get_key_regex(csession_md_id, csession_node, path, CSESSION_NODE_CACHE_TREE(new_csession_node)))
         {
-            sys_log(LOGSTDOUT, "error:csession_get_by_name_regex: get items of %s from session %s failed\n",
+            dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_by_name_regex: get items of %s from session %s failed\n",
                                 (char *)cstring_get_str(path),
                                 (char *)cstring_get_str(csession_node_name)
                                 );
@@ -1782,7 +1782,7 @@ EC_BOOL csession_get_by_id_regex(const UINT32 csession_md_id, const CSTRING *ses
     id_re = pcre_compile((char *)cstring_get_str(session_id_regex), 0, &errstr, &erroffset, NULL_PTR);
     if(NULL_PTR == id_re)
     {
-        sys_log(LOGSTDOUT, "error:csession_get_by_id_regex: pcre compile id pattern %s at %d:%s failed\n",
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_by_id_regex: pcre compile id pattern %s at %d:%s failed\n",
                             (char *)cstring_get_str(session_id_regex), erroffset, errstr);
         return (EC_FALSE);
     }
@@ -1807,7 +1807,7 @@ EC_BOOL csession_get_by_id_regex(const UINT32 csession_md_id, const CSTRING *ses
         snprintf(csession_node_id_str, sizeof(csession_node_id_str)/sizeof(csession_node_id_str[0]), "%ld", CSESSION_NODE_ID(csession_node));
         if(0 > pcre_exec(id_re, NULL_PTR, (char *)csession_node_id_str, strlen(csession_node_id_str), 0, 0, ovec, ovec_count))
         {
-            sys_log(LOGSTDNULL, "[DEBUG] csession_get_by_id_regex: session id %ld not matched regex %s\n",
+            dbg_log(SEC_0025_CSESSION, 9)(LOGSTDNULL, "[DEBUG] csession_get_by_id_regex: session id %ld not matched regex %s\n",
                                CSESSION_NODE_ID(csession_node),
                                (char *)cstring_get_str(session_id_regex));
             continue;
@@ -1817,7 +1817,7 @@ EC_BOOL csession_get_by_id_regex(const UINT32 csession_md_id, const CSTRING *ses
         new_csession_node = csession_node_new(CMPI_ANY_MODI, CSESSION_NODE_NAME(csession_node), CSESSION_NODE_EXPIRE_NSEC(csession_node));
         if(NULL_PTR == new_csession_node)
         {
-            sys_log(LOGSTDOUT, "error:csession_get_by_id_regex:alloc csession node failed\n");
+            dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_by_id_regex:alloc csession node failed\n");
             CLIST_UNLOCK(CSESSION_MD_SESSION_LIST(csession_md), LOC_CSESSION_0100);
             CSESSION_MD_CRWLOCK_UNLOCK(csession_md, LOC_CSESSION_0101);
             pcre_free(id_re);
@@ -1831,7 +1831,7 @@ EC_BOOL csession_get_by_id_regex(const UINT32 csession_md_id, const CSTRING *ses
 
         if(EC_FALSE == csession_get_key_regex(csession_md_id, csession_node, path, CSESSION_NODE_CACHE_TREE(new_csession_node)))
         {
-            sys_log(LOGSTDOUT, "error:csession_get_by_id_regex: get items of %s from session %ld failed\n",
+            dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_get_by_id_regex: get items of %s from session %ld failed\n",
                                 (char *)cstring_get_str(path),
                                 CSESSION_NODE_ID(csession_node)
                                 );
@@ -1893,32 +1893,15 @@ EC_BOOL csession_expire_handle(const UINT32 csession_md_id)
         access_ctm  = c_localtime_r(&CSESSION_NODE_ACCESS_TIME(csession_node));
         current_ctm = c_localtime_r(&cur_time);
 
-        sys_log(LOGSTDOUT, "csession_expire_handle: session %s was expired which "
+        dbg_log(SEC_0025_CSESSION, 5)(LOGSTDOUT, "csession_expire_handle: session %s was expired which "
                            "create at %4d-%02d-%02d %02d:%02d:%02d, "
                            "last access at %4d-%02d-%02d %02d:%02d:%02d, "
                            "current is %4d-%02d-%02d %02d:%02d:%02d\n",
                            (char *)CSESSION_NODE_NAME_STR(csession_node),
 
-                            create_ctm->tm_year + 1900,
-                            create_ctm->tm_mon  + 1,
-                            create_ctm->tm_mday,
-                            create_ctm->tm_hour,
-                            create_ctm->tm_min,
-                            create_ctm->tm_sec,
-
-                            access_ctm->tm_year + 1900,
-                            access_ctm->tm_mon  + 1,
-                            access_ctm->tm_mday,
-                            access_ctm->tm_hour,
-                            access_ctm->tm_min,
-                            access_ctm->tm_sec,
-
-                            current_ctm->tm_year + 1900,
-                            current_ctm->tm_mon  + 1,
-                            current_ctm->tm_mday,
-                            current_ctm->tm_hour,
-                            current_ctm->tm_min,
-                            current_ctm->tm_sec
+                            TIME_IN_YMDHMS(create_ctm),
+                            TIME_IN_YMDHMS(access_ctm),
+                            TIME_IN_YMDHMS(current_ctm)
                            );
 
         clist_data_rmv = clist_data;
@@ -1955,14 +1938,14 @@ static EC_BOOL __csession_cbtimer_add(const UINT32 csession_md_id)
     cbtimer_node = cbtimer_node_new();
     if(NULL_PTR == cbtimer_node)
     {
-        sys_log(LOGSTDOUT, "error:csession_cbtimer_add: new cbtimer node failed\n");
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_cbtimer_add: new cbtimer node failed\n");
         return (EC_FALSE);
     }
 
     CBTIMER_NODE_NAME(cbtimer_node) = cstring_new(NULL_PTR, LOC_CSESSION_0109);
     if(NULL_PTR == CBTIMER_NODE_NAME(cbtimer_node))
     {
-        sys_log(LOGSTDOUT, "error:csession_cbtimer_add: new name cstring failed\n");
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_cbtimer_add: new name cstring failed\n");
         cbtimer_node_free(cbtimer_node);
         return (EC_FALSE);
     }
@@ -1970,7 +1953,7 @@ static EC_BOOL __csession_cbtimer_add(const UINT32 csession_md_id)
 
     if(0 != dbg_fetch_func_addr_node_by_index(FI_csession_expire_handle, &csession_expire_func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:csession_cbtimer_add: failed to fetch func addr node by func id %lx\n", FI_csession_expire_handle);
+        dbg_log(SEC_0025_CSESSION, 0)(LOGSTDOUT, "error:csession_cbtimer_add: failed to fetch func addr node by func id %lx\n", FI_csession_expire_handle);
         return (EC_FALSE);
     }
 

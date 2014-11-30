@@ -62,7 +62,7 @@ EC_BOOL taskc_node_new(TASKC_NODE **ret_taskc_node)
     alloc_static_mem(MD_TASK, 0, MM_TASKC_NODE, &taskc_node, LOC_TCNODE_0001);
     if(NULL_PTR == taskc_node)
     {
-        sys_log(LOGSTDOUT, "error:taskc_node_new: failed to alloc TASKC_NODE\n");
+        dbg_log(SEC_0088_TCNODE, 0)(LOGSTDOUT, "error:taskc_node_new: failed to alloc TASKC_NODE\n");
         return (EC_FALSE);
     }
     taskc_node_init(taskc_node);
@@ -77,7 +77,7 @@ TASKC_NODE * taskc_node_new_0()
     alloc_static_mem(MD_TASK, 0, MM_TASKC_NODE, &taskc_node, LOC_TCNODE_0002);
     if(NULL_PTR == taskc_node)
     {
-        sys_log(LOGSTDOUT, "error:taskc_node_new_0: failed to alloc TASKC_NODE\n");
+        dbg_log(SEC_0088_TCNODE, 0)(LOGSTDOUT, "error:taskc_node_new_0: failed to alloc TASKC_NODE\n");
         return (NULL_PTR);
     }
     taskc_node_init(taskc_node);
@@ -140,7 +140,7 @@ TASKC_MGR * taskc_mgr_new()
     alloc_static_mem(MD_TASK, 0, MM_TASKC_MGR, &(taskc_mgr), LOC_TCNODE_0004);
     if(NULL_PTR == taskc_mgr)
     {
-        sys_log(LOGSTDOUT, "error:taskc_mgr_new: failed to alloc TASKC_MGR\n");
+        dbg_log(SEC_0088_TCNODE, 0)(LOGSTDOUT, "error:taskc_mgr_new: failed to alloc TASKC_MGR\n");
         return (NULL_PTR);
     }
 

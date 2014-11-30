@@ -1088,7 +1088,7 @@ EC_BOOL mod_mgr_init(MOD_MGR * mod_mgr, const UINT32 local_md_id, const UINT32 l
     mod_mgr_ldb = mod_mgr_ldb_strategy(MOD_MGR_LDB_CHOICE(mod_mgr)); /*initialize the function pointer*/
     if(NULL_PTR == mod_mgr_ldb)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_init: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(mod_mgr));
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_init: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(mod_mgr));
         return (EC_FALSE);
     }
     MOD_MGR_LDB_FUNCPTR(mod_mgr) = mod_mgr_ldb->get;
@@ -1123,7 +1123,7 @@ MOD_MGR * mod_mgr_new(const UINT32 local_md_id, const UINT32 load_balancing_choi
     alloc_static_mem(MD_TASK, 0, MM_MOD_MGR, &mod_mgr, LOC_MOD_0007);
     if(NULL_PTR == mod_mgr)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_new: alloc memory failed\n");
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_new: alloc memory failed\n");
         return (NULL_PTR);
     }
 
@@ -1196,7 +1196,7 @@ EC_BOOL mod_mgr_limited_clone(const UINT32 mod_id, const MOD_MGR * src_mod_mgr, 
     mod_mgr_ldb = mod_mgr_ldb_strategy(MOD_MGR_LDB_CHOICE(des_mod_mgr)); /*initialize the function pointer*/
     if(NULL_PTR == mod_mgr_ldb)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_limited_clone: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_limited_clone: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
         return (EC_FALSE);
     }
     MOD_MGR_LDB_FUNCPTR(des_mod_mgr) = mod_mgr_ldb->get;
@@ -1233,7 +1233,7 @@ EC_BOOL mod_mgr_limited_clone_with_tcid_filter(const UINT32 mod_id, const MOD_MG
     mod_mgr_ldb = mod_mgr_ldb_strategy(MOD_MGR_LDB_CHOICE(des_mod_mgr)); /*initialize the function pointer*/
     if(NULL_PTR == mod_mgr_ldb)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_limited_clone_with_tcid_filter: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_limited_clone_with_tcid_filter: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
         return (EC_FALSE);
     }
     MOD_MGR_LDB_FUNCPTR(des_mod_mgr) = mod_mgr_ldb->get;
@@ -1270,7 +1270,7 @@ EC_BOOL mod_mgr_limited_clone_with_rank_filter(const UINT32 mod_id, const MOD_MG
     mod_mgr_ldb = mod_mgr_ldb_strategy(MOD_MGR_LDB_CHOICE(des_mod_mgr)); /*initialize the function pointer*/
     if(NULL_PTR == mod_mgr_ldb)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_limited_clone_with_rank_filter: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_limited_clone_with_rank_filter: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
         return (EC_FALSE);
     }
     MOD_MGR_LDB_FUNCPTR(des_mod_mgr) = mod_mgr_ldb->get;
@@ -1307,7 +1307,7 @@ EC_BOOL mod_mgr_limited_clone_with_modi_filter(const UINT32 mod_id, const MOD_MG
     mod_mgr_ldb = mod_mgr_ldb_strategy(MOD_MGR_LDB_CHOICE(des_mod_mgr)); /*initialize the function pointer*/
     if(NULL_PTR == mod_mgr_ldb)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_limited_clone_with_modi_filter: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_limited_clone_with_modi_filter: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
         return (EC_FALSE);
     }
     MOD_MGR_LDB_FUNCPTR(des_mod_mgr) = mod_mgr_ldb->get;
@@ -1344,7 +1344,7 @@ EC_BOOL mod_mgr_limited_clone_with_tcid_excl_filter(const UINT32 mod_id, const M
     mod_mgr_ldb = mod_mgr_ldb_strategy(MOD_MGR_LDB_CHOICE(des_mod_mgr)); /*initialize the function pointer*/
     if(NULL_PTR == mod_mgr_ldb)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_limited_clone_with_tcid_excl_filter: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_limited_clone_with_tcid_excl_filter: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
         return (EC_FALSE);
     }
     MOD_MGR_LDB_FUNCPTR(des_mod_mgr) = mod_mgr_ldb->get;
@@ -1381,7 +1381,7 @@ EC_BOOL mod_mgr_limited_clone_with_rank_excl_filter(const UINT32 mod_id, const M
     mod_mgr_ldb = mod_mgr_ldb_strategy(MOD_MGR_LDB_CHOICE(des_mod_mgr)); /*initialize the function pointer*/
     if(NULL_PTR == mod_mgr_ldb)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_limited_clone_with_rank_excl_filter: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_limited_clone_with_rank_excl_filter: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
         return (EC_FALSE);
     }
     MOD_MGR_LDB_FUNCPTR(des_mod_mgr) = mod_mgr_ldb->get;
@@ -1418,7 +1418,7 @@ EC_BOOL mod_mgr_limited_clone_with_modi_excl_filter(const UINT32 mod_id, const M
     mod_mgr_ldb = mod_mgr_ldb_strategy(MOD_MGR_LDB_CHOICE(des_mod_mgr)); /*initialize the function pointer*/
     if(NULL_PTR == mod_mgr_ldb)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_limited_clone_with_modi_filter: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_limited_clone_with_modi_filter: invalid load balancing strategy %ld\n", MOD_MGR_LDB_CHOICE(des_mod_mgr));
         return (EC_FALSE);
     }
     MOD_MGR_LDB_FUNCPTR(des_mod_mgr) = mod_mgr_ldb->get;
@@ -1479,7 +1479,7 @@ EC_BOOL mod_mgr_gen_by_taskc_mgr(const TASKC_MGR *taskc_mgr, const UINT32 tcid, 
         TASKC_NODE *taskc_node;
 
         taskc_node = (TASKC_NODE *)CLIST_DATA_DATA(clist_data);
-        sys_log(LOGSTDNULL, "[DEBUG] mod_mgr_gen_by_taskc_mgr: taskc_node: tcid %s, comm %ld, size %ld .v.s. tcid %s, rank %ld\n",
+        dbg_log(SEC_0108_MOD, 9)(LOGSTDNULL, "[DEBUG] mod_mgr_gen_by_taskc_mgr: taskc_node: tcid %s, comm %ld, size %ld .v.s. tcid %s, rank %ld\n",
                             TASKC_NODE_TCID_STR(taskc_node), TASKC_NODE_COMM(taskc_node), TASKC_NODE_SIZE(taskc_node),
                             c_word_to_ipv4(tcid), rank);
 
@@ -1520,7 +1520,7 @@ EC_BOOL mod_mgr_set_by_cload_node(const CLOAD_NODE *cload_node, const UINT32 tha
     UINT32 num;
 
     num = cvector_size(CLOAD_NODE_RANK_LOAD_STAT_VEC(cload_node));
-    //sys_log(LOGSTDNULL, "[DEBUG] mod_mgr_set_by_cload_node: vec size = %ld\n", num);
+    //dbg_log(SEC_0108_MOD, 9)(LOGSTDNULL, "[DEBUG] mod_mgr_set_by_cload_node: vec size = %ld\n", num);
 
     for(rank = 0; rank < num; rank ++)
     {
@@ -1553,7 +1553,7 @@ EC_BOOL mod_mgr_gen_from_cload_mgr(const CLOAD_MGR *cload_mgr, const UINT32 tcid
 
         cload_node = (CLOAD_NODE *)CLIST_DATA_DATA(clist_data);
 
-        sys_log(LOGSTDNULL, "[DEBUG] mod_mgr_gen_from_cload_mgr: expect (tcid %s, rank %ld) <---> cload node (tcid %s, rank vec)\n",
+        dbg_log(SEC_0108_MOD, 9)(LOGSTDNULL, "[DEBUG] mod_mgr_gen_from_cload_mgr: expect (tcid %s, rank %ld) <---> cload node (tcid %s, rank vec)\n",
                             c_word_to_ipv4(tcid), rank,
                             CLOAD_NODE_TCID_STR(cload_node)
                             );
@@ -1565,7 +1565,7 @@ EC_BOOL mod_mgr_gen_from_cload_mgr(const CLOAD_MGR *cload_mgr, const UINT32 tcid
         || tcid == CLOAD_NODE_TCID(cload_node)
         )
         {
-            //sys_log(LOGSTDNULL, "[DEBUG] mod_mgr_gen_from_cload_mgr: tcid matched\n");
+            //dbg_log(SEC_0108_MOD, 9)(LOGSTDNULL, "[DEBUG] mod_mgr_gen_from_cload_mgr: tcid matched\n");
             if(CMPI_ANY_RANK == rank)
             {
                 mod_mgr_set_by_cload_node(cload_node, spec_modi, mod_mgr);
@@ -1613,19 +1613,19 @@ EC_BOOL mod_mgr_default_init(MOD_MGR *mod_mgr_def, const UINT32 tcid, const UINT
     taskc_mgr = taskc_mgr_new();
     task_brd_sync_taskc_mgr(task_brd, taskc_mgr);
 
-    sys_log(LOGSTDOUT,"======================================================================\n");
-    sys_log(LOGSTDOUT,"               mod_mgr_default_init: taskc_mgr synced result          \n");
+    dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT,"======================================================================\n");
+    dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT,"               mod_mgr_default_init: taskc_mgr synced result          \n");
     taskc_mgr_print(LOGSTDOUT, taskc_mgr);/*debug only*/
-    sys_log(LOGSTDOUT,"======================================================================\n");
+    dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT,"======================================================================\n");
 
     mod_mgr_gen_by_taskc_mgr(taskc_mgr, /*CMPI_ANY_TCID*/tcid, /*CMPI_ANY_RANK*/rank, ERR_MODULE_ID, mod_mgr_def);
 
     taskc_mgr_free(taskc_mgr);
 
 #if 0
-    sys_log(LOGSTDOUT, "------------------------------------ mod_mgr_init beg ----------------------------------\n");
+    dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT, "------------------------------------ mod_mgr_init beg ----------------------------------\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr_def);
-    sys_log(LOGSTDOUT, "------------------------------------ mod_mgr_init end ----------------------------------\n");
+    dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT, "------------------------------------ mod_mgr_init end ----------------------------------\n");
 #endif
 
     return (EC_TRUE);
@@ -1639,10 +1639,10 @@ EC_BOOL mod_mgr_default_sync(const UINT32 max_hops, const UINT32 max_remotes, co
 
     task_brd_sync_mod_nodes(task_brd, max_hops, max_remotes, time_to_live, MOD_MGR_REMOTE_LIST(mod_mgr_def));
 
-    sys_log(LOGSTDOUT,"======================================================================\n");
-    sys_log(LOGSTDOUT,"               mod_mgr_default_sync: mod_node_vec synced result          \n");
+    dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT,"======================================================================\n");
+    dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT,"               mod_mgr_default_sync: mod_node_vec synced result          \n");
     cvector_print(LOGSTDOUT, MOD_MGR_REMOTE_LIST(mod_mgr_def), (CVECTOR_DATA_PRINT)mod_node_print);/*debug only*/
-    sys_log(LOGSTDOUT,"======================================================================\n");
+    dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT,"======================================================================\n");
 
     return (EC_TRUE);
 }
@@ -1818,7 +1818,7 @@ EC_BOOL mod_mgr_remote_mod_node_is_local(const MOD_MGR *mod_mgr, const UINT32 re
 
     if(remote_mod_node_pos >= MOD_MGR_REMOTE_NUM(mod_mgr))
     {
-        sys_log(LOGSTDERR, "error:mod_mgr_remote_mod_node_is_local: remote_mode_node_pos %ld overflow where remote mode node num is %ld\n",
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDERR, "error:mod_mgr_remote_mod_node_is_local: remote_mode_node_pos %ld overflow where remote mode node num is %ld\n",
                         remote_mod_node_pos, MOD_MGR_REMOTE_NUM(mod_mgr));
         return (EC_FALSE);
     }
@@ -1855,7 +1855,7 @@ EC_BOOL mod_mgr_first_remote_mod_node_pos(const MOD_MGR *mod_mgr, UINT32 *remote
     /*validity checking*/
     if(0 == remote_mod_node_num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_first_remote_mod_node_pos: mod_mgr %lx has no remote mod node\n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_first_remote_mod_node_pos: mod_mgr %lx has no remote mod node\n", mod_mgr);
         return (EC_FALSE);
     }
 
@@ -1889,7 +1889,7 @@ EC_BOOL mod_mgr_last_remote_mod_node_pos(const MOD_MGR *mod_mgr, UINT32 *remote_
     /*validity checking*/
     if(0 == remote_mod_node_num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_last_remote_mod_node_pos: mod_mgr %lx has no remote mod node\n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_last_remote_mod_node_pos: mod_mgr %lx has no remote mod node\n", mod_mgr);
         return (EC_FALSE);
     }
 
@@ -1926,7 +1926,7 @@ EC_BOOL mod_mgr_next_remote_mod_node_pos(const MOD_MGR *mod_mgr, UINT32 *remote_
     /*validity checking*/
     if(0 == remote_mod_node_num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_next_remote_mod_node_pos: mod_mgr %lx has no remote mod node\n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_next_remote_mod_node_pos: mod_mgr %lx has no remote mod node\n", mod_mgr);
         return (EC_FALSE);
     }
 
@@ -1983,7 +1983,7 @@ EC_BOOL mod_mgr_prev_remote_mod_node_pos(const MOD_MGR *mod_mgr, UINT32 *remote_
     /*validity checking*/
     if(0 == remote_mod_node_num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_prev_remote_mod_node_pos: mod_mgr %lx has no remote mod node\n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_prev_remote_mod_node_pos: mod_mgr %lx has no remote mod node\n", mod_mgr);
         return (EC_FALSE);
     }
 
@@ -2041,7 +2041,7 @@ EC_BOOL mod_mgr_first_remote(const MOD_MGR *mod_mgr, UINT32 *remote_mod_node_pos
     /*validity checking*/
     if(0 == remote_mod_node_num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_first_remote: mod_mgr %lx has no remote mod node\n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_first_remote: mod_mgr %lx has no remote mod node\n", mod_mgr);
         return (EC_FALSE);
     }
     (*remote_mod_node_pos) = 0;
@@ -2058,7 +2058,7 @@ EC_BOOL mod_mgr_last_remote(const MOD_MGR *mod_mgr, UINT32 *remote_mod_node_pos)
     /*validity checking*/
     if(0 == remote_mod_node_num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_last_remote: mod_mgr %lx has no remote mod node\n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_last_remote: mod_mgr %lx has no remote mod node\n", mod_mgr);
         return (EC_FALSE);
     }
     (*remote_mod_node_pos) = (remote_mod_node_num - 1);
@@ -2074,13 +2074,13 @@ EC_BOOL mod_mgr_next_remote(const MOD_MGR *mod_mgr, UINT32 *remote_mod_node_pos)
     /*validity checking*/
     if(0 == remote_mod_node_num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_next_remote: mod_mgr %lx has no remote mod node\n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_next_remote: mod_mgr %lx has no remote mod node\n", mod_mgr);
         return (EC_FALSE);
     }
 
     if((*remote_mod_node_pos) >= remote_mod_node_num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_next_remote: remote_mod_node_pos %ld overflow where remote mod_node num is %ld\n",
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_next_remote: remote_mod_node_pos %ld overflow where remote mod_node num is %ld\n",
                         (*remote_mod_node_pos), remote_mod_node_num);
         return (EC_FALSE);
     }
@@ -2099,13 +2099,13 @@ EC_BOOL mod_mgr_prev_remote(const MOD_MGR *mod_mgr, UINT32 *remote_mod_node_pos)
     /*validity checking*/
     if(0 == remote_mod_node_num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_prev_remote: mod_mgr %lx has no remote mod node\n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_prev_remote: mod_mgr %lx has no remote mod node\n", mod_mgr);
         return (EC_FALSE);
     }
 
     if((*remote_mod_node_pos) >= remote_mod_node_num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_prev_remote: remote_mod_node_pos %ld overflow where remote mod_node num is %ld\n",
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_prev_remote: remote_mod_node_pos %ld overflow where remote mod_node num is %ld\n",
                         (*remote_mod_node_pos), remote_mod_node_num);
         return (EC_FALSE);
     }
@@ -2161,13 +2161,13 @@ MOD_NODE * mod_mgr_loop_get(const MOD_MGR *mod_mgr, UINT32 *pos)
     remote_mod_num = MOD_MGR_REMOTE_NUM(mod_mgr);
     if(0 == remote_mod_num)
     {
-        sys_log(LOGSTDERR, "error:mod_mgr_loop_get: mod_mgr %lx has no remote mods\n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDERR, "error:mod_mgr_loop_get: mod_mgr %lx has no remote mods\n", mod_mgr);
         return (NULL_PTR);
     }
 
     if(remote_mod_num <= (*pos))
     {
-        sys_log(LOGSTDERR, "error:mod_mgr_loop_get: position %ld out of mod_mgr %lx range with has %ld remote mods\n",
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDERR, "error:mod_mgr_loop_get: position %ld out of mod_mgr %lx range with has %ld remote mods\n",
                            (*pos), mod_mgr, remote_mod_num);
         return (NULL_PTR);
     }
@@ -2205,13 +2205,13 @@ MOD_NODE * mod_mgr_loop_find(const MOD_MGR *mod_mgr, const UINT32 tcid, UINT32 *
     remote_mod_num = MOD_MGR_REMOTE_NUM(mod_mgr);
     if(0 == remote_mod_num)
     {
-        sys_log(LOGSTDERR, "error:mod_mgr_loop_find: mod_mgr %lx has no remote mods\n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDERR, "error:mod_mgr_loop_find: mod_mgr %lx has no remote mods\n", mod_mgr);
         return (NULL_PTR);
     }
 
     if(remote_mod_num <= (*pos))
     {
-        sys_log(LOGSTDERR, "error:mod_mgr_loop_find: position %ld out of mod_mgr %lx range with has %ld remote mods\n",
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDERR, "error:mod_mgr_loop_find: position %ld out of mod_mgr %lx range with has %ld remote mods\n",
                            (*pos), mod_mgr, remote_mod_num);
         return (NULL_PTR);
     }
@@ -2561,7 +2561,7 @@ MOD_NODE * mod_mgr_ldb_loop_get(MOD_MGR *mod_mgr)
     remote_mod_num = MOD_MGR_REMOTE_NUM(mod_mgr);
     if(0 == remote_mod_num)
     {
-        sys_log(LOGSTDERR, "error:mod_mgr_ldb_loop_get: mod_mgr %lx has no remote mods\n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDERR, "error:mod_mgr_ldb_loop_get: mod_mgr %lx has no remote mods\n", mod_mgr);
         return (NULL_PTR);
     }
 
@@ -2574,11 +2574,11 @@ MOD_NODE * mod_mgr_ldb_loop_get(MOD_MGR *mod_mgr)
         remote_mod_pos = (remote_mod_pos + 1) % (remote_mod_num);
     }
 
-    remote_mod_node = (MOD_NODE   *)cvector_get(MOD_MGR_REMOTE_LIST(mod_mgr), remote_mod_pos);
+    remote_mod_node = (MOD_NODE *)cvector_get(MOD_MGR_REMOTE_LIST(mod_mgr), remote_mod_pos);
 
     MOD_MGR_REMOTE_POS(mod_mgr) = remote_mod_pos;
 
-    //sys_log(LOGSTDOUT, "mod_mgr_ldb_loop_get: mod_mgr %lx: remote_mod_node %lx: ", mod_mgr, remote_mod_node);
+    //dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT, "mod_mgr_ldb_loop_get: mod_mgr %lx: remote_mod_node %lx: ", mod_mgr, remote_mod_node);
     //mod_node_print(LOGSTDOUT, remote_mod_node);
 
     return (remote_mod_node);
@@ -2611,7 +2611,7 @@ MOD_NODE * mod_mgr_ldb_que_get(MOD_MGR *mod_mgr)
 
     if(0 == num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_ldb_que_get: mod mgr has no remote mode node\n");
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_ldb_que_get: mod mgr has no remote mode node\n");
         CVECTOR_UNLOCK(MOD_MGR_REMOTE_LIST(mod_mgr), LOC_MOD_0017);
         return (NULL_PTR);
     }
@@ -2639,9 +2639,9 @@ MOD_NODE * mod_mgr_ldb_que_get(MOD_MGR *mod_mgr)
     }
     CVECTOR_UNLOCK(MOD_MGR_REMOTE_LIST(mod_mgr), LOC_MOD_0018);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: mod_mgr:\n");
+    dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: mod_mgr:\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: chose mod node: ");
+    dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: chose mod node: ");
     mod_node_print(LOGSTDOUT, mod_node_min);
 #endif
     return (mod_node_min);
@@ -2664,7 +2664,7 @@ MOD_NODE * mod_mgr_ldb_obj_get(MOD_MGR *mod_mgr)
 
     if(0 == num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_ldb_obj_get: mod mgr has no remote mode node\n");
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_ldb_obj_get: mod mgr has no remote mode node\n");
         CVECTOR_UNLOCK(MOD_MGR_REMOTE_LIST(mod_mgr), LOC_MOD_0020);
         return (NULL_PTR);
     }
@@ -2695,9 +2695,9 @@ MOD_NODE * mod_mgr_ldb_obj_get(MOD_MGR *mod_mgr)
     MOD_MGR_REMOTE_POS(mod_mgr) = pos;
     CVECTOR_UNLOCK(MOD_MGR_REMOTE_LIST(mod_mgr), LOC_MOD_0021);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: mod_mgr:\n");
+    dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: mod_mgr:\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: chose mod node: ");
+    dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: chose mod node: ");
     mod_node_print(LOGSTDOUT, mod_node_min);
 #endif
     return (mod_node_min);
@@ -2719,7 +2719,7 @@ MOD_NODE * mod_mgr_ldb_cpu_get(MOD_MGR *mod_mgr)
 
     if(0 == num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_ldb_cpu_get: mod mgr has no remote mode node\n");
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_ldb_cpu_get: mod mgr has no remote mode node\n");
         CVECTOR_UNLOCK(MOD_MGR_REMOTE_LIST(mod_mgr), LOC_MOD_0023);
         return (NULL_PTR);
     }
@@ -2747,9 +2747,9 @@ MOD_NODE * mod_mgr_ldb_cpu_get(MOD_MGR *mod_mgr)
     }
     CVECTOR_UNLOCK(MOD_MGR_REMOTE_LIST(mod_mgr), LOC_MOD_0024);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: mod_mgr:\n");
+    dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: mod_mgr:\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: chose mod node: ");
+    dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: chose mod node: ");
     mod_node_print(LOGSTDOUT, mod_node_min);
 #endif
     return (mod_node_min);
@@ -2771,7 +2771,7 @@ MOD_NODE * mod_mgr_ldb_mem_get(MOD_MGR *mod_mgr)
 
     if(0 == num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_ldb_mem_get: mod mgr has no remote mode node\n");
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_ldb_mem_get: mod mgr has no remote mode node\n");
         CVECTOR_UNLOCK(MOD_MGR_REMOTE_LIST(mod_mgr), LOC_MOD_0026);
         return (NULL_PTR);
     }
@@ -2799,9 +2799,9 @@ MOD_NODE * mod_mgr_ldb_mem_get(MOD_MGR *mod_mgr)
     }
     CVECTOR_UNLOCK(MOD_MGR_REMOTE_LIST(mod_mgr), LOC_MOD_0027);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: mod_mgr:\n");
+    dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: mod_mgr:\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: chose mod node: ");
+    dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: chose mod node: ");
     mod_node_print(LOGSTDOUT, mod_node_min);
 #endif
     return (mod_node_min);
@@ -2823,7 +2823,7 @@ MOD_NODE * mod_mgr_ldb_dsk_get(MOD_MGR *mod_mgr)
 
     if(0 == num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_ldb_dsk_get: mod mgr has no remote mode node\n");
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_ldb_dsk_get: mod mgr has no remote mode node\n");
         CVECTOR_UNLOCK(MOD_MGR_REMOTE_LIST(mod_mgr), LOC_MOD_0029);
         return (NULL_PTR);
     }
@@ -2851,9 +2851,9 @@ MOD_NODE * mod_mgr_ldb_dsk_get(MOD_MGR *mod_mgr)
     }
     CVECTOR_UNLOCK(MOD_MGR_REMOTE_LIST(mod_mgr), LOC_MOD_0030);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: mod_mgr:\n");
+    dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: mod_mgr:\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: chose mod node: ");
+    dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: chose mod node: ");
     mod_node_print(LOGSTDOUT, mod_node_min);
 #endif
     return (mod_node_min);
@@ -2875,7 +2875,7 @@ MOD_NODE * mod_mgr_ldb_net_get(MOD_MGR *mod_mgr)
 
     if(0 == num)
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_ldb_net_get: mod mgr has no remote mode node\n");
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_ldb_net_get: mod mgr has no remote mode node\n");
         CVECTOR_UNLOCK(MOD_MGR_REMOTE_LIST(mod_mgr), LOC_MOD_0032);
         return (NULL_PTR);
     }
@@ -2903,9 +2903,9 @@ MOD_NODE * mod_mgr_ldb_net_get(MOD_MGR *mod_mgr)
     }
     CVECTOR_UNLOCK(MOD_MGR_REMOTE_LIST(mod_mgr), LOC_MOD_0033);
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: mod_mgr:\n");
+    dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: mod_mgr:\n");
     mod_mgr_print(LOGSTDOUT, mod_mgr);
-    sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: chose mod node: ");
+    dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_ldb_que_get: chose mod node: ");
     mod_node_print(LOGSTDOUT, mod_node_min);
 #endif
     return (mod_node_min);
@@ -2918,7 +2918,7 @@ EC_BOOL mod_mgr_print(LOG *log, const MOD_MGR * mod_mgr)
 
     if(NULL_PTR == mod_mgr)
     {
-        sys_log(LOGSTDOUT, "warn:mod_mgr_print: mod_mgr is null\n");
+        dbg_log(SEC_0108_MOD, 1)(LOGSTDOUT, "warn:mod_mgr_print: mod_mgr is null\n");
         return (EC_TRUE);
     }
 
@@ -3016,6 +3016,53 @@ UINT32 mod_mgr_excl(const UINT32 tcid, const UINT32 comm, const UINT32 rank, con
     return (0);
 }
 
+MOD_NODE *mod_mgr_search(const UINT32 tcid, const UINT32 comm, const UINT32 rank, const UINT32 modi, const MOD_MGR *mod_mgr)
+{   
+    UINT32  pos;
+
+    for(pos = 0; pos < MOD_MGR_REMOTE_NUM(mod_mgr); pos ++)
+    {
+        MOD_NODE *remote_mod_node;
+        
+        remote_mod_node = (MOD_NODE *)cvector_get(MOD_MGR_REMOTE_LIST(mod_mgr), pos);
+        if(
+           tcid == MOD_NODE_TCID(remote_mod_node)
+        && comm == MOD_NODE_COMM(remote_mod_node)
+        && rank == MOD_NODE_RANK(remote_mod_node)
+        && modi == MOD_NODE_MODI(remote_mod_node)
+        )
+        {
+            return (remote_mod_node);
+        }
+    }
+
+    return (NULL_PTR);
+}
+
+EC_BOOL mod_mgr_has(const UINT32 tcid, const UINT32 comm, const UINT32 rank, const UINT32 modi, const MOD_MGR *mod_mgr)
+{   
+    UINT32  pos;
+
+    for(pos = 0; pos < MOD_MGR_REMOTE_NUM(mod_mgr); pos ++)
+    {
+        MOD_NODE *remote_mod_node;
+        
+        remote_mod_node = (MOD_NODE *)cvector_get(MOD_MGR_REMOTE_LIST(mod_mgr), pos);
+        if(
+           tcid == MOD_NODE_TCID(remote_mod_node)
+        && comm == MOD_NODE_COMM(remote_mod_node)
+        && rank == MOD_NODE_RANK(remote_mod_node)
+        && modi == MOD_NODE_MODI(remote_mod_node)
+        )
+        {
+            return (EC_TRUE);
+        }
+    }
+
+    return (EC_FALSE);
+}
+
+
 EC_BOOL mod_mgr_local_mod_load_set(const UINT32 load, const MOD_NODE *check_local_mod_node, const MOD_NODE *except_mod_node, MOD_MGR *mod_mgr)
 {
     MOD_NODE *local_mod_node;
@@ -3027,15 +3074,15 @@ EC_BOOL mod_mgr_local_mod_load_set(const UINT32 load, const MOD_NODE *check_loca
     /*only for debug purpose: consistency checking*/
     if(EC_FALSE == mod_node_cmp(check_local_mod_node, MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_local_mod_load_set: inconsistent local_mod_node: mod_mgr %lx: (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_local_mod_load_set: inconsistent local_mod_node: mod_mgr %lx: (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                         mod_mgr,
                         MOD_NODE_TCID_STR(check_local_mod_node),MOD_NODE_COMM(check_local_mod_node),
                         MOD_NODE_RANK(check_local_mod_node),MOD_NODE_MODI(check_local_mod_node));
 
-        sys_log(LOGSTDOUT, "error:mod_mgr_local_mod_load_set: inputed local_mod_node: \n");
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_local_mod_load_set: inputed local_mod_node: \n");
         mod_node_print(LOGSTDOUT, check_local_mod_node);
 
-        sys_log(LOGSTDOUT, "error:mod_mgr_local_mod_load_set: mod_mgr %lx local_mod_node: \n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_local_mod_load_set: mod_mgr %lx local_mod_node: \n", mod_mgr);
         mod_node_print(LOGSTDOUT, MOD_MGR_LOCAL_MOD(mod_mgr));
 
         return (EC_FALSE);
@@ -3046,7 +3093,7 @@ EC_BOOL mod_mgr_local_mod_load_set(const UINT32 load, const MOD_NODE *check_loca
     if(0 == except_mod_node || EC_FALSE == mod_node_cmp(local_mod_node, except_mod_node))
     {
 #if 0
-        sys_log(LOGSTDOUT, "local  mod load update: mod_mgr %lx: (comm %ld, rank %ld, modi %ld): load %ld -> %ld\n",
+        dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT, "local  mod load update: mod_mgr %lx: (comm %ld, rank %ld, modi %ld): load %ld -> %ld\n",
                         mod_mgr,
                         MOD_NODE_COMM(local_mod_node),MOD_NODE_RANK(local_mod_node),MOD_NODE_MODI(local_mod_node),
                         MOD_NODE_LOAD(local_mod_node),load);
@@ -3070,15 +3117,15 @@ EC_BOOL mod_mgr_local_mod_load_inc(const UINT32 increasement, const MOD_NODE *ch
     /*only for debug purpose: consistency checking*/
     if(EC_FALSE == mod_node_cmp(check_local_mod_node, MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_local_mod_load_inc: inconsistent local_mod_node: mod_mgr %lx: (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_local_mod_load_inc: inconsistent local_mod_node: mod_mgr %lx: (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                         mod_mgr,
                         MOD_NODE_TCID_STR(check_local_mod_node),MOD_NODE_COMM(check_local_mod_node),
                         MOD_NODE_RANK(check_local_mod_node),MOD_NODE_MODI(check_local_mod_node));
 
-        sys_log(LOGSTDOUT, "error:mod_mgr_local_mod_load_inc: inputed local_mod_node: \n");
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_local_mod_load_inc: inputed local_mod_node: \n");
         mod_node_print(LOGSTDOUT, check_local_mod_node);
 
-        sys_log(LOGSTDOUT, "error:mod_mgr_local_mod_load_inc: mod_mgr %lx local_mod_node: \n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_local_mod_load_inc: mod_mgr %lx local_mod_node: \n", mod_mgr);
         mod_node_print(LOGSTDOUT, MOD_MGR_LOCAL_MOD(mod_mgr));
 
         return (EC_FALSE);
@@ -3090,7 +3137,7 @@ EC_BOOL mod_mgr_local_mod_load_inc(const UINT32 increasement, const MOD_NODE *ch
     {
         load = MOD_NODE_LOAD_GET_QUE(task_brd, local_mod_node) + increasement;
 #if 0
-        sys_log(LOGSTDOUT, "local  mod load increase: mod_mgr %lx: (comm %ld, rank %ld, modi %ld): load %ld -> %ld\n",
+        dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT, "local  mod load increase: mod_mgr %lx: (comm %ld, rank %ld, modi %ld): load %ld -> %ld\n",
                         mod_mgr,
                         MOD_NODE_COMM(local_mod_node),MOD_NODE_RANK(local_mod_node),MOD_NODE_MODI(local_mod_node),
                         MOD_NODE_LOAD(local_mod_node),load);
@@ -3115,15 +3162,15 @@ EC_BOOL mod_mgr_local_mod_load_dec(const UINT32 decreasement, const MOD_NODE *ch
     /*only for debug purpose: consistency checking*/
     if(EC_FALSE == mod_node_cmp(check_local_mod_node, MOD_MGR_LOCAL_MOD(mod_mgr)))
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_local_mod_load_dec: inconsistent local_mod_node: mod_mgr %lx: (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_local_mod_load_dec: inconsistent local_mod_node: mod_mgr %lx: (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                         mod_mgr,
                         MOD_NODE_TCID_STR(check_local_mod_node),MOD_NODE_COMM(check_local_mod_node),
                         MOD_NODE_RANK(check_local_mod_node),MOD_NODE_MODI(check_local_mod_node));
 
-        sys_log(LOGSTDOUT, "error:mod_mgr_local_mod_load_dec: inputed local_mod_node: \n");
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_local_mod_load_dec: inputed local_mod_node: \n");
         mod_node_print(LOGSTDOUT, check_local_mod_node);
 
-        sys_log(LOGSTDOUT, "error:mod_mgr_local_mod_load_dec: mod_mgr %lx local_mod_node: \n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_local_mod_load_dec: mod_mgr %lx local_mod_node: \n", mod_mgr);
         mod_node_print(LOGSTDOUT, MOD_MGR_LOCAL_MOD(mod_mgr));
 
         return (EC_FALSE);
@@ -3135,7 +3182,7 @@ EC_BOOL mod_mgr_local_mod_load_dec(const UINT32 decreasement, const MOD_NODE *ch
     {
         load = MOD_NODE_LOAD_GET_QUE(task_brd, local_mod_node) - decreasement;
 #if 0
-        sys_log(LOGSTDOUT, "local  mod load decrease: mod_mgr %lx: (comm %ld, rank %ld, modi %ld): load %ld -> %ld\n",
+        dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT, "local  mod load decrease: mod_mgr %lx: (comm %ld, rank %ld, modi %ld): load %ld -> %ld\n",
                         mod_mgr,
                         MOD_NODE_COMM(local_mod_node),MOD_NODE_RANK(local_mod_node),MOD_NODE_MODI(local_mod_node),
                         MOD_NODE_LOAD(local_mod_node),load);
@@ -3158,7 +3205,7 @@ EC_BOOL mod_mgr_remote_mod_load_set(const UINT32 load, const MOD_NODE *mod_node,
     pos = cvector_search_front(MOD_MGR_REMOTE_LIST(mod_mgr), mod_node, (CVECTOR_DATA_CMP)mod_node_cmp);
     if(CVECTOR_ERR_POS == pos)/*not found*/
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_remote_mod_load_set: failed to match mod_node %lx: (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_remote_mod_load_set: failed to match mod_node %lx: (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                         mod_node,
                         MOD_NODE_TCID_STR(mod_node),MOD_NODE_COMM(mod_node),
                         MOD_NODE_RANK(mod_node),MOD_NODE_MODI(mod_node));
@@ -3169,7 +3216,7 @@ EC_BOOL mod_mgr_remote_mod_load_set(const UINT32 load, const MOD_NODE *mod_node,
     {
         remote_mod_node = (MOD_NODE *)cvector_get(MOD_MGR_REMOTE_LIST(mod_mgr), pos);
 #if 0
-        sys_log(LOGSTDOUT, "remote mod load update: mod_mgr %lx: (comm %ld, rank %ld, modi %ld): load %ld -> %ld\n",
+        dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT, "remote mod load update: mod_mgr %lx: (comm %ld, rank %ld, modi %ld): load %ld -> %ld\n",
                         mod_mgr,
                         MOD_NODE_COMM(mod_node),MOD_NODE_RANK(mod_node),MOD_NODE_MODI(mod_node),
                         MOD_NODE_LOAD(remote_mod_node),load);
@@ -3194,12 +3241,12 @@ EC_BOOL mod_mgr_remote_mod_load_inc(const UINT32 increasement, const MOD_NODE *m
     pos = cvector_search_front(MOD_MGR_REMOTE_LIST(mod_mgr), mod_node, (CVECTOR_DATA_CMP)mod_node_cmp);
     if(CVECTOR_ERR_POS == pos)/*not found*/
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_remote_mod_load_inc: failed to match mod_node %lx: (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_remote_mod_load_inc: failed to match mod_node %lx: (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                         mod_node,
                         MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node),
                         MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node));
 
-        sys_log(LOGSTDOUT, "mod_mgr_remote_mod_load_inc: mod_mgr %lx\n", mod_mgr);
+        dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT, "mod_mgr_remote_mod_load_inc: mod_mgr %lx\n", mod_mgr);
         mod_mgr_print(LOGSTDOUT, mod_mgr);
         return (EC_FALSE);
     }
@@ -3210,7 +3257,7 @@ EC_BOOL mod_mgr_remote_mod_load_inc(const UINT32 increasement, const MOD_NODE *m
 
         load = MOD_NODE_LOAD_GET_QUE(task_brd, remote_mod_node) + increasement;
 #if 0
-        sys_log(LOGSTDOUT, "remote mod load increase: mod_mgr %lx: (comm %ld, rank %ld, modi %ld): load %ld -> %ld\n",
+        dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT, "remote mod load increase: mod_mgr %lx: (comm %ld, rank %ld, modi %ld): load %ld -> %ld\n",
                         mod_mgr,
                         MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node),
                         MOD_NODE_LOAD(remote_mod_node),load);
@@ -3235,11 +3282,11 @@ EC_BOOL mod_mgr_remote_mod_load_dec(const UINT32 decreasement, const MOD_NODE *m
     pos = cvector_search_front(MOD_MGR_REMOTE_LIST(mod_mgr), mod_node, (CVECTOR_DATA_CMP)mod_node_cmp);
     if(CVECTOR_ERR_POS == pos)/*not found*/
     {
-        sys_log(LOGSTDOUT, "error:mod_mgr_remote_mod_load_dec: failed to match mod_node %lx: (tcid %s, comm %ld, rank %ld, modi %ld)\n",
+        dbg_log(SEC_0108_MOD, 0)(LOGSTDOUT, "error:mod_mgr_remote_mod_load_dec: failed to match mod_node %lx: (tcid %s, comm %ld, rank %ld, modi %ld)\n",
                         mod_node,
                         MOD_NODE_TCID_STR(mod_node), MOD_NODE_COMM(mod_node),
                         MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node));
-        //sys_log(LOGSTDOUT, "[DEBUG] mod_mgr_remote_mod_load_dec: remote mod node list:\n");
+        //dbg_log(SEC_0108_MOD, 9)(LOGSTDOUT, "[DEBUG] mod_mgr_remote_mod_load_dec: remote mod node list:\n");
         //cvector_print(LOGSTDOUT, MOD_MGR_REMOTE_LIST(mod_mgr), (CVECTOR_DATA_PRINT)mod_node_print);
         return (EC_FALSE);
     }
@@ -3250,7 +3297,7 @@ EC_BOOL mod_mgr_remote_mod_load_dec(const UINT32 decreasement, const MOD_NODE *m
 
         load = MOD_NODE_LOAD_GET_QUE(task_brd, remote_mod_node) - decreasement;
 #if 0
-        sys_log(LOGSTDOUT, "remote mod load decrease: mod_mgr %lx: (comm %ld, rank %ld, modi %ld): load %ld -> %ld\n",
+        dbg_log(SEC_0108_MOD, 5)(LOGSTDOUT, "remote mod load decrease: mod_mgr %lx: (comm %ld, rank %ld, modi %ld): load %ld -> %ld\n",
                         mod_mgr,
                         MOD_NODE_COMM(mod_node), MOD_NODE_RANK(mod_node), MOD_NODE_MODI(mod_node),
                         MOD_NODE_LOAD(remote_mod_node),load);

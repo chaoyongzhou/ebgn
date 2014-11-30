@@ -16,6 +16,7 @@ extern "C"{
 #include "cstring.h"
 #include "cmutex.h"
 
+
 #define CLIST_CODEC_ENCODER         ((UINT32) 1)
 #define CLIST_CODEC_ENCODER_SIZE    ((UINT32) 2)
 #define CLIST_CODEC_DECODER         ((UINT32) 3)
@@ -32,13 +33,16 @@ typedef struct
     void *data;
 }CLIST_DATA;
 
+
 typedef struct
 {
     LIST_NODE head;
 
     UINT32    size;
 
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)    
     CMUTEX    cmutex;
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/
 
     UINT32    data_mm_type;
 
@@ -78,11 +82,25 @@ typedef void (*CLIST_DATA_LEVEL_PRINT)(LOG *, const void *, const UINT32);
 typedef EC_BOOL (*CLIST_RETVAL_CHECKER)(const void *);
 
 /*---------------------------- lock operation ----------------------------*/
-#define CLIST_INIT_LOCK(clist, __location__)          cmutex_init((CMUTEX *)&((clist)->cmutex), CMUTEX_PROCESS_PRIVATE, (__location__))
-#define CLIST_CLEAN_LOCK(clist, __location__)         cmutex_clean((CMUTEX *)&((clist)->cmutex), (__location__))
 
-#define CLIST_LOCK(clist, __location__)               cmutex_lock((CMUTEX *)&((clist)->cmutex), (__location__))
-#define CLIST_UNLOCK(clist, __location__)             cmutex_unlock((CMUTEX *)&((clist)->cmutex), (__location__))
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)
+#define CLIST_CMUTEX(clist)                           ((CMUTEX *)&((clist)->cmutex))
+#define CLIST_INIT_LOCK(clist, __location__)          cmutex_init(CLIST_CMUTEX(clist), CMUTEX_PROCESS_PRIVATE, (__location__))
+#define CLIST_CLEAN_LOCK(clist, __location__)         cmutex_clean(CLIST_CMUTEX(clist), (__location__))
+
+#define CLIST_LOCK(clist, __location__)               cmutex_lock(CLIST_CMUTEX(clist), (__location__))
+#define CLIST_UNLOCK(clist, __location__)             cmutex_unlock(CLIST_CMUTEX(clist), (__location__))
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/
+
+
+#if (SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)
+#define CLIST_INIT_LOCK(clist, __location__)          do{}while(0)
+#define CLIST_CLEAN_LOCK(clist, __location__)         do{}while(0)
+
+#define CLIST_LOCK(clist, __location__)               do{}while(0)
+#define CLIST_UNLOCK(clist, __location__)             do{}while(0)
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)*/
+
 
 #define CLIST_HEAD(clist)  (&((clist)->head))
 
@@ -190,6 +208,10 @@ void clist_print(LOG *log, const CLIST *clist, void (*print)(LOG *, const void *
 
 void clist_print_level(LOG *log, const CLIST *clist, const UINT32 level, void (*print)(LOG *, const void *, const UINT32));
 
+void clist_print_plain(LOG *log, const CLIST *clist, void (*print)(LOG *, const void *));
+
+void clist_print_plain_level(LOG *log, const CLIST *clist, const UINT32 level, void (*print)(LOG *, const void *, const UINT32));
+
 void clist_sprint(CSTRING *cstring, const CLIST *clist, void (*sprint)(CSTRING *, const void *));
 
 void *clist_vote(const CLIST *clist, EC_BOOL (*voter)(void *, void *));
@@ -210,6 +232,9 @@ void *clist_rmv(CLIST *clist, CLIST_DATA *clist_data);
 void *clist_del(CLIST *clist, const void *data, EC_BOOL (*cmp)(const void *, const void *));
 void *clist_erase(CLIST *clist, CLIST_DATA *clist_data);
 
+EC_BOOL clist_move_back(CLIST *clist, CLIST_DATA *clist_data);
+EC_BOOL clist_move_front(CLIST *clist, CLIST_DATA *clist_data);
+
 void clist_clean(CLIST *clist, void (*cleaner)(void *));
 
 void clist_clean_with_modi(CLIST *clist, const UINT32 modi, EC_BOOL (*cleaner)(const UINT32, void *));
@@ -222,6 +247,8 @@ EC_BOOL clist_loop(CLIST *clist,
                      void *handler_retval_addr, EC_BOOL (*handler_retval_checker)(const void *), 
                      const UINT32 func_para_num, const UINT32 clist_data_pos,
                      const UINT32 handler_func_addr,...);
+
+CLIST_DATA *clist_walk_and_insert(CLIST *clist, const void *data, EC_BOOL (*walker)(const void *, const void *));
 
 /*--------------------------------- no lock interface ---------------------------------*/
 CLIST *clist_new_no_lock(const UINT32 mm_type, const UINT32 location);
@@ -301,6 +328,10 @@ void *clist_erase_no_lock(CLIST *clist, CLIST_DATA *clist_data);
 
 void clist_clean_no_lock(CLIST *clist, void (*cleaner)(void *));
 
+EC_BOOL clist_move_back_no_lock(CLIST *clist, CLIST_DATA *clist_data);
+
+EC_BOOL clist_move_front_no_lock(CLIST *clist, CLIST_DATA *clist_data);
+
 void clist_clean_with_modi_no_lock(CLIST *clist, const UINT32 modi, EC_BOOL (*cleaner)(const UINT32, void *));
 
 void clist_bubble_sort_no_lock(CLIST *clist, EC_BOOL (*cmp)(const void *, const void *));
@@ -311,6 +342,9 @@ EC_BOOL clist_loop_no_lock(CLIST *clist,
                                  void *handler_retval_addr, EC_BOOL (*handler_retval_checker)(const void *), 
                                  const UINT32 func_para_num, const UINT32 clist_data_pos,
                                  const UINT32 handler_func_addr,...);
+
+CLIST_DATA *clist_walk_and_insert_no_lock(CLIST *clist, const void *data, EC_BOOL (*walker)(const void *, const void *));
+
 
 EC_BOOL clist_self_check_no_lock(CLIST *clist);
 

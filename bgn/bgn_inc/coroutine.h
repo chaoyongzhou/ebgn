@@ -146,6 +146,8 @@ COROUTINE_NODE *coroutine_pool_get_master(COROUTINE_POOL *coroutine_pool);
 
 COROUTINE_NODE *coroutine_pool_get_slave(COROUTINE_POOL *coroutine_pool);
 
+void coroutine_pool_run_once(COROUTINE_POOL *coroutine_pool, COROUTINE_NODE *coroutine_node_master);
+
 /*endless loop*/
 void coroutine_pool_run(COROUTINE_POOL *coroutine_pool);
 

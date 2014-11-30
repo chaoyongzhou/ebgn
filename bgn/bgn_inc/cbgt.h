@@ -23,7 +23,7 @@ extern "C"{
 
 #include "db_internal.h"
 #include "cbtree.h"
-#include "croutine.h"
+#include "croutine.inc"
 
 #define CBGT_MIN_NP_NUM             ((UINT32) 1)
 #define CBGT_REPLICA_NUM            ((UINT32) 1)

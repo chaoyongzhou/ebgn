@@ -58,7 +58,7 @@ CRB_NODE * crb_node_new()
     alloc_static_mem(MD_TBD, ERR_MODULE_ID, MM_CRB_NODE, &node, LOC_CRB_0001);
     if(NULL_PTR == node)
     {
-        sys_log(LOGSTDOUT, "error:crb_node_new: new node failed\n");
+        dbg_log(SEC_0038_CRB, 0)(LOGSTDOUT, "error:crb_node_new: new node failed\n");
         return (NULL_PTR);
     }   
     crb_node_init(node);
@@ -99,14 +99,17 @@ void crb_node_free(CRB_NODE *node)
 
 void crb_node_print(LOG *log, const CRB_TREE *crbtree, const CRB_NODE *node)
 {
-    sys_log(log, "node %p: parent = %p, left = %p, right = %p, color = %s, data = %p\n",
-                       node,
-                       CRB_NODE_PARENT(node),
-                       CRB_NODE_LEFT(node),
-                       CRB_NODE_RIGHT(node),
-                       (CRB_NODE_IS_RED(node) ? "red  " : "black"),
-                       CRB_NODE_DATA(node)
-                       );
+    if(do_log(SEC_0038_CRB, 9))
+    {
+        sys_log(log, "node %p: parent = %p, left = %p, right = %p, color = %s, data = %p\n",
+                           node,
+                           CRB_NODE_PARENT(node),
+                           CRB_NODE_LEFT(node),
+                           CRB_NODE_RIGHT(node),
+                           (CRB_NODE_IS_RED(node) ? "red  " : "black"),
+                           CRB_NODE_DATA(node)
+                           );
+    }
     CRB_TREE_DATA_PRINT(crbtree)(log, CRB_NODE_DATA(node));
     return;
 }
@@ -545,22 +548,22 @@ EC_BOOL crb_tree_is_empty(const CRB_TREE *crbtree)
     return (EC_FALSE);
 }
 
-static uint16_t __crb_tree_node_count(const CRB_TREE *crbtree, const CRB_NODE *node)
+static uint32_t __crb_tree_node_count(const CRB_TREE *crbtree, const CRB_NODE *node)
 {
     if(NULL_PTR == node)
     {
-        return ((uint16_t)0);
+        return ((uint32_t)0);
     }
 
-    return (uint16_t)(1 + __crb_tree_node_count(crbtree, CRB_NODE_LEFT(node)) + __crb_tree_node_count(crbtree, CRB_NODE_RIGHT(node)));   
+    return (uint32_t)(1 + __crb_tree_node_count(crbtree, CRB_NODE_LEFT(node)) + __crb_tree_node_count(crbtree, CRB_NODE_RIGHT(node)));   
 }
 
-uint16_t crb_tree_node_count(const CRB_TREE *crbtree)
+uint32_t crb_tree_node_count(const CRB_TREE *crbtree)
 {
     return __crb_tree_node_count(crbtree, CRB_TREE_ROOT(crbtree));
 }
 
-uint16_t crb_tree_node_num(const CRB_TREE *crbtree)
+uint32_t crb_tree_node_num(const CRB_TREE *crbtree)
 {
     return CRB_TREE_NODE_NUM(crbtree);
 }
@@ -830,7 +833,7 @@ CRB_NODE * crb_tree_insert(CRB_TREE *crbtree, CRB_NODE *new_node)
 
     /*not found data in the rbtree*/
     CRB_NODE_PARENT(new_node) = parent;
-    CRB_NODE_COLOR(new_node)      = CRB_RED;
+    CRB_NODE_COLOR(new_node)  = CRB_RED;
     CRB_NODE_LEFT(new_node)   = NULL_PTR;
     CRB_NODE_RIGHT(new_node)  = NULL_PTR;        
 
@@ -866,6 +869,54 @@ EC_BOOL crb_tree_delete(CRB_TREE *crbtree, CRB_NODE *node)
     CRB_TREE_NODE_NUM(crbtree) --;
     
     return (EC_TRUE);
+}
+
+CRB_NODE *crb_tree_lookup_data(const CRB_TREE *crbtree, const void *data)
+{
+    CRB_NODE *node;
+    CRB_NODE *result;
+
+    result = NULL_PTR;
+    node = CRB_TREE_ROOT(crbtree);
+    
+    while (NULL_PTR != node)
+    {        
+        int cmp;
+
+        cmp = CRB_TREE_DATA_CMP(crbtree)(CRB_NODE_DATA(node), data);
+        if (0 < cmp) /*data < CRB_NODE_DATA(node)*/
+        {
+            result = node;/*update result*/
+            node = CRB_NODE_LEFT(node);
+        }
+        else if (0 > cmp)/*data > CRB_NODE_DATA(node)*/
+        {
+            node = CRB_NODE_RIGHT(node);
+        }
+        else
+        {
+            return (node);
+        }
+    }
+
+    if(NULL_PTR != result)
+    {
+        return (result);
+    }
+
+    /*circle to left-most node*/
+    node = CRB_TREE_ROOT(crbtree);
+    if(NULL_PTR == node)
+    {
+        return (NULL_PTR);
+    }
+    
+    while(NULL_PTR != CRB_NODE_LEFT(node))
+    {
+        node = CRB_NODE_LEFT(node);
+    }
+
+    return (node);
 }
 
 CRB_NODE *crb_tree_search_data(const CRB_TREE *crbtree, const void *data)
@@ -904,7 +955,7 @@ CRB_NODE * crb_tree_insert_data(CRB_TREE *crbtree, const void *data)
     node_tmp = crb_node_new();
     if(NULL_PTR == node_tmp)
     {
-        sys_log(LOGSTDOUT, "error:crb_tree_insert_data: new node failed\n");
+        dbg_log(SEC_0038_CRB, 0)(LOGSTDOUT, "error:crb_tree_insert_data: new node failed\n");
         return (NULL_PTR);
     }
 
@@ -965,7 +1016,7 @@ CRB_TREE *crb_tree_new(CRB_DATA_CMP data_cmp, CRB_DATA_FREE data_free, CRB_DATA_
     alloc_static_mem(MD_TBD, ERR_MODULE_ID, MM_CRB_TREE, &crbtree, LOC_CRB_0003);
     if(NULL_PTR == crbtree)
     {
-        sys_log(LOGSTDOUT, "error:crb_tree_new: new crbtree failed\n");
+        dbg_log(SEC_0038_CRB, 0)(LOGSTDOUT, "error:crb_tree_new: new crbtree failed\n");
         return (NULL_PTR);
     }   
     crb_tree_init(crbtree, data_cmp, data_free, data_print);
@@ -1003,9 +1054,46 @@ void crb_tree_free(CRB_TREE *crbtree)
     return;
 }
 
+EC_BOOL crb_tree_cmp(const CRB_TREE *crbtree_1st, const CRB_TREE *crbtree_2nd, EC_BOOL (*cmp)(const void *, const void *))
+{
+    const CRB_NODE *crb_node_1st;
+    const CRB_NODE *crb_node_2nd;
+
+    if(CRB_TREE_NODE_NUM(crbtree_1st) != CRB_TREE_NODE_NUM(crbtree_2nd))
+    {
+        dbg_log(SEC_0038_CRB, 9)(LOGSTDOUT, "[DEBUG] crb_tree_cmp: node_num: %u != %u\n", 
+                           CRB_TREE_NODE_NUM(crbtree_1st),
+                           CRB_TREE_NODE_NUM(crbtree_2nd));
+        return (EC_FALSE);
+    }
+
+    crb_node_1st = crb_tree_first_node(crbtree_1st);
+    crb_node_2nd = crb_tree_first_node(crbtree_2nd);
+
+    while(NULL_PTR != crb_node_1st && NULL_PTR != crb_node_2nd)
+    {
+        if(EC_FALSE == cmp(CRB_NODE_DATA(crb_node_1st), CRB_NODE_DATA(crb_node_2nd)))
+        {
+            return (EC_FALSE);
+        }
+
+        crb_node_1st = crb_tree_next_node(crbtree_1st, crb_node_1st);
+        crb_node_2nd = crb_tree_next_node(crbtree_2nd, crb_node_2nd);
+    }
+
+    if(NULL_PTR != crb_node_1st || NULL_PTR != crb_node_2nd)
+    {
+        dbg_log(SEC_0038_CRB, 9)(LOGSTDOUT, "[DEBUG] crb_tree_cmp: crb_node_1st %p, crb_node_2nd %p\n", 
+                           crb_node_1st, crb_node_2nd);
+        return (EC_FALSE);
+    }
+
+    return (EC_TRUE);
+}
+
 void crb_tree_print(LOG *log, const CRB_TREE *crbtree)
 {
-    sys_log(log, "crbtree %lx, node_num %u\n", 
+    sys_log(log, "crbtree %p, node_num %u\n", 
                  crbtree, 
                  CRB_TREE_NODE_NUM(crbtree));
 
@@ -1140,6 +1228,282 @@ void crb_preorder_print_level(LOG *log, const CRB_TREE *crbtree, const uint16_t 
 {
     __crb_preorder_print_level(log, crbtree, CRB_TREE_ROOT(crbtree), level);
     return;
+}
+
+static EC_BOOL __crb_inorder_walk(const CRB_TREE *crbtree, const CRB_NODE *node, EC_BOOL (*walker)(const void *, void *), void *arg)
+{
+    if(NULL_PTR == node)
+    {
+        return (EC_TRUE);
+    }
+    
+    if(NULL_PTR != CRB_NODE_LEFT(node))
+    {
+        if(EC_FALSE == __crb_inorder_walk(crbtree, CRB_NODE_LEFT(node), walker, arg))
+        {
+            return (EC_FALSE);
+        }
+    }
+
+    if(EC_FALSE == walker(CRB_NODE_DATA(node), arg))
+    {
+        return (EC_FALSE);
+    }    
+
+    if(NULL_PTR != CRB_NODE_RIGHT(node))
+    {
+        if(EC_FALSE == __crb_inorder_walk(crbtree, CRB_NODE_RIGHT(node), walker, arg))
+        {
+            return (EC_FALSE);
+        }
+    }    
+    
+    return (EC_TRUE);
+}
+
+static EC_BOOL __crb_postorder_walk(const CRB_TREE *crbtree, const CRB_NODE *node, EC_BOOL (*walker)(const void *, void *), void *arg)
+{
+    if(NULL_PTR == node)
+    {
+        return (EC_TRUE);
+    }
+    
+    if(NULL_PTR != CRB_NODE_LEFT(node))
+    {
+        if(EC_FALSE == __crb_postorder_walk(crbtree, CRB_NODE_LEFT(node), walker, arg))
+        {
+            return (EC_FALSE);
+        }
+    }
+
+    if(NULL_PTR != CRB_NODE_RIGHT(node))
+    {
+        if(EC_FALSE == __crb_postorder_walk(crbtree, CRB_NODE_RIGHT(node), walker, arg))
+        {
+            return (EC_FALSE);
+        }
+    }
+
+    if(EC_FALSE == walker(CRB_NODE_DATA(node), arg))
+    {
+        return (EC_FALSE);
+    }
+    
+    return (EC_TRUE);
+}
+
+static EC_BOOL __crb_preorder_walk(const CRB_TREE *crbtree, const CRB_NODE *node, EC_BOOL (*walker)(const void *, void *), void *arg)
+{
+    if(NULL_PTR == node)
+    {
+        return (EC_TRUE);
+    }
+
+    if(EC_FALSE == walker(CRB_NODE_DATA(node), arg))
+    {
+        return (EC_FALSE);
+    }
+    
+    if(NULL_PTR != CRB_NODE_LEFT(node))
+    {
+        if(EC_FALSE == __crb_preorder_walk(crbtree, CRB_NODE_LEFT(node), walker, arg))
+        {
+            return (EC_FALSE);
+        }
+    }
+
+    if(NULL_PTR != CRB_NODE_RIGHT(node))
+    {
+        if(EC_FALSE == __crb_preorder_walk(crbtree, CRB_NODE_RIGHT(node), walker, arg))
+        {
+            return (EC_FALSE);
+        }
+    }    
+    
+    return (EC_TRUE);
+}
+
+
+/*walk through*/
+EC_BOOL crb_inorder_walk(const CRB_TREE *crbtree, EC_BOOL (*walker)(const void *, void *), void *arg)
+{
+    return __crb_inorder_walk(crbtree, CRB_TREE_ROOT(crbtree), walker, arg);
+}
+
+EC_BOOL crb_postorder_walk(const CRB_TREE *crbtree, EC_BOOL (*walker)(const void *, void *), void *arg)
+{
+    return __crb_postorder_walk(crbtree, CRB_TREE_ROOT(crbtree), walker, arg);
+}
+
+EC_BOOL crb_preorder_walk(const CRB_TREE *crbtree, EC_BOOL (*walker)(const void *, void *), void *arg)
+{
+    return __crb_preorder_walk(crbtree, CRB_TREE_ROOT(crbtree), walker, arg);
+}
+
+static EC_BOOL __crb_inorder_flush(const CRB_TREE *crbtree, const CRB_NODE *node, int fd, UINT32 *offset, EC_BOOL (*data_flush)(const void *, int, UINT32 *))
+{
+    if(NULL_PTR == node)
+    {
+        return (EC_TRUE);
+    }
+    
+    if(NULL_PTR != CRB_NODE_LEFT(node))
+    {
+        if(EC_FALSE == __crb_inorder_flush(crbtree, CRB_NODE_LEFT(node), fd, offset, data_flush))
+        {
+            return (EC_FALSE);
+        }
+    }
+
+    if(EC_FALSE == data_flush(CRB_NODE_DATA(node), fd, offset))
+    {
+        return (EC_FALSE);
+    }
+
+    if(NULL_PTR != CRB_NODE_RIGHT(node))
+    {
+        if(EC_FALSE == __crb_inorder_flush(crbtree, CRB_NODE_RIGHT(node), fd, offset, data_flush))
+        {
+            return (EC_FALSE);
+        }
+    }    
+    
+    return (EC_TRUE);
+}
+
+EC_BOOL crb_inorder_flush(const CRB_TREE *crbtree, int fd, UINT32 *offset, EC_BOOL (*data_flush)(const void *, int, UINT32 *))
+{
+    return __crb_inorder_flush(crbtree, CRB_TREE_ROOT(crbtree), fd, offset, data_flush);
+}
+
+EC_BOOL crb_tree_flush(const CRB_TREE *crbtree, int fd, UINT32 *offset, EC_BOOL (*data_flush)(const void *, int, UINT32 *))
+{
+    UINT32     osize;/*write once size*/
+
+    osize = sizeof(uint32_t);
+    if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CRB_TREE_NODE_NUM(crbtree))))
+    {
+        dbg_log(SEC_0038_CRB, 0)(LOGSTDOUT, "error:crb_tree_flush: data_flush node num at offset %u of fd %d failed\n", (*offset), fd);
+        return (EC_FALSE);
+    }      
+
+    return crb_inorder_flush(crbtree, fd, offset, data_flush);
+}
+
+EC_BOOL crb_tree_load(CRB_TREE *crbtree, int fd, UINT32 *offset, void *(*data_new)(), EC_BOOL (*data_load)(void *, int, UINT32 *))
+{
+    UINT32     osize;
+    uint32_t   node_num;
+    uint32_t   node_pos;
+
+    osize = sizeof(uint32_t);
+    if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(node_num)))
+    {
+        dbg_log(SEC_0038_CRB, 0)(LOGSTDOUT, "error:crb_tree_load: load node num at offset %u of fd %d failed\n", (*offset), fd);
+        return (EC_FALSE);
+    }
+
+    for(node_pos = 0; node_pos < node_num; node_pos ++)
+    {
+        void     *data;
+        CRB_NODE *crb_node;
+
+        data = data_new();
+        if(NULL_PTR == data)
+        {
+            dbg_log(SEC_0038_CRB, 0)(LOGSTDOUT, "error:crb_tree_load: new data when reach offset %u of fd %d failed\n", (*offset), fd);
+            return (EC_FALSE);        
+        }
+
+        if(EC_FALSE == data_load(data, fd, offset))
+        {
+            dbg_log(SEC_0038_CRB, 0)(LOGSTDOUT, "error:crb_tree_load: load data at offset %u of fd %d failed\n", (*offset), fd);
+            CRB_TREE_DATA_FREE(crbtree)(data);
+            return (EC_FALSE);        
+        }
+
+        crb_node = crb_tree_insert_data(crbtree, data);
+        if(NULL_PTR == crb_node)
+        {
+            dbg_log(SEC_0038_CRB, 0)(LOGSTDOUT, "error:crb_tree_load: insert data at offset %u of fd %d failed\n", (*offset), fd);
+            CRB_TREE_DATA_FREE(crbtree)(data);
+            return (EC_FALSE);        
+        }
+        
+        /*fix*/
+        if(data != CRB_NODE_DATA(crb_node))
+        {
+            CRB_TREE_DATA_FREE(crbtree)(data);
+        }
+    }
+
+    return (EC_TRUE);
+}
+
+static EC_BOOL __crb_inorder_clone(const CRB_TREE *crbtree_src, const CRB_NODE *node, CRB_TREE *crbtree_des, void *(*data_new)(), EC_BOOL (*data_clone)(const void *, void *))
+{
+    void *data;
+    CRB_NODE *crb_node;
+    
+    if(NULL_PTR == node)
+    {
+        return (EC_TRUE);
+    }
+    
+    if(NULL_PTR != CRB_NODE_LEFT(node))
+    {
+        if(EC_FALSE == __crb_inorder_clone(crbtree_src, CRB_NODE_LEFT(node), crbtree_des, data_new, data_clone))
+        {
+            return (EC_FALSE);
+        }
+    }
+
+    data = data_new();
+    if(NULL_PTR == data)
+    {
+        dbg_log(SEC_0038_CRB, 0)(LOGSTDOUT, "error:__crb_inorder_clone: new data failed\n");
+        return (EC_FALSE);
+    }
+
+    if(EC_FALSE == data_clone(CRB_NODE_DATA(node), data))
+    {
+        CRB_TREE_DATA_FREE(crbtree_des)(data);
+        return (EC_FALSE);
+    }
+
+    crb_node = crb_tree_insert_data(crbtree_des, data);
+    if(NULL_PTR == crb_node)
+    {
+        dbg_log(SEC_0038_CRB, 0)(LOGSTDOUT, "error:__crb_inorder_clone: insert data failed\n");
+        CRB_TREE_DATA_FREE(crbtree_des)(data);
+        return (EC_FALSE);        
+    }
+
+    /*fix*/
+    if(data != CRB_NODE_DATA(crb_node))
+    {
+        CRB_TREE_DATA_FREE(crbtree_des)(data);
+    }    
+
+    if(NULL_PTR != CRB_NODE_RIGHT(node))
+    {
+        if(EC_FALSE == __crb_inorder_clone(crbtree_src, CRB_NODE_RIGHT(node), crbtree_des, data_new, data_clone))
+        {
+            return (EC_FALSE);
+        }
+    }    
+    
+    return (EC_TRUE);
+}
+
+EC_BOOL crb_inorder_clone(const CRB_TREE *crbtree_src, CRB_TREE *crbtree_des, void *(*data_new)(), EC_BOOL (*data_clone)(const void *, void *))
+{
+    return __crb_inorder_clone(crbtree_src, CRB_TREE_ROOT(crbtree_src), crbtree_des, data_new, data_clone);
+}
+
+EC_BOOL crb_tree_clone(const CRB_TREE *crbtree_src, CRB_TREE *crbtree_des, void *(*data_new)(), EC_BOOL (*data_clone)(const void *, void *))
+{
+    return crb_inorder_clone(crbtree_src, crbtree_des, data_new, data_clone);
 }
 
 #ifdef __cplusplus

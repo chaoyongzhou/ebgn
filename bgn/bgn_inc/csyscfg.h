@@ -124,6 +124,8 @@ void ganglia_cfg_print_xml(LOG *log, const GANGLIA_CFG *ganglia_cfg, const UINT3
 
 void cparacfg_thread_cfg_print_xml(LOG *log, const CPARACFG *cparacfg, const UINT32 level);
 
+void cparacfg_log_cfg_print_xml(LOG *log, const CPARACFG *cparacfg, const UINT32 level);
+
 void cparacfg_csocket_cfg_print_xml(LOG *log, const CPARACFG *cparacfg, const UINT32 level);
 
 void cparacfg_log_cfg_print_xml(LOG *log, const CPARACFG *cparacfg, const UINT32 level);
@@ -171,6 +173,8 @@ TASKS_CFG *sys_cfg_search_tasks_cfg_by_ip(const SYS_CFG *sys_cfg, const UINT32 i
 TASKS_CFG *sys_cfg_search_tasks_cfg_by_netcards(const SYS_CFG *sys_cfg, const CSET *cnetcard_set);
 
 TASKS_CFG *sys_cfg_search_tasks_cfg_by_macaddr(const SYS_CFG *sys_cfg, const UINT8 *macaddr);
+
+TASKS_CFG *sys_cfg_search_tasks_cfg_by_csrv(const SYS_CFG *sys_cfg, const UINT32 tcid, const UINT32 csrvport);
 
 MCAST_CFG *sys_cfg_search_mcast_cfg(const SYS_CFG *sys_cfg, const UINT32 tcid);
 

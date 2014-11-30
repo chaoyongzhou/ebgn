@@ -29,27 +29,27 @@ gdbReadHeader(GDatabase *db)
     }
 
     rawFileSeek(db->idxRawFile, 0, SEEK_SET);
-    if (rawFileRead(db->idxRawFile, 0, buffer, DB_HEADER_DATA_SIZE, 1, LOC_DB_0112) != 1)
+    if (rawFileRead(db->idxRawFile, 0, buffer, DB_HEADER_DATA_SIZE, 1, LOC_DB_0075) != 1)
     {
-        sys_log(LOGSTDOUT, "error:gdbReadHeader: Truncated database.\n");
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbReadHeader: Truncated database.\n");
         return 0;
     }
 
     if(0)/*debug*/
     {
         int idx;
-        sys_log(LOGSTDOUT, "[DEBUG]gdbReadHeader: header: ");
+        dbg_log(SEC_0131_DB, 9)(LOGSTDOUT, "[DEBUG]gdbReadHeader: header: ");
         for(idx = 0; idx < DB_HEADER_DATA_SIZE; idx ++)
         {
-            sys_log(LOGSTDOUT, "%02x ", *(buffer + idx));
+            dbg_log(SEC_0131_DB, 5)(LOGSTDOUT, "%02x ", *(buffer + idx));
         }
-        sys_log(LOGSTDOUT, "\n");
+        dbg_log(SEC_0131_DB, 5)(LOGSTDOUT, "\n");
     }
 
     /* Check the magic string. */
-    if (0 != __safe_strncmp(buffer + DB_OFFSET_MAGIC, (const uint8_t *)DB_MAGIC, 8, LOC_DB_0113))
+    if (0 != __safe_strncmp(buffer + DB_OFFSET_MAGIC, (const uint8_t *)DB_MAGIC, 8, LOC_DB_0076))
     {
-        sys_log(LOGSTDOUT, "error:gdbReadHeader: Invalid database signature.\n");
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbReadHeader: Invalid database signature.\n");
         return 0;
     }
 
@@ -60,7 +60,7 @@ gdbReadHeader(GDatabase *db)
 
     if (version[0] != DB_MAJOR_VER || version[1] != DB_MINOR_VER)
     {
-        sys_log(LOGSTDOUT, "error:gdbReadHeader: Unsupported database version %d.%d\n",
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbReadHeader: Unsupported database version %d.%d\n",
                             version[0], version[1]);
 
         return 0;
@@ -70,7 +70,7 @@ gdbReadHeader(GDatabase *db)
 
     if (GDB_INDEX_FILE != db->type && GDB_DATA_FILE != db->type)
     {
-        sys_log(LOGSTDOUT, "error:gdbReadHeader: Unsupported database type.\n");
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbReadHeader: Unsupported database type.\n");
 
         return 0;
     }
@@ -103,10 +103,10 @@ gdbWriteHeader(GDatabase *db)
     rawFilePuts(db->idxRawFile, offset, DB_MAGIC);
     offset += strlen(DB_MAGIC);
 
-    rawFileWrite(db->idxRawFile, offset, version, sizeof(uint8_t), 2, LOC_DB_0114);
+    rawFileWrite(db->idxRawFile, offset, version, sizeof(uint8_t), 2, LOC_DB_0077);
     offset += (sizeof(uint8_t) * 2);
 
-    rawFileWrite(db->idxRawFile, offset, &type,   sizeof(uint8_t), 1, LOC_DB_0115);
+    rawFileWrite(db->idxRawFile, offset, &type,   sizeof(uint8_t), 1, LOC_DB_0078);
     offset += sizeof(uint8_t);
 
     if (DB_HEADER_BLOCK_SIZE > DB_HEADER_DATA_SIZE)

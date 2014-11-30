@@ -16,7 +16,7 @@ use strict;
 my $g_usage = "$0 dir_list=<dir1[,dir2,...]> [postfixs=<posfix list seperated by comma>] [macro_file=<macro file>] [loc_tbl_file=<macro and location table file>] copyright=<copyright file> [verbose=on|off]";
 
 # usage example:
-#  perl tool/set_macro_fname_lineno.pl dir_list=bgn_src:gdb_src:ganglia_src postfixs=".c" macro_file=bgn_inc/loc_macro.inc loc_tbl_file=bgn_inc/loc_tbl.inc copyright=copyright
+#  perl tool/set_macro_fname_lineno.pl dir_list=bgn_src:gdb_src:ganglia_src:rel_src postfixs=".c" macro_file=bgn_inc/loc_macro.inc loc_tbl_file=bgn_inc/loc_tbl.inc copyright=copyright
 
 my %g_err_code =
 (

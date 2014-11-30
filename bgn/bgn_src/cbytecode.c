@@ -30,7 +30,7 @@ static UINT32 dbg_hton_uint32(const UINT32 x)
     y = __bswap_64(x);
 #endif /*(64 == WORDSIZE)*/
 
-    sys_log(LOGSTDOUT, "hton_uint32: %lx => %lx vs %lx => %lx\n", x, y, x, htonl(x));
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "hton_uint32: %lx => %lx vs %lx => %lx\n", x, y, x, htonl(x));
     return (y);
 }
 
@@ -45,7 +45,7 @@ static UINT32 dbg_ntoh_uint32(const UINT32 x)
     y = __bswap_64(x);
 #endif /*(64 == WORDSIZE)*/
 
-    sys_log(LOGSTDOUT, "ntoh_uint32: %lx => %lx vs %lx => %lx\n", x, y, x, ntohl(x));
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "ntoh_uint32: %lx => %lx vs %lx => %lx\n", x, y, x, ntohl(x));
     return (y);
 }
 
@@ -54,7 +54,7 @@ static UINT16 dbg_hton_uint16(const UINT16 x)
     UINT16 y;
 
     y = __bswap_16(x);
-    sys_log(LOGSTDOUT, "hton_uint16: %x => %x vs %x => %x\n", x, y, x, htons(x));
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "hton_uint16: %x => %x vs %x => %x\n", x, y, x, htons(x));
     return (y);
 }
 
@@ -63,7 +63,7 @@ static UINT16 dbg_ntoh_uint16(const UINT16 x)
     UINT16 y;
 
     y = __bswap_16(x);
-    sys_log(LOGSTDOUT, "ntoh_uint16: %x => %x vs %x => %x\n", x, y, x, ntohs(x));
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "ntoh_uint16: %x => %x vs %x => %x\n", x, y, x, ntohs(x));
     return (y);
 }
 
@@ -77,7 +77,7 @@ EC_BOOL cbytecode_pack_uint64(const uint64_t *in_buff, const UINT32 data_num, UI
     end_pos = (*position) + data_num * sizeof(uint64_t);
     if(end_pos > out_buff_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cbytecode_pack_uint64: would overflow where postion = %ld, data_num = %ld out_buff_max_len = %ld\n", (*position), data_num, out_buff_max_len);
+        dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_pack_uint64: would overflow where postion = %ld, data_num = %ld out_buff_max_len = %ld\n", (*position), data_num, out_buff_max_len);
         return (EC_FALSE);
     }
 
@@ -108,7 +108,7 @@ EC_BOOL cbytecode_unpack_uint64(const UINT8 *in_buff, const UINT32 in_buff_max_l
     end_pos = (*position) + data_num * sizeof(uint64_t);
     if(end_pos > in_buff_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cbytecode_unpack_uint64: would overflow where postion = %ld, data_num = %ld in_buff_max_len = %ld\n", (*position), data_num, in_buff_max_len);
+        dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_unpack_uint64: would overflow where postion = %ld, data_num = %ld in_buff_max_len = %ld\n", (*position), data_num, in_buff_max_len);
         return (EC_FALSE);
     }
 
@@ -118,7 +118,7 @@ EC_BOOL cbytecode_unpack_uint64(const UINT8 *in_buff, const UINT32 in_buff_max_l
     {
         *(des_data ++) = ntoh_uint64(*(src_data ++));
     }
-
+    
     (*position) = end_pos;
     return (EC_TRUE);
 }
@@ -134,7 +134,7 @@ EC_BOOL cbytecode_pack_uint32(const UINT32 *in_buff, const UINT32 data_num, UINT
     end_pos = (*position) + data_num * sizeof(UINT32);
     if(end_pos > out_buff_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cbytecode_pack_uint32: would overflow where postion = %ld, data_num = %ld out_buff_max_len = %ld\n", (*position), data_num, out_buff_max_len);
+        dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_pack_uint32: would overflow where postion = %ld, data_num = %ld out_buff_max_len = %ld\n", (*position), data_num, out_buff_max_len);
         return (EC_FALSE);
     }
 
@@ -165,7 +165,7 @@ EC_BOOL cbytecode_unpack_uint32(const UINT8 *in_buff, const UINT32 in_buff_max_l
     end_pos = (*position) + data_num * sizeof(UINT32);
     if(end_pos > in_buff_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cbytecode_unpack_uint32: would overflow where postion = %ld, data_num = %ld in_buff_max_len = %ld\n", (*position), data_num, in_buff_max_len);
+        dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_unpack_uint32: would overflow where postion = %ld, data_num = %ld in_buff_max_len = %ld\n", (*position), data_num, in_buff_max_len);
         return (EC_FALSE);
     }
 
@@ -180,6 +180,64 @@ EC_BOOL cbytecode_unpack_uint32(const UINT8 *in_buff, const UINT32 in_buff_max_l
     return (EC_TRUE);
 }
 
+EC_BOOL cbytecode_pack_uint32_t(const UINT32 *in_buff, const UINT32 data_num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
+{
+    uint32_t *src_data;
+    uint32_t *des_data;
+    
+    UINT32    data_idx;
+    UINT32    end_pos;
+
+    end_pos = (*position) + data_num * sizeof(uint32_t);
+    if(end_pos > out_buff_max_len)
+    {
+        dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_pack_uint32_t: would overflow where postion = %ld, data_num = %ld out_buff_max_len = %ld\n", (*position), data_num, out_buff_max_len);
+        return (EC_FALSE);
+    }
+
+    src_data = (uint32_t *)(in_buff);
+    des_data = (uint32_t *)(out_buff + (*position));
+    for(data_idx = 0; data_idx < data_num; data_idx ++)
+    {
+        *(des_data ++) = hton_uint32_t(*(src_data ++));
+    }
+
+    (*position) = end_pos;
+    return (EC_TRUE);
+}
+
+EC_BOOL cbytecode_pack_uint32_t_size(const UINT32 data_num, UINT32 *size)
+{
+    (*size) += (data_num * sizeof(uint32_t));
+    return (EC_TRUE);
+}
+
+EC_BOOL cbytecode_unpack_uint32_t(const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, UINT32 *out_buff, const UINT32 data_num)
+{
+    uint32_t *src_data;
+    uint32_t *des_data;
+    UINT32    data_idx;
+    UINT32    end_pos;
+
+    end_pos = (*position) + data_num * sizeof(uint32_t);
+    if(end_pos > in_buff_max_len)
+    {
+        dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_unpack_uint32_t: would overflow where postion = %ld, data_num = %ld in_buff_max_len = %ld\n", (*position), data_num, in_buff_max_len);
+        return (EC_FALSE);
+    }
+
+    src_data = (uint32_t *)(in_buff + (*position));
+    des_data = (uint32_t *)(out_buff);
+    for(data_idx = 0; data_idx < data_num; data_idx ++)
+    {
+        *(des_data ++) = ntoh_uint32_t(*(src_data ++));
+    }
+
+    (*position) = end_pos;
+    return (EC_TRUE);
+}
+
+
 EC_BOOL cbytecode_pack_uint16(const UINT16 *in_buff, const UINT32 data_num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position)
 {
     UINT16 *src_data;
@@ -190,7 +248,7 @@ EC_BOOL cbytecode_pack_uint16(const UINT16 *in_buff, const UINT32 data_num, UINT
     end_pos = (*position) + data_num * sizeof(UINT16);
     if(end_pos > out_buff_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cbytecode_pack_uint16: would overflow where postion = %ld, data_num = %ld out_buff_max_len = %ld\n", (*position), data_num, out_buff_max_len);
+        dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_pack_uint16: would overflow where postion = %ld, data_num = %ld out_buff_max_len = %ld\n", (*position), data_num, out_buff_max_len);
         return (EC_FALSE);
     }
 
@@ -221,7 +279,7 @@ EC_BOOL cbytecode_unpack_uint16(const UINT8 *in_buff, const UINT32 in_buff_max_l
     end_pos = (*position) + data_num * sizeof(UINT16);
     if(end_pos > in_buff_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cbytecode_unpack_uint16: would overflow where postion = %ld, data_num = %ld in_buff_max_len = %ld\n", (*position), data_num, in_buff_max_len);
+        dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_unpack_uint16: would overflow where postion = %ld, data_num = %ld in_buff_max_len = %ld\n", (*position), data_num, in_buff_max_len);
         return (EC_FALSE);
     }
 
@@ -246,7 +304,7 @@ EC_BOOL cbytecode_pack_uint8(const UINT8 *in_buff, const UINT32 data_num, UINT8 
     end_pos = (*position) + data_num;
     if(end_pos > out_buff_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cbytecode_pack_uint8: would overflow where postion = %ld, data_num = %ld out_buff_max_len = %ld\n", (*position), data_num, out_buff_max_len);
+        dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_pack_uint8: would overflow where postion = %ld, data_num = %ld out_buff_max_len = %ld\n", (*position), data_num, out_buff_max_len);
         return (EC_FALSE);
     }
 
@@ -259,7 +317,7 @@ EC_BOOL cbytecode_pack_uint8(const UINT8 *in_buff, const UINT32 data_num, UINT8 
     }
 #endif
 #if 1
-    //sys_log(LOGSTDOUT, "[DEBUG] pack: %lx (%ld) => %lx (%ld), len %ld\n", src_data, (((UINT32)src_data)& 0x3), des_data, (((UINT32)des_data)& 0x3), data_num);
+    //dbg_log(SEC_0120_CBYTECODE, 9)(LOGSTDOUT, "[DEBUG] pack: %lx (%ld) => %lx (%ld), len %ld\n", src_data, (((UINT32)src_data)& 0x3), des_data, (((UINT32)des_data)& 0x3), data_num);
     memcpy(des_data, src_data, data_num);
 #endif
     (*position) = end_pos;
@@ -282,7 +340,7 @@ EC_BOOL cbytecode_unpack_uint8(const UINT8 *in_buff, const UINT32 in_buff_max_le
 
     if(end_pos > in_buff_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cbytecode_unpack_uint8: would overflow where postion = %ld, data_num = %ld in_buff_max_len = %ld\n", (*position), data_num, in_buff_max_len);
+        dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_unpack_uint8: would overflow where postion = %ld, data_num = %ld in_buff_max_len = %ld\n", (*position), data_num, in_buff_max_len);
         return (EC_FALSE);
     }
 
@@ -295,7 +353,7 @@ EC_BOOL cbytecode_unpack_uint8(const UINT8 *in_buff, const UINT32 in_buff_max_le
     }
 #endif
 #if 1
-    //sys_log(LOGSTDOUT, "[DEBUG] unpack: %lx (%ld) => %lx (%ld), len %ld\n", src_data, (((UINT32)src_data)& 0x3), des_data, (((UINT32)des_data)& 0x3), data_num);
+    //dbg_log(SEC_0120_CBYTECODE, 9)(LOGSTDOUT, "[DEBUG] unpack: %lx (%ld) => %lx (%ld), len %ld\n", src_data, (((UINT32)src_data)& 0x3), des_data, (((UINT32)des_data)& 0x3), data_num);
     memcpy(des_data, src_data, data_num);
 #endif
     (*position) = end_pos;
@@ -312,7 +370,7 @@ EC_BOOL cbytecode_pack_real(const REAL *in_buff, const UINT32 data_num, UINT8 *o
     end_pos = (*position) + data_num * sizeof(REAL);
     if(end_pos > out_buff_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cbytecode_pack_real: would overflow where postion = %ld, data_num = %ld out_buff_max_len = %ld\n", (*position), data_num, out_buff_max_len);
+        dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_pack_real: would overflow where postion = %ld, data_num = %ld out_buff_max_len = %ld\n", (*position), data_num, out_buff_max_len);
         return (EC_FALSE);
     }
 
@@ -350,7 +408,7 @@ EC_BOOL cbytecode_unpack_real(const UINT8 *in_buff, const UINT32 in_buff_max_len
     end_pos = (*position) + data_num * sizeof(REAL);
     if(end_pos > in_buff_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cbytecode_pack_real_size: would overflow where postion = %ld, data_num = %ld in_buff_max_len = %ld\n", (*position), data_num, in_buff_max_len);
+        dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_pack_real_size: would overflow where postion = %ld, data_num = %ld in_buff_max_len = %ld\n", (*position), data_num, in_buff_max_len);
         return (EC_FALSE);
     }
 
@@ -378,6 +436,8 @@ EC_BOOL cbytecode_pack(const UINT8 *in_buff, const UINT32 data_num, const UINT32
     {
         case CMPI_ULONG:
             return cbytecode_pack_uint32((UINT32 *)in_buff, data_num, out_buff, out_buff_max_len, position);
+        case CMPI_U32:
+            return cbytecode_pack_uint32_t((UINT32 *)in_buff, data_num, out_buff, out_buff_max_len, position);            
         case CMPI_USHORT:
             return cbytecode_pack_uint16((UINT16 *)in_buff, data_num, out_buff, out_buff_max_len, position);
         case CMPI_UCHAR:
@@ -388,7 +448,7 @@ EC_BOOL cbytecode_pack(const UINT8 *in_buff, const UINT32 data_num, const UINT32
             return cbytecode_pack_uint64((uint64_t *)in_buff, data_num, out_buff, out_buff_max_len, position);
     }
 
-    sys_log(LOGSTDOUT, "error:cbytecode_pack: unknown data_type %ld\n", data_type);
+    dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_pack: unknown data_type %ld\n", data_type);
     return (EC_FALSE);
 }
 
@@ -398,6 +458,8 @@ EC_BOOL cbytecode_unpack(const UINT8 *in_buff, const UINT32 in_buff_max_len, UIN
     {
         case CMPI_ULONG:
             return cbytecode_unpack_uint32(in_buff, in_buff_max_len, position, (UINT32 *)out_buff, data_num);
+        case CMPI_U32:
+            return cbytecode_unpack_uint32_t(in_buff, in_buff_max_len, position, (UINT32 *)out_buff, data_num);            
         case CMPI_USHORT:
             return cbytecode_unpack_uint16(in_buff, in_buff_max_len, position, (UINT16 *)out_buff, data_num);
         case CMPI_UCHAR:
@@ -409,7 +471,7 @@ EC_BOOL cbytecode_unpack(const UINT8 *in_buff, const UINT32 in_buff_max_len, UIN
     }
     
 
-    sys_log(LOGSTDOUT, "error:cbytecode_unpack: unknown data_type %ld\n", data_type);
+    dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_unpack: unknown data_type %ld\n", data_type);
     return (EC_FALSE);
 }
 
@@ -419,6 +481,8 @@ EC_BOOL cbytecode_pack_size(const UINT32 data_num, const UINT32 data_type, UINT3
     {
         case CMPI_ULONG:
             return cbytecode_pack_uint32_size(data_num, size);
+        case CMPI_U32:
+            return cbytecode_pack_uint32_t_size(data_num, size);            
         case CMPI_USHORT:
             return cbytecode_pack_uint16_size(data_num, size);
         case CMPI_UCHAR:
@@ -429,7 +493,7 @@ EC_BOOL cbytecode_pack_size(const UINT32 data_num, const UINT32 data_type, UINT3
             return cbytecode_pack_uint64_size(data_num, size);                
     }
 
-    sys_log(LOGSTDOUT, "error:cbytecode_pack_size: unknown data_type %ld\n", data_type);
+    dbg_log(SEC_0120_CBYTECODE, 0)(LOGSTDOUT, "error:cbytecode_pack_size: unknown data_type %ld\n", data_type);
     return (EC_FALSE);
 }
 
@@ -463,8 +527,8 @@ int cbyte_code_test()
     init_host_endian();
     print_host_endian(LOGSTDOUT);
 
-    sys_log(LOGSTDOUT, "--------------------------------------------------------------------------\n");
-    sys_log(LOGSTDOUT, "original uint8 buff:\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "--------------------------------------------------------------------------\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "original uint8 buff:\n");
     print_uint8_buff(LOGSTDOUT, uint8_buff, uint8_data_num);
 
     position = 0;
@@ -472,17 +536,17 @@ int cbyte_code_test()
 
     encoding_buff_len = position;
 
-    sys_log(LOGSTDOUT, "encoding buff:\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "encoding buff:\n");
     print_uint8_buff(LOGSTDOUT, encoding_buff, encoding_buff_len);
 
     position = 0;
     cbytecode_unpack(encoding_buff, encoding_buff_len, &position, (UINT8 *)decode_uint8_buff, uint8_data_num, CMPI_UCHAR, CMPI_ERROR_COMM);
 
-    sys_log(LOGSTDOUT, "decoding result:\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "decoding result:\n");
     print_uint8_buff(LOGSTDOUT, decode_uint8_buff, uint8_data_num);
 
-    sys_log(LOGSTDOUT, "--------------------------------------------------------------------------\n");
-    sys_log(LOGSTDOUT, "original uint16 buff:\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "--------------------------------------------------------------------------\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "original uint16 buff:\n");
     print_uint16_buff(LOGSTDOUT, uint16_buff, uint16_data_num);
     print_uint8_buff(LOGSTDOUT, (UINT8 *)uint16_buff, uint16_data_num * sizeof(UINT16));
 
@@ -491,17 +555,17 @@ int cbyte_code_test()
 
     encoding_buff_len = position;
 
-    sys_log(LOGSTDOUT, "encoding buff:\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "encoding buff:\n");
     print_uint8_buff(LOGSTDOUT, encoding_buff, encoding_buff_len);
 
     position = 0;
     cbytecode_unpack(encoding_buff, encoding_buff_len, &position, (UINT8 *)decode_uint16_buff, uint16_data_num, CMPI_USHORT, CMPI_ERROR_COMM);
 
-    sys_log(LOGSTDOUT, "decoding result:\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "decoding result:\n");
     print_uint16_buff(LOGSTDOUT, decode_uint16_buff, uint16_data_num);
 
-    sys_log(LOGSTDOUT, "--------------------------------------------------------------------------\n");
-    sys_log(LOGSTDOUT, "original uint32 buff:\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "--------------------------------------------------------------------------\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "original uint32 buff:\n");
     print_uint32_buff(LOGSTDOUT, uint32_buff, uint32_data_num);
     print_uint8_buff(LOGSTDOUT, (UINT8 *)uint32_buff, uint32_data_num * sizeof(UINT32));
     position = 0;
@@ -509,17 +573,17 @@ int cbyte_code_test()
 
     encoding_buff_len = position;
 
-    sys_log(LOGSTDOUT, "encoding buff:\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "encoding buff:\n");
     print_uint8_buff(LOGSTDOUT, encoding_buff, encoding_buff_len);
 
     position = 0;
     cbytecode_unpack(encoding_buff, encoding_buff_len, &position, (UINT8 *)decode_uint32_buff, uint32_data_num, CMPI_ULONG, CMPI_ERROR_COMM);
 
-    sys_log(LOGSTDOUT, "decoding result:\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "decoding result:\n");
     print_uint32_buff(LOGSTDOUT, decode_uint32_buff, uint32_data_num);
 
-    sys_log(LOGSTDOUT, "--------------------------------------------------------------------------\n");
-    sys_log(LOGSTDOUT, "original real buff:\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "--------------------------------------------------------------------------\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "original real buff:\n");
     print_real_buff(LOGSTDOUT, real_buff, real_data_num);
     print_uint8_buff(LOGSTDOUT, (UINT8 *)real_buff, real_data_num * sizeof(REAL));
 
@@ -528,13 +592,13 @@ int cbyte_code_test()
 
     encoding_buff_len = position;
 
-    sys_log(LOGSTDOUT, "encoding buff:\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "encoding buff:\n");
     print_uint8_buff(LOGSTDOUT, encoding_buff, encoding_buff_len);
 
     position = 0;
     cbytecode_unpack(encoding_buff, encoding_buff_len, &position, (UINT8 *)decode_real_buff, real_data_num, CMPI_REAL, CMPI_ERROR_COMM);
 
-    sys_log(LOGSTDOUT, "decoding result:\n");
+    dbg_log(SEC_0120_CBYTECODE, 5)(LOGSTDOUT, "decoding result:\n");
     print_real_buff(LOGSTDOUT, decode_real_buff, real_data_num);
     return (0);
 }

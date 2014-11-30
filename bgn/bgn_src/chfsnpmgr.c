@@ -116,7 +116,8 @@ CHFSNP *chfsnp_mgr_open_np(CHFSNP_MGR *chfsnp_mgr, const uint32_t chfsnp_id)
     chfsnp = chfsnp_open((char *)CHFSNP_MGR_DB_ROOT_DIR_STR(chfsnp_mgr), chfsnp_id);
     if(NULL_PTR == chfsnp)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_open_np: open np %u from %s failed\n", chfsnp_id, (char *)CHFSNP_MGR_DB_ROOT_DIR_STR(chfsnp_mgr));
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_open_np: open np %u from %s failed\n", 
+                           chfsnp_id, (char *)CHFSNP_MGR_DB_ROOT_DIR_STR(chfsnp_mgr));
         return (NULL_PTR);
     }
 
@@ -131,7 +132,7 @@ EC_BOOL chfsnp_mgr_close_np(CHFSNP_MGR *chfsnp_mgr, const uint32_t chfsnp_id)
     chfsnp = CHFSNP_MGR_NP_GET_NO_LOCK(chfsnp_mgr, chfsnp_id);
     if(NULL_PTR == chfsnp)
     {
-        sys_log(LOGSTDOUT, "warn:chfsnp_mgr_close_np: np %u not open yet\n", chfsnp_id);
+        dbg_log(SEC_0065_CHFSNPMGR, 1)(LOGSTDOUT, "warn:chfsnp_mgr_close_np: np %u not open yet\n", chfsnp_id);
         return (EC_TRUE);
     }
 
@@ -168,7 +169,7 @@ static EC_BOOL __chfsnp_mgr_load_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     chfsnp_mgr_db_buff   = (UINT8 *)&(CHFSNP_MGR_NP_MODEL(chfsnp_mgr));    
     if(EC_FALSE == c_file_load(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_mgr_db_size, chfsnp_mgr_db_buff))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load np model failed\n");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load np model failed\n");
         return (EC_FALSE);
     }
 
@@ -177,7 +178,7 @@ static EC_BOOL __chfsnp_mgr_load_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     chfsnp_mgr_db_buff   = (UINT8 *)&(CHFSNP_MGR_NP_1ST_CHASH_ALGO_ID(chfsnp_mgr));    
     if(EC_FALSE == c_file_load(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_mgr_db_size, chfsnp_mgr_db_buff))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load 1st chash algo id failed\n");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load 1st chash algo id failed\n");
         return (EC_FALSE);
     }    
 
@@ -186,7 +187,7 @@ static EC_BOOL __chfsnp_mgr_load_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     chfsnp_mgr_db_buff   = (UINT8 *)&(CHFSNP_MGR_NP_2ND_CHASH_ALGO_ID(chfsnp_mgr));    
     if(EC_FALSE == c_file_load(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_mgr_db_size, chfsnp_mgr_db_buff))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load 2nd chash algo id failed\n");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load 2nd chash algo id failed\n");
         return (EC_FALSE);
     }     
 
@@ -195,7 +196,7 @@ static EC_BOOL __chfsnp_mgr_load_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     chfsnp_mgr_db_buff   = (UINT8 *)&(CHFSNP_MGR_NP_ITEM_MAX_NUM(chfsnp_mgr));    
     if(EC_FALSE == c_file_load(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_mgr_db_size, chfsnp_mgr_db_buff))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load item max num failed\n");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load item max num failed\n");
         return (EC_FALSE);
     }     
 
@@ -204,7 +205,7 @@ static EC_BOOL __chfsnp_mgr_load_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     chfsnp_mgr_db_buff   = (UINT8 *)&(CHFSNP_MGR_NP_MAX_NUM(chfsnp_mgr));    
     if(EC_FALSE == c_file_load(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_mgr_db_size, chfsnp_mgr_db_buff))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load disk max num failed\n");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load disk max num failed\n");
         return (EC_FALSE);
     }
 
@@ -218,7 +219,7 @@ static EC_BOOL __chfsnp_mgr_load_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     chfsnp_mgr_db_buff   = (UINT8 *)&(chfsnp_home_dir_num);    
     if(EC_FALSE == c_file_load(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_mgr_db_size, chfsnp_mgr_db_buff))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load home dir vec size failed\n");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load home dir vec size failed\n");
         return (EC_FALSE);
     }    
 
@@ -226,10 +227,17 @@ static EC_BOOL __chfsnp_mgr_load_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     {
         CSTRING *chfsnp_home_dir_cstr;
 
-        chfsnp_home_dir_cstr = cstring_load(chfsnp_mgr_fd, &chfsnp_mgr_db_offset);
+        chfsnp_home_dir_cstr = cstring_new(NULL_PTR, LOC_CHFSNPMGR_0011);
         if(NULL_PTR == chfsnp_home_dir_cstr)
         {
-            sys_log(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load home dir %u # failed\n", chfsnp_home_dir_pos);
+            dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_load_db: new home dir %u # failed\n", chfsnp_home_dir_pos);
+            return (EC_FALSE);
+        }
+                
+        if(EC_FALSE == cstring_load(chfsnp_home_dir_cstr, chfsnp_mgr_fd, &chfsnp_mgr_db_offset))
+        {
+            dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_load_db: load home dir %u # failed\n", chfsnp_home_dir_pos);
+            cstring_free(chfsnp_home_dir_cstr);
             return (EC_FALSE);
         }
 
@@ -263,7 +271,7 @@ static EC_BOOL __chfsnp_mgr_flush_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     chfsnp_mgr_db_buff   = (UINT8 *)&(CHFSNP_MGR_NP_MODEL(chfsnp_mgr));    
     if(EC_FALSE == c_file_flush(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_mgr_db_size, chfsnp_mgr_db_buff))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush np model failed");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush np model failed");
         return (EC_FALSE);
     }
 
@@ -272,7 +280,7 @@ static EC_BOOL __chfsnp_mgr_flush_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     chfsnp_mgr_db_buff   = (UINT8 *)&(CHFSNP_MGR_NP_1ST_CHASH_ALGO_ID(chfsnp_mgr));    
     if(EC_FALSE == c_file_flush(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_mgr_db_size, chfsnp_mgr_db_buff))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush 1st chash algo id failed");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush 1st chash algo id failed");
         return (EC_FALSE);
     }    
 
@@ -281,7 +289,7 @@ static EC_BOOL __chfsnp_mgr_flush_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     chfsnp_mgr_db_buff   = (UINT8 *)&(CHFSNP_MGR_NP_2ND_CHASH_ALGO_ID(chfsnp_mgr));    
     if(EC_FALSE == c_file_flush(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_mgr_db_size, chfsnp_mgr_db_buff))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush 2nd chash algo id failed");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush 2nd chash algo id failed");
         return (EC_FALSE);
     }     
 
@@ -290,7 +298,7 @@ static EC_BOOL __chfsnp_mgr_flush_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     chfsnp_mgr_db_buff   = (UINT8 *)&(CHFSNP_MGR_NP_ITEM_MAX_NUM(chfsnp_mgr));    
     if(EC_FALSE == c_file_flush(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_mgr_db_size, chfsnp_mgr_db_buff))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush item max num failed");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush item max num failed");
         return (EC_FALSE);
     }     
 
@@ -299,7 +307,7 @@ static EC_BOOL __chfsnp_mgr_flush_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     chfsnp_mgr_db_buff   = (UINT8 *)&(CHFSNP_MGR_NP_MAX_NUM(chfsnp_mgr));    
     if(EC_FALSE == c_file_flush(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_mgr_db_size, chfsnp_mgr_db_buff))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush disk max num failed");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush disk max num failed");
         return (EC_FALSE);
     }
 
@@ -309,21 +317,21 @@ static EC_BOOL __chfsnp_mgr_flush_db(CHFSNP_MGR *chfsnp_mgr, int chfsnp_mgr_fd)
     chfsnp_mgr_db_buff   = (UINT8 *)&(chfsnp_home_dir_num);    
     if(EC_FALSE == c_file_flush(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_mgr_db_size, chfsnp_mgr_db_buff))
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush home dir vec size failed");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush home dir vec size failed");
         return (EC_FALSE);
     }    
 
-    sys_log(LOGSTDOUT, "[DEBUG] __chfsnp_mgr_flush_db: np max num = %u\n", CHFSNP_MGR_NP_MAX_NUM(chfsnp_mgr));
-    sys_log(LOGSTDOUT, "[DEBUG] __chfsnp_mgr_flush_db: np home dir vec size = %u\n", cvector_size(CHFSNP_MGR_NP_HOME_DIR_VEC(chfsnp_mgr)));
+    dbg_log(SEC_0065_CHFSNPMGR, 9)(LOGSTDOUT, "[DEBUG] __chfsnp_mgr_flush_db: np max num = %u\n", CHFSNP_MGR_NP_MAX_NUM(chfsnp_mgr));
+    dbg_log(SEC_0065_CHFSNPMGR, 9)(LOGSTDOUT, "[DEBUG] __chfsnp_mgr_flush_db: np home dir vec size = %u\n", cvector_size(CHFSNP_MGR_NP_HOME_DIR_VEC(chfsnp_mgr)));
 
     for(chfsnp_home_dir_pos = 0; chfsnp_home_dir_pos < chfsnp_home_dir_num; chfsnp_home_dir_pos ++)
     {
         CSTRING *chfsnp_home_dir_cstr;
 
         chfsnp_home_dir_cstr = cvector_get_no_lock(CHFSNP_MGR_NP_HOME_DIR_VEC(chfsnp_mgr), chfsnp_home_dir_pos);
-        if(EC_FALSE == cstring_flush(chfsnp_mgr_fd, &chfsnp_mgr_db_offset, chfsnp_home_dir_cstr))
+        if(EC_FALSE == cstring_flush(chfsnp_home_dir_cstr, chfsnp_mgr_fd, &chfsnp_mgr_db_offset))
         {
-            sys_log(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush home dir %u # failed\n", chfsnp_home_dir_pos);
+            dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_flush_db: flush home dir %u # failed\n", chfsnp_home_dir_pos);
             return (EC_FALSE);
         }
     }
@@ -339,40 +347,42 @@ EC_BOOL chfsnp_mgr_load_db(CHFSNP_MGR *chfsnp_mgr)
     chfsnp_mgr_db_name = __chfsnp_mgr_gen_db_name((char *)CHFSNP_MGR_DB_ROOT_DIR_STR(chfsnp_mgr));
     if(NULL_PTR == chfsnp_mgr_db_name)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_load_db: new str %s/%s failed\n", 
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_load_db: new str %s/%s failed\n", 
                             (char *)CHFSNP_MGR_DB_ROOT_DIR_STR(chfsnp_mgr), CHFSNP_DB_NAME);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == c_file_access(chfsnp_mgr_db_name, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_load_db: chfsnp mgr db %s not exist\n", chfsnp_mgr_db_name);
-        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0011);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_load_db: chfsnp mgr db %s not exist\n", chfsnp_mgr_db_name);
+        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0012);
         return (EC_FALSE);
     }
 
     chfsnp_mgr_fd = c_file_open(chfsnp_mgr_db_name, O_RDONLY, 0666);
     if(ERR_FD == chfsnp_mgr_fd)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_load_db: open chfsnp mgr db %s failed\n", chfsnp_mgr_db_name);
-        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0012);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_load_db: open chfsnp mgr db %s failed\n", chfsnp_mgr_db_name);
+        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0013);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __chfsnp_mgr_load_db(chfsnp_mgr, chfsnp_mgr_fd))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_load_db: load db from chfsnp mgr db %s\n", chfsnp_mgr_db_name);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_load_db: load db from chfsnp mgr db %s\n", chfsnp_mgr_db_name);
         c_file_close(chfsnp_mgr_fd);
         chfsnp_mgr_fd = ERR_FD;
 
-        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0013);
+        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0014);
         return (EC_FALSE);
     }
 
     c_file_close(chfsnp_mgr_fd);
     chfsnp_mgr_fd = ERR_FD;
 
-    safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0014);
+    dbg_log(SEC_0065_CHFSNPMGR, 9)(LOGSTDOUT, "[DEBUG] chfsnp_mgr_load_db: load db from chfsnp mgr db %s done\n", chfsnp_mgr_db_name);
+
+    safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0015);
     return (EC_TRUE);
 }
 
@@ -384,40 +394,40 @@ EC_BOOL chfsnp_mgr_create_db(CHFSNP_MGR *chfsnp_mgr, const CSTRING *chfsnp_db_ro
     chfsnp_mgr_db_name = __chfsnp_mgr_gen_db_name((char *)cstring_get_str(chfsnp_db_root_dir));
     if(NULL_PTR == chfsnp_mgr_db_name)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_create_db: new str %s/%s failed\n", 
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_create_db: new str %s/%s failed\n", 
                             (char *)cstring_get_str(chfsnp_db_root_dir), CHFSNP_DB_NAME);
         return (EC_FALSE);
     }
 
     if(EC_TRUE == c_file_access(chfsnp_mgr_db_name, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_create_db: chfsnp mgr db %s already exist\n", chfsnp_mgr_db_name);
-        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0015);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_create_db: chfsnp mgr db %s already exist\n", chfsnp_mgr_db_name);
+        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0016);
         return (EC_FALSE);
     }
 
     chfsnp_mgr_fd = c_file_open(chfsnp_mgr_db_name, O_RDWR | O_CREAT, 0666);
     if(ERR_FD == chfsnp_mgr_fd)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_create_db: open chfsnp mgr db %s failed\n", chfsnp_mgr_db_name);
-        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0016);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_create_db: open chfsnp mgr db %s failed\n", chfsnp_mgr_db_name);
+        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0017);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __chfsnp_mgr_flush_db(chfsnp_mgr, chfsnp_mgr_fd))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_create_db: flush db to chfsnp mgr db %s\n", chfsnp_mgr_db_name);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_create_db: flush db to chfsnp mgr db %s\n", chfsnp_mgr_db_name);
         c_file_close(chfsnp_mgr_fd);
         chfsnp_mgr_fd = ERR_FD;
 
-        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0017);
+        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0018);
         return (EC_FALSE);
     }    
 
     c_file_close(chfsnp_mgr_fd);
     chfsnp_mgr_fd = ERR_FD;
 
-    safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0018);
+    safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0019);
     return (EC_TRUE);
 }
 
@@ -429,40 +439,40 @@ EC_BOOL chfsnp_mgr_flush_db(CHFSNP_MGR *chfsnp_mgr)
     chfsnp_mgr_db_name = __chfsnp_mgr_gen_db_name((char *)CHFSNP_MGR_DB_ROOT_DIR_STR(chfsnp_mgr));
     if(NULL_PTR == chfsnp_mgr_db_name)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_flush_db: new str %s/%s failed\n", 
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_flush_db: new str %s/%s failed\n", 
                             (char *)CHFSNP_MGR_DB_ROOT_DIR_STR(chfsnp_mgr), CHFSNP_DB_NAME);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == c_file_access(chfsnp_mgr_db_name, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_flush_db: chfsnp mgr db %s not exist\n", chfsnp_mgr_db_name);
-        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0019);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_flush_db: chfsnp mgr db %s not exist\n", chfsnp_mgr_db_name);
+        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0020);
         return (EC_FALSE);
     }
 
     chfsnp_mgr_fd = c_file_open(chfsnp_mgr_db_name, O_RDWR, 0666);
     if(ERR_FD == chfsnp_mgr_fd)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_flush_db: open chfsnp mgr db %s failed\n", chfsnp_mgr_db_name);
-        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0020);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_flush_db: open chfsnp mgr db %s failed\n", chfsnp_mgr_db_name);
+        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0021);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == __chfsnp_mgr_flush_db(chfsnp_mgr, chfsnp_mgr_fd))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_flush_db: flush db to chfsnp mgr db %s\n", chfsnp_mgr_db_name);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_flush_db: flush db to chfsnp mgr db %s\n", chfsnp_mgr_db_name);
         c_file_close(chfsnp_mgr_fd);
         chfsnp_mgr_fd = ERR_FD;
 
-        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0021);
+        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0022);
         return (EC_FALSE);
     }
 
     c_file_close(chfsnp_mgr_fd);
     chfsnp_mgr_fd = ERR_FD;
 
-    safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0022);
+    safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0023);
     return (EC_TRUE);
 }
 
@@ -529,7 +539,7 @@ EC_BOOL chfsnp_mgr_load(CHFSNP_MGR *chfsnp_mgr, const CSTRING *chfsnp_db_root_di
 
     if(EC_FALSE == chfsnp_mgr_load_db(chfsnp_mgr))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_load: load cfg db failed from dir %s\n", (char *)cstring_get_str(chfsnp_db_root_dir));
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_load: load cfg db failed from dir %s\n", (char *)cstring_get_str(chfsnp_db_root_dir));
         return (EC_FALSE);
     }
 
@@ -558,7 +568,7 @@ EC_BOOL chfsnp_mgr_flush(CHFSNP_MGR *chfsnp_mgr)
 
     if(EC_FALSE == chfsnp_mgr_flush_db(chfsnp_mgr))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_flush: flush cfg db failed\n");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_flush: flush cfg db failed\n");
         ret = EC_FALSE;
     }
 
@@ -583,7 +593,7 @@ EC_BOOL chfsnp_mgr_show_np(LOG *log, CHFSNP_MGR *chfsnp_mgr, const uint32_t chfs
         chfsnp = chfsnp_mgr_open_np(chfsnp_mgr, chfsnp_id);
         if(NULL_PTR == chfsnp)
         {
-            sys_log(LOGSTDOUT, "error:chfsnp_mgr_show_np: open np %u failed\n", chfsnp_id);
+            dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_show_np: open np %u failed\n", chfsnp_id);
             return (EC_FALSE);
         } 
 
@@ -628,7 +638,7 @@ static uint32_t __chfsnp_mgr_get_np_id_of_path(const CHFSNP_MGR *chfsnp_mgr, con
 
     ASSERT(CHFSNP_MGR_NP_MAX_NUM(chfsnp_mgr) == cvector_size(CHFSNP_MGR_NP_HOME_DIR_VEC(chfsnp_mgr)));
 
-    CHFSNP_MGR_NP_HOME_DIR_VEC_LOCK(chfsnp_mgr, LOC_CHFSNPMGR_0023);
+    CHFSNP_MGR_NP_HOME_DIR_VEC_LOCK(chfsnp_mgr, LOC_CHFSNPMGR_0024);
     chfsnp_num = CHFSNP_MGR_NP_MAX_NUM(chfsnp_mgr);
     for(chfsnp_id = 0; chfsnp_id < chfsnp_num; chfsnp_id ++)
     {
@@ -645,8 +655,8 @@ static uint32_t __chfsnp_mgr_get_np_id_of_path(const CHFSNP_MGR *chfsnp_mgr, con
         chfsnp_home_dir_len = (uint32_t)cstring_get_len(chfsnp_home_dir_cstr);
         chfsnp_home_dir_str = cstring_get_str(chfsnp_home_dir_cstr);
 
-        sys_log(LOGSTDOUT, "[DEBUG] __chfsnp_mgr_get_np_id_of_path: %.*s vs %s\n", path_len, (char *)path, (char *)cstring_get_str(chfsnp_home_dir_cstr));
-        sys_log(LOGSTDOUT, "[DEBUG] __chfsnp_mgr_get_np_id_of_path: path_len %u, chfsnp_home_dir_len %u\n", path_len, chfsnp_home_dir_len);
+        dbg_log(SEC_0065_CHFSNPMGR, 9)(LOGSTDOUT, "[DEBUG] __chfsnp_mgr_get_np_id_of_path: %.*s vs %s\n", path_len, (char *)path, (char *)cstring_get_str(chfsnp_home_dir_cstr));
+        dbg_log(SEC_0065_CHFSNPMGR, 9)(LOGSTDOUT, "[DEBUG] __chfsnp_mgr_get_np_id_of_path: path_len %u, chfsnp_home_dir_len %u\n", path_len, chfsnp_home_dir_len);
        
         if(path_len < chfsnp_home_dir_len)
         {
@@ -661,11 +671,11 @@ static uint32_t __chfsnp_mgr_get_np_id_of_path(const CHFSNP_MGR *chfsnp_mgr, con
 
         if(0 == BCMP(path, chfsnp_home_dir_str, chfsnp_home_dir_len))
         {
-            CHFSNP_MGR_NP_HOME_DIR_VEC_UNLOCK(chfsnp_mgr, LOC_CHFSNPMGR_0024);
+            CHFSNP_MGR_NP_HOME_DIR_VEC_UNLOCK(chfsnp_mgr, LOC_CHFSNPMGR_0025);
             return (chfsnp_id);
         }        
     }
-    CHFSNP_MGR_NP_HOME_DIR_VEC_UNLOCK(chfsnp_mgr, LOC_CHFSNPMGR_0025);
+    CHFSNP_MGR_NP_HOME_DIR_VEC_UNLOCK(chfsnp_mgr, LOC_CHFSNPMGR_0026);
     return (CHFSNP_ERR_ID);
 }
 
@@ -677,19 +687,19 @@ static CHFSNP *__chfsnp_mgr_get_np(CHFSNP_MGR *chfsnp_mgr, const uint32_t path_l
     chfsnp_id = __chfsnp_mgr_get_np_id_of_path(chfsnp_mgr, path_len, path);
     if(CHFSNP_ERR_ID == chfsnp_id)
     {
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_get_np: no np for path %.*s\n", path_len, (char *)path);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_get_np: no np for path %.*s\n", path_len, (char *)path);
         return (NULL_PTR);
     }
 
-    CHFSNP_MGR_CMUTEX_LOCK(chfsnp_mgr, LOC_CHFSNPMGR_0026);
+    CHFSNP_MGR_CMUTEX_LOCK(chfsnp_mgr, LOC_CHFSNPMGR_0027);
     chfsnp = chfsnp_mgr_open_np(chfsnp_mgr, chfsnp_id);
     if(NULL_PTR == chfsnp)
     {
-        CHFSNP_MGR_CMUTEX_UNLOCK(chfsnp_mgr, LOC_CHFSNPMGR_0027);
-        sys_log(LOGSTDOUT, "error:__chfsnp_mgr_get_np: path %.*s in np %u but cannot open\n", path_len, path, chfsnp_id);
+        CHFSNP_MGR_CMUTEX_UNLOCK(chfsnp_mgr, LOC_CHFSNPMGR_0028);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:__chfsnp_mgr_get_np: path %.*s in np %u but cannot open\n", path_len, path, chfsnp_id);
         return (NULL_PTR);
     }
-    CHFSNP_MGR_CMUTEX_UNLOCK(chfsnp_mgr, LOC_CHFSNPMGR_0028);
+    CHFSNP_MGR_CMUTEX_UNLOCK(chfsnp_mgr, LOC_CHFSNPMGR_0029);
 
     if(NULL_PTR != np_id)
     {
@@ -708,14 +718,14 @@ EC_BOOL chfsnp_mgr_search(CHFSNP_MGR *chfsnp_mgr, const uint32_t path_len, const
     chfsnp = __chfsnp_mgr_get_np(chfsnp_mgr, path_len, path, &chfsnp_id);
     if(NULL_PTR == chfsnp)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_search: path %.*s in np %u but cannot open\n", path_len, path, chfsnp_id);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_search: path %.*s in np %u but cannot open\n", path_len, path, chfsnp_id);
         return (EC_FALSE);
     }
 
     node_pos = chfsnp_search(chfsnp, path_len, path);
     if(CHFSNPRB_ERR_POS == node_pos)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] chfsnp_mgr_search: path %.*s in np %u but not found indeed\n", path_len, path, chfsnp_id);
+        dbg_log(SEC_0065_CHFSNPMGR, 9)(LOGSTDOUT, "[DEBUG] chfsnp_mgr_search: path %.*s in np %u but not found indeed\n", path_len, path, chfsnp_id);
         return (EC_FALSE);
     }
 
@@ -736,14 +746,14 @@ CHFSNP_ITEM *chfsnp_mgr_search_item(CHFSNP_MGR *chfsnp_mgr, const uint32_t path_
     chfsnp = __chfsnp_mgr_get_np(chfsnp_mgr, path_len, path, &chfsnp_id);
     if(NULL_PTR == chfsnp)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_search_item: path %.*s in np %u but cannot open\n", path_len, path, chfsnp_id);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_search_item: path %.*s in np %u but cannot open\n", path_len, path, chfsnp_id);
         return (NULL_PTR);
     }
 
     node_pos = chfsnp_search(chfsnp, path_len, path);
     if(CHFSNPRB_ERR_POS == node_pos)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] chfsnp_mgr_search_item: path %.*s in np %u but not found indeed\n", path_len, path, chfsnp_id);
+        dbg_log(SEC_0065_CHFSNPMGR, 9)(LOGSTDOUT, "[DEBUG] chfsnp_mgr_search_item: path %.*s in np %u but not found indeed\n", path_len, path, chfsnp_id);
         return (NULL_PTR);
     }
 
@@ -763,7 +773,7 @@ CHFSNP_MGR *chfsnp_mgr_create(const uint8_t chfsnp_model,
     
     if(EC_FALSE == chfsnp_model_item_max_num(chfsnp_model , &chfsnp_item_max_num))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_create: invalid chfsnp model %u\n", chfsnp_model);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_create: invalid chfsnp model %u\n", chfsnp_model);
         return (NULL_PTR);
     }
 
@@ -786,7 +796,7 @@ CHFSNP_MGR *chfsnp_mgr_create(const uint8_t chfsnp_model,
         chfsnp = chfsnp_create(np_root_dir, chfsnp_id, chfsnp_model, chfsnp_1st_chash_algo_id, chfsnp_2nd_chash_algo_id, chfsnp_bucket_max_num);
         if(NULL_PTR == chfsnp)
         {
-            sys_log(LOGSTDOUT, "error:chfsnp_mgr_create: create np %u failed\n", chfsnp_id);
+            dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_create: create np %u failed\n", chfsnp_id);
             return (NULL_PTR);
         }
         chfsnp_close(chfsnp);
@@ -797,7 +807,7 @@ CHFSNP_MGR *chfsnp_mgr_create(const uint8_t chfsnp_model,
 
     if(EC_FALSE == chfsnp_mgr_create_db(chfsnp_mgr, chfsnp_db_root_dir))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_create: create cfg db failed in root dir %s\n",
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_create: create cfg db failed in root dir %s\n",
                             (char *)cstring_get_str(chfsnp_db_root_dir));
         chfsnp_mgr_free(chfsnp_mgr);
         return (NULL_PTR);
@@ -814,18 +824,18 @@ EC_BOOL chfsnp_mgr_exist(const CSTRING *chfsnp_db_root_dir)
     chfsnp_mgr_db_name = __chfsnp_mgr_gen_db_name((char *)cstring_get_str(chfsnp_db_root_dir));
     if(NULL_PTR == chfsnp_mgr_db_name)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_exist: new str %s/%s failed\n", 
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_exist: new str %s/%s failed\n", 
                             (char *)cstring_get_str(chfsnp_db_root_dir), CHFSNP_DB_NAME);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == c_file_access(chfsnp_mgr_db_name, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_exist: chfsnp mgr db %s not exist\n", chfsnp_mgr_db_name);
-        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0029);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_exist: chfsnp mgr db %s not exist\n", chfsnp_mgr_db_name);
+        safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0030);
         return (EC_FALSE);
     }
-    safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0030);
+    safe_free(chfsnp_mgr_db_name, LOC_CHFSNPMGR_0031);
     return (EC_TRUE);
 }
 
@@ -836,13 +846,13 @@ CHFSNP_MGR * chfsnp_mgr_open(const CSTRING *chfsnp_db_root_dir)
     chfsnp_mgr = chfsnp_mgr_new();
     if(NULL_PTR == chfsnp_mgr)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_open: new chfsnp mgr failed\n");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_open: new chfsnp mgr failed\n");
         return (NULL_PTR);
     }
 
     if(EC_FALSE == chfsnp_mgr_load(chfsnp_mgr, chfsnp_db_root_dir))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_open: load failed\n");
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_open: load failed\n");
         chfsnp_mgr_free(chfsnp_mgr);
         return (NULL_PTR);
     }
@@ -853,9 +863,9 @@ EC_BOOL chfsnp_mgr_close(CHFSNP_MGR *chfsnp_mgr)
 {    
     if(NULL_PTR != chfsnp_mgr)
     {
-        CHFSNP_MGR_CMUTEX_LOCK(chfsnp_mgr, LOC_CHFSNPMGR_0031);
+        CHFSNP_MGR_CMUTEX_LOCK(chfsnp_mgr, LOC_CHFSNPMGR_0032);
         chfsnp_mgr_flush(chfsnp_mgr);
-        CHFSNP_MGR_CMUTEX_UNLOCK(chfsnp_mgr, LOC_CHFSNPMGR_0032);
+        CHFSNP_MGR_CMUTEX_UNLOCK(chfsnp_mgr, LOC_CHFSNPMGR_0033);
         chfsnp_mgr_free(chfsnp_mgr);
     }
     return (EC_TRUE);
@@ -876,7 +886,7 @@ EC_BOOL chfsnp_mgr_bind(CHFSNP_MGR *chfsnp_mgr, const CSTRING *path, const UINT3
     ASSERT(cvector_size(CHFSNP_MGR_NP_HOME_DIR_VEC(chfsnp_mgr)) == CHFSNP_MGR_NP_MAX_NUM(chfsnp_mgr));
     if(CHFSNP_MGR_NP_MAX_NUM(chfsnp_mgr) <= chfsnp_id)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_bind: max np num %u but chfsnp id %u overflow\n", CHFSNP_MGR_NP_MAX_NUM(chfsnp_mgr), chfsnp_id);
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_bind: max np num %u but chfsnp id %u overflow\n", CHFSNP_MGR_NP_MAX_NUM(chfsnp_mgr), chfsnp_id);
         return (EC_FALSE);
     }
 
@@ -884,7 +894,7 @@ EC_BOOL chfsnp_mgr_bind(CHFSNP_MGR *chfsnp_mgr, const CSTRING *path, const UINT3
     if(CHFSNP_ERR_ID != home_dir_pos)
     {
         home_dir = cvector_get_no_lock(CHFSNP_MGR_NP_HOME_DIR_VEC(chfsnp_mgr), home_dir_pos);
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_bind: some dir %s already bound to np %u, thus cannot accept binding %s\n", 
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_bind: some dir %s already bound to np %u, thus cannot accept binding %s\n", 
                             (char *)cstring_get_str(home_dir), home_dir_pos, (char *)cstring_get_str(path));
         return (EC_FALSE);
     }    
@@ -892,7 +902,7 @@ EC_BOOL chfsnp_mgr_bind(CHFSNP_MGR *chfsnp_mgr, const CSTRING *path, const UINT3
     home_dir = cstring_dup(path);
     if(NULL_PTR == home_dir)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_bind: dup %s failed\n", (char *)cstring_get_str(path));
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_bind: dup %s failed\n", (char *)cstring_get_str(path));
         return (EC_FALSE);
     }
 
@@ -904,6 +914,7 @@ EC_BOOL chfsnp_mgr_bind(CHFSNP_MGR *chfsnp_mgr, const CSTRING *path, const UINT3
     return (EC_TRUE);
 }
 
+
 EC_BOOL chfsnp_mgr_write(CHFSNP_MGR *chfsnp_mgr, const CSTRING *file_path, const CHFSNP_FNODE *chfsnp_fnode)
 {
     CHFSNP *chfsnp;
@@ -913,30 +924,30 @@ EC_BOOL chfsnp_mgr_write(CHFSNP_MGR *chfsnp_mgr, const CSTRING *file_path, const
     chfsnp = __chfsnp_mgr_get_np(chfsnp_mgr, (uint32_t)cstring_get_len(file_path), cstring_get_str(file_path), &chfsnp_id);
     if(NULL_PTR == chfsnp)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_write: no np for path %s\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_write: no np for path %s\n", (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
 
     chfsnp_item = chfsnp_set(chfsnp, cstring_get_len(file_path), cstring_get_str(file_path));
     if(NULL_PTR == chfsnp_item)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_write: set file %s to np %u failed\n",
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_write: set file %s to np %u failed\n",
                             (char *)cstring_get_str(file_path), chfsnp_id);
         return (EC_FALSE);
     }
     
     if(EC_FALSE == chfsnp_fnode_import(chfsnp_fnode, CHFSNP_ITEM_FNODE(chfsnp_item)))
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_write: import fnode to item failed where path %s\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_write: import fnode to item failed where path %s\n", (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
-    sys_log(LOGSTDOUT, "[DEBUG] chfsnp_mgr_write: import fnode to item successfully where path %s\n", (char *)cstring_get_str(file_path));
+    dbg_log(SEC_0065_CHFSNPMGR, 9)(LOGSTDOUT, "[DEBUG] chfsnp_mgr_write: import fnode to item successfully where path %s\n", (char *)cstring_get_str(file_path));
     chfsnp_item_print(LOGSTDOUT, chfsnp_item);
     return (EC_TRUE);
 }
 
 EC_BOOL chfsnp_mgr_read(CHFSNP_MGR *chfsnp_mgr, const CSTRING *file_path, CHFSNP_FNODE *chfsnp_fnode)
-{
+{  
     CHFSNP *chfsnp;
     uint32_t chfsnp_id;
     uint32_t node_pos;
@@ -944,7 +955,7 @@ EC_BOOL chfsnp_mgr_read(CHFSNP_MGR *chfsnp_mgr, const CSTRING *file_path, CHFSNP
     chfsnp = __chfsnp_mgr_get_np(chfsnp_mgr, (uint32_t)cstring_get_len(file_path), cstring_get_str(file_path), &chfsnp_id);
     if(NULL_PTR == chfsnp)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_read: no np for path %s\n", (char *)cstring_get_str(file_path));
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_read: no np for path %s\n", (char *)cstring_get_str(file_path));
         return (EC_FALSE);
     }
 
@@ -957,7 +968,7 @@ EC_BOOL chfsnp_mgr_read(CHFSNP_MGR *chfsnp_mgr, const CSTRING *file_path, CHFSNP
         return chfsnp_fnode_import(CHFSNP_ITEM_FNODE(chfsnp_item), chfsnp_fnode);
     }
     
-    sys_log(LOGSTDOUT, "[DEBUG] chfsnp_mgr_read: search nothing for path '%s'\n", (char *)cstring_get_str(file_path));
+    dbg_log(SEC_0065_CHFSNPMGR, 9)(LOGSTDOUT, "[DEBUG] chfsnp_mgr_read: search nothing for path '%s'\n", (char *)cstring_get_str(file_path));
     return (EC_FALSE);    
 }
 
@@ -969,7 +980,7 @@ EC_BOOL chfsnp_mgr_delete(CHFSNP_MGR *chfsnp_mgr, const CSTRING *path, CVECTOR *
     chfsnp = __chfsnp_mgr_get_np(chfsnp_mgr, (uint32_t)cstring_get_len(path), cstring_get_str(path), &chfsnp_id);
     if(NULL_PTR == chfsnp)
     {
-        sys_log(LOGSTDOUT, "error:chfsnp_mgr_delete: no np for path %s\n", (char *)cstring_get_str(path));
+        dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_delete: no np for path %s\n", (char *)cstring_get_str(path));
         return (EC_FALSE);
     }
 
@@ -989,7 +1000,7 @@ EC_BOOL chfsnp_mgr_file_num(CHFSNP_MGR *chfsnp_mgr, UINT32 *file_num)
         chfsnp = chfsnp_mgr_open_np(chfsnp_mgr, chfsnp_id);
         if(NULL_PTR == chfsnp)
         {
-            sys_log(LOGSTDOUT, "error:chfsnp_mgr_file_num: open np %u failed\n", chfsnp_id);
+            dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_file_num: open np %u failed\n", chfsnp_id);
             return (EC_FALSE);
         }
         (*file_num) += chfsnp_count_file_num(chfsnp);
@@ -1010,7 +1021,7 @@ EC_BOOL chfsnp_mgr_file_size(CHFSNP_MGR *chfsnp_mgr, UINT32 *file_size)
         chfsnp = chfsnp_mgr_open_np(chfsnp_mgr, chfsnp_id);
         if(NULL_PTR == chfsnp)
         {
-            sys_log(LOGSTDOUT, "error:chfsnp_mgr_file_size: open np %u failed\n", chfsnp_id);
+            dbg_log(SEC_0065_CHFSNPMGR, 0)(LOGSTDOUT, "error:chfsnp_mgr_file_size: open np %u failed\n", chfsnp_id);
             return (EC_FALSE);
         }
         chfsnp_count_file_size(chfsnp, file_size);

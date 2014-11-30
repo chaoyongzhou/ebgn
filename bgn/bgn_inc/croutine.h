@@ -12,6 +12,10 @@ extern "C"{
 #ifndef _CROUTINE_H
 #define _CROUTINE_H
 
+#if ((SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH) && (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH))
+#error "error:croutine.h: cannot switch on both CROUTINE_SUPPORT_COROUTINE_SWITCH and CROUTINE_SUPPORT_CTHREAD_SWITCH !"
+#endif
+
 #if (SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)
 
 #include <stdio.h>
@@ -24,7 +28,6 @@ extern "C"{
 #include "log.h"
 #include "coroutine.inc"
 #include "coroutine.h"
-
 
 #define CROUTINE_CLEANUP_PUSH(croutine_cancel_routine, croutine_cancel_para) do{}while(0)
 
@@ -137,6 +140,7 @@ typedef COROUTINE_POOL   CROUTINE_POOL;
 #include "type.h"
 #include "log.h"
 #include "cthread.h"
+#include "cmutex.h"
 
 
 #define CROUTINE_CLEANUP_PUSH(croutine_cancel_routine, croutine_cancel_para)    CTHREAD_CLEANUP_PUSH(croutine_cancel_routine, croutine_cancel_para)

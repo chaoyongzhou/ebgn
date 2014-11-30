@@ -225,14 +225,14 @@ CDFSDN_RECORD_MGR *cdfsdn_record_mgr_new(const UINT32 disk_num, const UINT32 rec
     data_area = (CDFSDN_RECORD *)SAFE_MALLOC(record_num * sizeof(CDFSDN_RECORD), LOC_CDFSDN_0005);
     if(NULL_PTR == data_area)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_new: alloc bitmap of %ld block files failed\n", record_num);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_new: alloc bitmap of %ld block files failed\n", record_num);
         return (NULL_PTR);
     }
 
     alloc_static_mem(MD_TASK, CMPI_ANY_MODI, MM_CDFSDN_RECORD_MGR, &cdfsdn_record_mgr, LOC_CDFSDN_0006);
     if(NULL_PTR == cdfsdn_record_mgr)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_new: alloc record mgr failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_new: alloc record mgr failed\n");
         SAFE_FREE(data_area, LOC_CDFSDN_0007);
         return (NULL_PTR);
     }
@@ -272,7 +272,7 @@ EC_BOOL cdfsdn_record_mgr_link(CDFSDN_RECORD_MGR *cdfsdn_record_mgr)
 {
     UINT32 record_pos;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_record_mgr_link: CDFSDN_RECORD_MGR_NODE_NUM = %ld\n", CDFSDN_RECORD_MGR_NODE_NUM(cdfsdn_record_mgr));
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_record_mgr_link: CDFSDN_RECORD_MGR_NODE_NUM = %ld\n", CDFSDN_RECORD_MGR_NODE_NUM(cdfsdn_record_mgr));
 
     for(record_pos = 0; record_pos < CDFSDN_RECORD_MGR_NODE_NUM(cdfsdn_record_mgr); record_pos ++)
     {
@@ -383,14 +383,14 @@ EC_BOOL cdfsdn_record_mgr_load(CDFSDN *cdfsdn)
         CDFSDN_RECORD_FD(cdfsdn) = c_file_open((char *)CDFSDN_RECORD_NAME(cdfsdn), O_RDWR, 0666);
         if(ERR_FD == CDFSDN_RECORD_FD(cdfsdn))
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_load: cannot open record file %s\n", (char *)CDFSDN_RECORD_NAME(cdfsdn));
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_load: cannot open record file %s\n", (char *)CDFSDN_RECORD_NAME(cdfsdn));
             return (EC_FALSE);
         }
     }
 
     if(ERR_SEEK == lseek(CDFSDN_RECORD_FD(cdfsdn), 0, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_load: seek record file beg failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_load: seek record file beg failed\n");
         return (EC_FALSE);
     }
 
@@ -402,28 +402,28 @@ EC_BOOL cdfsdn_record_mgr_load(CDFSDN *cdfsdn)
         rsize = sizeof(UINT32);
         if(rsize != read(CDFSDN_RECORD_FD(cdfsdn), &disk_num, rsize))
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_load: load disk num failed\n");
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_load: load disk num failed\n");
             return (EC_FALSE);
         }
 
         rsize = sizeof(UINT32);
         if(rsize != read(CDFSDN_RECORD_FD(cdfsdn), &record_num, rsize))
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_load: load record num failed\n");
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_load: load record num failed\n");
             return (EC_FALSE);
         }
 
         rsize = sizeof(UINT32);
         if(rsize != read(CDFSDN_RECORD_FD(cdfsdn), &record_beg, rsize))
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_load: load record beg pos failed\n");
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_load: load record beg pos failed\n");
             return (EC_FALSE);
         }
 
         CDFSDN_RECORD_MGR(cdfsdn) = cdfsdn_record_mgr_new(disk_num, record_num, record_beg);
         if(NULL_PTR == CDFSDN_RECORD_MGR(cdfsdn))
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_record_load: new record failed where record num = %ld\n", record_num);
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_load: new record failed where record num = %ld\n", record_num);
             return (EC_FALSE);
         }
     }
@@ -439,7 +439,7 @@ EC_BOOL cdfsdn_record_mgr_load(CDFSDN *cdfsdn)
 
         if(osize != read(CDFSDN_RECORD_FD(cdfsdn), buff + csize, osize))
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_record_load: load record table failed where record num %ld, rsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_load: load record table failed where record num %ld, rsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
                                 CDFSDN_NODE_NUM(cdfsdn), rsize, csize, osize, errno, strerror(errno));
             return (EC_FALSE);
         }
@@ -447,7 +447,7 @@ EC_BOOL cdfsdn_record_mgr_load(CDFSDN *cdfsdn)
 
     if(EC_FALSE == cdfsdn_record_mgr_clear_flags(CDFSDN_RECORD_MGR(cdfsdn)))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_load: clear record mgr flags failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_load: clear record mgr flags failed\n");
         return (EC_FALSE);
     }
 
@@ -467,11 +467,11 @@ EC_BOOL cdfsdn_record_mgr_flush(CDFSDN *cdfsdn)
 
     UINT8 *buff;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_record_mgr_flush was called\n");
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_record_mgr_flush was called\n");
 
     if(ERR_SEEK == lseek(CDFSDN_RECORD_FD(cdfsdn), 0, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_flush: seek record file beg failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_flush: seek record file beg failed\n");
         return (EC_FALSE);
     }
 
@@ -479,7 +479,7 @@ EC_BOOL cdfsdn_record_mgr_flush(CDFSDN *cdfsdn)
     wsize = sizeof(UINT32);
     if(wsize != write(CDFSDN_RECORD_FD(cdfsdn), &disk_num, wsize))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_flush: flush disk num %ld failed \n", disk_num);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_flush: flush disk num %ld failed \n", disk_num);
         return (EC_FALSE);
     }
 
@@ -487,7 +487,7 @@ EC_BOOL cdfsdn_record_mgr_flush(CDFSDN *cdfsdn)
     wsize = sizeof(UINT32);
     if(wsize != write(CDFSDN_RECORD_FD(cdfsdn), &record_num, wsize))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_flush: flush record num %ld failed \n", record_num);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_flush: flush record num %ld failed \n", record_num);
         return (EC_FALSE);
     }
 
@@ -495,7 +495,7 @@ EC_BOOL cdfsdn_record_mgr_flush(CDFSDN *cdfsdn)
     wsize = sizeof(UINT32);
     if(wsize != write(CDFSDN_RECORD_FD(cdfsdn), &record_beg, wsize))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_flush: flush record beg pos %ld failed \n", record_beg);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_flush: flush record beg pos %ld failed \n", record_beg);
         return (EC_FALSE);
     }
 
@@ -510,7 +510,7 @@ EC_BOOL cdfsdn_record_mgr_flush(CDFSDN *cdfsdn)
 
         if(osize != write(CDFSDN_RECORD_FD(cdfsdn), buff + csize, osize))
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_flush: flush record table failed where record num %ld, wsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_flush: flush record table failed where record num %ld, wsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
                                 record_num, wsize, csize, osize, errno, strerror(errno));
             return (EC_FALSE);
         }
@@ -532,7 +532,7 @@ EC_BOOL cdfsdn_record_mgr_set(CDFSDN *cdfsdn, const UINT32 path_layout, const UI
 {
     if(path_layout > CDFSDN_NODE_NUM(cdfsdn))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_set: path layout %ld overflow record num %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_set: path layout %ld overflow record num %ld\n",
                             path_layout, CDFSDN_NODE_NUM(cdfsdn));
         return (EC_FALSE);
     }
@@ -545,7 +545,7 @@ EC_BOOL cdfsdn_record_mgr_get(const CDFSDN *cdfsdn, const UINT32 path_layout, UI
 {
     if(path_layout > CDFSDN_NODE_NUM(cdfsdn))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_record_mgr_get: path layout %ld overflow record num %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_mgr_get: path layout %ld overflow record num %ld\n",
                             path_layout, CDFSDN_NODE_NUM(cdfsdn));
         return (EC_FALSE);
     }
@@ -558,7 +558,7 @@ EC_BOOL cdfsdn_record_is_full(const CDFSDN *cdfsdn, const UINT32 path_layout)
 {
     if(path_layout > CDFSDN_NODE_NUM(cdfsdn))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_record_is_full: path layout %ld overflow record num %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_record_is_full: path layout %ld overflow record num %ld\n",
                             path_layout, CDFSDN_NODE_NUM(cdfsdn));
         return (EC_TRUE);
     }
@@ -672,14 +672,14 @@ EC_BOOL cdfsdn_block_cache_flush(const CDFSDN_BLOCK *cdfsdn_block)
     RWSIZE wsize;
     if(ERR_SEEK == lseek(CDFSDN_BLOCK_FD(cdfsdn_block), 0, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_flush: seek beg failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_cache_flush: seek beg failed\n");
         return (EC_FALSE);
     }
 
     wsize = /*CDFSDN_BLOCK_CACHE_SIZE(cdfsdn_block)*/CDFSDN_BLOCK_MAX_SIZE;
     if(wsize != write(CDFSDN_BLOCK_FD(cdfsdn_block), CDFSDN_BLOCK_CACHE_DATA(cdfsdn_block), wsize))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_flush: flush block data failed where wsize %ld\n", wsize);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_cache_flush: flush block data failed where wsize %ld\n", wsize);
         return (EC_FALSE);
     }
 
@@ -691,14 +691,14 @@ EC_BOOL cdfsdn_block_cache_load(CDFSDN_BLOCK *cdfsdn_block)
     RWSIZE rsize;
     if(ERR_SEEK == lseek(CDFSDN_BLOCK_FD(cdfsdn_block), 0, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_load: seek beg failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_cache_load: seek beg failed\n");
         return (EC_FALSE);
     }
 
     rsize = CDFSDN_BLOCK_MAX_SIZE;
     if(rsize != read(CDFSDN_BLOCK_FD(cdfsdn_block), CDFSDN_BLOCK_CACHE_DATA(cdfsdn_block), rsize))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_load: load data failed where rsize %ld\n", rsize);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_cache_load: load data failed where rsize %ld\n", rsize);
         return (EC_FALSE);
     }
 
@@ -710,14 +710,14 @@ EC_BOOL cdfsdn_block_cache_flush_to(int fd, const CDFSDN_BLOCK *cdfsdn_block)
     RWSIZE wsize;
     if(ERR_SEEK == lseek(fd, 0, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_flush: seek beg failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_cache_flush: seek beg failed\n");
         return (EC_FALSE);
     }
 
     wsize = CDFSDN_BLOCK_MAX_SIZE;
     if(wsize != write(fd, CDFSDN_BLOCK_CACHE_DATA(cdfsdn_block), wsize))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_flush: flush block data failed where wsize %ld\n", wsize);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_cache_flush: flush block data failed where wsize %ld\n", wsize);
         return (EC_FALSE);
     }
 
@@ -729,14 +729,14 @@ EC_BOOL cdfsdn_block_cache_load_from(int fd, CDFSDN_BLOCK *cdfsdn_block)
     RWSIZE rsize;
     if(ERR_SEEK == lseek(fd, 0, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_load_from: seek beg failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_cache_load_from: seek beg failed\n");
         return (EC_FALSE);
     }
 
     rsize = CDFSDN_BLOCK_MAX_SIZE;
     if(rsize != read(fd, CDFSDN_BLOCK_CACHE_DATA(cdfsdn_block), rsize))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_load_from: load data failed where rsize %ld\n", rsize);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_cache_load_from: load data failed where rsize %ld\n", rsize);
         return (EC_FALSE);
     }
 
@@ -751,14 +751,14 @@ EC_BOOL cdfsdn_block_partition_flush(CDFSDN_BLOCK *cdfsdn_block)
     offset = CDFSDN_BLOCK_DATA_MAX_SIZE;
     if(ERR_SEEK == lseek(CDFSDN_BLOCK_FD(cdfsdn_block), offset, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_flush: seek beg failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_cache_flush: seek beg failed\n");
         return (EC_FALSE);
     }
 
     wsize = CDFSDN_BLOCK_PART_MAX_SIZE;
     if(wsize != write(CDFSDN_BLOCK_FD(cdfsdn_block), CDFSDN_BLOCK_CACHE_DATA(cdfsdn_block) + CDFSDN_BLOCK_DATA_MAX_SIZE, wsize))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_cache_flush: flush block data failed where wsize %ld\n", wsize);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_cache_flush: flush block data failed where wsize %ld\n", wsize);
         return (EC_FALSE);
     }
 
@@ -809,7 +809,7 @@ static EC_BOOL cdfsdn_block_fname_gen(const char *root_dir, const UINT32 disk_nu
                 CDFSDN_PATH_LAYOUT_DIR2_NO(CDSK_SHARD_PATH_ID(&cdsk_shard)),
                 CDFSDN_PATH_LAYOUT_DIR3_NO(CDSK_SHARD_PATH_ID(&cdsk_shard))
                 );
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_fname_gen: disk num %ld, block_path_layout %ld, path %s\n", disk_num, block_path_layout, path);
+    //dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_fname_gen: disk num %ld, block_path_layout %ld, path %s\n", disk_num, block_path_layout, path);
     return (EC_TRUE);
 }
 
@@ -836,27 +836,27 @@ EC_BOOL cdfsdn_block_create(CDFSDN_BLOCK *cdfsdn_block, const UINT32 disk_num, c
     cdfsdn_block_dname_gen((char *)CDFSDN_BLOCK_ROOT_DIR(cdfsdn_block), disk_num, block_path_layout, path, CDFSDN_BLOCK_NAME_MAX_SIZE);
     if(EC_FALSE == c_dir_create(path))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_create: create dir %s failed\n", path);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_create: create dir %s failed\n", path);
         return (EC_FALSE);
     }
 
     cdfsdn_block_fname_gen((char *)CDFSDN_BLOCK_ROOT_DIR(cdfsdn_block), disk_num, block_path_layout, path, CDFSDN_BLOCK_NAME_MAX_SIZE);
     if(0 == access(path, F_OK))
     {
-        sys_log(LOGSTDOUT, "warn:cdfsdn_block_create: block file %s already exist\n", path);
+        dbg_log(SEC_0087_CDFSDN, 1)(LOGSTDOUT, "warn:cdfsdn_block_create: block file %s already exist\n", path);
         return (EC_FALSE);
     }
 
     CDFSDN_BLOCK_FD(cdfsdn_block) = open(path, O_RDWR | O_CREAT, 0666);
     if(ERR_FD == CDFSDN_BLOCK_FD(cdfsdn_block))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_create: open block file %s failed\n", path);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_create: open block file %s failed\n", path);
         return (EC_FALSE);
     }
 #if 1/*optimize*/
     if(0 != ftruncate(CDFSDN_BLOCK_FD(cdfsdn_block), CDFSDN_BLOCK_MAX_SIZE))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_create: truncate file %s failed\n", path);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_create: truncate file %s failed\n", path);
         c_file_close(CDFSDN_BLOCK_FD(cdfsdn_block));
         CDFSDN_BLOCK_FD(cdfsdn_block) = ERR_FD;
         return (EC_FALSE);
@@ -866,7 +866,7 @@ EC_BOOL cdfsdn_block_create(CDFSDN_BLOCK *cdfsdn_block, const UINT32 disk_num, c
     CDFSDN_BLOCK_CACHE(cdfsdn_block) = cdfsdn_cache_new();
     if(NULL_PTR == CDFSDN_BLOCK_CACHE(cdfsdn_block))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_create: new block cache failed for block file %s\n", path);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_create: new block cache failed for block file %s\n", path);
         c_file_close(CDFSDN_BLOCK_FD(cdfsdn_block));
         CDFSDN_BLOCK_FD(cdfsdn_block) = ERR_FD;
         return (EC_FALSE);
@@ -889,7 +889,7 @@ EC_BOOL cdfsdn_block_open(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block, const UINT
     {
         if(open_flags & CDFSDN_BLOCK_O_CREATE)
         {
-            sys_log(LOGSTDOUT, "warn:cdfsdn_block_open: block file %s not exist, try to create it\n", path);
+            dbg_log(SEC_0087_CDFSDN, 1)(LOGSTDOUT, "warn:cdfsdn_block_open: block file %s not exist, try to create it\n", path);
             if(EC_TRUE == cdfsdn_block_create(cdfsdn_block, CDFSDN_DISK_NUM(cdfsdn), block_path_layout))
             {
                 CDFSDN_NODE_PART_IDX(cdfsdn, block_path_layout) = 0;/*point to the first partition*/
@@ -897,7 +897,7 @@ EC_BOOL cdfsdn_block_open(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block, const UINT
             }
         }
 
-        sys_log(LOGSTDOUT, "warn:cdfsdn_block_open: block file %s not exist\n", path);
+        dbg_log(SEC_0087_CDFSDN, 1)(LOGSTDOUT, "warn:cdfsdn_block_open: block file %s not exist\n", path);
         return (EC_FALSE);
     }
 
@@ -905,13 +905,13 @@ EC_BOOL cdfsdn_block_open(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block, const UINT
     CDFSDN_BLOCK_FD(cdfsdn_block) = open(path, O_RDWR, 0666);
     if(ERR_FD == CDFSDN_BLOCK_FD(cdfsdn_block))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_open: open block file %s failed\n", path);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_open: open block file %s failed\n", path);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cdfsdn_block_load(cdfsdn, cdfsdn_block))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_open: load block file %s failed\n", path);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_open: load block file %s failed\n", path);
         c_file_close(CDFSDN_BLOCK_FD(cdfsdn_block));
         CDFSDN_BLOCK_FD(cdfsdn_block) = ERR_FD;
         return (EC_FALSE);
@@ -932,7 +932,7 @@ EC_BOOL cdfsdn_block_flush(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block)
 {
     if(EC_FALSE == cdfsdn_block_cache_flush(cdfsdn_block))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_flush: flush block cache failed where path layout %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_flush: flush block cache failed where path layout %ld\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
         return (EC_FALSE);
     }
@@ -950,20 +950,20 @@ EC_BOOL cdfsdn_block_load(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block)
 {
     if(ERR_FD == CDFSDN_BLOCK_FD(cdfsdn_block))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_load: block was not open\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_load: block was not open\n");
         return (EC_FALSE);
     }
 
     CDFSDN_BLOCK_CACHE(cdfsdn_block) = cdfsdn_cache_new();
     if(NULL_PTR == CDFSDN_BLOCK_CACHE(cdfsdn_block))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_load: block cache is null\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_load: block cache is null\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cdfsdn_block_cache_load(cdfsdn_block))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_load: block load cache failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_load: block load cache failed\n");
         cdfsdn_cache_free(CDFSDN_BLOCK_CACHE(cdfsdn_block));
         CDFSDN_BLOCK_CACHE(cdfsdn_block) = NULL_PTR;
         return (EC_FALSE);
@@ -979,16 +979,16 @@ EC_BOOL cdfsdn_block_unlink(const CDFSDN_BLOCK *cdfsdn_block, const UINT32 disk_
     cdfsdn_block_fname_gen((char *)CDFSDN_BLOCK_ROOT_DIR(cdfsdn_block), disk_num, block_path_layout, path, CDFSDN_BLOCK_NAME_MAX_SIZE);
     if(0 != access(path, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_unlink: block file %s not exist\n", path);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_unlink: block file %s not exist\n", path);
         return (EC_FALSE);
     }
 
     if( 0 != unlink(path))
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_unlink: unlink block %s failed\n", path);
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_unlink: unlink block %s failed\n", path);
         return (EC_FALSE);
     }
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_unlink: unlink block %s successfully\n", path);
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_unlink: unlink block %s successfully\n", path);
     return (EC_TRUE);
 }
 
@@ -1013,7 +1013,7 @@ EC_BOOL cdfsdn_block_burn(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block, const UINT
     {
         UINT32 path_layout_next;
         path_layout_next = CDFSDN_NODE_NEXT(cdfsdn, CDFSDN_NODE_BEG(cdfsdn));
-        sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_burn: CDFSDN_NODE_BEG move %ld => %ld\n", CDFSDN_NODE_BEG(cdfsdn), path_layout_next);
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_burn: CDFSDN_NODE_BEG move %ld => %ld\n", CDFSDN_NODE_BEG(cdfsdn), path_layout_next);
         CDFSDN_NODE_NEXT(cdfsdn, CDFSDN_NODE_BEG(cdfsdn)) = CDFSDN_ERR_PATH;
         CDFSDN_NODE_BEG(cdfsdn) = path_layout_next;
     }
@@ -1047,7 +1047,7 @@ EC_BOOL cdfsdn_block_truncate(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block, const 
 
     if(data_pos != data_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_truncate: block path layout %ld expect to truncate %ld bytes but accept %ld bytes only\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_truncate: block path layout %ld expect to truncate %ld bytes but accept %ld bytes only\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), data_max_len, data_pos);
         //CDFSDN_NODE_UNLOCK(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), LOC_CDFSDN_0025);
         return (EC_FALSE);
@@ -1056,8 +1056,8 @@ EC_BOOL cdfsdn_block_truncate(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block, const 
     cdfsdn_block_burn(cdfsdn, cdfsdn_block, data_pos * CDFSDN_BLOCK_PER_PART_SIZE);
     //CDFSDN_NODE_UNLOCK(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), LOC_CDFSDN_0026);
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_truncate: block path layout %ld accept %ld bytes successfully\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), data_pos);
-    //sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_block_write: ");
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_truncate: block path layout %ld accept %ld bytes successfully\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), data_pos);
+    //dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_block_write: ");
     //sys_print(LOGSTDNULL, "%.*s\n", data_len, (char *)data_buff);
 
     return (EC_TRUE);
@@ -1070,7 +1070,7 @@ EC_BOOL cdfsdn_block_update(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block, const UI
 
     if(partition_beg >= CDFSDN_BLOCK_PART_MAX_NUM)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_update: path layout %ld, partition_beg %ld overflow the partition max idx %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_update: path layout %ld, partition_beg %ld overflow the partition max idx %ld\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), partition_beg, CDFSDN_BLOCK_PART_MAX_NUM);
         return (EC_FALSE);
     }
@@ -1087,14 +1087,14 @@ EC_BOOL cdfsdn_block_update(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block, const UI
 
     if(data_pos != data_max_len)/*make sure data is written*/
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_update: block path layout %ld expect to update %ld bytes but accept %ld bytes only\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_update: block path layout %ld expect to update %ld bytes but accept %ld bytes only\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), data_max_len, data_pos);
         return (EC_FALSE);
     }
 
     CDFSDN_NODE_SET_UPDATED(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_update: block path layout %ld accept %ld bytes successfully\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), data_pos);
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_update: block path layout %ld accept %ld bytes successfully\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), data_pos);
 
     return (EC_TRUE);
 }
@@ -1117,7 +1117,7 @@ EC_BOOL cdfsdn_block_write(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block, const UIN
 
     if(data_pos != data_max_len)/*make sure data is written*/
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_write: block path layout %ld expect to write %ld bytes but accept %ld bytes only\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_write: block path layout %ld expect to write %ld bytes but accept %ld bytes only\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), data_max_len, data_pos);
         //CDFSDN_NODE_UNLOCK(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), LOC_CDFSDN_0027);
         return (EC_FALSE);
@@ -1126,8 +1126,8 @@ EC_BOOL cdfsdn_block_write(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block, const UIN
     cdfsdn_block_burn(cdfsdn, cdfsdn_block, data_pos * CDFSDN_BLOCK_PER_PART_SIZE);
     //CDFSDN_NODE_UNLOCK(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), LOC_CDFSDN_0028);
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_write: block path layout %ld accept %ld bytes successfully\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), data_pos);
-    //sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_block_write: ");
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_write: block path layout %ld accept %ld bytes successfully\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), data_pos);
+    //dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_block_write: ");
     //sys_print(LOGSTDNULL, "%.*s\n", data_len, (char *)data_buff);
 
     return (EC_TRUE);
@@ -1140,7 +1140,7 @@ EC_BOOL cdfsdn_block_read(const CDFSDN_BLOCK *cdfsdn_block, const UINT32 first_p
 
     if(first_partition_idx >= CDFSDN_BLOCK_PART_MAX_NUM)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_read: path layout %ld, first_partition_idx %ld overflow the partition max idx %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_read: path layout %ld, first_partition_idx %ld overflow the partition max idx %ld\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), first_partition_idx, CDFSDN_BLOCK_PART_MAX_NUM);
         return (EC_FALSE);
     }
@@ -1157,7 +1157,7 @@ EC_BOOL cdfsdn_block_read(const CDFSDN_BLOCK *cdfsdn_block, const UINT32 first_p
 
     if(data_pos != data_max_len)/*make sure data is written*/
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_read: block path layout %ld expect to read %ld bytes but get %ld bytes only\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_read: block path layout %ld expect to read %ld bytes but get %ld bytes only\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), data_max_len, data_pos);
         //CDFSDN_NODE_UNLOCK(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), LOC_CDFSDN_0029);
         return (EC_FALSE);
@@ -1165,7 +1165,7 @@ EC_BOOL cdfsdn_block_read(const CDFSDN_BLOCK *cdfsdn_block, const UINT32 first_p
 
     (*data_len) = data_pos;
 
-    sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_block_read: path layout %ld, first_partition_idx %ld, max len %ld, ret len %ld\n",
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_block_read: path layout %ld, first_partition_idx %ld, max len %ld, ret len %ld\n",
                         CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), first_partition_idx, data_max_len, (*data_len));
     //cdfsdn_print_buff_1(LOGSTDNULL, data_buff, (*data_len));
 
@@ -1184,12 +1184,12 @@ EC_BOOL cdfsdn_block_reserve_partition(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_bloc
     partition_idx_next = CDFSDN_RECORD_FIRST_PART_IDX(cdfsdn_record);
     if(CDFSDN_BLOCK_PART_MAX_NUM <= partition_idx_next)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_reserve_partition: block %ld is full where first partition idx = %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_reserve_partition: block %ld is full where first partition idx = %ld\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), partition_idx_next);
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_reserve_partition: beg: block %ld, next part idx %ld, cache room %ld, cache size %ld\n",
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_reserve_partition: beg: block %ld, next part idx %ld, cache room %ld, cache size %ld\n",
                         CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), CDFSDN_RECORD_FIRST_PART_IDX(cdfsdn_record),
                         CDFSDN_RECORD_ROOM(cdfsdn_record), CDFSDN_RECORD_SIZE(cdfsdn_record));
 
@@ -1199,7 +1199,7 @@ EC_BOOL cdfsdn_block_reserve_partition(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_bloc
         partition_idx_cur = partition_idx_next;
         partition_idx_next = CDFSDN_BLOCK_NEXT_PART_IDX(cdfsdn_block, partition_idx_cur);
 
-        sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_block_reserve_partition: push: block %ld, partition_idx_cur = %ld, burn_cache_len = %ld ==> room %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_block_reserve_partition: push: block %ld, partition_idx_cur = %ld, burn_cache_len = %ld ==> room %ld\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), partition_idx_cur, burn_cache_len, room);
 
         data = partition_idx_cur;
@@ -1208,7 +1208,7 @@ EC_BOOL cdfsdn_block_reserve_partition(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_bloc
 
     if(burn_cache_len < room)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_reserve_partition: block %ld can burn %ld bytes which is unable to accept %ld bytes\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_reserve_partition: block %ld can burn %ld bytes which is unable to accept %ld bytes\n",
                         CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), burn_cache_len, room);
         return (EC_FALSE);
     }
@@ -1218,7 +1218,7 @@ EC_BOOL cdfsdn_block_reserve_partition(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_bloc
     CDFSDN_RECORD_SIZE(cdfsdn_record) += burn_cache_len;
     CDFSDN_RECORD_FIRST_PART_IDX(cdfsdn_record) = partition_idx_next;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_reserve_partition: end: block %ld, next part idx %ld, cache room %ld, cache size %ld\n",
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_reserve_partition: end: block %ld, next part idx %ld, cache room %ld, cache size %ld\n",
                         CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), CDFSDN_RECORD_FIRST_PART_IDX(cdfsdn_record),
                         CDFSDN_RECORD_ROOM(cdfsdn_record), CDFSDN_RECORD_SIZE(cdfsdn_record));
 
@@ -1260,7 +1260,7 @@ EC_BOOL cdfsdn_block_recycle_partition(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_bloc
 
     if(CDFSDN_BLOCK_PART_MAX_NUM <= first_partition_idx)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_block_recycle_partition: invalid first partition idx %ld\n", first_partition_idx);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_block_recycle_partition: invalid first partition idx %ld\n", first_partition_idx);
         return (EC_FALSE);
     }
 
@@ -1270,10 +1270,10 @@ EC_BOOL cdfsdn_block_recycle_partition(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_bloc
 
         for(idx_cur = first_partition_idx; CDFSDN_BLOCK_PART_MAX_NUM > idx_cur; idx_cur = CDFSDN_BLOCK_NEXT_PART_IDX(cdfsdn_block, idx_cur))
         {
-            sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_recycle_partition: %ld => \n", idx_cur);
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_recycle_partition: %ld => \n", idx_cur);
         }
-        sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_recycle_partition: %ld\n", idx_cur);
-        sys_log(LOGSTDOUT, "=====================================================\n");
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_recycle_partition: %ld\n", idx_cur);
+        dbg_log(SEC_0087_CDFSDN, 5)(LOGSTDOUT, "=====================================================\n");
     }
 
     cdfsdn_record = CDFSDN_RECORD_MGR_NODE(CDFSDN_RECORD_MGR(cdfsdn), CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
@@ -1281,20 +1281,20 @@ EC_BOOL cdfsdn_block_recycle_partition(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_bloc
     burn_cache_len = CDFSDN_BLOCK_PER_PART_SIZE;
     while(CDFSDN_BLOCK_PART_MAX_NUM > (partition_idx_next = CDFSDN_BLOCK_NEXT_PART_IDX(cdfsdn_block, partition_idx_cur)))
     {
-        sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_block_recycle_partition: block %ld, partition_idx_cur = %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_block_recycle_partition: block %ld, partition_idx_cur = %ld\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), partition_idx_cur);
         partition_idx_cur = partition_idx_next;
         burn_cache_len += CDFSDN_BLOCK_PER_PART_SIZE;
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_recycle_partition: [1] block %ld, partition_idx_cur = %ld, CDFSDN_BLOCK_NEXT_PART_IDX %ld, CDFSDN_RECORD_FIRST_PART_IDX %ld\n",
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_recycle_partition: [1] block %ld, partition_idx_cur = %ld, CDFSDN_BLOCK_NEXT_PART_IDX %ld, CDFSDN_RECORD_FIRST_PART_IDX %ld\n",
                         CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), partition_idx_cur,
                         CDFSDN_BLOCK_NEXT_PART_IDX(cdfsdn_block, partition_idx_cur) , CDFSDN_RECORD_FIRST_PART_IDX(cdfsdn_record));
 
     CDFSDN_BLOCK_NEXT_PART_IDX(cdfsdn_block, partition_idx_cur) = CDFSDN_RECORD_FIRST_PART_IDX(cdfsdn_record);
     CDFSDN_RECORD_FIRST_PART_IDX(cdfsdn_record) = first_partition_idx;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_block_recycle_partition: [2] block %ld, partition_idx_cur = %ld, CDFSDN_BLOCK_NEXT_PART_IDX %ld, CDFSDN_RECORD_FIRST_PART_IDX %ld\n",
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_block_recycle_partition: [2] block %ld, partition_idx_cur = %ld, CDFSDN_BLOCK_NEXT_PART_IDX %ld, CDFSDN_RECORD_FIRST_PART_IDX %ld\n",
                         CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), partition_idx_cur,
                         CDFSDN_BLOCK_NEXT_PART_IDX(cdfsdn_block, partition_idx_cur) , CDFSDN_RECORD_FIRST_PART_IDX(cdfsdn_record));
 
@@ -1443,7 +1443,7 @@ EC_BOOL cdfsdn_is_full(CDFSDN *cdfsdn)
 {
     if(CDFSDN_NODE_BEG(cdfsdn) >= CDFSDN_NODE_NUM(cdfsdn))
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_is_full: cdfsdn is full where node beg %ld num %ld\n", CDFSDN_NODE_BEG(cdfsdn), CDFSDN_NODE_NUM(cdfsdn));
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_is_full: cdfsdn is full where node beg %ld num %ld\n", CDFSDN_NODE_BEG(cdfsdn), CDFSDN_NODE_NUM(cdfsdn));
         cdfsdn_print(LOGSTDOUT, cdfsdn);
         return (EC_TRUE);
     }
@@ -1488,11 +1488,11 @@ EC_BOOL cdfsdn_load(CDFSDN *cdfsdn)
 
     if(EC_FALSE == cdfsdn_record_mgr_load(cdfsdn))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_load: load record failed where record name is %s\n", (char *)CDFSDN_RECORD_NAME(cdfsdn));
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_load: load record failed where record name is %s\n", (char *)CDFSDN_RECORD_NAME(cdfsdn));
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_load: record mgr is\n");
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_load: record mgr is\n");
     cdfsdn_record_mgr_print(LOGSTDOUT, CDFSDN_RECORD_MGR(cdfsdn));
 
     for(path_layout = CDFSDN_NODE_BEG(cdfsdn);
@@ -1510,12 +1510,12 @@ EC_BOOL cdfsdn_load(CDFSDN *cdfsdn)
         cdfsdn_block = cdfsdn_swapin(cdfsdn, path_layout, CDFSDN_BLOCK_O_RDWR | CDFSDN_BLOCK_O_CREATE, CDFSDN_RECORD_FLAG_CACHED_BIT);
         if(NULL_PTR == cdfsdn_block)
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_load: swapin block %ld failed\n", path_layout);
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_load: swapin block %ld failed\n", path_layout);
             break;
         }
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_load: load completed\n");
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_load: load completed\n");
     return (EC_TRUE);
 }
 
@@ -1525,20 +1525,20 @@ CDFSDN *cdfsdn_open(const char *root_dir)
 
     if(0 != access(root_dir, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_open: root dir %s not exist\n", root_dir);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_open: root dir %s not exist\n", root_dir);
         return (NULL_PTR);
     }
 
     cdfsdn = cdfsdn_new(root_dir);
     if(NULL_PTR == cdfsdn)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_open: new cdfsdn with root dir %s failed\n", root_dir);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_open: new cdfsdn with root dir %s failed\n", root_dir);
         return (NULL_PTR);
     }
 
     if(EC_FALSE == cdfsdn_load(cdfsdn))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_open: load cdfsdn with root dir %s failed\n", root_dir);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_open: load cdfsdn with root dir %s failed\n", root_dir);
         cdfsdn_free(cdfsdn);
         return (NULL_PTR);
     }
@@ -1565,20 +1565,20 @@ EC_BOOL cdfsdn_create(const char *root_dir, const UINT32 disk_num, const UINT32 
 
     if(EC_FALSE == c_dir_create(root_dir))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_create: root dir %s not exist and create failed\n", root_dir);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_create: root dir %s not exist and create failed\n", root_dir);
         return (EC_FALSE);
     }
 
     cdfsdn = cdfsdn_new(root_dir);
     if(NULL_PTR == cdfsdn)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_create: new cdfsdn with root dir %s failed\n", root_dir);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_create: new cdfsdn with root dir %s failed\n", root_dir);
         return (EC_FALSE);
     }
 
     if(0 == access((char *)CDFSDN_RECORD_NAME(cdfsdn), F_OK))/*exist*/
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_create: record file %s already exist\n", (char *)CDFSDN_RECORD_NAME(cdfsdn));
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_create: record file %s already exist\n", (char *)CDFSDN_RECORD_NAME(cdfsdn));
         cdfsdn_free(cdfsdn);
         return (EC_FALSE);
     }
@@ -1586,7 +1586,7 @@ EC_BOOL cdfsdn_create(const char *root_dir, const UINT32 disk_num, const UINT32 
     CDFSDN_RECORD_FD(cdfsdn) = c_file_open((char *)CDFSDN_RECORD_NAME(cdfsdn), O_RDWR | O_CREAT, 0666);
     if(ERR_FD == CDFSDN_RECORD_FD(cdfsdn))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_create: cannot open record file %s\n", (char *)CDFSDN_RECORD_NAME(cdfsdn));
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_create: cannot open record file %s\n", (char *)CDFSDN_RECORD_NAME(cdfsdn));
         cdfsdn_free(cdfsdn);
         return (EC_FALSE);
     }
@@ -1595,19 +1595,19 @@ EC_BOOL cdfsdn_create(const char *root_dir, const UINT32 disk_num, const UINT32 
     CDFSDN_RECORD_MGR(cdfsdn) = cdfsdn_record_mgr_new(disk_num, max_gb_num_of_disk_space * CDFSDN_MAX_BLOCKS_PER_GB, record_beg);
     if(NULL_PTR == CDFSDN_RECORD_MGR(cdfsdn))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_create: cannot new record with nbits %ld\n", max_gb_num_of_disk_space * CDFSDN_MAX_BLOCKS_PER_GB);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_create: cannot new record with nbits %ld\n", max_gb_num_of_disk_space * CDFSDN_MAX_BLOCKS_PER_GB);
         cdfsdn_free(cdfsdn);
         return (EC_FALSE);
     }
 
     cdfsdn_record_mgr_link(CDFSDN_RECORD_MGR(cdfsdn));
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_create: record mgr is\n");
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_create: record mgr is\n");
     cdfsdn_record_mgr_print(LOGSTDOUT, CDFSDN_RECORD_MGR(cdfsdn));
 
     if(EC_FALSE == cdfsdn_record_mgr_flush_has_lock(cdfsdn))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_create:flush record failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_create:flush record failed\n");
         cdfsdn_free(cdfsdn);
         return (EC_FALSE);
     }
@@ -1627,11 +1627,11 @@ EC_BOOL cdfsdn_reserve_block_to_swapin(CDFSDN *cdfsdn, const UINT32 room, UINT32
 
         cdfsdn_record = CDFSDN_RECORD_MGR_NODE(CDFSDN_RECORD_MGR(cdfsdn), path_layout);
 
-        sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_reserve_block_to_swapin: check record %ld, record room %ld, record size %ld, flag %lx => expect room %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_reserve_block_to_swapin: check record %ld, record room %ld, record size %ld, flag %lx => expect room %ld\n",
                             path_layout, CDFSDN_RECORD_ROOM(cdfsdn_record), CDFSDN_RECORD_SIZE(cdfsdn_record), CDFSDN_RECORD_FLAG(cdfsdn_record), room);
         if(CDFSDN_RECORD_IS_CACHED(cdfsdn_record) || CDFSDN_RECORD_IS_WRITE(cdfsdn_record) || CDFSDN_RECORD_IS_SWAPOUT(cdfsdn_record))
         {
-            sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_reserve_block_to_swapin: ...... invalid stat[1]: %lx\n", CDFSDN_RECORD_FLAG(cdfsdn_record));
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_reserve_block_to_swapin: ...... invalid stat[1]: %lx\n", CDFSDN_RECORD_FLAG(cdfsdn_record));
             continue;
         }
 
@@ -1642,7 +1642,7 @@ EC_BOOL cdfsdn_reserve_block_to_swapin(CDFSDN *cdfsdn, const UINT32 room, UINT32
             || CDFSDN_RECORD_IS_WRITE(cdfsdn_record)
             || CDFSDN_RECORD_IS_SWAPOUT(cdfsdn_record))
             {
-                sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_reserve_block_to_swapin: ...... invalid stat[2]: %lx\n", CDFSDN_RECORD_FLAG(cdfsdn_record));
+                dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_reserve_block_to_swapin: ...... invalid stat[2]: %lx\n", CDFSDN_RECORD_FLAG(cdfsdn_record));
                 continue;
             }
 
@@ -1652,7 +1652,7 @@ EC_BOOL cdfsdn_reserve_block_to_swapin(CDFSDN *cdfsdn, const UINT32 room, UINT32
             CDFSDN_NODE_UNLOCK(cdfsdn, path_layout, LOC_CDFSDN_0043);
             //CDFSDN_RECORD_MGR_CMUTEX_UNLOCK(CDFSDN_RECORD_MGR(cdfsdn), LOC_CDFSDN_0044);
 
-            sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_reserve_block_to_swapin: reserve record %ld\n", path_layout);
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_reserve_block_to_swapin: reserve record %ld\n", path_layout);
             (*path_layout_reserved) = path_layout;
             return (EC_TRUE);
         }
@@ -1679,13 +1679,13 @@ CDFSDN_BLOCK *cdfsdn_search_block_to_swapout(CDFSDN *cdfsdn, const UINT32 except
         cdfsdn_block = (CDFSDN_BLOCK *)CLIST_DATA_DATA(clist_data);
         if(NULL_PTR == cdfsdn_block)
         {
-            sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_search_block_to_swapout: block is null\n");
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_search_block_to_swapout: block is null\n");
             continue;
         }
 
         if(except_cdfsdn_node_lock == (CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block) % CDFSDN_CMUTEX_MAX_NUM))
         {
-            sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_search_block_to_swapout: found node lock collision, give up further checking\n");
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_search_block_to_swapout: found node lock collision, give up further checking\n");
             continue;
         }
 
@@ -1695,7 +1695,7 @@ CDFSDN_BLOCK *cdfsdn_search_block_to_swapout(CDFSDN *cdfsdn, const UINT32 except
             CDFSDN_NODE_IS_SWAPOUT(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block))
            )
         {
-            sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_search_block_to_swapout: ignore block of path layout %ld to swapout where write flag %lx, reader num %ld, swapout flag %lx\n",
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_search_block_to_swapout: ignore block of path layout %ld to swapout where write flag %lx, reader num %ld, swapout flag %lx\n",
                                 CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block),
                                 CDFSDN_NODE_WRITE_FLAG(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block)),
                                 CDFSDN_NODE_READER_NUM(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block)),
@@ -1708,7 +1708,7 @@ CDFSDN_BLOCK *cdfsdn_search_block_to_swapout(CDFSDN *cdfsdn, const UINT32 except
         {
             clist_rmv_no_lock(CDFSDN_BLOCK_TBL(cdfsdn), clist_data);
 
-            sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_search_block_to_swapout: umount block of path layout %ld to swapout\n",
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_search_block_to_swapout: umount block of path layout %ld to swapout\n",
                                 CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
 
             //CDFSDN_RECORD_MGR_CMUTEX_LOCK(CDFSDN_RECORD_MGR(cdfsdn), LOC_CDFSDN_0047);
@@ -1796,7 +1796,7 @@ CDFSDN_BLOCK *cdfsdn_search_block_to_write(CDFSDN *cdfsdn, const UINT32 room)
                 CDFSDN_NODE_IS_SWAPOUT(cdfsdn, path_layout)
              )
             {
-                sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_search_block_to_write: block %ld is writting(%ld) or swapout(%ld)\n",
+                dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_search_block_to_write: block %ld is writting(%ld) or swapout(%ld)\n",
                                     path_layout,
                                     CDFSDN_NODE_WRITE_FLAG(cdfsdn, path_layout),
                                     CDFSDN_NODE_SWAPOUT_FLAG(cdfsdn, path_layout)
@@ -1804,7 +1804,7 @@ CDFSDN_BLOCK *cdfsdn_search_block_to_write(CDFSDN *cdfsdn, const UINT32 room)
                 continue;
             }
 
-            sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_search_block_to_write: block %ld room %ld has room to accept %ld bytes\n",
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_search_block_to_write: block %ld room %ld has room to accept %ld bytes\n",
                                 path_layout,
                                 CDFSDN_RECORD_ROOM(cdfsdn_record),
                                 room
@@ -1814,7 +1814,7 @@ CDFSDN_BLOCK *cdfsdn_search_block_to_write(CDFSDN *cdfsdn, const UINT32 room)
             return (cdfsdn_block);
         }
 
-        sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_search_block_to_write: block %ld room %ld is not enough to accept %ld bytes\n",
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_search_block_to_write: block %ld room %ld is not enough to accept %ld bytes\n",
                             path_layout,
                             CDFSDN_RECORD_ROOM(cdfsdn_record),
                             room
@@ -1852,11 +1852,11 @@ CDFSDN_BLOCK *cdfsdn_reserve_block_to_write(CDFSDN *cdfsdn, const UINT32 room, U
             room <= CDFSDN_RECORD_ROOM(cdfsdn_record)
         )
         {
-            sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_reserve_block_to_write: block %ld expect room %ld, cache room %ld, cache size %ld\n",
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_reserve_block_to_write: block %ld expect room %ld, cache room %ld, cache size %ld\n",
                                 CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), room, CDFSDN_RECORD_ROOM(cdfsdn_record), CDFSDN_RECORD_SIZE(cdfsdn_record));
             if(EC_FALSE == cdfsdn_block_reserve_partition(cdfsdn, cdfsdn_block, room, partition_beg, partition_idx_vec))
             {
-                sys_log(LOGSTDOUT, "error:cdfsdn_reserve_block_to_write: reserve partition from block %ld failed\n",
+                dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_reserve_block_to_write: reserve partition from block %ld failed\n",
                                     CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block) );
 
                 cdfsdn_block_release_partition(cdfsdn, cdfsdn_block, partition_idx_vec);
@@ -1882,7 +1882,7 @@ EC_BOOL cdfsdn_fexist_block(const CDFSDN *cdfsdn, const UINT32 path_layout)
     /*when block file not exit, then create it and return*/
     if(0 != access(path, F_OK))
     {
-        sys_log(LOGSTDOUT, "warn:cdfsdn_fexist_block: path layout %ld => block file %s not exist\n",
+        dbg_log(SEC_0087_CDFSDN, 1)(LOGSTDOUT, "warn:cdfsdn_fexist_block: path layout %ld => block file %s not exist\n",
                             path_layout, path);
         return (EC_FALSE);
     }
@@ -1894,12 +1894,12 @@ EC_BOOL cdfsdn_swapout(CDFSDN *cdfsdn, CDFSDN_BLOCK  *cdfsdn_block)
 {
     if(CDFSDN_NODE_IS_UPDATED(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block)))
     {
-        sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_swapout: try to swapout %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_swapout: try to swapout %ld\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block)
                             );
         if(EC_FALSE == cdfsdn_block_flush(cdfsdn, cdfsdn_block))
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_swapout: block of path layout %ld flushed failed\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_swapout: block of path layout %ld flushed failed\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
 
             cdfsdn_record_mgr_flush_has_lock(cdfsdn);
 
@@ -1912,7 +1912,7 @@ EC_BOOL cdfsdn_swapout(CDFSDN *cdfsdn, CDFSDN_BLOCK  *cdfsdn_block)
     }
     else
     {
-        sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_swapout: give up flush path layout %ld where flag %lx\n",
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_swapout: give up flush path layout %ld where flag %lx\n",
                             CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), CDFSDN_NODE_FLAG(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block))
                             );
     }
@@ -1943,24 +1943,24 @@ CDFSDN_BLOCK * cdfsdn_swapin_no_lock(CDFSDN *cdfsdn, const UINT32 path_layout, c
                 CDFSDN_NODE_INC_READER(cdfsdn, path_layout);
             }
 
-            sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_swapin_no_lock: block of path layout %ld was already cached and searched\n", path_layout);
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_swapin_no_lock: block of path layout %ld was already cached and searched\n", path_layout);
             CLIST_UNLOCK(CDFSDN_BLOCK_TBL(cdfsdn), LOC_CDFSDN_0062);
             return (cdfsdn_block);
         }
         CLIST_UNLOCK(CDFSDN_BLOCK_TBL(cdfsdn), LOC_CDFSDN_0063);
     }
 
-    sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_swapin_no_lock: try to swapin path layout %ld\n", path_layout);
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_swapin_no_lock: try to swapin path layout %ld\n", path_layout);
     cdfsdn_block = cdfsdn_block_new((char *)CDFSDN_ROOT_DIR(cdfsdn));
     if(NULL_PTR == cdfsdn_block)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_swapin_no_lock: new block failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_swapin_no_lock: new block failed\n");
         return (NULL_PTR);
     }
 
     if(EC_FALSE == cdfsdn_block_open(cdfsdn, cdfsdn_block, path_layout, open_flags))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_swapin_no_lock: open block failed where path layout %lx\n", path_layout);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_swapin_no_lock: open block failed where path layout %lx\n", path_layout);
         cdfsdn_block_free(cdfsdn_block);
         return (NULL_PTR);
     }
@@ -1969,7 +1969,7 @@ CDFSDN_BLOCK * cdfsdn_swapin_no_lock(CDFSDN *cdfsdn, const UINT32 path_layout, c
     /*shrink here will increate the success possibility of pushing cdfsdn_block into CDFSDN_BLOCK_VEC(cdfsdn)*/
     if(EC_FALSE == cdfsdn_shrink(cdfsdn, path_layout % CDFSDN_CMUTEX_MAX_NUM))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_swapin_no_lock: refuse swapin path layout %ld due to cdfsdn shrink failed where size %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_swapin_no_lock: refuse swapin path layout %ld due to cdfsdn shrink failed where size %ld\n",
                             path_layout, clist_size(CDFSDN_BLOCK_TBL(cdfsdn)));
 
         cdfsdn_block_free(cdfsdn_block);
@@ -1981,7 +1981,7 @@ CDFSDN_BLOCK * cdfsdn_swapin_no_lock(CDFSDN *cdfsdn, const UINT32 path_layout, c
     /*shrink here will increate the success possibility of pushing cdfsdn_block into CDFSDN_BLOCK_VEC(cdfsdn)*/
     if(EC_FALSE == cdfsdn_shrink_opt(cdfsdn, path_layout % CDFSDN_CMUTEX_MAX_NUM, CDFSDN_SHRINK_BLOCK_MAX_NUM))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_swapin: refuse swapin path layout %ld due to cdfsdn shrink failed where size %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_swapin: refuse swapin path layout %ld due to cdfsdn shrink failed where size %ld\n",
                             path_layout, cvector_size(CDFSDN_BLOCK_VEC(cdfsdn)));
         cdfsdn_block_free(cdfsdn_block);
         return (NULL_PTR);
@@ -1998,7 +1998,7 @@ CDFSDN_BLOCK * cdfsdn_swapin_no_lock(CDFSDN *cdfsdn, const UINT32 path_layout, c
         cdfsdn_block_t = cdfsdn_lookup_block_no_lock(cdfsdn, path_layout);
         if(NULL_PTR != cdfsdn_block_t)
         {
-            sys_log(LOGSTDOUT, "cdfsdn_swapin_no_lock: block of path layout %ld was already cached and searched without lock\n", path_layout);
+            dbg_log(SEC_0087_CDFSDN, 5)(LOGSTDOUT, "cdfsdn_swapin_no_lock: block of path layout %ld was already cached and searched without lock\n", path_layout);
 
             //CDFSDN_RECORD_MGR_CMUTEX_LOCK(CDFSDN_RECORD_MGR(cdfsdn), LOC_CDFSDN_0065);
             CDFSDN_NODE_FLAG(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block_t)) |= (bit_flags & CDFSDN_RECORD_FLAG_MASK);
@@ -2026,12 +2026,12 @@ CDFSDN_BLOCK * cdfsdn_swapin_no_lock(CDFSDN *cdfsdn, const UINT32 path_layout, c
 
     CLIST_UNLOCK(CDFSDN_BLOCK_TBL(cdfsdn), LOC_CDFSDN_0070);
 
-    sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_swapin_no_lock: swapin block %ld, cache size %ld, flag %lx\n",
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_swapin_no_lock: swapin block %ld, cache size %ld, flag %lx\n",
                         path_layout,
                         CDFSDN_RECORD_SIZE(cdfsdn_record),
                         CDFSDN_NODE_FLAG(cdfsdn, path_layout)
                         );
-    //sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_swapin_no_lock: after swapin, the block vec is:\n");
+    //dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_swapin_no_lock: after swapin, the block vec is:\n");
     //clist_print(LOGSTDNULL, CDFSDN_BLOCK_TBL(cdfsdn), (CLIST_DATA_DATA_PRINT)cdfsdn_block_print);
 
     return (cdfsdn_block);
@@ -2066,13 +2066,13 @@ EC_BOOL cdfsdn_shrink(CDFSDN *cdfsdn, const UINT32 except_cdfsdn_node_lock)
                 return (EC_TRUE);
             }
 
-            sys_log(LOGSTDOUT, "error:cdfsdn_shrink: find block to swapout failed where except %ld\n", except_cdfsdn_node_lock);
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_shrink: find block to swapout failed where except %ld\n", except_cdfsdn_node_lock);
             return (EC_FALSE);
         }
 
         if(EC_FALSE == cdfsdn_swapout(cdfsdn, cdfsdn_block))
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_shrink: swapout block failed failed where path layout %ld\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_shrink: swapout block failed failed where path layout %ld\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
 
             return (EC_FALSE);
         }
@@ -2100,7 +2100,7 @@ EC_BOOL cdfsdn_shrink_opt(CDFSDN *cdfsdn, const UINT32 except_cdfsdn_node_lock, 
 
         if(except_cdfsdn_node_lock == (CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block) % CDFSDN_CMUTEX_MAX_NUM))
         {
-            sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_shrink_opt: found node lock collision, give up further checking\n");
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_shrink_opt: found node lock collision, give up further checking\n");
             continue;
         }
 
@@ -2120,7 +2120,7 @@ EC_BOOL cdfsdn_shrink_opt(CDFSDN *cdfsdn, const UINT32 except_cdfsdn_node_lock, 
             clist_data = CLIST_DATA_PREV(clist_data);
 
             clist_rmv_no_lock(CDFSDN_BLOCK_TBL(cdfsdn), clist_data_rmv);
-            sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_shrink_opt: umount block of path layout %ld to swapout\n",
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_shrink_opt: umount block of path layout %ld to swapout\n",
                                 CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
 
             //CDFSDN_RECORD_MGR_CMUTEX_LOCK(CDFSDN_RECORD_MGR(cdfsdn), LOC_CDFSDN_0075);
@@ -2131,10 +2131,10 @@ EC_BOOL cdfsdn_shrink_opt(CDFSDN *cdfsdn, const UINT32 except_cdfsdn_node_lock, 
             {
                 record_mgr_flush_flag = EC_TRUE;
 
-                sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_shrink_opt: try to swapout %ld\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
+                dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_shrink_opt: try to swapout %ld\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
                 if(EC_FALSE == cdfsdn_block_flush(cdfsdn, cdfsdn_block))
                 {
-                    sys_log(LOGSTDOUT, "error:cdfsdn_shrink_opt: block of path layout %ld flushed failed\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
+                    dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_shrink_opt: block of path layout %ld flushed failed\n", CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
 
                     cdfsdn_record_mgr_flush_has_lock(cdfsdn);
 
@@ -2146,7 +2146,7 @@ EC_BOOL cdfsdn_shrink_opt(CDFSDN *cdfsdn, const UINT32 except_cdfsdn_node_lock, 
             }
             else
             {
-                sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_shrink_opt: give up swapout %ld where flag %lx\n",
+                dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_shrink_opt: give up swapout %ld where flag %lx\n",
                                     CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), CDFSDN_NODE_FLAG(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block))
                                     );
             }
@@ -2191,7 +2191,7 @@ EC_BOOL cdfsdn_read(CDFSDN *cdfsdn, const UINT32 path_layout, const UINT32 parti
 #if 0
     if(EC_FALSE == cdfsdn_fexist_block(cdfsdn, path_layout))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_read: no existing file corresponding to block path layout %ld\n", path_layout);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_read: no existing file corresponding to block path layout %ld\n", path_layout);
         return (EC_FALSE);
     }
 #endif
@@ -2201,7 +2201,7 @@ EC_BOOL cdfsdn_read(CDFSDN *cdfsdn, const UINT32 path_layout, const UINT32 parti
     {
         if(EC_FALSE == cdfsdn_block_read(cdfsdn_block, partition_idx, data_max_len, data_buff, data_len))
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_read: block read failed where path layout %ld\n", path_layout);
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_read: block read failed where path layout %ld\n", path_layout);
             //CDFSDN_RECORD_MGR_CMUTEX_LOCK(CDFSDN_RECORD_MGR(cdfsdn), LOC_CDFSDN_0077);
             CDFSDN_NODE_LOCK(cdfsdn, path_layout, LOC_CDFSDN_0078);
             CDFSDN_NODE_DEC_READER(cdfsdn, path_layout);
@@ -2217,7 +2217,7 @@ EC_BOOL cdfsdn_read(CDFSDN *cdfsdn, const UINT32 path_layout, const UINT32 parti
         //CDFSDN_RECORD_MGR_CMUTEX_UNLOCK(CDFSDN_RECORD_MGR(cdfsdn), LOC_CDFSDN_0084);
         return (EC_TRUE);
     }
-    sys_log(LOGSTDOUT, "error:cdfsdn_read: swapin block of path layout %ld failed\n", path_layout);
+    dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_read: swapin block of path layout %ld failed\n", path_layout);
     return (EC_FALSE);
 }
 
@@ -2231,7 +2231,7 @@ EC_BOOL cdfsdn_write(CDFSDN *cdfsdn, const UINT32 data_max_len, const UINT8 *dat
 
     if(CDFSDN_BLOCK_DATA_MAX_SIZE <= data_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_write: data len %ld overflow\n", data_max_len);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_write: data len %ld overflow\n", data_max_len);
         return (EC_FALSE);
     }
 
@@ -2253,7 +2253,7 @@ EC_BOOL cdfsdn_write(CDFSDN *cdfsdn, const UINT32 data_max_len, const UINT8 *dat
             CDFSDN_NODE_UNLOCK(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), LOC_CDFSDN_0088);
             //CDFSDN_RECORD_MGR_CMUTEX_UNLOCK(CDFSDN_RECORD_MGR(cdfsdn), LOC_CDFSDN_0089);
 
-            sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_write[1]: write %ld bytes to path layout %ld successfully\n",
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_write[1]: write %ld bytes to path layout %ld successfully\n",
                                 data_max_len, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
 
             cvector_free(partition_idx_vec, LOC_CDFSDN_0090);
@@ -2269,7 +2269,7 @@ EC_BOOL cdfsdn_write(CDFSDN *cdfsdn, const UINT32 data_max_len, const UINT8 *dat
 
     if(EC_FALSE == cdfsdn_reserve_block_to_swapin(cdfsdn, data_max_len, &path_layout_reserved))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_write: not find record with room more than %ld bytes\n", data_max_len);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_write: not find record with room more than %ld bytes\n", data_max_len);
         cvector_free(partition_idx_vec, LOC_CDFSDN_0095);
         return (EC_FALSE);
     }
@@ -2283,7 +2283,7 @@ EC_BOOL cdfsdn_write(CDFSDN *cdfsdn, const UINT32 data_max_len, const UINT8 *dat
         CDFSDN_NODE_SET_NOT_WRITE(cdfsdn, path_layout_reserved);
         CDFSDN_NODE_UNLOCK(cdfsdn, path_layout_reserved, LOC_CDFSDN_0097);
 
-        sys_log(LOGSTDOUT, "error:cdfsdn_write: swapin path layout %ld failed\n", path_layout_reserved);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_write: swapin path layout %ld failed\n", path_layout_reserved);
         cvector_free(partition_idx_vec, LOC_CDFSDN_0098);
         return (EC_FALSE);
     }
@@ -2291,7 +2291,7 @@ EC_BOOL cdfsdn_write(CDFSDN *cdfsdn, const UINT32 data_max_len, const UINT8 *dat
     CDFSDN_NODE_LOCK(cdfsdn, path_layout_reserved, LOC_CDFSDN_0099);
     if(EC_FALSE == cdfsdn_block_reserve_partition(cdfsdn, cdfsdn_block, data_max_len, &partition_beg, partition_idx_vec))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_write: reserve partition failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_write: reserve partition failed\n");
         CDFSDN_NODE_UNLOCK(cdfsdn, path_layout_reserved, LOC_CDFSDN_0100);
         cvector_free(partition_idx_vec, LOC_CDFSDN_0101);
         return (EC_FALSE);
@@ -2307,7 +2307,7 @@ EC_BOOL cdfsdn_write(CDFSDN *cdfsdn, const UINT32 data_max_len, const UINT8 *dat
         CDFSDN_NODE_SET_NOT_WRITE(cdfsdn, path_layout_reserved);
         CDFSDN_NODE_UNLOCK(cdfsdn, path_layout_reserved, LOC_CDFSDN_0104);
 
-        sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_write[2]: write %ld bytes to path layout %ld successfully\n",
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_write[2]: write %ld bytes to path layout %ld successfully\n",
                             data_max_len, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
         cvector_free(partition_idx_vec, LOC_CDFSDN_0105);
         return (EC_TRUE);
@@ -2318,7 +2318,7 @@ EC_BOOL cdfsdn_write(CDFSDN *cdfsdn, const UINT32 data_max_len, const UINT8 *dat
     CDFSDN_NODE_SET_NOT_WRITE(cdfsdn, path_layout_reserved);
     CDFSDN_NODE_UNLOCK(cdfsdn, path_layout_reserved, LOC_CDFSDN_0107);
 
-    sys_log(LOGSTDNULL, "[DEBUG] cdfsdn_write[3]: write %ld bytes to path layout %ld failed\n",
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDNULL, "[DEBUG] cdfsdn_write[3]: write %ld bytes to path layout %ld failed\n",
                         data_max_len, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
 
     cvector_free(partition_idx_vec, LOC_CDFSDN_0108);
@@ -2331,7 +2331,7 @@ EC_BOOL cdfsdn_update(CDFSDN *cdfsdn, const UINT32 data_max_len, const UINT8 *da
 
     if(CDFSDN_BLOCK_DATA_MAX_SIZE <= data_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_update: data len %ld overflow\n", data_max_len);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_update: data len %ld overflow\n", data_max_len);
         return (EC_FALSE);
     }
 
@@ -2340,7 +2340,7 @@ EC_BOOL cdfsdn_update(CDFSDN *cdfsdn, const UINT32 data_max_len, const UINT8 *da
     {
         if(EC_FALSE == cdfsdn_block_update(cdfsdn, cdfsdn_block, data_max_len, data_buff, partition_beg))
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_update: block update failed where path layout %ld\n", path_layout);
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_update: block update failed where path layout %ld\n", path_layout);
             CDFSDN_NODE_LOCK(cdfsdn, path_layout, LOC_CDFSDN_0109);
             CDFSDN_NODE_DEC_READER(cdfsdn, path_layout);
             CDFSDN_NODE_UNLOCK(cdfsdn, path_layout, LOC_CDFSDN_0110);
@@ -2352,7 +2352,7 @@ EC_BOOL cdfsdn_update(CDFSDN *cdfsdn, const UINT32 data_max_len, const UINT8 *da
         CDFSDN_NODE_UNLOCK(cdfsdn, path_layout, LOC_CDFSDN_0112);
         return (EC_TRUE);
     }
-    sys_log(LOGSTDOUT, "error:cdfsdn_update: swapin block of path layout %ld failed\n", path_layout);
+    dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_update: swapin block of path layout %ld failed\n", path_layout);
     return (EC_FALSE);
 }
 
@@ -2366,11 +2366,11 @@ EC_BOOL cdfsdn_truncate(CDFSDN *cdfsdn, const UINT32 data_max_len, UINT32 *path_
 
     if(CDFSDN_BLOCK_DATA_MAX_SIZE <= data_max_len)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_truncate: data len %ld overflow\n", data_max_len);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_truncate: data len %ld overflow\n", data_max_len);
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_truncate: try to truncate %ld bytes\n", data_max_len);
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_truncate: try to truncate %ld bytes\n", data_max_len);
 
     partition_idx_vec = cvector_new(0, MM_UINT32, LOC_CDFSDN_0113);
 
@@ -2386,7 +2386,7 @@ EC_BOOL cdfsdn_truncate(CDFSDN *cdfsdn, const UINT32 data_max_len, UINT32 *path_
             CDFSDN_NODE_SET_NOT_WRITE(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
             CDFSDN_NODE_UNLOCK(cdfsdn, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block), LOC_CDFSDN_0115);
 
-            sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_truncate[1]: truncate %ld bytes to path layout %ld successfully\n",
+            dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_truncate[1]: truncate %ld bytes to path layout %ld successfully\n",
                                 data_max_len, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
 
             cvector_free(partition_idx_vec, LOC_CDFSDN_0116);
@@ -2400,7 +2400,7 @@ EC_BOOL cdfsdn_truncate(CDFSDN *cdfsdn, const UINT32 data_max_len, UINT32 *path_
 
     if(EC_FALSE == cdfsdn_reserve_block_to_swapin(cdfsdn, data_max_len, &path_layout_reserved))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_truncate: not find record with room more than %ld bytes\n", data_max_len);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_truncate: not find record with room more than %ld bytes\n", data_max_len);
         cvector_free(partition_idx_vec, LOC_CDFSDN_0119);
         return (EC_FALSE);
     }
@@ -2414,7 +2414,7 @@ EC_BOOL cdfsdn_truncate(CDFSDN *cdfsdn, const UINT32 data_max_len, UINT32 *path_
         CDFSDN_NODE_SET_NOT_WRITE(cdfsdn, path_layout_reserved);
         CDFSDN_NODE_UNLOCK(cdfsdn, path_layout_reserved, LOC_CDFSDN_0121);
 
-        sys_log(LOGSTDOUT, "error:cdfsdn_truncate: swapin path layout %ld failed\n", path_layout_reserved);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_truncate: swapin path layout %ld failed\n", path_layout_reserved);
         cvector_free(partition_idx_vec, LOC_CDFSDN_0122);
         return (EC_FALSE);
     }
@@ -2422,7 +2422,7 @@ EC_BOOL cdfsdn_truncate(CDFSDN *cdfsdn, const UINT32 data_max_len, UINT32 *path_
     CDFSDN_NODE_LOCK(cdfsdn, path_layout_reserved, LOC_CDFSDN_0123);
     if(EC_FALSE == cdfsdn_block_reserve_partition(cdfsdn, cdfsdn_block, data_max_len, &partition_beg, partition_idx_vec))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_truncate: reserve partition failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_truncate: reserve partition failed\n");
         CDFSDN_NODE_UNLOCK(cdfsdn, path_layout_reserved, LOC_CDFSDN_0124);
         cvector_free(partition_idx_vec, LOC_CDFSDN_0125);
         return (EC_FALSE);
@@ -2438,7 +2438,7 @@ EC_BOOL cdfsdn_truncate(CDFSDN *cdfsdn, const UINT32 data_max_len, UINT32 *path_
         CDFSDN_NODE_SET_NOT_WRITE(cdfsdn, path_layout_reserved);
         CDFSDN_NODE_UNLOCK(cdfsdn, path_layout_reserved, LOC_CDFSDN_0128);
 
-        sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_truncate[2]: truncate %ld bytes to path layout %ld successfully\n",
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_truncate[2]: truncate %ld bytes to path layout %ld successfully\n",
                             data_max_len, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
         cvector_free(partition_idx_vec, LOC_CDFSDN_0129);
         return (EC_TRUE);
@@ -2449,7 +2449,7 @@ EC_BOOL cdfsdn_truncate(CDFSDN *cdfsdn, const UINT32 data_max_len, UINT32 *path_
     CDFSDN_NODE_SET_NOT_WRITE(cdfsdn, path_layout_reserved);
     CDFSDN_NODE_UNLOCK(cdfsdn, path_layout_reserved, LOC_CDFSDN_0131);
 
-    sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_truncate[3]: truncate %ld bytes to path layout %ld failed\n",
+    dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_truncate[3]: truncate %ld bytes to path layout %ld failed\n",
                         data_max_len, CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block));
 
     cvector_free(partition_idx_vec, LOC_CDFSDN_0132);
@@ -2466,7 +2466,7 @@ EC_BOOL cdfsdn_remove(CDFSDN *cdfsdn, const UINT32 path_layout, const UINT32 par
         CDFSDN_NODE_LOCK(cdfsdn, path_layout, LOC_CDFSDN_0133);
         if(EC_FALSE == cdfsdn_block_recycle_partition(cdfsdn, cdfsdn_block, partition_idx))
         {
-            sys_log(LOGSTDOUT, "error:cdfsdn_remove: block %ld read failed\n", path_layout);
+            dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_remove: block %ld read failed\n", path_layout);
 
             CDFSDN_NODE_DEC_READER(cdfsdn, path_layout);
             CDFSDN_NODE_UNLOCK(cdfsdn, path_layout, LOC_CDFSDN_0134);
@@ -2478,7 +2478,7 @@ EC_BOOL cdfsdn_remove(CDFSDN *cdfsdn, const UINT32 path_layout, const UINT32 par
         CDFSDN_NODE_UNLOCK(cdfsdn, path_layout, LOC_CDFSDN_0135);
         return (EC_TRUE);
     }
-    sys_log(LOGSTDOUT, "error:cdfsdn_remove: swapin block %ld failed\n", path_layout);
+    dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_remove: swapin block %ld failed\n", path_layout);
     return (EC_FALSE);
 }
 
@@ -2489,12 +2489,12 @@ CDFSDN_BLOCK * cdfsdn_get(CDFSDN *cdfsdn, const UINT32 block_path_layout)
 
     int block_fd;
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_get: cdfsdn disk num = %ld\n", CDFSDN_DISK_NUM(cdfsdn));
+    //dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_get: cdfsdn disk num = %ld\n", CDFSDN_DISK_NUM(cdfsdn));
 
     cdfsdn_block_fname_gen((char *)CDFSDN_ROOT_DIR(cdfsdn), CDFSDN_DISK_NUM(cdfsdn), block_path_layout, path, CDFSDN_BLOCK_NAME_MAX_SIZE);
     if(0 != access(path, F_OK))
     {
-        sys_log(LOGSTDOUT, "warn:cdfsdn_get: block file %s not exist\n", path);
+        dbg_log(SEC_0087_CDFSDN, 1)(LOGSTDOUT, "warn:cdfsdn_get: block file %s not exist\n", path);
         return (NULL_PTR);
     }
 
@@ -2502,14 +2502,14 @@ CDFSDN_BLOCK * cdfsdn_get(CDFSDN *cdfsdn, const UINT32 block_path_layout)
     block_fd = c_file_open(path, O_RDWR, 0666);
     if(ERR_FD == block_fd)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_get: open block file %s failed\n", path);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_get: open block file %s failed\n", path);
         return (NULL_PTR);
     }
 
     cdfsdn_block = cdfsdn_block_new((char *)CDFSDN_ROOT_DIR(cdfsdn));
     if(NULL_PTR == cdfsdn_block)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_get: new block failed\n");
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_get: new block failed\n");
         c_file_close(block_fd);
         return (NULL_PTR);
     }
@@ -2518,7 +2518,7 @@ CDFSDN_BLOCK * cdfsdn_get(CDFSDN *cdfsdn, const UINT32 block_path_layout)
 
     if(EC_FALSE == cdfsdn_block_load(cdfsdn, cdfsdn_block))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_get: load block file %s failed\n", path);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_get: load block file %s failed\n", path);
         c_file_close(CDFSDN_BLOCK_FD(cdfsdn_block));
         CDFSDN_BLOCK_FD(cdfsdn_block) = ERR_FD;
         cdfsdn_block_free(cdfsdn_block);
@@ -2541,7 +2541,7 @@ EC_BOOL cdfsdn_set(CDFSDN *cdfsdn, const UINT32 block_path_layout, const CDFSDN_
     cdfsdn_block_fname_gen((char *)CDFSDN_ROOT_DIR(cdfsdn), CDFSDN_DISK_NUM(cdfsdn), block_path_layout, path, CDFSDN_BLOCK_NAME_MAX_SIZE);
     if(0 == access(path, F_OK))
     {
-        sys_log(LOGSTDOUT, "warn:cdfsdn_set: block file %s already exist\n", path);
+        dbg_log(SEC_0087_CDFSDN, 1)(LOGSTDOUT, "warn:cdfsdn_set: block file %s already exist\n", path);
         return (EC_FALSE);
     }
 
@@ -2549,13 +2549,13 @@ EC_BOOL cdfsdn_set(CDFSDN *cdfsdn, const UINT32 block_path_layout, const CDFSDN_
     block_fd = c_file_open(path, O_RDWR | O_CREAT, 0666);
     if(ERR_FD == block_fd)
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_set: open block file %s failed\n", path);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_set: open block file %s failed\n", path);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == cdfsdn_block_cache_flush_to(block_fd, cdfsdn_block))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_set: load block file %s failed\n", path);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_set: load block file %s failed\n", path);
         c_file_close(block_fd);
         return (EC_FALSE);
     }
@@ -2599,7 +2599,7 @@ CDFSDN_BLOCK * cdfsdn_transfer_out_start(CDFSDN *cdfsdn)
     {
         CDFSDN_RECORD *cdfsdn_record;
         cdfsdn_record = CDFSDN_RECORD_MGR_NODE(CDFSDN_RECORD_MGR(cdfsdn), record_pos);
-        sys_log(LOGSTDOUT, "[DEBUG] cdfsdn_transfer_out_start: check block %ld: flag %lx, size %ld, room %ld, first part idx %ld, record next %ld\n",
+        dbg_log(SEC_0087_CDFSDN, 9)(LOGSTDOUT, "[DEBUG] cdfsdn_transfer_out_start: check block %ld: flag %lx, size %ld, room %ld, first part idx %ld, record next %ld\n",
                             record_pos,
                             (UINT32)CDFSDN_RECORD_FLAG(cdfsdn_record),
                             (UINT32)CDFSDN_RECORD_SIZE(cdfsdn_record),
@@ -2624,7 +2624,7 @@ EC_BOOL cdfsdn_transfer_out_end(CDFSDN *cdfsdn, CDFSDN_BLOCK *cdfsdn_block)
     path_layout = CDFSDN_BLOCK_PATH_LAYOUT(cdfsdn_block);
     if(EC_FALSE == cdfsdn_block_unlink(cdfsdn_block, CDFSDN_DISK_NUM(cdfsdn), path_layout))
     {
-        sys_log(LOGSTDOUT, "error:cdfsdn_transfer_out_end: unlink block %ld failed\n", path_layout);
+        dbg_log(SEC_0087_CDFSDN, 0)(LOGSTDOUT, "error:cdfsdn_transfer_out_end: unlink block %ld failed\n", path_layout);
         cdfsdn_block_free(cdfsdn_block);
         return (EC_FALSE);
     }

@@ -146,7 +146,7 @@ EC_BOOL lic_buff_load(int fd, UINT32 *offset, const RWSIZE rsize, UINT8 *buff)
 
     if(-1 == lseek(fd, (*offset), SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:lic_buff_load: seek offset %ld failed\n", (*offset));
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_buff_load: seek offset %ld failed\n", (*offset));
         return (EC_FALSE);
     }
 
@@ -155,14 +155,14 @@ EC_BOOL lic_buff_load(int fd, UINT32 *offset, const RWSIZE rsize, UINT8 *buff)
 
     if(osize != read(fd, buff + csize, osize))
     {
-        sys_log(LOGSTDOUT, "error:lic_buff_load: load buff from offset %ld failed where rsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_buff_load: load buff from offset %ld failed where rsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
                             (*offset), rsize, csize, osize, errno, strerror(errno));
         return (EC_FALSE);
     }
 
     (*offset) += rsize;
 
-    //sys_log(LOGSTDOUT, "lic_buff_load: load %ld bytes\n", rsize);
+    //dbg_log(SEC_0060_LICENSE, 5)(LOGSTDOUT, "lic_buff_load: load %ld bytes\n", rsize);
 
     return (EC_TRUE);
 }
@@ -175,7 +175,7 @@ EC_BOOL lic_buff_flush(int fd, UINT32 *offset, const RWSIZE wsize, const UINT8 *
 
     if(-1 == lseek(fd, (*offset), SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:lic_buff_flush: seek offset %ld failed\n", (*offset));
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_buff_flush: seek offset %ld failed\n", (*offset));
         return (EC_FALSE);
     }
 
@@ -184,7 +184,7 @@ EC_BOOL lic_buff_flush(int fd, UINT32 *offset, const RWSIZE wsize, const UINT8 *
 
     if(osize != write(fd, buff + csize, osize))
     {
-        sys_log(LOGSTDOUT, "error:lic_buff_flush: flush buff to offset %ld failed where wsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_buff_flush: flush buff to offset %ld failed where wsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
                             (*offset), wsize, csize, osize, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -345,13 +345,13 @@ EC_BOOL lic_mac_make(LIC_MAC *lic_mac, const char *mac_str)
 {
     if(EC_FALSE == str_to_mac_addr(mac_str, &(LIC_MAC_ADDR(lic_mac, 0))))
     {
-        sys_log(LOGSTDOUT, "error:lic_mac_make: invalid mac addr %s\n", mac_str);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_mac_make: invalid mac addr %s\n", mac_str);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_mac_check(lic_mac))
     {
-        sys_log(LOGSTDOUT, "error:lic_mac_make: illegal mac addr %s\n", mac_str);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_mac_make: illegal mac addr %s\n", mac_str);
         return (EC_FALSE);
     }
 
@@ -390,7 +390,7 @@ EC_BOOL lic_chars_make(UINT8 *des_str, const UINT32 des_max_size, const char *sr
     src_str_len = strlen(src_str);
     if(src_str_len > des_max_size)
     {
-        sys_log(LOGSTDOUT, "error:lic_chars_make: src str %s size = %ld overflow where max size = %ld\n",
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_chars_make: src str %s size = %ld overflow where max size = %ld\n",
                             src_str, src_str_len, des_max_size);
         return (EC_FALSE);
     }
@@ -489,7 +489,7 @@ EC_BOOL lic_date_make(LIC_DATE *lic_date, const char *start_date_str, const char
     field_num = c_str_split(start_date_str_tmp, "-/", fields, sizeof(fields)/sizeof(fields[ 0 ]));
     if(3 != field_num)
     {
-        sys_log(LOGSTDOUT, "error:lic_date_make: invalid start date: %s\n", start_date_str);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_date_make: invalid start date: %s\n", start_date_str);
         return (EC_FALSE);
     }
 
@@ -499,7 +499,7 @@ EC_BOOL lic_date_make(LIC_DATE *lic_date, const char *start_date_str, const char
 
     if(2012 > year || year > 4095 || 1 > month || month > 12 || 1 > day || day > 31)
     {
-        sys_log(LOGSTDOUT, "error:lic_date_make: illegal start date: %s\n", start_date_str);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_date_make: illegal start date: %s\n", start_date_str);
         return (EC_FALSE);
     }
 
@@ -511,7 +511,7 @@ EC_BOOL lic_date_make(LIC_DATE *lic_date, const char *start_date_str, const char
     field_num = c_str_split(end_date_str_tmp, "-/", fields, sizeof(fields)/sizeof(fields[ 0 ]));
     if(3 != field_num)
     {
-        sys_log(LOGSTDOUT, "error:lic_date_make: invalid end date: %s\n", end_date_str);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_date_make: invalid end date: %s\n", end_date_str);
         return (EC_FALSE);
     }
 
@@ -521,7 +521,7 @@ EC_BOOL lic_date_make(LIC_DATE *lic_date, const char *start_date_str, const char
 
     if(2012 > year || year > 4095 || 1 > month || month > 12 || 1 > day || day > 31)
     {
-        sys_log(LOGSTDOUT, "error:lic_date_make: illegal end date: %s\n", end_date_str);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_date_make: illegal end date: %s\n", end_date_str);
         return (EC_FALSE);
     }
 
@@ -531,7 +531,7 @@ EC_BOOL lic_date_make(LIC_DATE *lic_date, const char *start_date_str, const char
 
     if(EC_FALSE == lic_date_check(lic_date))
     {
-        sys_log(LOGSTDOUT, "error:lic_date_make: illegal issued expiration: from %s to %s\n", start_date_str, end_date_str);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_date_make: illegal issued expiration: from %s to %s\n", start_date_str, end_date_str);
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -619,55 +619,55 @@ EC_BOOL lic_cfg_load(int fd, LIC_CFG *lic_cfg)
 
     if(EC_FALSE == lic_buff_load(fd, &offset, LIC_VERSION_MAX_SIZE, LIC_CFG_VERSION(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_load: load version failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_load: load version failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_load(fd, &offset, sizeof(LIC_MAC), (UINT8 *)LIC_CFG_MAC(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_load: load mac failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_load: load mac failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_load(fd, &offset, sizeof(LIC_DATE), (UINT8 *)LIC_CFG_DATE(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_load: load date failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_load: load date failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_load(fd, &offset, LIC_USER_NAME_MAX_SIZE, LIC_CFG_USER_NAME(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_load: load user name failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_load: load user name failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_load(fd, &offset, LIC_USER_EMAIL_MAX_SIZE, LIC_CFG_USER_EMAIL(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_load: load user email failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_load: load user email failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_load(fd, &offset, LIC_VENDOR_NAME_MAX_SIZE, LIC_CFG_VENDOR_NAME(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_load: load vendor name failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_load: load vendor name failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_load(fd, &offset, LIC_VENDOR_EMAIL_MAX_SIZE, LIC_CFG_VENDOR_EMAIL(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_load: load vendor email failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_load: load vendor email failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_load(fd, &offset, sizeof(BIGINT), (UINT8 *)LIC_CFG_PRIVATE_KEY(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_load: load private key failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_load: load private key failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_load(fd, &offset, sizeof(ECC_SIGNATURE), (UINT8 *)LIC_CFG_SIGNATURE(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_load: load signature failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_load: load signature failed\n");
         return (EC_FALSE);
     }
 
@@ -682,55 +682,55 @@ EC_BOOL lic_cfg_flush(int fd, const LIC_CFG *lic_cfg)
 
     if(EC_FALSE == lic_buff_flush(fd, &offset, LIC_VERSION_MAX_SIZE, LIC_CFG_VERSION(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_flush: flush version failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_flush: flush version failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_flush(fd, &offset, sizeof(LIC_MAC), (UINT8 *)LIC_CFG_MAC(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_flush: flush mac failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_flush: flush mac failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_flush(fd, &offset, sizeof(LIC_DATE), (UINT8 *)LIC_CFG_DATE(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_flush: flush date failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_flush: flush date failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_flush(fd, &offset, LIC_USER_NAME_MAX_SIZE, LIC_CFG_USER_NAME(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_flush: flush user name failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_flush: flush user name failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_flush(fd, &offset, LIC_USER_EMAIL_MAX_SIZE, LIC_CFG_USER_EMAIL(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_flush: flush user email failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_flush: flush user email failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_flush(fd, &offset, LIC_VENDOR_NAME_MAX_SIZE, LIC_CFG_VENDOR_NAME(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_flush: flush vendor name failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_flush: flush vendor name failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_flush(fd, &offset, LIC_VENDOR_EMAIL_MAX_SIZE, LIC_CFG_VENDOR_EMAIL(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_flush: flush vendor email failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_flush: flush vendor email failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_flush(fd, &offset, sizeof(BIGINT), (UINT8 *)LIC_CFG_PRIVATE_KEY(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_flush: flush private key failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_flush: flush private key failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_buff_flush(fd, &offset, sizeof(ECC_SIGNATURE), (UINT8 *)LIC_CFG_SIGNATURE(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_flush: flush signature failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_flush: flush signature failed\n");
         return (EC_FALSE);
     }
 
@@ -743,49 +743,49 @@ EC_BOOL lic_cfg_make(LIC_CFG *lic_cfg, const char *mac_str,
 {
     if(EC_FALSE == lic_mac_make(LIC_CFG_MAC(lic_cfg), mac_str))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_make: make mac from %s failed\n", mac_str);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_make: make mac from %s failed\n", mac_str);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_date_make(LIC_CFG_DATE(lic_cfg), start_date_str, end_date_str))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_make: make date from start date %s to end date %s failed\n", start_date_str, end_date_str);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_make: make date from start date %s to end date %s failed\n", start_date_str, end_date_str);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_chars_make(LIC_CFG_USER_NAME(lic_cfg), LIC_USER_NAME_MAX_SIZE, user_name_str))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_make: make user name from %s failed\n", user_name_str);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_make: make user name from %s failed\n", user_name_str);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_chars_make(LIC_CFG_USER_EMAIL(lic_cfg), LIC_USER_EMAIL_MAX_SIZE, user_email_str))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_make: make user email from %s failed\n", user_name_str);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_make: make user email from %s failed\n", user_name_str);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_chars_make(LIC_CFG_VENDOR_NAME(lic_cfg), LIC_VENDOR_NAME_MAX_SIZE, g_lic_vendor_name))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_make: make vendor name from %s failed\n", g_lic_vendor_name);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_make: make vendor name from %s failed\n", g_lic_vendor_name);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_chars_make(LIC_CFG_VENDOR_EMAIL(lic_cfg), LIC_VENDOR_EMAIL_MAX_SIZE, g_lic_vendor_email))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_make: make vendor email from %s failed\n", g_lic_vendor_email);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_make: make vendor email from %s failed\n", g_lic_vendor_email);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_chars_make(LIC_CFG_VERSION(lic_cfg), LIC_VERSION_MAX_SIZE, g_lic_version))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_make: make software version from %s failed\n", g_lic_version);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_make: make software version from %s failed\n", g_lic_version);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_prikey_make(LIC_CFG_PRIVATE_KEY(lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_cfg_make: make private key failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_cfg_make: make private key failed\n");
         return (EC_FALSE);
     }
 
@@ -885,11 +885,11 @@ EC_BOOL lic_cfg_verify(const LIC_CFG *lic_cfg)
 #if 0
     if ( EC_TRUE == ret )
     {
-        sys_log(LOGSTDOUT,"ECDSA verification passed\n");
+        dbg_log(SEC_0060_LICENSE, 5)(LOGSTDOUT,"ECDSA verification passed\n");
     }
     else
     {
-        sys_log(LOGSTDOUT,"ECDSA verification failed\n");
+        dbg_log(SEC_0060_LICENSE, 5)(LOGSTDOUT,"ECDSA verification failed\n");
     }
 #endif
     ecc_fp_end(eccfp_md_id);
@@ -908,14 +908,14 @@ EC_BOOL lic_make(const char *mac_str,
 
     if(EC_FALSE == lic_cfg_make(&lic_cfg, mac_str, start_date_str, end_date_str, user_name_str, user_email_str))
     {
-        sys_log(LOGSTDOUT, "error:lic_make: make license cfg failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_make: make license cfg failed\n");
         lic_cfg_clean(&lic_cfg);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_cfg_signate(&lic_cfg))
     {
-        sys_log(LOGSTDOUT, "error:lic_make: make signature failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_make: make signature failed\n");
         lic_cfg_clean(&lic_cfg);
         return (EC_FALSE);
     }
@@ -923,14 +923,14 @@ EC_BOOL lic_make(const char *mac_str,
     fd = c_file_open(g_lic_file_name, O_RDWR | O_CREAT, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT, "error:lic_make: open license file %s failed\n", g_lic_file_name);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_make: open license file %s failed\n", g_lic_file_name);
         lic_cfg_clean(&lic_cfg);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_cfg_flush(fd, &lic_cfg))
     {
-        sys_log(LOGSTDOUT, "error:lic_make: generate license file %s failed\n", g_lic_file_name);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_make: generate license file %s failed\n", g_lic_file_name);
 
         close(fd);
         lic_cfg_clean(&lic_cfg);
@@ -961,14 +961,14 @@ EC_BOOL lic_check()
     fd = c_file_open(g_lic_file_name, O_RDONLY, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT, "error:lic_check: open license file %s failed\n", g_lic_file_name);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_check: open license file %s failed\n", g_lic_file_name);
         lic_cfg_clean(&lic_cfg);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == lic_cfg_load(fd, &lic_cfg))
     {
-        sys_log(LOGSTDOUT, "error:lic_check: load license file %s failed\n", g_lic_file_name);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_check: load license file %s failed\n", g_lic_file_name);
         close(fd);
         lic_cfg_clean(&lic_cfg);
         return (EC_FALSE);
@@ -977,7 +977,7 @@ EC_BOOL lic_check()
     /*check signature*/
     if(EC_FALSE == lic_cfg_verify(&lic_cfg))
     {
-        sys_log(LOGSTDOUT, "error:lic_check: verify signature failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_check: verify signature failed\n");
         close(fd);
         lic_cfg_clean(&lic_cfg);
         return (EC_FALSE);
@@ -988,7 +988,7 @@ EC_BOOL lic_check()
     /*check mac addr*/
     if(EC_FALSE == lic_mac_verify(LIC_CFG_MAC(&lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_check: verify mac addr failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_check: verify mac addr failed\n");
         lic_cfg_clean(&lic_cfg);
         return (EC_FALSE);
     }
@@ -996,7 +996,7 @@ EC_BOOL lic_check()
     /*check version*/
     if(EC_FALSE == lic_version_verify((char *)LIC_CFG_VERSION(&lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_check: verify version failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_check: verify version failed\n");
         lic_cfg_clean(&lic_cfg);
         return (EC_FALSE);
     }
@@ -1004,7 +1004,7 @@ EC_BOOL lic_check()
     /*check vendor*/
     if(EC_FALSE == lic_vendor_verify((char *)LIC_CFG_VENDOR_NAME(&lic_cfg), (char *)LIC_CFG_VENDOR_EMAIL(&lic_cfg)))
     {
-        sys_log(LOGSTDOUT, "error:lic_check: verify vendor failed\n");
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_check: verify vendor failed\n");
         lic_cfg_clean(&lic_cfg);
         return (EC_FALSE);
     }
@@ -1026,7 +1026,7 @@ EC_BOOL lic_check()
 
     if(LIC_DATE_END_YEAR(lic_date) < year)
     {
-        sys_log(LOGSTDOUT, "warn:lic_check: license is expired\n");
+        dbg_log(SEC_0060_LICENSE, 1)(LOGSTDOUT, "warn:lic_check: license is expired\n");
         lic_cfg_clean(&lic_cfg);
         return (EC_FALSE);
     }
@@ -1040,7 +1040,7 @@ EC_BOOL lic_check()
 
     if(LIC_DATE_END_MONTH(lic_date) < month)
     {
-        sys_log(LOGSTDOUT, "warn:lic_check: license is expired\n");
+        dbg_log(SEC_0060_LICENSE, 1)(LOGSTDOUT, "warn:lic_check: license is expired\n");
         lic_cfg_clean(&lic_cfg);
         return (EC_FALSE);
     }
@@ -1048,14 +1048,14 @@ EC_BOOL lic_check()
     /*now month == end month*/
     if(LIC_DATE_END_DAY(lic_date) < day)
     {
-        sys_log(LOGSTDOUT, "warn:lic_check: license is expired\n");
+        dbg_log(SEC_0060_LICENSE, 1)(LOGSTDOUT, "warn:lic_check: license is expired\n");
         lic_cfg_clean(&lic_cfg);
         return (EC_FALSE);
     }
 
     if(LIC_DATE_END_DAY(lic_date) < day + 15)
     {
-        sys_log(LOGSTDOUT, "warn:lic_check: license will be expired in %ld days. please contact %s/%s to renew.\n",
+        dbg_log(SEC_0060_LICENSE, 1)(LOGSTDOUT, "warn:lic_check: license will be expired in %ld days. please contact %s/%s to renew.\n",
                             LIC_DATE_END_DAY(lic_date) - day,
                             g_lic_vendor_name, g_lic_vendor_email);
     }
@@ -1075,14 +1075,14 @@ void lic_print(LOG *log)
     fd = c_file_open(g_lic_file_name, O_RDONLY, 0666);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT, "error:lic_print: open license file %s failed\n", g_lic_file_name);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_print: open license file %s failed\n", g_lic_file_name);
         lic_cfg_clean(&lic_cfg);
         return;
     }
 
     if(EC_FALSE == lic_cfg_load(fd, &lic_cfg))
     {
-        sys_log(LOGSTDOUT, "error:lic_print: load license file %s failed\n", g_lic_file_name);
+        dbg_log(SEC_0060_LICENSE, 0)(LOGSTDOUT, "error:lic_print: load license file %s failed\n", g_lic_file_name);
         close(fd);
         lic_cfg_clean(&lic_cfg);
         return;

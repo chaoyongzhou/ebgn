@@ -44,6 +44,8 @@ typedef struct
     UINT32    file_seg_group_size           ;
     UINT32    file_log_max_records          ;
     UINT32    file_log_name_with_date_switch;
+
+    UINT32    log_level_tab[ SEC_NONE_END ] ;
 }CPARACFG;
 
 #define CPARACFG_TCID(cparacfg)                                     ((cparacfg)->tcid)
@@ -69,6 +71,7 @@ typedef struct
 #define CPARACFG_FILE_SEG_GROUP_SIZE(cparacfg)                      ((cparacfg)->file_seg_group_size           )
 #define CPARACFG_FILE_LOG_MAX_RECORDS(cparacfg)                     ((cparacfg)->file_log_max_records          )
 #define CPARACFG_FILE_LOG_NAME_WITH_DATE_SWITCH(cparacfg)           ((cparacfg)->file_log_name_with_date_switch)
+#define CPARACFG_LOG_LEVEL_TAB(cparacfg)                            ((cparacfg)->log_level_tab)
 
 #define CPARACFG_TASK_REQ_HANDLE_THREAD_SWITCH_STR(cparacfg)        (switch_to_str(CPARACFG_TASK_REQ_HANDLE_THREAD_SWITCH(cparacfg)))
 #define CPARACFG_TASK_REQ_DECODE_THREAD_SWITCH_STR(cparacfg)        (switch_to_str(CPARACFG_TASK_REQ_DECODE_THREAD_SWITCH(cparacfg)))

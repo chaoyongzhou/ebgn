@@ -20,6 +20,11 @@ extern "C"{
 #include <time.h>
 #include <pthread.h>
 
+#include <memory.h>
+#include <ucontext.h>
+#include <dlfcn.h>
+#include <execinfo.h>
+
 #include <libgen.h>
 
 #include <libxml/xmlmemory.h>
@@ -35,6 +40,7 @@ extern "C"{
 #include "log.h"
 
 #include "cmisc.h"
+#include "cmd5.h"
 
 #include "ccode.h"
 
@@ -113,7 +119,7 @@ UINT32 c_chars_to_word(const char *chars, const UINT32 len)
 
         if(c < '0' || c > '9')
         {
-            sys_log(LOGSTDERR, "error:c_str_to_word: str %.*s found not digit char at pos %ld\n", len, chars, pos);
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDERR, "error:c_str_to_word: str %.*s found not digit char at pos %ld\n", len, chars, pos);
             return ((UINT32)0);
         }
         total = 10 * total + (c - '0');
@@ -148,7 +154,7 @@ UINT32 c_str_to_word(const char *str)
 
         if(c < '0' || c > '9')
         {
-            sys_log(LOGSTDERR, "error:c_str_to_word: str %s found not digit char at pos %ld\n", str, pos);
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDERR, "error:c_str_to_word: str %s found not digit char at pos %ld\n", str, pos);
             return ((UINT32)0);
         }
         total = 10 * total + (c - '0');
@@ -197,7 +203,15 @@ UINT32 c_ipv4_to_word(const char *ipv4_str)
 
     UINT32 a,b,c,d;
     sscanf(ipv4_str, "%ld.%ld.%ld.%ld",&a, &b, &c, &d);
-
+    if(!(256 > a && 256 > b && 256 > c && 256 > d))
+    {
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_ipv4_to_word: invalid ipv4 str '%s'\n", ipv4_str);
+        ASSERT( 256 > a);
+        ASSERT( 256 > b);
+        ASSERT( 256 > c);
+        ASSERT( 256 > d);
+    }
+    
     return ((a << 24) | (b << 16) | (c << 8) | (d));
     //return (ntohl(inet_addr(ipv4_str)));
 }
@@ -221,6 +235,41 @@ char *c_word_to_ipv4(const UINT32 ipv4_num)
 
     snprintf(ipv4_str_cache, CMISC_BUFF_LEN, "%ld.%ld.%ld.%ld", a, b, c, d);
     return (ipv4_str_cache);
+}
+
+uint32_t c_chars_to_uint32(const char *str, const uint32_t len)
+{
+    uint32_t  c;            /* current char */
+    uint32_t  total;        /* current total */
+    uint32_t  negs;
+    uint32_t  pos;
+
+    if( NULL_PTR == str)
+    {
+        return ((uint32_t)0);
+    }
+
+    total = 0;
+    negs  = 1;
+
+    for(pos = 0; pos < len; pos ++)
+    {
+        if(0 == pos && '-' == str[ pos ])
+        {
+            negs *= ((uint32_t)-1);
+            continue;
+        }
+
+        c = (uint32_t)(str[ pos ]);
+
+        if(c < '0' || c > '9')
+        {
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDERR, "error:c_chars_to_uint32: str %s found not digit char at pos %ld\n", str, pos);
+            return ((uint32_t)0);
+        }
+        total = 10 * total + (c - '0');
+    }
+    return (total * negs);
 }
 
 uint32_t c_str_to_uint32(const char *str)
@@ -252,7 +301,7 @@ uint32_t c_str_to_uint32(const char *str)
 
         if(c < '0' || c > '9')
         {
-            sys_log(LOGSTDERR, "error:c_str_to_uint32: str %s found not digit char at pos %ld\n", str, pos);
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDERR, "error:c_str_to_uint32: str %s found not digit char at pos %ld\n", str, pos);
             return ((uint32_t)0);
         }
         total = 10 * total + (c - '0');
@@ -303,7 +352,7 @@ uint16_t c_str_to_uint16(const char *str)
 
         if(c < '0' || c > '9')
         {
-            sys_log(LOGSTDERR, "error:c_str_to_uint16: str %s found not digit char at pos %ld\n", str, pos);
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDERR, "error:c_str_to_uint16: str %s found not digit char at pos %ld\n", str, pos);
             return ((uint16_t)0);
         }
         total = 10 * total + (c - '0');
@@ -449,6 +498,41 @@ char *c_word_to_bin_str(const word_t num)
     return (str_cache);
 }
 
+uint64_t c_chars_to_uint64(const char *str, const uint32_t len)
+{
+    uint64_t  c;            /* current char */ 
+    uint64_t  negs;    
+    uint64_t  total;     /* current total */
+    UINT32    pos;
+
+    if( NULL_PTR == str)
+    {
+        return ((UINT32)0);
+    }
+
+    total = 0;
+    negs  = 1;
+
+    for(pos = 0; pos < len; pos ++)
+    {
+        if(0 == pos && '-' == str[ pos ])
+        {
+            negs *= ((uint64_t)-1);
+            continue;
+        }
+
+        c = (uint64_t)(str[ pos ]);
+
+        if(c < '0' || c > '9')
+        {
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDERR, "error:c_chars_to_uint64: str %.*s found not digit char at pos %ld\n", len, str, pos);
+            return ((UINT32)0);
+        }
+        total = 10 * total + (c - '0');
+    }
+    return (total * negs);
+}
+
 uint64_t c_str_to_uint64(const char *str)
 {
     uint64_t  c;            /* current char */ 
@@ -476,12 +560,53 @@ uint64_t c_str_to_uint64(const char *str)
 
         if(c < '0' || c > '9')
         {
-            sys_log(LOGSTDERR, "error:c_str_to_uint64: str %s found not digit char at pos %ld\n", str, pos);
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDERR, "error:c_str_to_uint64: str %s found not digit char at pos %ld\n", str, pos);
             return ((UINT32)0);
         }
         total = 10 * total + (c - '0');
     }
     return (total * negs);
+}
+
+/*long to string*/
+int c_long_to_str_buf(const long num, char *buf)
+{
+    long val;
+    char swap;
+    char *end;
+    int len;
+
+    val = num;
+    len = 1;
+
+    if (0 > val) 
+    {
+        len++;
+        *(buf++) = '-';
+        val = -val;
+    }
+
+    end = buf;
+    while (9 < val) 
+    {
+        *(end++) = '0' + (val % 10);
+        val = val / 10;
+    }
+    *(end) = '0' + val;
+    *(end + 1) = '\0';
+    len += end - buf;
+
+    while (buf < end) 
+    {
+        swap = *end;
+        *end = *buf;
+        *buf = swap;
+
+        buf++;
+        end--;
+    }
+
+    return (len);
 }
 
 char *c_inet_ntos(const struct in_addr in)
@@ -612,18 +737,34 @@ EC_BOOL c_check_is_uint32_t(const UINT32 num)
 #endif /*(64 == WORDSIZE)*/
 }
 
-void str_to_lower(UINT8 *mac_str, const UINT32 len)
+void str_to_lower(UINT8 *str, const UINT32 len)
 {
     UINT32 pos;
     for(pos = 0; pos < len; pos ++)
     {
-        if('A' <= (mac_str[ pos ]) && (mac_str[ pos ]) <= 'Z')
+        if('A' <= (str[ pos ]) && (str[ pos ]) <= 'Z')
         {
-            mac_str[ pos ] = (mac_str[ pos ] - 'A' + 'a');
+            //str[ pos ] = (str[ pos ] - 'A' + 'a');
+            str[ pos ] |= 32;
         }
     }
     return;
 }
+
+void str_to_upper(UINT8 *str, const UINT32 len)
+{
+    UINT32 pos;
+    for(pos = 0; pos < len; pos ++)
+    {
+        if('a' <= (str[ pos ]) && (str[ pos ]) <= 'z')
+        {
+            //str[ pos ] = (str[ pos ] - 'a' + 'A');
+            str[ pos ] &= (~32);
+        }
+    }
+    return;
+}
+
 
 char *mac_addr_to_str(const UINT8 *mac)
 {
@@ -648,12 +789,12 @@ EC_BOOL str_to_mac_addr(const char *mac_str, UINT8 *mac_addr)
     UINT32 pos;
 
     len = DMIN(32, strlen(mac_str) + 1);
-    sys_log(LOGSTDNULL, "[DEBUG] str_to_mac_addr: len %ld\n", len);
+    dbg_log(SEC_0013_CMISC, 9)(LOGSTDNULL, "[DEBUG] str_to_mac_addr: len %ld\n", len);
 
     BCOPY(mac_str, mac_str_tmp, len);
     if(6 != c_str_split(mac_str_tmp, ":", fields, sizeof(fields)/sizeof(fields[0])))
     {
-        sys_log(LOGSTDNULL, "error:str_to_mac_addr:invalid mac addr %s\n", mac_str);
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDNULL, "error:str_to_mac_addr:invalid mac addr %s\n", mac_str);
         return (EC_FALSE);
     }
 
@@ -677,14 +818,14 @@ char *switch_to_str(const UINT32 switch_choice)
 {
     if(SWITCH_ON == switch_choice)
     {
-        return (char *)"SWITCH_ON";
+        return (SWITCH_ON_STR);
     }
     if(SWITCH_OFF == switch_choice)
     {
-        return (char *)"SWITCH_OFF";
+        return (SWITCH_OFF_STR);
     }
 
-    return (char *)"SWITCH_UNKNOWN";
+    return (SWITCH_UNDEF_STR);
 }
 
 UINT32 c_str_split (char *string, const char *delim, char **fields, const UINT32 size)
@@ -733,7 +874,7 @@ char *c_str_join(const char *delim, const char **fields, const UINT32 size)
     str = (char *)safe_malloc(total_len, LOC_CMISC_0025);
     if(NULL_PTR == str)
     {
-        sys_log(LOGSTDOUT, "error:c_str_join: malloc str with len %ld failed\n", total_len);
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_str_join: malloc str with len %ld failed\n", total_len);
         return (NULL_PTR);
     }
 
@@ -773,7 +914,7 @@ char *c_str_cat(const char *src_str_1st, const char *src_str_2nd)
     des_str = safe_malloc(des_str_len, LOC_CMISC_0026);
     if(NULL_PTR == des_str)
     {
-        sys_log(LOGSTDOUT, "error:c_str_cat: malloc %ld bytes failed\n", des_str_len);
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_str_cat: malloc %ld bytes failed\n", des_str_len);
         return (NULL_PTR);
     }
 
@@ -803,7 +944,7 @@ char *c_str_dup(const char *str)
     dup_str = (char *)safe_malloc(strlen(str) + 1, LOC_CMISC_0027);
     if(NULL_PTR == dup_str)
     {
-        sys_log(LOGSTDOUT, "error:c_str_dup: dup str %s failed\n", str);
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_str_dup: dup str %s failed\n", str);
         return (NULL_PTR);
     }
     BCOPY(str, dup_str, strlen(str) + 1);
@@ -825,7 +966,7 @@ EC_BOOL c_str_is_in(const char *string, const char *delim, const char *tags_str)
     str_tmp = c_str_dup(tags_str);
     if(NULL_PTR == str_tmp)
     {
-        sys_log(LOGSTDOUT, "error:c_str_is_in: dup %s failed\n", tags_str);
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_str_is_in: dup %s failed\n", tags_str);
         return (EC_FALSE);
     }
     tag_num = c_str_split(str_tmp, delim, tag, sizeof(tag)/sizeof(tag[0]));
@@ -840,6 +981,20 @@ EC_BOOL c_str_is_in(const char *string, const char *delim, const char *tags_str)
     }
     safe_free(str_tmp, LOC_CMISC_0029);
     return (EC_FALSE);
+}
+
+char *c_str_skip_space(const char *start, const char *end)
+{
+    const char *cur;
+    for(cur = start;cur < end; cur ++)
+    {
+        if(!ISSPACE(*cur))
+        {
+            return ((char *)cur);
+        }
+    }
+
+    return (NULL_PTR);
 }
 
 char *c_str_fetch_line(char *str)
@@ -872,7 +1027,7 @@ char *c_str_fetch_next_line(char *str)
         return (NULL_PTR);
     }
 
-    next = (str + strlen(str) + 1);
+    next = (str + strlen(str) + 1);/*xxx*/
     for(pch = next; '\0' != (*pch); pch ++)
     {
         if('\n' == (*pch))
@@ -908,39 +1063,56 @@ char *c_str_move_next(char *str)
 */
 char *c_str_seperate (char **stringp, const char *delim)
 {
-	char *start;
-	char *ptr;
+    char *start;
+    char *ptr;
 
-	start = *stringp;
+    start = *stringp;
 
-	if (NULL_PTR == start)
-	{
-		return (NULL_PTR);
+    if (NULL_PTR == start)
+    {
+        return (NULL_PTR);
     }
     
-	if (NULL_PTR == *delim)
-	{
-		ptr = start + strlen (start);
-	}
-	else
-	{
-	    /**
-	     *   char *strpbrk(const char *s, const char *accept)
-	     *   The strpbrk() function returns a pointer to the character in s that
-	     *   matches 'one' of the characters in accept, or NULL if no such character is found.
-	     **/	    
-		ptr = strpbrk (start, delim);
-		if (NULL_PTR == ptr)
-		{
-			*stringp = NULL_PTR;
-			return (start);
-		}
-	}
+    if (NULL_PTR == *delim)
+    {
+        ptr = start + strlen (start);
+    }
+    else
+    {
+        /**
+         *   char *strpbrk(const char *s, const char *accept)
+         *   The strpbrk() function returns a pointer to the character in s that
+         *   matches 'one' of the characters in accept, or NULL if no such character is found.
+         **/        
+        ptr = strpbrk (start, delim);
+        if (NULL_PTR == ptr)
+        {
+            *stringp = NULL_PTR;
+            return (start);
+        }
+    }
 
-	*ptr = '\0';
-	*stringp = ptr + 1;
+    *ptr = '\0';
+    *stringp = ptr + 1;
 
-	return (start);
+    return (start);
+}
+
+UINT32 c_line_len(const char *str)
+{
+    char *pch;
+    UINT32 len;
+
+    if('\0' == *str || '\n' == *str)
+    {
+        return (0);
+    }
+
+    for(pch = (char *)str, len = 0; '\0' != (*pch) && '\n' != (*pch); pch ++, len ++)
+    {
+        /*do nothing*/
+    }
+    return (len);
 }
 
 char *uint32_vec_to_str(const CVECTOR *uint32_vec)
@@ -961,7 +1133,7 @@ char *uint32_vec_to_str(const CVECTOR *uint32_vec)
     buff = (char *)safe_malloc(len, LOC_CMISC_0030);
     if(NULL_PTR == buff)
     {
-        sys_log(LOGSTDOUT, "error:uint32_vec_to_str: malloc %ld bytes failed\n", len);
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:uint32_vec_to_str: malloc %ld bytes failed\n", len);
         return (NULL_PTR);
     }
 
@@ -1018,7 +1190,7 @@ char *uint32_vec_to_str(const CVECTOR *uint32_vec)
     return (buff);
 }
 
-char *bytes_to_hex_str(const UINT8 *bytes, const UINT32 len)
+char *c_bytes_to_hex_str(const UINT8 *bytes, const UINT32 len)
 {    
     char *str;
     UINT32 byte_pos;
@@ -1027,7 +1199,7 @@ char *bytes_to_hex_str(const UINT8 *bytes, const UINT32 len)
     str = (char *)safe_malloc(2 * len + 1, LOC_CMISC_0033);
     if(NULL_PTR == str)
     {
-        sys_log(LOGSTDOUT, "error:bytes_to_hex_str: malloc %ld bytes failed\n", 2 * len + 1);
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_bytes_to_hex_str: malloc %ld bytes failed\n", 2 * len + 1);
         return (NULL_PTR);
     }
 
@@ -1042,7 +1214,7 @@ char *bytes_to_hex_str(const UINT8 *bytes, const UINT32 len)
     return (str);
 }
 
-EC_BOOL hex_str_to_bytes(const char *str, UINT8 **bytes, UINT32 *len)
+EC_BOOL c_hex_str_to_bytes(const char *str, UINT8 **bytes, UINT32 *len)
 {
     UINT32 byte_pos;
     UINT32 char_pos;
@@ -1054,7 +1226,7 @@ EC_BOOL hex_str_to_bytes(const char *str, UINT8 **bytes, UINT32 *len)
 
     if(str_len & 1)/*should never be odd*/
     {
-        sys_log(LOGSTDOUT, "error:hex_str_to_bytes: str len %ld, but it should never is odd!\n", str_len);
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_hex_str_to_bytes: str len %ld, but it should never is odd!\n", str_len);
         return (EC_FALSE);
     }
 
@@ -1062,7 +1234,7 @@ EC_BOOL hex_str_to_bytes(const char *str, UINT8 **bytes, UINT32 *len)
     buff = (UINT8 *)safe_malloc(bytes_len, LOC_CMISC_0034);
     if(NULL_PTR == buff)
     {
-        sys_log(LOGSTDOUT, "error:hex_str_to_bytes: malloc %ld bytes failed\n", bytes_len);
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_hex_str_to_bytes: malloc %ld bytes failed\n", bytes_len);
         return (EC_FALSE);
     }
 
@@ -1088,6 +1260,26 @@ EC_BOOL hex_str_to_bytes(const char *str, UINT8 **bytes, UINT32 *len)
     return (EC_TRUE);
 }
 
+char *c_md5_to_hex_str(const uint8_t *md5, char *str, const uint32_t max_len)
+{    
+    uint32_t byte_pos;
+    uint32_t char_pos;
+    uint32_t end_pos;
+
+    ASSERT(3 <= max_len);
+    end_pos  = max_len - 3;
+    char_pos = 0;
+    for(byte_pos = 0; byte_pos < CMD5_DIGEST_LEN && char_pos < end_pos; byte_pos ++)
+    {
+        str[ char_pos ++ ] = g_hex_char[(md5[ byte_pos ] >> 4) & 0xF];/*high 4 bytes*/
+        str[ char_pos ++ ] = g_hex_char[(md5[ byte_pos ]) & 0xF];/*high 4 bytes*/
+    }
+    str[ char_pos ] = '\0';
+
+    return (str);
+}
+
+
 char *c_dirname(const char *path_name)
 {
     char *dir_name;
@@ -1106,9 +1298,9 @@ char *c_dirname(const char *path_name)
     }
 
     dir_name = c_str_dup(path_name);
-    //sys_log(LOGSTDOUT, "[DEBUG] c_dirname: dir_name = %p, %s\n", dir_name, dir_name);
+    //dbg_log(SEC_0013_CMISC, 9)(LOGSTDOUT, "[DEBUG] c_dirname: dir_name = %p, %s\n", dir_name, dir_name);
     dir_name_t = dirname(dir_name);
-    //sys_log(LOGSTDOUT, "[DEBUG] c_dirname: dir_name_t = %p, %s\n", dir_name_t, dir_name_t);
+    //dbg_log(SEC_0013_CMISC, 9)(LOGSTDOUT, "[DEBUG] c_dirname: dir_name_t = %p, %s\n", dir_name_t, dir_name_t);
     return (dir_name_t);
 }
 
@@ -1127,7 +1319,7 @@ EC_BOOL c_dir_create(const char *dir_name)
     pstr = strdup(dir_name);
     if(NULL_PTR == pstr)
     {
-        sys_log(LOGSTDOUT, "error:c_dir_create: strdup failed\n");
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_dir_create: strdup failed\n");
         return (EC_FALSE);
     }
 
@@ -1151,7 +1343,7 @@ EC_BOOL c_dir_create(const char *dir_name)
 
         if(3 <= loop)
         {
-            sys_log(LOGSTDOUT, "error:c_dir_create: create dir %s failed\n", pstr);
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_dir_create: create dir %s failed\n", pstr);
             pstr[ pos ] = '/';
 
             free(pstr);
@@ -1162,7 +1354,7 @@ EC_BOOL c_dir_create(const char *dir_name)
 
     if(0 != access(dir_name, F_OK) && 0 != mkdir(dir_name, 0755))
     {
-        sys_log(LOGSTDOUT, "error:c_dir_create: create dir %s failed\n", dir_name);
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_dir_create: create dir %s failed\n", dir_name);
         free(pstr);
         return (EC_FALSE);
     }
@@ -1191,7 +1383,7 @@ EC_BOOL exec_shell(const char *cmd_str, char *cmd_output, const UINT32 max_size)
     char    *cmd_ostr;
     UINT32   cmd_osize;
 
-    //sys_log(LOGSTDNULL, "exec_shell beg: %s\n", cmd_str);
+    //dbg_log(SEC_0013_CMISC, 5)(LOGSTDNULL, "exec_shell beg: %s\n", cmd_str);
 
     if(NULL_PTR == cmd_output)
     {
@@ -1207,7 +1399,7 @@ EC_BOOL exec_shell(const char *cmd_str, char *cmd_output, const UINT32 max_size)
     rstream = popen(cmd_str, "r");
     if(NULL_PTR == rstream)
     {
-        sys_log(LOGSTDOUT, "error:exec_shell: popen %s failed\n", cmd_str);
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:exec_shell: popen %s failed\n", cmd_str);
         return (EC_FALSE);
     }
     for(cmd_ostr = cmd_ostream;
@@ -1222,7 +1414,7 @@ EC_BOOL exec_shell(const char *cmd_str, char *cmd_output, const UINT32 max_size)
     {
         SAFE_FREE(cmd_ostream, LOC_CMISC_0037);
     }
-    //sys_log(LOGSTDNULL, "exec_shell end: %s\n", cmd_output);
+    //dbg_log(SEC_0013_CMISC, 5)(LOGSTDNULL, "exec_shell end: %s\n", cmd_output);
     return (EC_TRUE);
 }
 
@@ -1233,7 +1425,7 @@ EC_BOOL c_file_flush(int fd, UINT32 *offset, const UINT32 wsize, const UINT8 *bu
 
     if(ERR_SEEK == lseek(fd, (*offset), SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:c_file_flush: seek offset %ld failed\n", (*offset));
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_flush: seek offset %ld failed\n", (*offset));
         return (EC_FALSE);
     }
 
@@ -1246,7 +1438,7 @@ EC_BOOL c_file_flush(int fd, UINT32 *offset, const UINT32 wsize, const UINT8 *bu
 
         if((ssize_t)osize != write(fd, buff + csize, osize))
         {
-            sys_log(LOGSTDOUT, "error:c_file_flush: flush buff to offset %ld failed where wsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_flush: flush buff to offset %ld failed where wsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
                                 (*offset), wsize, csize, osize, errno, strerror(errno));
             /*(*offset) += csize;*//*give up offset adjustment*/
             return (EC_FALSE);
@@ -1255,6 +1447,45 @@ EC_BOOL c_file_flush(int fd, UINT32 *offset, const UINT32 wsize, const UINT8 *bu
 
     ASSERT(csize == wsize);
     
+    (*offset) += csize;
+    return (EC_TRUE);
+}
+
+EC_BOOL c_file_write(int fd, UINT32 *offset, const UINT32 wsize, const UINT8 *buff)
+{
+    UINT32  csize;/*write completed size*/
+    UINT32  osize;/*write once size*/
+    ssize_t wsize_t;
+
+    if(ERR_SEEK == lseek(fd, (*offset), SEEK_SET))
+    {
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_write: seek offset %ld failed\n", (*offset));
+        return (EC_FALSE);
+    }
+
+    for(csize = 0, osize = CMISC_WRITE_ONCE_MAX_BYTES; csize < wsize; csize += wsize_t)
+    {
+        if(csize + osize > wsize)
+        {
+            osize = wsize - csize;
+        }
+
+        wsize_t = write(fd, buff + csize, osize);
+        
+        if(0 > wsize_t)
+        {
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_write: write data to offset %ld failed where wsize %ld, csize %ld, osize %ld, wsize_t %ld, errno %d, errstr %s\n",
+                                (*offset), wsize, csize, osize, wsize_t, errno, strerror(errno));
+            (*offset) += csize;
+            return (EC_FALSE);
+        }
+        if(0 == wsize_t)
+        {
+            (*offset) += csize;
+            return (EC_TRUE);
+        }
+    }
+   
     (*offset) += csize;
     return (EC_TRUE);
 }
@@ -1271,7 +1502,7 @@ EC_BOOL c_file_pad(int fd, UINT32 *offset, const UINT32 wsize, const UINT8 ch)
 
     if(ERR_SEEK == lseek(fd, (*offset), SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:c_file_pad: seek offset %ld failed\n", (*offset));
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_pad: seek offset %ld failed\n", (*offset));
         return (EC_FALSE);
     }
 
@@ -1284,7 +1515,7 @@ EC_BOOL c_file_pad(int fd, UINT32 *offset, const UINT32 wsize, const UINT8 ch)
 
         if((ssize_t)osize != write(fd, buff, osize))
         {
-            sys_log(LOGSTDOUT, "error:c_file_pad: flush buff to offset %ld failed where wsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_pad: flush buff to offset %ld failed where wsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
                                 (*offset), wsize, csize, osize, errno, strerror(errno));
             /*(*offset) += csize;*//*give up offset adjustment*/
             return (EC_FALSE);
@@ -1299,16 +1530,148 @@ EC_BOOL c_file_pad(int fd, UINT32 *offset, const UINT32 wsize, const UINT8 ch)
 
 EC_BOOL c_file_load(int fd, UINT32 *offset, const UINT32 rsize, UINT8 *buff)
 {
-    UINT32 csize;/*read completed size*/
-    UINT32 osize;/*read once size*/
+    UINT32  csize;/*read completed size*/
+    UINT32  osize;/*read once size*/
+    ssize_t rsize_t;
 
-    sys_log(LOGSTDOUT, "[DEBUG] c_file_load: fd %d, offset %u, rsize %u\n", fd, (*offset), rsize);
+    //dbg_log(SEC_0013_CMISC, 9)(LOGSTDOUT, "[DEBUG] c_file_load: fd %d, offset %u, rsize %u\n", fd, (*offset), rsize);
 
     if(ERR_SEEK == lseek(fd, (*offset), SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:c_file_load: seek offset %ld failed, errno %d, errstr %s\n", (*offset), errno, strerror(errno));
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_load: seek offset %ld failed, errno %d, errstr %s\n", (*offset), errno, strerror(errno));
         return (EC_FALSE);
     }
+
+    for(csize = 0, osize = CMISC_READ_ONCE_MAX_BYTES; csize < rsize; csize += rsize_t)
+    { 
+        if(csize + osize > rsize)
+        {
+            osize = rsize - csize;
+        }
+
+        rsize_t = read(fd, buff + csize, osize);
+        if(0 >= rsize_t)
+        {
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_load: load buff from offset %ld failed where rsize %ld, csize %ld, osize %ld, rsize_t %ld, errno %d, errstr %s\n",
+                                (*offset), rsize, csize, osize, rsize_t, errno, strerror(errno));
+            /*(*offset) += csize;*//*give up offset adjustment*/
+            return (EC_FALSE);
+        }
+    }
+
+    ASSERT(csize == rsize);
+    
+    (*offset) += csize;
+    return (EC_TRUE);
+}
+
+/*try to read as more as possible. caller should check offset and make sure what happen*/
+EC_BOOL c_file_read(int fd, UINT32 *offset, const UINT32 rsize, UINT8 *buff)
+{
+    UINT32  csize;/*read completed size*/
+    UINT32  osize;/*read once size*/
+    ssize_t rsize_t;
+
+    if(ERR_SEEK == lseek(fd, (*offset), SEEK_SET))
+    {
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_read: seek offset %ld failed, errno %d, errstr %s\n", (*offset), errno, strerror(errno));
+        return (EC_FALSE);
+    }
+
+    for(csize = 0, osize = CMISC_READ_ONCE_MAX_BYTES; csize < rsize; csize += rsize_t)
+    { 
+        if(csize + osize > rsize)
+        {
+            osize = rsize - csize;
+        }
+
+        rsize_t = read(fd, buff + csize, osize);
+        if(0 > rsize_t)
+        {
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_read: read data from offset %ld failed where rsize %ld, csize %ld, osize %ld, rsize_t %ld, errno %d, errstr %s\n",
+                                (*offset), rsize, csize, osize, rsize_t, errno, strerror(errno));
+            (*offset) += csize;
+            return (EC_FALSE);
+        }
+
+        if(0 == rsize_t)
+        {
+            (*offset) += csize;
+            return (EC_TRUE);        
+        }
+    }
+   
+    (*offset) += csize;
+    return (EC_TRUE);
+}
+
+EC_BOOL c_file_pwrite(int fd, UINT32 *offset, const UINT32 wsize, const UINT8 *buff)
+{
+    UINT32 csize;/*write completed size*/
+    UINT32 osize;/*write once size*/
+
+    for(csize = 0, osize = CMISC_WRITE_ONCE_MAX_BYTES; csize < wsize; csize += osize)
+    {
+        if(csize + osize > wsize)
+        {
+            osize = wsize - csize;
+        }
+
+        if((ssize_t)osize != pwrite(fd, buff + csize, osize, (*offset) + csize))
+        {
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_pwrite: flush buff to offset %ld failed where "
+                               "wsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
+                                (*offset), wsize, csize, osize, errno, strerror(errno));
+            /*(*offset) += csize;*//*give up offset adjustment*/
+            return (EC_FALSE);
+        }
+    }
+
+    ASSERT(csize == wsize);
+    
+    (*offset) += csize;
+    return (EC_TRUE);
+}
+
+EC_BOOL c_file_ppad(int fd, UINT32 *offset, const UINT32 wsize, const UINT8 ch)
+{
+    UINT32 csize;/*write completed size*/
+    UINT32 osize;/*write once size*/
+    UINT8  buff[64];
+    UINT32 len;
+
+    len = sizeof(buff)/sizeof(buff[ 0 ]);
+    BSET(buff, ch, len);
+
+    for(csize = 0, osize = len; csize < wsize; csize += osize)
+    {
+        if(csize + osize > wsize)
+        {
+            osize = wsize - csize;
+        }
+
+        if((ssize_t)osize != pwrite(fd, buff, osize, (*offset) + csize))
+        {
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_ppad: flush buff to offset %ld failed where "
+                               "wsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
+                                (*offset), wsize, csize, osize, errno, strerror(errno));
+            /*(*offset) += csize;*//*give up offset adjustment*/
+            return (EC_FALSE);
+        }
+    }
+
+    ASSERT(csize == wsize);
+    
+    (*offset) += csize;
+    return (EC_TRUE);
+}
+
+EC_BOOL c_file_pread(int fd, UINT32 *offset, const UINT32 rsize, UINT8 *buff)
+{
+    UINT32 csize;/*read completed size*/
+    UINT32 osize;/*read once size*/
+
+    dbg_log(SEC_0013_CMISC, 9)(LOGSTDOUT, "[DEBUG] c_file_pread: fd %d, offset %u, rsize %u\n", fd, (*offset), rsize);
 
     for(csize = 0, osize = CMISC_READ_ONCE_MAX_BYTES; csize < rsize; csize += osize)
     {
@@ -1317,9 +1680,10 @@ EC_BOOL c_file_load(int fd, UINT32 *offset, const UINT32 rsize, UINT8 *buff)
             osize = rsize - csize;
         }
 
-        if((ssize_t)osize != read(fd, buff + csize, osize))
+        if((ssize_t)osize != pread(fd, buff + csize, osize, (*offset) + csize))
         {
-            sys_log(LOGSTDOUT, "error:c_file_load: load buff from offset %ld failed where rsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_pread: load buff from offset %ld failed where "
+                               "rsize %ld, csize %ld, osize %ld, errno %d, errstr %s\n",
                                 (*offset), rsize, csize, osize, errno, strerror(errno));
             /*(*offset) += csize;*//*give up offset adjustment*/
             return (EC_FALSE);
@@ -1330,7 +1694,7 @@ EC_BOOL c_file_load(int fd, UINT32 *offset, const UINT32 rsize, UINT8 *buff)
     
     (*offset) += csize;
 
-    //sys_log(LOGSTDOUT, "cdfsnp_buff_load: load %ld bytes\n", rsize);
+    //dbg_log(SEC_0013_CMISC, 5)(LOGSTDOUT, "cdfsnp_buff_load: load %ld bytes\n", rsize);
     return (EC_TRUE);
 }
 
@@ -1344,14 +1708,44 @@ EC_BOOL c_file_size(int fd, UINT32 *fsize)
     return (EC_TRUE);
 }
 
+EC_BOOL c_file_size_b(int fd, uint64_t *fsize)
+{
+    (*fsize) = lseek(fd, 0, SEEK_END);
+    if(((UINT32)-1) == (*fsize))
+    {
+        return (EC_FALSE);
+    }
+    return (EC_TRUE);
+}
+
+EC_BOOL c_file_pos(int fd, UINT32 *fpos)
+{
+    (*fpos) = lseek(fd, 0, SEEK_CUR);
+    if(((UINT32)-1) == (*fpos))
+    {
+        return (EC_FALSE);
+    }
+    return (EC_TRUE);
+}
+
+EC_BOOL c_file_pos_b(int fd, uint64_t *fpos)
+{
+    (*fpos) = lseek(fd, 0, SEEK_CUR);
+    if(((UINT32)-1) == (*fpos))
+    {
+        return (EC_FALSE);
+    }
+    return (EC_TRUE);
+}
+
 EC_BOOL c_file_access(const char *pathname, int mode)
 {
     if(0 != access(pathname, mode))
     {
-        //sys_log(LOGSTDOUT, "error:c_file_access: access %s with mode %d failed\n", pathname, mode);
+        //dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_access: access %s with mode %d failed\n", pathname, mode);
         return (EC_FALSE);
     }
-    //sys_log(LOGSTDOUT, "[DEBUG] c_file_access: access %s with mode %d done\n", pathname, mode);
+    //dbg_log(SEC_0013_CMISC, 9)(LOGSTDOUT, "[DEBUG] c_file_access: access %s with mode %d done\n", pathname, mode);
     return (EC_TRUE);
 }
 
@@ -1363,7 +1757,7 @@ EC_BOOL c_file_truncate(int fd, const UINT32 fsize)
     **/
     if(0 != ftruncate(fd, fsize))
     {
-        sys_log(LOGSTDOUT, "error:c_file_truncate: fd %d truncate %ld bytes failed where , errno %d, errstr %s\n", 
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_truncate: fd %d truncate %ld bytes failed where , errno %d, errstr %s\n", 
                             fd, fsize, errno, strerror(errno));
         return (EC_FALSE);
     }
@@ -1385,7 +1779,7 @@ EC_BOOL c_file_unlink(const char *filename)
     return (EC_TRUE);
 }
 
-int mem_ncmp(const UINT8 *src, const UINT32 slen, const UINT8 *des, const UINT32 dlen)
+int c_mem_ncmp(const UINT8 *src, const UINT32 slen, const UINT8 *des, const UINT32 dlen)
 {
     UINT32 len;
 
@@ -1570,6 +1964,78 @@ void c_buff_print_str(LOG *log, const UINT8 *buff, const UINT32 len)
     return;
 }
 
+EC_BOOL c_isdigit(int c) 
+{
+    if(c >= '0' && c <= '9')
+    {
+        return (EC_TRUE);
+    }
+    return (EC_FALSE);
+}
+
+EC_BOOL c_isxdigit(int c) 
+{
+    if (EC_TRUE == c_isdigit(c)) 
+    {
+        return (EC_TRUE);
+    }
+
+    c |= 32;
+    if(c >= 'a' && c <= 'f')
+    {
+        return (EC_TRUE);
+    }
+    return (EC_FALSE);
+}
+
+EC_BOOL c_isalpha(int c) 
+{
+    c |= 32;
+    if(c >= 'a' && c <= 'z')
+    {
+        return (EC_TRUE);
+    }
+    return (EC_FALSE);
+}
+
+EC_BOOL c_isalnum(int c) 
+{
+    if(EC_TRUE == c_isdigit(c) || EC_TRUE == c_isalpha(c))
+    {
+        return (EC_TRUE);
+    }
+    return (EC_FALSE);
+}
+
+EC_BOOL c_memcmp(const uint8_t *s1, const uint8_t *s2, const uint32_t len)
+{
+    uint32_t idx;
+
+    for(idx = 0; idx < len; idx ++)
+    {
+        //dbg_log(SEC_0013_CMISC, 9)(LOGSTDOUT, "[DEBUG] c_memcmp: idx %d, len %d, %c vs %c\n", idx, len, s1[ idx ], s2[ idx ]);
+        if(s1[ idx ] != s2[ idx ])
+        {
+            return (EC_FALSE);
+        }
+    }
+    return (EC_TRUE);
+}
+
+const char *c_bool_str(const EC_BOOL flag)
+{
+    if(EC_TRUE == flag)
+    {
+        return ((const char *)"true");
+    }
+    return ((const char *)"false");
+}
+
+EC_BOOL c_str_to_bool(const char *str)
+{
+    return c_str_is_in(str, "TRUE,true,EC_TRUE", ",");
+}
+
 int c_file_open(const char *pathname, const int flags, const mode_t mode)
 {
     int fd;
@@ -1578,7 +2044,7 @@ int c_file_open(const char *pathname, const int flags, const mode_t mode)
     {
         if(EC_FALSE == c_basedir_create(pathname))
         {
-            sys_log(LOGSTDOUT, "error:c_file_open: create basedir of file %s failed\n", pathname);
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_open: create basedir of file %s failed\n", pathname);
             return (-1);
         }
     }
@@ -1586,7 +2052,7 @@ int c_file_open(const char *pathname, const int flags, const mode_t mode)
     fd = open(pathname, flags, mode);
     if(-1 == fd)
     {
-        sys_log(LOGSTDOUT,"error:c_file_open: open %s failed\n", pathname);
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT,"error:c_file_open: open %s failed\n", pathname);
         return (-1);
     }
 
@@ -1594,7 +2060,7 @@ int c_file_open(const char *pathname, const int flags, const mode_t mode)
     {
         if( 0 > fcntl(fd, F_SETFD, FD_CLOEXEC))
         {
-            sys_log(LOGSTDOUT, "error:c_file_open: set fd %d to FD_CLOEXEC failed, errno = %d, errstr = %s\n",
+            dbg_log(SEC_0013_CMISC, 0)(LOGSTDOUT, "error:c_file_open: set fd %d to FD_CLOEXEC failed, errno = %d, errstr = %s\n",
                                fd, errno, strerror(errno));
             close(fd);
             return (-1);
@@ -1635,28 +2101,48 @@ CTM *c_localtime_r(const time_t *timestamp)
 
 ctime_t c_time(ctime_t *timestamp)
 {
-    return time(timestamp);
+    for(;;)
+    {
+        ctime_t t;
+        
+        t = time(timestamp);
+        if(0 < t)
+        {
+            return (t);
+        }
+
+        /*error happen*/
+        dbg_log(SEC_0013_CMISC, 0)(LOGSTDERR, "error:c_time: time return %d, errno = %d, errstr = %s\n", t, errno, strerror(errno));
+    }
+    return (ctime_t)(-1);
 }
 
-EC_BOOL c_usleep(const UINT32 msec)
+EC_BOOL c_usleep(const UINT32 msec, const UINT32 location)
 {
     struct timeval tv;
 
     tv.tv_sec  = (msec / 1000);
     tv.tv_usec = (msec % 1000) * 1000;
 
+    dbg_log(SEC_0013_CMISC, 9)(LOGSTDOUT, "[DEBUG] c_usleep: now sleep %ld.%03ld seconds at %s:%ld\n", 
+                        msec / 1000, msec % 1000, 
+                        MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
+
     select(0, NULL, NULL, NULL, &tv);
 
     return (EC_TRUE);
 }
 
-EC_BOOL c_sleep(const UINT32 nsec)
+EC_BOOL c_sleep(const UINT32 nsec, const UINT32 location)
 {
     struct timeval tv;
 
     tv.tv_sec  = nsec;
     tv.tv_usec = 0;
 
+    dbg_log(SEC_0013_CMISC, 9)(LOGSTDOUT, "[DEBUG] c_sleep: now sleep %ld seconds at %s:%ld\n", 
+                        nsec, 
+                        MM_LOC_FILE_NAME(location), MM_LOC_LINE_NO(location));
     select(0, NULL, NULL, NULL, &tv);
 
     return (EC_TRUE);
@@ -2010,6 +2496,134 @@ EC_BOOL c_mutex_init(pthread_mutex_t *mutex, const UINT32 flag, const UINT32 loc
     }
 
     return (EC_TRUE);
+}
+
+
+#define __X86          (1)
+#define __IA64         (2)
+#define __GENERIC      (3)
+
+#if defined(REG_RIP)
+#define CMISC_PLATFORM __IA64
+#define CMISC_REG_FORMAT "%016lx"
+#define CMISC_REG_RIP   REG_RIP
+#define CMISC_REG_RBP   REG_RBP
+#elif defined(REG_EIP)
+#define CMISC_PLATFORM __X86
+#define CMISC_REG_FORMAT "%08x"
+#define CMISC_REG_RIP   REG_EIP
+#define CMISC_REG_RBP   REG_EBP
+#else
+#define CMISC_PLATFORM __GENERIC
+#define CMISC_REG_FORMAT "%x"
+#endif
+
+void c_backtrace_dump_details(LOG *log, ucontext_t *ucontext)
+{   
+#if (__X86 == CMISC_PLATFORM || __IA64 == CMISC_PLATFORM)
+    int      frame_idx = 0;
+    Dl_info  dlinfo;
+    void   **bp = 0;
+    void    *ip = 0;
+#endif /*(__X86 == CMISC_PLATFORM || __IA64 == CMISC_PLATFORM)*/
+
+#if (__X86 != CMISC_PLATFORM && __IA64 != CMISC_PLATFORM)
+    void *bt[128];
+    char **strings;
+    size_t size;
+    size_t idx;
+#endif /*(__X86 != CMISC_PLATFORM && __IA64 != CMISC_PLATFORM)*/
+
+    if(1)
+    {
+        size_t reg_idx;
+        for(reg_idx = 0; reg_idx < NGREG; reg_idx ++)
+        {
+            dbg_log(SEC_0013_CMISC, 5)(LOGSTDOUT, "reg[%02d]       = 0x" CMISC_REG_FORMAT "\n", 
+                               reg_idx, 
+                               ucontext->uc_mcontext.gregs[reg_idx]);
+        }
+    }
+
+#if (__X86 == CMISC_PLATFORM || __IA64 == CMISC_PLATFORM)
+    ip = (void*)ucontext->uc_mcontext.gregs[CMISC_REG_RIP];
+    bp = (void**)ucontext->uc_mcontext.gregs[CMISC_REG_RBP];
+
+    dbg_log(SEC_0013_CMISC, 5)(LOGSTDOUT, "c_backtrace_dump_details: stac trace:\n");
+    while(NULL_PTR != bp && NULL_PTR != ip) 
+    {
+        const char *symname;
+        if(0 == dladdr(ip, &dlinfo))
+        {
+            break;
+        }
+
+        symname = dlinfo.dli_sname;
+        dbg_log(SEC_0013_CMISC, 5)(LOGSTDOUT, "% 2d: %p <%s+%u> (%s)\n",
+                            ++ frame_idx,
+                            ip,
+                            symname,
+                            (unsigned)(ip - dlinfo.dli_saddr),
+                            dlinfo.dli_fname);
+
+
+        if(NULL_PTR != dlinfo.dli_sname && 0 == strcmp(dlinfo.dli_sname, "main"))
+        {
+            break;
+        }
+
+        ip = bp[1];
+        bp = (void **)bp[0];
+    }    
+#endif /*(__X86 == CMISC_PLATFORM || __IA64 == CMISC_PLATFORM)*/
+
+#if (__X86 != CMISC_PLATFORM && __IA64 != CMISC_PLATFORM)
+    dbg_log(SEC_0013_CMISC, 5)(LOGSTDOUT, "c_backtrace_dump_details: stack trace (non-dedicated) beg\n");
+    
+    size    = backtrace(bt, sizeof(bt)/sizeof(bt[0]));
+    strings = backtrace_symbols(bt, size);
+
+    for(idx = 0; idx < size; ++ idx)
+    {
+        dbg_log(SEC_0013_CMISC, 5)(LOGSTDOUT, "%s\n", strings[idx]);
+    }
+#endif /*(__X86 != CMISC_PLATFORM && __IA64 != CMISC_PLATFORM)*/
+
+  dbg_log(SEC_0013_CMISC, 5)(LOGSTDOUT, "c_backtrace_dump_details: stack trace end\n");
+  
+  return;
+}
+
+void c_backtrace_dump(LOG *log)
+{
+    void *bt[128];
+    char **strings;
+    size_t size;
+    size_t idx;
+
+    dbg_log(SEC_0013_CMISC, 5)(LOGSTDOUT, "c_backtrace_dump: stack trace beg\n");
+    
+    size    = backtrace(bt, sizeof(bt)/sizeof(bt[0]));
+    strings = backtrace_symbols(bt, size);
+
+    for(idx = 0; idx < size; ++ idx)
+    {
+        dbg_log(SEC_0013_CMISC, 5)(LOGSTDOUT, "c_backtrace_dump: %s\n", strings[idx]);
+    }    
+
+    dbg_log(SEC_0013_CMISC, 5)(LOGSTDOUT, "c_backtrace_dump: stack trace end\n");
+    return;
+}
+
+void c_indent_print(LOG *log, const UINT32 level)
+{
+    UINT32 idx;
+
+    for(idx = 0; idx < level; idx ++)
+    {
+        sys_print(log, "    ");
+    }
+    return;
 }
 
 #ifdef __cplusplus

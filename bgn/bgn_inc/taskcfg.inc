@@ -78,7 +78,7 @@ typedef struct
 /*TASK SERVER CONFIG*/
 typedef struct
 {
-    UINT32   tcid;        /*taskcomm id              */
+    UINT32   tcid;        /*taskcomm id*/
     UINT32   maski;       /*taskcomm mask for internal network,including sub network(sons) and LAN network(brothers)*/
     UINT32   maske;       /*taskcomm mask for external network,including upper network(parent)*/
 
@@ -87,29 +87,12 @@ typedef struct
 
     UINT32   csrvport;    /*when valid, will start csrv on it*/
     CVECTOR  cluster_vec; /*belong to these clusters, item is cluster id (UINT32)*/   
-#if 0
-    union
-    {
-        UINT32      remote; /*reserved*/
 
-        struct
-        {
-            int      srvsockfd;          /*[ONLY FOR LOCAL TASKS CFG] local taskcomm srv listening sockfd */
-            int      rsved;
-            
-            CVECTOR  tasks_node_work;    /*[ONLY FOR LOCAL TASKS CFG] working clients: remote taskcomm connection to local taskcomm : tasks_node vector  */
-            CVECTOR  tasks_node_monitor; /*[ONLY FOR LOCAL TASKS CFG] monitoring clients: remote taskcomm connection to local taskcomm: csocket_cnode vector*/
-        }local;
-    }u;
-#endif    
-
-#if 1
     int      srvsockfd;          /*[ONLY FOR LOCAL TASKS CFG] local taskcomm srv listening sockfd */
-    int      rsved;
+    int      rsvd;
     
     CVECTOR  tasks_node_work;    /*[ONLY FOR LOCAL TASKS CFG] working clients: remote taskcomm connection to local taskcomm : tasks_node vector  */
     CVECTOR  tasks_node_monitor; /*[ONLY FOR LOCAL TASKS CFG] monitoring clients: remote taskcomm connection to local taskcomm: csocket_cnode vector*/
-#endif
 
     CVECTOR  taskr_cfg_vec;
 }TASKS_CFG;
@@ -125,27 +108,16 @@ typedef struct
 #define TASKS_CFG_SRVPORT(tasks_cfg)               ((tasks_cfg)->srvport)
 #define TASKS_CFG_CSRVPORT(tasks_cfg)              ((tasks_cfg)->csrvport)
 #define TASKS_CFG_CLUSTER_VEC(tasks_cfg)           (&((tasks_cfg)->cluster_vec))
-#if 0
-#define TASKS_CFG_SRVSOCKFD(tasks_cfg)             ((tasks_cfg)->u.local.srvsockfd)
-#define TASKS_CFG_WORK(tasks_cfg)                  (&((tasks_cfg)->u.local.tasks_node_work))
-#define TASKS_CFG_MONITOR(tasks_cfg)               (&((tasks_cfg)->u.local.tasks_node_monitor))
-#endif
-#if 1
+
 #define TASKS_CFG_SRVSOCKFD(tasks_cfg)             ((tasks_cfg)->srvsockfd)
 #define TASKS_CFG_WORK(tasks_cfg)                  (&((tasks_cfg)->tasks_node_work))
 #define TASKS_CFG_MONITOR(tasks_cfg)               (&((tasks_cfg)->tasks_node_monitor))
-#endif
+
 #define TASKS_CFG_TASKR_CFG_VEC(tasks_cfg)         (&(tasks_cfg->taskr_cfg_vec))
 
-#if 0
-#define TASKS_WORK_BASE_TASKS_CFG_ENTRY(tasks_work_ptr) \
-    ((TASKS_CFG *)((char *)(tasks_work_ptr)-(unsigned long)(&((TASKS_CFG *)0)->u.local.tasks_node_work)))
-#endif
-#if 1
 #define TASKS_WORK_BASE_TASKS_CFG_ENTRY(tasks_work_ptr) \
     ((TASKS_CFG *)((char *)(tasks_work_ptr)-(unsigned long)(&((TASKS_CFG *)0)->tasks_node_work)))
 
-#endif
 
 /*TASK ROUTE CONFIG*/
 typedef struct

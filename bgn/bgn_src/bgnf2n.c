@@ -116,7 +116,7 @@ UINT32 bgn_f2n_start( const BIGINT *f_x )
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == f_x )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_start: fx is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_start: fx is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, ERR_MODULE_ID);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -181,7 +181,7 @@ UINT32 bgn_f2n_start( const BIGINT *f_x )
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == bgnf2n_f )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_start: bgnf2n_f is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_start: bgnf2n_f is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -219,7 +219,7 @@ void bgn_f2n_end(const UINT32 bgnf2n_md_id)
 
     if ( MAX_NUM_OF_BGNF2N_MD < bgnf2n_md_id )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_end: bgnf2n_md_id = %ld is overflow.\n",bgnf2n_md_id);
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_end: bgnf2n_md_id = %ld is overflow.\n",bgnf2n_md_id);
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 
@@ -235,7 +235,7 @@ void bgn_f2n_end(const UINT32 bgnf2n_md_id)
 
     if ( 0 == bgnf2n_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_end: bgnf2n_md_id = %ld is not started.\n",bgnf2n_md_id);
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_end: bgnf2n_md_id = %ld is not started.\n",bgnf2n_md_id);
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 
@@ -279,12 +279,12 @@ int bgn_f2n_cmp(const UINT32 bgnf2n_md_id,const BIGINT * a,const BIGINT *b)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_cmp: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_cmp: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_cmp: b is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_cmp: b is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -315,12 +315,12 @@ void bgn_f2n_clone(const UINT32 bgnf2n_md_id,const BIGINT * src,BIGINT * des)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_clone: src is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_clone: src is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_clone: des is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_clone: des is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -353,7 +353,7 @@ EC_BOOL bgn_f2n_is_zero(const UINT32 bgnf2n_md_id,const BIGINT* src)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_is_zero: src is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_is_zero: src is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -386,7 +386,7 @@ EC_BOOL bgn_f2n_is_one(const UINT32 bgnf2n_md_id,const BIGINT* src)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_is_one: src is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_is_one: src is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -419,7 +419,7 @@ EC_BOOL bgn_f2n_is_odd(const UINT32 bgnf2n_md_id,const BIGINT *src)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_is_odd: src is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_is_odd: src is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -451,7 +451,7 @@ void bgn_f2n_set_zero(const UINT32 bgnf2n_md_id,BIGINT * a)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_set_zero: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_set_zero: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -482,7 +482,7 @@ void bgn_f2n_set_one(const UINT32 bgnf2n_md_id,BIGINT * a)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_set_one: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_set_one: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -513,7 +513,7 @@ void bgn_f2n_set_word(const UINT32 bgnf2n_md_id,BIGINT *a,const UINT32 n)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_set_word: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_set_word: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -549,12 +549,12 @@ UINT32 bgn_f2n_parse_bits(const UINT32 bgnf2n_md_id,const BIGINT *k,UINT32 *s)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == k )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_parse_bits: k is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_parse_bits: k is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == s )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_parse_bits: s is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_parse_bits: s is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -602,12 +602,12 @@ int bgn_f2n_naf(const UINT32 bgnf2n_md_id,const BIGINT *k,int *s)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == k )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_naf: k is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_naf: k is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == s )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_naf: s is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_naf: s is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -642,7 +642,7 @@ UINT32 bgn_f2n_deg(const UINT32 bgnf2n_md_id,const BIGINT *a)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_deg: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_deg: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -679,12 +679,12 @@ void bgn_f2n_shr_onewordsize(const UINT32 bgnf2n_md_id,const BIGINT *a,BIGINT *c
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_shr_onewordsize: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_shr_onewordsize: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_shr_onewordsize: c is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_shr_onewordsize: c is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -723,12 +723,12 @@ void bgn_f2n_shr_lesswordsize(const UINT32 bgnf2n_md_id,const BIGINT *a, const U
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_shr_lesswordsize: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_shr_lesswordsize: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_shr_lesswordsize: c is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_shr_lesswordsize: c is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( WORDSIZE <= nbits )
@@ -786,12 +786,12 @@ void bgn_f2n_shl_onewordsize(const UINT32 bgnf2n_md_id,const BIGINT * a, BIGINT 
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_shl_onewordsize: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_shl_onewordsize: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_shl_onewordsize: c is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_shl_onewordsize: c is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -870,12 +870,12 @@ void bgn_f2n_shl_lesswordsize(const UINT32 bgnf2n_md_id,const BIGINT * a, const 
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_shl_lesswordsize: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_shl_lesswordsize: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_shl_lesswordsize: c is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_shl_lesswordsize: c is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( WORDSIZE <= nbits )
@@ -949,17 +949,17 @@ void bgn_f2n_add(const UINT32 bgnf2n_md_id,const BIGINT* a,const BIGINT * b,BIGI
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_add: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_add: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_add: b is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_add: b is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_add: c is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_add: c is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -995,17 +995,17 @@ void bgn_f2n_sub(const UINT32 bgnf2n_md_id,const BIGINT* a,const BIGINT * b,BIGI
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_sub: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_sub: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_sub: b is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_sub: b is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_sub: c is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_sub: c is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1044,17 +1044,17 @@ void bgn_f2n_add_offset(const UINT32 bgnf2n_md_id,const BIGINT *a,const BIGINT *
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_add_offset: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_add_offset: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_add_offset: b is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_add_offset: b is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_add_offset: c is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_add_offset: c is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1102,12 +1102,12 @@ void bgn_f2n_squ(const UINT32 bgnf2n_md_id,const BIGINT* a,BIGINT * c)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_squ: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_squ: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_squ: c is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_squ: c is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1186,17 +1186,17 @@ void bgn_f2n_mul(const UINT32 bgnf2n_md_id,const BIGINT* a,const BIGINT * b,BIGI
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_mul: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_mul: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_mul: b is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_mul: b is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_mul: c is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_mul: c is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1293,12 +1293,12 @@ EC_BOOL bgn_f2n_inv(const UINT32 bgnf2n_md_id,const BIGINT* a,BIGINT * c)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_inv: a is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_inv: a is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_f2n_inv: c is NULL_PTR.\n");
+        dbg_log(SEC_0093_BGNF2N, 0)(LOGSTDOUT,"error:bgn_f2n_inv: c is NULL_PTR.\n");
         dbg_exit(MD_BGNF2N, bgnf2n_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/

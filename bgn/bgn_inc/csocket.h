@@ -59,6 +59,10 @@ void csocket_cnode_free(CSOCKET_CNODE *csocket_cnode);
 
 void csocket_cnode_close(CSOCKET_CNODE *csocket_cnode);
 
+void csocket_cnode_close_and_clean_event(CSOCKET_CNODE *csocket_cnode);
+
+EC_BOOL csocket_cnode_set_disconnected(CSOCKET_CNODE *csocket_cnode);
+
 EC_BOOL csocket_cnode_cmp(const CSOCKET_CNODE *csocket_cnode_1, const CSOCKET_CNODE *csocket_cnode_2);
 
 EC_BOOL csocket_cnode_irecv(CSOCKET_CNODE *csocket_cnode);
@@ -85,9 +89,21 @@ EC_BOOL csocket_nonblock_disable(int sockfd);
 
 EC_BOOL csocket_is_nonblock(const int sockfd);
 
+EC_BOOL csocket_nagle_disable(int sockfd);
+
+EC_BOOL csocket_quick_ack_enable(int sockfd);
+
+EC_BOOL csocket_finish_enable(int sockfd);
+
+EC_BOOL csocket_reset_enable(int sockfd);
+
+EC_BOOL csocket_set_sendbuf_size(int sockfd, const int size);
+
+EC_BOOL csocket_set_recvbuf_size(int sockfd, const int size);
+
 EC_BOOL csocket_optimize(int sockfd);
 
-EC_BOOL csocket_listen( const UINT32 srv_port, int *srv_sockfd );
+EC_BOOL csocket_listen(const UINT32 srv_ipaddr, const UINT32 srv_port, int *srv_sockfd);
 
 EC_BOOL csocket_name(const int sockfd, CSTRING *ipaddr);
 
@@ -101,7 +117,9 @@ EC_BOOL csocket_is_connected(const int sockfd);
 
 EC_BOOL csocket_is_closed(const int sockfd);
 
-EC_BOOL csocket_accept(const int srv_sockfd, int *conn_sockfd, UINT32 *client_ipaddr);
+EC_BOOL csocket_accept(const int srv_sockfd, int *conn_sockfd, const UINT32 csocket_block_mode, UINT32 *client_ipaddr);
+
+EC_BOOL csocket_get_peer_port(const int sockfd, UINT32 *peer_port);
 
 EC_BOOL csocket_start_udp_bcast_sender( const UINT32 bcast_fr_ipaddr, const UINT32 bcast_port, int *srv_sockfd );
 
@@ -147,11 +165,13 @@ int csocket_open(int domain, int type, int protocol);
 
 EC_BOOL csocket_close( const int sockfd );
 
+EC_BOOL csocket_close_force( const int sockfd );
+
 int csocket_errno();
 
 EC_BOOL csocket_is_eagain();
 
-EC_BOOL csocket_no_ierror();
+EC_BOOL csocket_no_ierror(const int sockfd);
 
 EC_BOOL csocket_can_write(const int sockfd, int *ret);
 
@@ -168,6 +188,8 @@ EC_BOOL csocket_recv(const int sockfd, UINT8 *in_buff, const UINT32 in_buff_expe
 EC_BOOL csocket_write(const int sockfd, const UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *pos);
 
 EC_BOOL csocket_read(const int sockfd, UINT8 *in_buff, const UINT32 in_buff_expect_len, UINT32 *pos);
+
+EC_BOOL csocket_sendfile(const int sockfd, const int fd, const UINT32 out_buff_max_len, UINT32 *pos);
 
 EC_BOOL csocket_isend_task_node(CSOCKET_CNODE *csocket_cnode, struct _TASK_NODE *task_node);
 
@@ -202,7 +224,7 @@ EC_BOOL csocket_discard_task_node_from(CLIST *clist, const UINT32 broken_tcid);
 
 EC_BOOL csocket_discard_task_node_to(CLIST *clist, const UINT32 broken_tcid);
 
-EC_BOOL csocket_srv_start( const UINT32 srv_port, const UINT32 csocket_block_mode, int *srv_sockfd );
+EC_BOOL csocket_srv_start( const UINT32 srv_ipaddr, const UINT32 srv_port, const UINT32 csocket_block_mode, int *srv_sockfd );
 
 EC_BOOL csocket_srv_end(const int srv_sockfd);
 

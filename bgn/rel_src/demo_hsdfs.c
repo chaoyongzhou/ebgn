@@ -66,13 +66,13 @@ static EC_BOOL init_g_cbytes(const UINT32 cdfs_md_id, const UINT32 max_num)
     max_cfg_num = sizeof(g_cdfs_file_cfg_tbl)/sizeof(g_cdfs_file_cfg_tbl[0]);
     if(max_num > max_cfg_num)
     {
-        sys_log(LOGSTDOUT, "error:__init_g_cbytes: max_num %ld but max_cfg_num %ld\n", max_num, max_cfg_num);
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:__init_g_cbytes: max_num %ld but max_cfg_num %ld\n", max_num, max_cfg_num);
         return (EC_FALSE);
     }
 
     if(max_num > g_cbytes_max_len)
     {
-        sys_log(LOGSTDOUT, "error:__init_g_cbytes: max_num %ld but g_cbytes_max_len %ld\n", max_num, g_cbytes_max_len);
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:__init_g_cbytes: max_num %ld but g_cbytes_max_len %ld\n", max_num, g_cbytes_max_len);
         return (EC_FALSE);
     }
 
@@ -93,21 +93,21 @@ static EC_BOOL init_g_cbytes(const UINT32 cdfs_md_id, const UINT32 max_num)
 
         if(EC_FALSE == c_file_access(file_name, F_OK))
         {
-            sys_log(LOGSTDOUT, "error:__init_g_cbytes: file %s not exist or inaccessable\n", file_name);
+            dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:__init_g_cbytes: file %s not exist or inaccessable\n", file_name);
             return (EC_FALSE);
         }
 
         fd = c_file_open(file_name, O_RDONLY, 0666);
         if(-1 == fd)
         {
-            sys_log(LOGSTDOUT, "error:__init_g_cbytes: open file %s to read failed\n", file_name);
+            dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:__init_g_cbytes: open file %s to read failed\n", file_name);
             return (EC_FALSE);
         }
 
         cbytes = cbytes_new(file_size);
         if((ssize_t)file_size != read(fd, cbytes_buf(cbytes), file_size))
         {
-            sys_log(LOGSTDOUT, "error:__init_g_cbytes: read file %s with size %ld failed\n", file_name, file_size);
+            dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:__init_g_cbytes: read file %s with size %ld failed\n", file_name, file_size);
             cbytes_free(cbytes, 0);
             c_file_close(fd);
             return (EC_FALSE);
@@ -126,7 +126,7 @@ static EC_BOOL clean_g_cbytes(const UINT32 cdfs_md_id, const UINT32 max_num)
     UINT32 pos;
     if(max_num > g_cbytes_max_len)
     {
-        sys_log(LOGSTDOUT, "error:clean_g_cbytes: max_num %ld but g_cbytes_max_len %ld\n", max_num, g_cbytes_max_len);
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:clean_g_cbytes: max_num %ld but g_cbytes_max_len %ld\n", max_num, g_cbytes_max_len);
         return (EC_FALSE);
     }
 
@@ -148,7 +148,7 @@ static CBYTES *fetch_g_cbytes(const UINT32 cdfs_md_id, const UINT32 max_num, con
 {
     if(max_num > g_cbytes_max_len)
     {
-        sys_log(LOGSTDOUT, "error:fetch_g_cbytes: max_num %ld but g_cbytes_max_len %ld\n", max_num, g_cbytes_max_len);
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:fetch_g_cbytes: max_num %ld but g_cbytes_max_len %ld\n", max_num, g_cbytes_max_len);
         return (NULL_PTR);
     }
 
@@ -180,10 +180,10 @@ EC_BOOL test_case_82_cdfs_read(const char *home, const UINT32 read_from_tcid, co
     mod_mgr = mod_mgr_new(cdfs_md_id, LOAD_BALANCING_LOOP);
     mod_mgr_incl(read_from_tcid, CMPI_ANY_COMM, CMPI_CDFS_RANK, cdfs_md_id, mod_mgr);
 
-    sys_log(LOGSTDOUT, "test_case_82_cdfs_read: npp mod mgr is\n");
+    dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "test_case_82_cdfs_read: npp mod mgr is\n");
     mod_mgr_print(LOGSTDOUT, cdfs_get_npp_mod_mgr(cdfs_md_id));
 
-    sys_log(LOGSTDOUT, "test_case_82_cdfs_read: dn mod mgr is\n");
+    dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "test_case_82_cdfs_read: dn mod mgr is\n");
     mod_mgr_print(LOGSTDOUT, cdfs_get_dn_mod_mgr(cdfs_md_id));
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -212,7 +212,7 @@ EC_BOOL test_case_82_cdfs_read(const char *home, const UINT32 read_from_tcid, co
         {
             if(EC_TRUE == cbytes_ncmp(cbytes[ index ], cbytes_des[ index ], 16))
             {
-                sys_log(LOGSTDOUT, "[SUCC] path: %s, len = %ld ",
+                dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "[SUCC] path: %s, len = %ld ",
                                   (char *)cstring_get_str(path[ index ]),
                                   cbytes_len(cbytes[ index ]));
                 sys_print(LOGSTDOUT, "text = %.*s\n",
@@ -223,7 +223,7 @@ EC_BOOL test_case_82_cdfs_read(const char *home, const UINT32 read_from_tcid, co
             {
                 continue_flag = EC_FALSE;
 
-                sys_log(LOGCONSOLE, "[FAIL] path: %s, read len = %ld ",
+                dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[FAIL] path: %s, read len = %ld ",
                                   (char *)cstring_get_str(path[ index ]),
                                   cbytes_len(cbytes[ index ]));
                 sys_print(LOGCONSOLE, "text = %.*s <--> ",
@@ -282,10 +282,10 @@ EC_BOOL test_case_83_cdf_write(const char *home, const UINT32 write_from_tcid, c
     mod_mgr = mod_mgr_new(cdfs_md_id, LOAD_BALANCING_LOOP);
     mod_mgr_incl(write_from_tcid, CMPI_ANY_COMM, CMPI_CDFS_RANK, cdfs_md_id, mod_mgr);
 
-    sys_log(LOGSTDOUT, "test_case_83_cdf_write: npp mod mgr is\n");
+    dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "test_case_83_cdf_write: npp mod mgr is\n");
     mod_mgr_print(LOGSTDOUT, cdfs_get_npp_mod_mgr(cdfs_md_id));
 
-    sys_log(LOGSTDOUT, "test_case_83_cdf_write: dn mod mgr is\n");
+    dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "test_case_83_cdf_write: dn mod mgr is\n");
     mod_mgr_print(LOGSTDOUT, cdfs_get_dn_mod_mgr(cdfs_md_id));
 
     task_mgr = task_new(mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -300,7 +300,7 @@ EC_BOOL test_case_83_cdf_write(const char *home, const UINT32 write_from_tcid, c
         cbytes = fetch_g_cbytes(cdfs_md_id, max_test_data_files, ((*counter) % max_test_data_files));
         if(NULL_PTR == cbytes)
         {
-            sys_log(LOGSTDOUT, "error:test_case_83_cdf_write: cdfs buff is null where index = %ld, max_test_data_files = %ld\n", index, max_test_data_files);
+            dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:test_case_83_cdf_write: cdfs buff is null where index = %ld, max_test_data_files = %ld\n", index, max_test_data_files);
             cstring_free(path[ index ]);
             path[ index ] = NULL_PTR;
             break;
@@ -318,7 +318,7 @@ EC_BOOL test_case_83_cdf_write(const char *home, const UINT32 write_from_tcid, c
         if(EC_FALSE == ret[ index ] && NULL_PTR != path[ index ])
         {
             continue_flag = EC_FALSE;
-            sys_log(LOGCONSOLE, "test_case_83_cdf_write: [FAIL] %s\n", (char *)cstring_get_str(path[ index ]));
+            dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "test_case_83_cdf_write: [FAIL] %s\n", (char *)cstring_get_str(path[ index ]));
         }
         if(NULL_PTR != path[ index ])
         {
@@ -352,7 +352,7 @@ EC_BOOL test_case_84_check_replica(const char *home, const UINT32 cdfs_md_id, co
     }
 
     cdfsnpp_mod_mgr = cdfs_get_npp_mod_mgr(cdfs_md_id);
-    sys_log(LOGSTDOUT, "test_case_84_check_replica: cdfsnpp mod mgr is\n");
+    dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "test_case_84_check_replica: cdfsnpp mod mgr is\n");
     mod_mgr_print(LOGSTDOUT, cdfsnpp_mod_mgr);
 
     task_mgr = task_new(cdfsnpp_mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -375,12 +375,12 @@ EC_BOOL test_case_84_check_replica(const char *home, const UINT32 cdfs_md_id, co
     {
         if(EC_TRUE == ret[ index ])
         {
-            sys_log(LOGSTDOUT, "[SUCC] path: %s\n", (char *)cstring_get_str(path[ index ]));
+            dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "[SUCC] path: %s\n", (char *)cstring_get_str(path[ index ]));
         }
         else
         {
             continue_flag = EC_FALSE;
-            sys_log(LOGCONSOLE, "[FAIL] path: %s\n", (char *)cstring_get_str(path[ index ]));
+            dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[FAIL] path: %s\n", (char *)cstring_get_str(path[ index ]));
         }
 
         if(NULL_PTR != path[ index ])
@@ -415,7 +415,7 @@ EC_BOOL test_case_85_cdfs_check_file_content(const char *home, const UINT32 cdfs
     }
 
     cdfsnpp_mod_mgr = cdfs_get_npp_mod_mgr(cdfs_md_id);
-    sys_log(LOGSTDOUT, "test_case_85_cdfs_check_file_content: cdfsnpp mod mgr is\n");
+    dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "test_case_85_cdfs_check_file_content: cdfsnpp mod mgr is\n");
     mod_mgr_print(LOGSTDOUT, cdfsnpp_mod_mgr);
 
     task_mgr = task_new(cdfsnpp_mod_mgr, TASK_PRIO_NORMAL, TASK_NEED_RSP_FLAG, TASK_NEED_ALL_RSP);
@@ -445,12 +445,12 @@ EC_BOOL test_case_85_cdfs_check_file_content(const char *home, const UINT32 cdfs
     {
         if(EC_TRUE == ret[ index ])
         {
-            sys_log(LOGSTDOUT, "[SUCC] path: %s\n", (char *)cstring_get_str(path[ index ]));
+            dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "[SUCC] path: %s\n", (char *)cstring_get_str(path[ index ]));
         }
         else
         {
             continue_flag = EC_FALSE;
-            sys_log(LOGCONSOLE, "[FAIL] path: %s\n", (char *)cstring_get_str(path[ index ]));
+            dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[FAIL] path: %s\n", (char *)cstring_get_str(path[ index ]));
         }
 
         if(NULL_PTR != path[ index ])
@@ -483,7 +483,7 @@ EC_BOOL test_case_86_cdfs_writer(const UINT32 cdfs_md_id, const UINT32 write_fro
 
     if(EC_FALSE == init_g_cbytes(cdfs_md_id, max_test_data_files))
     {
-        sys_log(LOGSTDOUT, "error:test_case_86_cdfs_writer:init_g_cbytes failed where max_test_data_files = %ld\n", max_test_data_files);
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:test_case_86_cdfs_writer:init_g_cbytes failed where max_test_data_files = %ld\n", max_test_data_files);
 
         clean_g_cbytes(cdfs_md_id, max_test_data_files);
         return (EC_FALSE);
@@ -500,7 +500,7 @@ EC_BOOL test_case_86_cdfs_writer(const UINT32 cdfs_md_id, const UINT32 write_fro
         UINT32 dir1;
         UINT32 dir2;
 
-        sys_log(LOGCONSOLE, "[DEBUG] test_case_86_cdfs_writer: outer_loop = %ld\n", outer_loop);
+        dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_86_cdfs_writer: outer_loop = %ld\n", outer_loop);
 
         dir0 = (outer_loop % CDFS_MAX_FILE_NUM_PER_LOOP);
         dir1 = ((outer_loop / CDFS_MAX_FILE_NUM_PER_LOOP) % CDFS_MAX_FILE_NUM_PER_LOOP);
@@ -517,7 +517,7 @@ EC_BOOL test_case_86_cdfs_writer(const UINT32 cdfs_md_id, const UINT32 write_fro
 
     clean_g_cbytes(cdfs_md_id, max_test_data_files);
 
-    sys_log(LOGCONSOLE, "[DEBUG] test_case_86_cdfs_writer: end\n");
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_86_cdfs_writer: end\n");
 
     return (continue_flag);
 }
@@ -531,7 +531,7 @@ EC_BOOL test_case_87_cdfs_reader(const UINT32 cdfs_md_id, const UINT32 read_from
 
     if(EC_FALSE == init_g_cbytes(cdfs_md_id, max_test_data_files))
     {
-        sys_log(LOGSTDOUT, "error:test_case_87_cdfs_reader:init_g_cbytes failed where max_test_data_files = %ld\n", max_test_data_files);
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:test_case_87_cdfs_reader:init_g_cbytes failed where max_test_data_files = %ld\n", max_test_data_files);
 
         clean_g_cbytes(cdfs_md_id, max_test_data_files);
         return (EC_FALSE);
@@ -547,7 +547,7 @@ EC_BOOL test_case_87_cdfs_reader(const UINT32 cdfs_md_id, const UINT32 read_from
         UINT32 dir1;
         UINT32 dir2;
 
-        sys_log(LOGCONSOLE, "[DEBUG] test_case_87_cdfs_reader: outer_loop = %ld\n", outer_loop);
+        dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_87_cdfs_reader: outer_loop = %ld\n", outer_loop);
 
         dir0 = (outer_loop % CDFS_MAX_FILE_NUM_PER_LOOP);
         dir1 = ((outer_loop / CDFS_MAX_FILE_NUM_PER_LOOP) % CDFS_MAX_FILE_NUM_PER_LOOP);
@@ -564,7 +564,7 @@ EC_BOOL test_case_87_cdfs_reader(const UINT32 cdfs_md_id, const UINT32 read_from
 
     clean_g_cbytes(cdfs_md_id, max_test_data_files);
 
-    sys_log(LOGCONSOLE, "[DEBUG] test_case_87_cdfs_reader: end\n");
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_87_cdfs_reader: end\n");
 
     return (continue_flag);
 }
@@ -578,7 +578,7 @@ EC_BOOL test_case_88_cdfs_replica_checker(const UINT32 cdfs_md_id, const UINT32 
 
     if(EC_FALSE == init_g_cbytes(cdfs_md_id, max_test_data_files))
     {
-        sys_log(LOGSTDOUT, "error:test_case_88_cdfs_replica_checker:init_g_cbytes failed where max_test_data_files = %ld\n", max_test_data_files);
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:test_case_88_cdfs_replica_checker:init_g_cbytes failed where max_test_data_files = %ld\n", max_test_data_files);
 
         clean_g_cbytes(cdfs_md_id, max_test_data_files);
         return (EC_FALSE);
@@ -594,7 +594,7 @@ EC_BOOL test_case_88_cdfs_replica_checker(const UINT32 cdfs_md_id, const UINT32 
         UINT32 dir1;
         UINT32 dir2;
 
-        sys_log(LOGCONSOLE, "[DEBUG] test_case_88_cdfs_replica_checker: outer_loop = %ld\n", outer_loop);
+        dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_88_cdfs_replica_checker: outer_loop = %ld\n", outer_loop);
 
         dir0 = (outer_loop % CDFS_MAX_FILE_NUM_PER_LOOP);
         dir1 = ((outer_loop / CDFS_MAX_FILE_NUM_PER_LOOP) % CDFS_MAX_FILE_NUM_PER_LOOP);
@@ -611,7 +611,7 @@ EC_BOOL test_case_88_cdfs_replica_checker(const UINT32 cdfs_md_id, const UINT32 
 
     clean_g_cbytes(cdfs_md_id, max_test_data_files);
 
-    sys_log(LOGCONSOLE, "[DEBUG] test_case_88_cdfs_replica_checker: end\n");
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_88_cdfs_replica_checker: end\n");
 
     return (EC_TRUE);
 }
@@ -625,7 +625,7 @@ EC_BOOL test_case_88_cdfs_file_content_checker(const UINT32 cdfs_md_id, const UI
 
     if(EC_FALSE == init_g_cbytes(cdfs_md_id, max_test_data_files))
     {
-        sys_log(LOGSTDOUT, "error:test_case_88_cdfs_file_content_checker:init_g_cbytes failed where max_test_data_files = %ld\n", max_test_data_files);
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:test_case_88_cdfs_file_content_checker:init_g_cbytes failed where max_test_data_files = %ld\n", max_test_data_files);
 
         clean_g_cbytes(cdfs_md_id, max_test_data_files);
         return (EC_FALSE);
@@ -641,7 +641,7 @@ EC_BOOL test_case_88_cdfs_file_content_checker(const UINT32 cdfs_md_id, const UI
         UINT32 dir1;
         UINT32 dir2;
 
-        sys_log(LOGCONSOLE, "[DEBUG] test_case_88_cdfs_file_content_checker: outer_loop = %ld\n", outer_loop);
+        dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_88_cdfs_file_content_checker: outer_loop = %ld\n", outer_loop);
 
         dir0 = (outer_loop % CDFS_MAX_FILE_NUM_PER_LOOP);
         dir1 = ((outer_loop / CDFS_MAX_FILE_NUM_PER_LOOP) % CDFS_MAX_FILE_NUM_PER_LOOP);
@@ -658,7 +658,7 @@ EC_BOOL test_case_88_cdfs_file_content_checker(const UINT32 cdfs_md_id, const UI
 
     clean_g_cbytes(cdfs_md_id, max_test_data_files);
 
-    sys_log(LOGCONSOLE, "[DEBUG] test_case_88_cdfs_file_content_checker: end\n");
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "[DEBUG] test_case_88_cdfs_file_content_checker: end\n");
 
     return (EC_TRUE);
 }
@@ -926,7 +926,7 @@ int main_mxnp_nxdn(int argc, char **argv)
     task_brd_default_init(argc, argv);
     if(EC_FALSE == task_brd_default_check_validity())
     {
-        sys_log(LOGSTDOUT, "error:main_mxnp_nxdn: validity checking failed\n");
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:main_mxnp_nxdn: validity checking failed\n");
         task_brd_default_abort();
         return (-1);
     }
@@ -971,7 +971,7 @@ int main_csolr(int argc, char **argv)
     task_brd_default_init(argc, argv);
     if(EC_FALSE == task_brd_default_check_validity())
     {
-        sys_log(LOGSTDOUT, "error:main: validity checking failed\n");
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:main: validity checking failed\n");
         task_brd_default_abort();
         return (-1);
     }
@@ -993,9 +993,9 @@ int main_csolr(int argc, char **argv)
 
         //mod_mgr_excl(this_tcid, CMPI_ANY_COMM, this_rank, CMPI_ANY_MODI, mod_mgr_def);
 
-        sys_log(LOGSTDOUT, "======================================================================\n");
-        sys_log(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
-        sys_log(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "                       mod_mgr_default_init finished                  \n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT, "======================================================================\n");
         mod_mgr_print(LOGSTDOUT, mod_mgr_def);
 
         //test_case_61(mod_mgr_def);
@@ -1013,10 +1013,10 @@ int main_csolr(int argc, char **argv)
     /*fwd rank entrance*/
     else if (CMPI_FWD_RANK == this_rank)
     {
-        sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
-        sys_log(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
 
         do_slave_wait_default();
     }
@@ -1027,7 +1027,7 @@ int main_csolr(int argc, char **argv)
         UINT32 csolr_md_id;
 
         csolr_md_id = csolr_start();
-        task_brd_default_start_csolr_srv(csolr_md_id, 58111);
+        task_brd_default_start_csolr_srv(csolr_md_id, task_brd_default_get_srv_ipaddr(), 58111);
 
         csolr_add_mod(csolr_md_id, c_ipv4_to_word("10.10.10.1"));
         csolr_add_mod(csolr_md_id, c_ipv4_to_word("10.10.10.2"));
@@ -1039,7 +1039,7 @@ int main_csolr(int argc, char **argv)
         UINT32 csolr_md_id;
 
         csolr_md_id = csolr_start();
-        task_brd_default_start_csolr_srv(csolr_md_id, 58112);
+        task_brd_default_start_csolr_srv(csolr_md_id, task_brd_default_get_srv_ipaddr(), 58112);
 
         csolr_add_mod(csolr_md_id, c_ipv4_to_word("10.10.10.1"));
         csolr_add_mod(csolr_md_id, c_ipv4_to_word("10.10.10.2"));
@@ -1050,10 +1050,10 @@ int main_csolr(int argc, char **argv)
     /*fwd rank entrance*/
     else if (CMPI_FWD_RANK == this_rank)
     {
-        sys_log(LOGSTDOUT,"======================================================================\n");
-        sys_log(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"                taskc_mgr in (tcid %s, rank %ld)                     \n", c_word_to_ipv4(this_tcid), this_rank);
         super_show_work_client(task_brd_default_get_super(), LOGSTDOUT);/*debug only*/
-        sys_log(LOGSTDOUT,"======================================================================\n");
+        dbg_log(SEC_0137_DEMO, 5)(LOGSTDOUT,"======================================================================\n");
 
         do_slave_wait_default();
     }

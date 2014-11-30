@@ -24,6 +24,7 @@ extern "C"{
 #define CHASH_DJB_ALGO_ID           ((UINT32)   7)
 #define CHASH_AP_ALGO_ID            ((UINT32)   8)
 #define CHASH_CRC_ALGO_ID           ((UINT32)   9)
+#define CHASH_MD5_ALGO_ID           ((UINT32)  10)
 #define CHASH_ERR_ALGO_ID           ((UINT32)0xFF)/*8bits*/
 
 typedef UINT32 (*CHASH_ALGO)(const UINT32, const UINT8 *);
@@ -67,6 +68,8 @@ UINT32 AP_hash(const UINT32 len, const UINT8 *str);
 
 /* CRC Hash Function */
 UINT32 CRC_hash(const UINT32 len, const UINT8 *str);
+
+UINT32 MD5_hash(const UINT32 len, const UINT8 *str);
 
 CHASH_ALGO chash_algo_fetch(const UINT32 chash_algo_id);
 

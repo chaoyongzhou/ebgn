@@ -17,6 +17,7 @@ extern "C"{
 
 #include "cstring.h"
 #include "cmutex.h"
+#include "cmisc.h"
 
 #ifdef PARSER_MEM_MGR
 #include "xmalloc.h"
@@ -67,7 +68,10 @@ extern "C"{
 #define     MD_CSCORE    ((UINT32) 38)
 #define     MD_CRFS      ((UINT32) 39)
 #define     MD_CHFS      ((UINT32) 40)
-#define     MD_END       ((UINT32) 41)
+#define     MD_CCURL     ((UINT32) 41)
+#define     MD_CRFSC     ((UINT32) 42)
+#define     MD_CXMPPC2S  ((UINT32) 43)
+#define     MD_END       ((UINT32) 44)
 
 /* Memory Management */
 #define                        MM_UINT32    ((UINT32)  0)
@@ -287,17 +291,39 @@ extern "C"{
 #define                   MM_CRFSNP_ITEM    ((UINT32)196)
 #define                        MM_CRFSNP    ((UINT32)197)
 #define                    MM_CRFSNP_MGR    ((UINT32)198)
-#define              MM_CRFSNP_HOME_DIRS    ((UINT32)199)
-#define                  MM_CRFSNP_BNODE    ((UINT32)200)
-#define             MM_CRFSDN_CACHE_NODE    ((UINT32)201)
+#define                  MM_CRFSNP_BNODE    ((UINT32)199)
+#define             MM_CRFSDN_CACHE_NODE    ((UINT32)200)
 
-#define                  MM_CHFSNP_FNODE    ((UINT32)202)
-#define                   MM_CHFSNP_ITEM    ((UINT32)203)
-#define                        MM_CHFSNP    ((UINT32)204)
-#define                    MM_CHFSNP_MGR    ((UINT32)205)
+#define                  MM_CHFSNP_FNODE    ((UINT32)201)
+#define                   MM_CHFSNP_ITEM    ((UINT32)202)
+#define                        MM_CHFSNP    ((UINT32)203)
+#define                    MM_CHFSNP_MGR    ((UINT32)204)
 
-#define                        MM_UINT64    ((UINT32)206)
-#define                        MM_CEPOLL    ((UINT32)207)
+#define                        MM_UINT64    ((UINT32)205)
+#define                        MM_CEPOLL    ((UINT32)206)
+
+#define                          MM_CSEM    ((UINT32)207)
+
+#define                        MM_CSTRKV    ((UINT32)208)
+#define                    MM_CSTRKV_MGR    ((UINT32)209)
+#define                       MM_CBUFFER    ((UINT32)210)
+#define                 MM_CRFSHTTP_NODE    ((UINT32)211)
+#define                         MM_CHUNK    ((UINT32)212)
+#define                     MM_CHUNK_MGR    ((UINT32)213)
+#define                   MM_CMD5_DIGEST    ((UINT32)214)
+#define                        MM_CRFSOP    ((UINT32)215)
+#define                  MM_CRFSDT_PNODE    ((UINT32)216)
+#define                  MM_CRFSDT_RNODE    ((UINT32)217)
+#define                        MM_CRFSDT    ((UINT32)218)
+#define                   MM_CRFSCONHASH    ((UINT32)219)
+#define             MM_CRFSCONHASH_RNODE    ((UINT32)220)
+#define             MM_CRFSCONHASH_VNODE    ((UINT32)221)
+#define             MM_CRFSNP_TRANS_NODE    ((UINT32)222)
+#define                MM_CRFSCHTTP_NODE    ((UINT32)223)
+#define                    MM_CXMPP_NODE    ((UINT32)224)
+#define                   MM_CEXPAT_ATTR    ((UINT32)225)
+#define                   MM_CEXPAT_NODE    ((UINT32)226)
+#define                 MM_CXMPPC2S_CONN    ((UINT32)227)
 
 #define                           MM_END    ((UINT32)256)
 #define                        MM_IGNORE    ((UINT32)0xFFFF)
@@ -377,8 +403,6 @@ typedef struct
 
     CMUTEX          cmutex;
 }MM_MAN;/* Manager */
-
-
 
 typedef struct
 {

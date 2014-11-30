@@ -29,6 +29,8 @@ extern "C"{
 #define CMPI_FWD_RANK      ((UINT32)  0)  /*define forward rank*/
 #define CMPI_CDFS_RANK     ((UINT32)  0)  /*define cdfs rank*/
 #define CMPI_CRFS_RANK     ((UINT32)  0)  /*define crfs rank*/
+#define CMPI_CRFSC_RANK    ((UINT32)  0)  /*define crfsc rank*/
+#define CMPI_CHFS_RANK     ((UINT32)  0)  /*define chfs rank*/
 
 #define CMPI_DBG_TCID_BEG         ((UINT32) 64) /*dbg tcid beg = 0.0.0.64 */
 #define CMPI_DBG_TCID_END         ((UINT32) 95) /*dbg tcid beg = 0.0.0.95 */
@@ -57,10 +59,12 @@ extern "C"{
 
 EC_BOOL task_node_buff_type(const UINT32 buff_size, UINT32 *buff_type);
 EC_BOOL task_node_buff_alloc(TASK_NODE *task_node, const UINT32 buff_size);
+EC_BOOL task_node_buff_realloc(TASK_NODE *task_node, const UINT32 new_size);
 EC_BOOL task_node_buff_free(TASK_NODE *task_node);
 
 TASK_NODE *task_node_new(const UINT32 buff_size, const UINT32 location);
 EC_BOOL task_node_free(TASK_NODE *task_node);
+EC_BOOL task_node_expand_to(TASK_NODE *task_node, const UINT32 new_size);
 
 void    task_node_print(LOG *log, const TASK_NODE *task_node);
 void    task_node_dbg(LOG *log, const char *info, const TASK_NODE *task_node);
@@ -181,6 +185,8 @@ LOG * task_brd_default_init(int argc, char **argv);
 
 EC_BOOL task_brd_register_one(TASK_BRD *task_brd, const UINT32 remote_tcid, const UINT32 remote_srv_ipaddr, const UINT32 remote_srv_port, const UINT32 conn_num);
 
+EC_BOOL task_brd_register_node(TASK_BRD *task_brd, const UINT32 tcid);
+
 EC_BOOL task_brd_register_cluster(TASK_BRD *task_brd);
 
 TASK_BRD * task_brd_default_get();
@@ -193,13 +199,21 @@ CTIMET task_brd_default_get_time();
 
 CTM *task_brd_default_get_localtime();
 
+CTMV *task_brd_default_get_daytime();
+
+char *task_brd_default_get_time_str();
+
 CEPOLL *task_brd_default_get_cepoll();
 
 CTIMET task_brd_get_time(TASK_BRD *task_brd);
 
-CTM *task_brd_get_localtime(TASK_BRD *task_brd);
+CTM  *task_brd_get_localtime(TASK_BRD *task_brd);
 
-void task_brd_update_time(TASK_BRD *task_brd);
+CTMV *task_brd_get_daytime(TASK_BRD *task_brd);
+
+char *task_brd_get_time_str(TASK_BRD *task_brd);
+
+void  task_brd_update_time(TASK_BRD *task_brd);
 
 CEPOLL *task_brd_get_cepoll(TASK_BRD *task_brd);
 
@@ -277,6 +291,7 @@ EC_BOOL task_brd_check_is_work_tcid(const UINT32 tcid);
 
 EC_BOOL task_brd_default_check_csrv_enabled();
 
+UINT32  task_brd_default_get_srv_ipaddr();
 UINT32  task_brd_default_get_csrv_port();
 
 EC_BOOL task_brd_default_check_validity();
@@ -286,6 +301,10 @@ EC_BOOL task_brd_default_abort();
 EC_BOOL task_brd_set_abort(TASK_BRD *task_brd);
 
 void    task_brd_set_abort_default();
+
+EC_BOOL task_brd_net_add_runner(const UINT32 tcid, const UINT32 mask_nbits, const UINT32 rank, TASK_RUNNER runner);
+
+EC_BOOL task_brd_range_add_runner(const UINT32 tcid_fr, const UINT32 tcid_to, const UINT32 rank, TASK_RUNNER runner);
 
 EC_BOOL task_brd_default_add_runner(const UINT32 tcid, const UINT32 rank, TASK_RUNNER runner);
 
@@ -489,6 +508,7 @@ EC_BOOL task_brd_heartbeat(TASK_BRD *task_brd);
 EC_BOOL task_brd_cload_stat_collect(TASK_BRD *task_brd);
 EC_BOOL task_brd_cload_stat_update_once(TASK_BRD *task_brd);
 EC_BOOL task_brd_cload_stat_update(TASK_BRD *task_brd);
+EC_BOOL task_brd_cpu_avg_stat_update_once(TASK_BRD *task_brd);
 
 
 EC_BOOL task_brd_cbtimer_register(TASK_BRD *task_brd, const UINT32 expire_nsec, const UINT32 timeout_nsec, const UINT32 timeout_func_id, ...);
@@ -500,14 +520,23 @@ EC_BOOL task_brd_cbtimer_do(TASK_BRD *task_brd);
 
 EC_BOOL do_once(TASK_BRD *task_brd);
 EC_BOOL do_slave(TASK_BRD *task_brd);
+EC_BOOL do_slave_enhanced(TASK_BRD *task_brd);
 
-EC_BOOL task_brd_start_cdfs_srv(TASK_BRD *task_brd, const UINT32 cdfs_md_id, const UINT32 cdfs_srv_port);
-EC_BOOL task_brd_default_start_cdfs_srv(const UINT32 cdfs_md_id, const UINT32 cdfs_srv_port);
-EC_BOOL task_brd_start_csolr_srv(TASK_BRD *task_brd, const UINT32 csolr_md_id, const UINT32 csolr_srv_port);
-EC_BOOL task_brd_default_start_csolr_srv(const UINT32 csolr_md_id, const UINT32 csolr_srv_port);
+EC_BOOL task_brd_start_cdfs_srv(TASK_BRD *task_brd, const UINT32 cdfs_md_id, const UINT32 cdfs_srv_ipaddr, const UINT32 cdfs_srv_port);
+EC_BOOL task_brd_default_start_cdfs_srv(const UINT32 cdfs_md_id, const UINT32 cdfs_srv_ipaddr, const UINT32 cdfs_srv_port);
+EC_BOOL task_brd_start_csolr_srv(TASK_BRD *task_brd, const UINT32 csolr_md_id, const UINT32 csolr_srv_ipaddr, const UINT32 csolr_srv_port);
+EC_BOOL task_brd_default_start_csolr_srv(const UINT32 csolr_md_id, const UINT32 csolr_srv_ipaddr, const UINT32 csolr_srv_port);
+EC_BOOL task_brd_start_crfsngx_srv(TASK_BRD *task_brd, const UINT32 crfs_md_id, const UINT32 crfsngx_srv_ipaddr, const UINT32 crfsngx_srv_port);
+EC_BOOL task_brd_default_start_crfsngx_srv(const UINT32 crfs_md_id, const UINT32 crfsngx_srv_ipaddr, const UINT32 crfsngx_srv_port);
+EC_BOOL task_brd_start_crfshttp_srv(TASK_BRD *task_brd, const UINT32 crfs_md_id, const UINT32 crfshttp_srv_ipaddr, const UINT32 crfshttp_srv_port);
+EC_BOOL task_brd_default_start_crfshttp_srv(const UINT32 crfs_md_id, const UINT32 crfshttp_srv_ipaddr, const UINT32 crfshttp_srv_port);
+EC_BOOL task_brd_start_crfschttp_srv(TASK_BRD *task_brd, const UINT32 crfsc_md_id, const UINT32 crfschttp_srv_ipaddr, const UINT32 crfschttp_srv_port);
+EC_BOOL task_brd_default_start_crfschttp_srv(const UINT32 crfsc_md_id, const UINT32 crfschttp_srv_ipaddr, const UINT32 crfschttp_srv_port);
+EC_BOOL task_brd_start_cxmpp_srv(TASK_BRD *task_brd, const UINT32 crfs_md_id, const UINT32 cxmpp_srv_ipaddr, const UINT32 cxmpp_srv_port);
+EC_BOOL task_brd_default_start_cxmpp_srv(const UINT32 cxmpp_md_id, const UINT32 cxmpp_srv_ipaddr, const UINT32 cxmpp_srv_port);
 EC_BOOL task_brd_default_start_csrv();
 EC_BOOL task_brd_default_start_cfuse(int * argc, char **argv);
-EC_BOOL task_brd_default_start_cextsrv(const UINT32 srv_port, const UINT32 thread_num);
+EC_BOOL task_brd_default_start_cextsrv(const UINT32 srv_ipaddr, const UINT32 srv_port, const UINT32 thread_num);
 
 /*--------------------------------------------- external interface ---------------------------------------------*/
 EC_BOOL do_slave_default();

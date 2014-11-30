@@ -95,13 +95,13 @@ EC_BOOL __test_ict_data_consumer_1()
     for(obj_id = 0; obj_id < obj_num; obj_id ++)
     {
         ASSERT(EC_TRUE == super_get_data(super_md_id, obj_id, obj_vec));
-        sys_log(LOGCONSOLE, "__test_ict_data_consumer_1: get data from zone %lx: obj_id = %lx ==> ", 
+        dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "__test_ict_data_consumer_1: get data from zone %lx: obj_id = %lx ==> ", 
                             __GET_ZONE_ID_FROM_OBJ_ID(obj_id, __ICT_OBJ_ZONE_SIZE), obj_id);
         super_print_obj_vec(super_md_id, obj_vec, LOGCONSOLE);
         cvector_clean(obj_vec, NULL_PTR, 0);
     }
     cvector_free(obj_vec, 0);
-    sys_log(LOGCONSOLE, "__test_ict_data_consumer_1: done\n");
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "__test_ict_data_consumer_1: done\n");
     
     return (EC_TRUE);
 }
@@ -134,8 +134,8 @@ EC_BOOL __test_ict_data_consumer_2()
 
         obj_id = (random() % obj_num);
         ASSERT(EC_TRUE == super_get_data(super_md_id, obj_id, obj_vec));
-        //sys_log(LOGCONSOLE, "loop %8ld, obj_id = %8lx ==> ", obj_loop, obj_id);
-        sys_log(LOGCONSOLE, "__test_ict_data_consumer_2: loop %8ld, get data from zone %lx: obj_id = %lx ==> ", 
+        //dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "loop %8ld, obj_id = %8lx ==> ", obj_loop, obj_id);
+        dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "__test_ict_data_consumer_2: loop %8ld, get data from zone %lx: obj_id = %lx ==> ", 
                              obj_loop,
                             __GET_ZONE_ID_FROM_OBJ_ID(obj_id, __ICT_OBJ_ZONE_SIZE), obj_id);
         
@@ -143,7 +143,7 @@ EC_BOOL __test_ict_data_consumer_2()
         cvector_clean(obj_vec, NULL_PTR, 0);
     }
     cvector_free(obj_vec, 0);
-    sys_log(LOGCONSOLE, "done\n");
+    dbg_log(SEC_0137_DEMO, 0)(LOGCONSOLE, "done\n");
     
     return (EC_TRUE);
 }
@@ -153,7 +153,7 @@ int main_ict(int argc, char **argv)
     task_brd_default_init(argc, argv);
     if(EC_FALSE == task_brd_default_check_validity())
     {
-        sys_log(LOGSTDOUT, "error:main_ict: validity checking failed\n");
+        dbg_log(SEC_0137_DEMO, 0)(LOGSTDOUT, "error:main_ict: validity checking failed\n");
         task_brd_default_abort();
         return (-1);
     }

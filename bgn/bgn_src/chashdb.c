@@ -314,14 +314,14 @@ EC_BOOL chashdb_item_load(CHASHDB *chashdb, const UINT32 offset, CHASHDB_ITEM *c
 
     if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_item_load: seek offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_item_load: seek offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
     rsize = sizeof(CHASHDB_ITEM);
     if(rsize != read(CHASHDB_FD(chashdb), chashdb_item, rsize))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_item_load: load item from offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_item_load: load item from offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
@@ -334,14 +334,14 @@ EC_BOOL chashdb_item_flush(CHASHDB *chashdb, const UINT32 offset, const CHASHDB_
 
     if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_item_flush: seek offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_item_flush: seek offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
     wsize = sizeof(CHASHDB_ITEM);
     if(wsize != write(CHASHDB_FD(chashdb), chashdb_item, wsize))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_item_flush: flush item to offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_item_flush: flush item to offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
@@ -457,14 +457,14 @@ EC_BOOL chashdb_bucket_load(CHASHDB *chashdb, const UINT32 offset, CHASHDB_BUCKE
 
     if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_bucket_load: seek offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_bucket_load: seek offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
     rsize = sizeof(CHASHDB_BUCKET);
     if(rsize != read(CHASHDB_FD(chashdb), chashdb_bucket, rsize))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_bucket_load: load bucket from offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_bucket_load: load bucket from offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
@@ -477,14 +477,14 @@ EC_BOOL chashdb_bucket_flush(const CHASHDB *chashdb, const UINT32 offset, const 
 
     if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_bucket_flush: seek offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_bucket_flush: seek offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
     wsize = sizeof(CHASHDB_BUCKET);
     if(wsize != write(CHASHDB_FD(chashdb), chashdb_bucket, wsize))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_bucket_flush: flush bucket to offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_bucket_flush: flush bucket to offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
@@ -562,7 +562,7 @@ EC_BOOL chashdb_header_is_valid(const CHASHDB_HEADER *chashdb_header)
         CHASHDB_HEADER_ICNUM(chashdb_header) > CHASHDB_HEADER_IMNUM(chashdb_header)
     )
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_is_valid: invalid item cur num %ld to max num\n",
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_is_valid: invalid item cur num %ld to max num\n",
                             CHASHDB_HEADER_ICNUM(chashdb_header),
                             CHASHDB_HEADER_IMNUM(chashdb_header));
         return (EC_FALSE);
@@ -572,7 +572,7 @@ EC_BOOL chashdb_header_is_valid(const CHASHDB_HEADER *chashdb_header)
         CHASHDB_HEADER_BKNUM(chashdb_header) > CHASHDB_HEADER_IMNUM(chashdb_header)
     )
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_is_valid: invalid bucket num %ld to item max num %ld\n",
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_is_valid: invalid bucket num %ld to item max num %ld\n",
                             CHASHDB_HEADER_BKNUM(chashdb_header),
                             CHASHDB_HEADER_IMNUM(chashdb_header));
         return (EC_FALSE);
@@ -582,7 +582,7 @@ EC_BOOL chashdb_header_is_valid(const CHASHDB_HEADER *chashdb_header)
         sizeof(CHASHDB_HEADER) != CHASHDB_HEADER_BMOFF(chashdb_header)
     )
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_is_valid: invalid bloom offset %u\n",
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_is_valid: invalid bloom offset %u\n",
                             CHASHDB_HEADER_BMOFF(chashdb_header));
         return (EC_FALSE);
     }
@@ -593,7 +593,7 @@ EC_BOOL chashdb_header_is_valid(const CHASHDB_HEADER *chashdb_header)
         != CHASHDB_HEADER_BKOFF(chashdb_header)
     )
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_is_valid: invalid bucket offset %u to bloom row num %ld, bloom col num %ld and bloom offset %u\n",
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_is_valid: invalid bucket offset %u to bloom row num %ld, bloom col num %ld and bloom offset %u\n",
                             CHASHDB_HEADER_BKOFF(chashdb_header),
                             CHASHDB_HEADER_BMROW(chashdb_header),
                             CHASHDB_HEADER_BMCOL(chashdb_header),
@@ -606,7 +606,7 @@ EC_BOOL chashdb_header_is_valid(const CHASHDB_HEADER *chashdb_header)
         != CHASHDB_HEADER_IOFF(chashdb_header)
     )
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_is_valid: invalid item offset %u to bucket num %ld and bucket offset %u\n",
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_is_valid: invalid item offset %u to bucket num %ld and bucket offset %u\n",
                             CHASHDB_HEADER_IOFF(chashdb_header),
                             CHASHDB_HEADER_BKNUM(chashdb_header),
                             CHASHDB_HEADER_BKOFF(chashdb_header));
@@ -619,7 +619,7 @@ EC_BOOL chashdb_header_is_valid(const CHASHDB_HEADER *chashdb_header)
         != CHASHDB_HEADER_EOFF(chashdb_header)
     )
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_is_valid: invalid end off %u to item cur num %ld and item offset %u\n",
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_is_valid: invalid end off %u to item cur num %ld and item offset %u\n",
                             CHASHDB_HEADER_EOFF(chashdb_header),
                             CHASHDB_HEADER_ICNUM(chashdb_header),
                             CHASHDB_HEADER_IOFF(chashdb_header));
@@ -631,7 +631,7 @@ EC_BOOL chashdb_header_is_valid(const CHASHDB_HEADER *chashdb_header)
         != CHASHDB_HEADER_FSIZE(chashdb_header)
     )
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_is_valid: invalid file size %u to item max num %ld and item offset %u\n",
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_is_valid: invalid file size %u to item max num %ld and item offset %u\n",
                             CHASHDB_HEADER_FSIZE(chashdb_header),
                             CHASHDB_HEADER_IMNUM(chashdb_header),
                             CHASHDB_HEADER_IOFF(chashdb_header));
@@ -641,26 +641,26 @@ EC_BOOL chashdb_header_is_valid(const CHASHDB_HEADER *chashdb_header)
 
     if(0 < (CHASHDB_HEADER_EOFF(chashdb_header) >> (WORDSIZE - 1)))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_is_valid: end offset %u overflow\n", CHASHDB_HEADER_EOFF(chashdb_header));
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_is_valid: end offset %u overflow\n", CHASHDB_HEADER_EOFF(chashdb_header));
         return (EC_FALSE);
     }
 
     if(0 < (CHASHDB_HEADER_FSIZE(chashdb_header) >> (WORDSIZE - 1)))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_is_valid: file size %u overflow\n", CHASHDB_HEADER_FSIZE(chashdb_header));
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_is_valid: file size %u overflow\n", CHASHDB_HEADER_FSIZE(chashdb_header));
         return (EC_FALSE);
     }
 
     if(CHASH_ERR_ALGO_ID == CHASHDB_HEADER_FIRST_CHASH_ALGO_ID(chashdb_header))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_is_valid: invalid first hash algo id %ld\n",
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_is_valid: invalid first hash algo id %ld\n",
                             CHASHDB_HEADER_FIRST_CHASH_ALGO_ID(chashdb_header));
         return (EC_FALSE);
     }
 
     if(CHASH_ERR_ALGO_ID == CHASHDB_HEADER_SECOND_CHASH_ALGO_ID(chashdb_header))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_is_valid: invalid second hash algo id %ld\n",
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_is_valid: invalid second hash algo id %ld\n",
                             CHASHDB_HEADER_SECOND_CHASH_ALGO_ID(chashdb_header));
         return (EC_FALSE);
     }
@@ -747,7 +747,7 @@ EC_BOOL chashdb_header_create(CHASHDB_HEADER *chashdb_header, const UINT32 chash
                                    first_chash_algo_id,
                                    second_chash_algo_id);
     }
-    sys_log(LOGSTDOUT, "error:chashdb_init_header: invalid chashdb mode %ld\n", chashdb_mode);
+    dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_init_header: invalid chashdb mode %ld\n", chashdb_mode);
     return (EC_FALSE);
 }
 
@@ -757,14 +757,14 @@ EC_BOOL chashdb_header_load(CHASHDB *chashdb, const UINT32 offset, CHASHDB_HEADE
 
     if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_load: seek offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_load: seek offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
     rsize = sizeof(CHASHDB_HEADER);
     if(rsize != read(CHASHDB_FD(chashdb), chashdb_header, rsize))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_load: load header from offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_load: load header from offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
@@ -777,14 +777,14 @@ EC_BOOL chashdb_header_flush(CHASHDB *chashdb, const UINT32 offset, const CHASHD
 
     if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_flush: seek offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_flush: seek offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
     wsize = sizeof(CHASHDB_HEADER);
     if(wsize != write(CHASHDB_FD(chashdb), chashdb_header, wsize))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_flush: flush header to offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_flush: flush header to offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
@@ -795,13 +795,13 @@ EC_BOOL chashdb_cbloom_load(CHASHDB *chashdb, const UINT32 offset, const RWSIZE 
 {
     if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_cbloom_load: seek offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_cbloom_load: seek offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
     if(rsize != read(CHASHDB_FD(chashdb), CBLOOM_DATA_BUFF(chashdb_cbloom), rsize))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_load: load bloom from offset %u failed where rsize = %u\n", offset, rsize);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_load: load bloom from offset %u failed where rsize = %u\n", offset, rsize);
         return (EC_FALSE);
     }
 
@@ -812,13 +812,13 @@ EC_BOOL chashdb_cbloom_flush(CHASHDB *chashdb, const UINT32 offset, const RWSIZE
 {
     if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_cbloom_flush: seek offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_cbloom_flush: seek offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
     if(wsize != write(CHASHDB_FD(chashdb), CBLOOM_DATA_BUFF(chashdb_cbloom), wsize))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_cbloom_flush: flush cbloom to offset %u failed where wsize = %u\n", offset, wsize);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_cbloom_flush: flush cbloom to offset %u failed where wsize = %u\n", offset, wsize);
         return (EC_FALSE);
     }
 
@@ -831,14 +831,14 @@ EC_BOOL chashdb_cbloom_word_flush(CHASHDB *chashdb, const UINT32 offset, const U
 
     if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_cbloom_word_flush: seek offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_cbloom_word_flush: seek offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
     wsize = sizeof(UINT32);
     if(wsize != write(CHASHDB_FD(chashdb), CBLOOM_DATA_BUFF(chashdb_cbloom) + word_offset, wsize))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_cbloom_word_flush: flush cbloom to offset %u failed where wsize = %u\n", offset, wsize);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_cbloom_word_flush: flush cbloom to offset %u failed where wsize = %u\n", offset, wsize);
         return (EC_FALSE);
     }
 
@@ -906,7 +906,7 @@ EC_BOOL chashdb_cbloom_is_set(const CHASHDB *chashdb, const UINT32 first_hash, c
     col_idx = CHASHDB_BLOOM_COL_IDX(chashdb, second_hash);
 
     bit_pos = (row_idx * CHASHDB_BMROW(chashdb) + CHASHDB_BMCOL(chashdb));
-    sys_log(LOGSTDNULL, "[DEBUG] chashdb_cbloom_is_set: (first hash %ld, second hash %ld) => (row idx %ld, col idx %ld) => (bit pos %ld) => %ld\n",
+    dbg_log(SEC_0061_CHASHDB, 9)(LOGSTDNULL, "[DEBUG] chashdb_cbloom_is_set: (first hash %ld, second hash %ld) => (row idx %ld, col idx %ld) => (bit pos %ld) => %ld\n",
                         first_hash, second_hash, row_idx, col_idx, bit_pos, bit_pos % CBLOOM_MAX_NBIT(CHASHDB_CBLOOM(chashdb)));
     return cbloom_check_bit(CHASHDB_CBLOOM(chashdb), bit_pos);
 }
@@ -921,7 +921,7 @@ EC_BOOL chashdb_cbloom_set(CHASHDB *chashdb, const UINT32 first_hash, const UINT
     col_idx = CHASHDB_BLOOM_COL_IDX(chashdb, second_hash);
 
     bit_pos = (row_idx * CHASHDB_BMROW(chashdb) + CHASHDB_BMCOL(chashdb));
-    sys_log(LOGSTDNULL, "[DEBUG] chashdb_cbloom_set: (first hash %ld, second hash %ld) => (row idx %ld, col idx %ld) => (bit pos %ld) => %ld\n",
+    dbg_log(SEC_0061_CHASHDB, 9)(LOGSTDNULL, "[DEBUG] chashdb_cbloom_set: (first hash %ld, second hash %ld) => (row idx %ld, col idx %ld) => (bit pos %ld) => %ld\n",
                         first_hash, second_hash, row_idx, col_idx, bit_pos, bit_pos % CBLOOM_MAX_NBIT(CHASHDB_CBLOOM(chashdb)));
 
     return cbloom_set_bit(CHASHDB_CBLOOM(chashdb), bit_pos);
@@ -1097,13 +1097,13 @@ EC_BOOL chashdb_buff_flush(const CHASHDB *chashdb, const UINT32 offset, const RW
 {
     if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_buff_flush: seek offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_buff_flush: seek offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
     if(wsize != write(CHASHDB_FD(chashdb), buff, wsize))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_header_flush: flush buff to offset %u failed where wsize %u\n", offset, wsize);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_header_flush: flush buff to offset %u failed where wsize %u\n", offset, wsize);
         return (EC_FALSE);
     }
 
@@ -1114,13 +1114,13 @@ EC_BOOL chashdb_buff_load(const CHASHDB *chashdb, const UINT32 offset, const RWS
 {
     if(ERR_SEEK == lseek(CHASHDB_FD(chashdb), offset, SEEK_SET))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_buff_load: seek offset %u failed\n", offset);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_buff_load: seek offset %u failed\n", offset);
         return (EC_FALSE);
     }
 
     if(rsize != read(CHASHDB_FD(chashdb), buff, rsize))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_buff_load: load buff from offset %u failed where rsize %u\n", offset, rsize);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_buff_load: load buff from offset %u failed where rsize %u\n", offset, rsize);
         return (EC_FALSE);
     }
 
@@ -1153,7 +1153,7 @@ EC_BOOL chashdb_ahead_create(CHASHDB *chashdb, const CHASHDB_HEADER *chashdb_hea
     /*validity checking*/
     if(EC_FALSE == chashdb_header_is_valid(chashdb_header))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_ahead_create: invalid header\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_ahead_create: invalid header\n");
         return (EC_FALSE);
     }
 
@@ -1171,7 +1171,7 @@ EC_BOOL chashdb_ahead_create(CHASHDB *chashdb, const CHASHDB_HEADER *chashdb_hea
     /*flush ahead*/
     if(EC_FALSE == chashdb_buff_flush(chashdb, 0, CHASHDB_IOFF(chashdb), CHASHDB_BASE_BUFF(chashdb)))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_ahead_create: flush header failed\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_ahead_create: flush header failed\n");
         return (EC_FALSE);
     }
 
@@ -1182,7 +1182,7 @@ EC_BOOL chashdb_ahead_flush(const CHASHDB *chashdb)
 {
     if(EC_FALSE == chashdb_buff_flush(chashdb, 0, CHASHDB_IOFF(chashdb), CHASHDB_BASE_BUFF(chashdb)))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_ahead_flush: flush header failed\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_ahead_flush: flush header failed\n");
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -1200,13 +1200,13 @@ EC_BOOL chashdb_ahead_load(CHASHDB *chashdb)
     /*load header*/
     if(EC_FALSE == chashdb_header_load(chashdb, 0, chashdb_header))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_ahead_load: load header failed\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_ahead_load: load header failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == chashdb_header_is_valid(chashdb_header))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_ahead_load: corrupted header\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_ahead_load: corrupted header\n");
         return (EC_FALSE);
     }
 
@@ -1214,7 +1214,7 @@ EC_BOOL chashdb_ahead_load(CHASHDB *chashdb)
     base_buff = (UINT8 *)SAFE_MALLOC(base_buff_len, LOC_CHASHDB_0013);
     if(NULL_PTR == base_buff)
     {
-        sys_log(LOGSTDOUT, "error:chashdb_ahead_load: alloc ahead memory failed where item offset %u\n", CHASHDB_HEADER_IOFF(chashdb_header));
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_ahead_load: alloc ahead memory failed where item offset %u\n", CHASHDB_HEADER_IOFF(chashdb_header));
         return (EC_FALSE);
     }
 
@@ -1230,7 +1230,7 @@ CHASHDB_ITEM * chasdb_find_item_by_key(const CHASHDB *chashdb, const UINT32 klen
 
     if(EC_FALSE == chashdb_cbloom_is_set(chashdb, first_hash, second_hash))
     {
-        sys_log(LOGSTDNULL, "[DEBUG] chasdb_find_item_by_key: bloom not set\n");
+        dbg_log(SEC_0061_CHASHDB, 9)(LOGSTDNULL, "[DEBUG] chasdb_find_item_by_key: bloom not set\n");
         return (NULL_PTR);
     }
 
@@ -1241,7 +1241,7 @@ CHASHDB_ITEM * chasdb_find_item_by_key(const CHASHDB *chashdb, const UINT32 klen
         int cmp;
 
         chashdb_item = (CHASHDB_ITEM *)(CHASHDB_BASE_BUFF(chashdb) + offset);
-        sys_log(LOGSTDNULL, "[DEBUG] chasdb_find_item_by_key: check: [bucket pos %ld] item (shash %ld, klen %ld, key %s) V.S. second hash %ld, klen %ld, key %s\n",
+        dbg_log(SEC_0061_CHASHDB, 9)(LOGSTDNULL, "[DEBUG] chasdb_find_item_by_key: check: [bucket pos %ld] item (shash %ld, klen %ld, key %s) V.S. second hash %ld, klen %ld, key %s\n",
                             (first_hash % (CHASHDB_BKNUM(chashdb))),
                             CHASHDB_ITEM_SHASH(chashdb_item),
                             CHASHDB_ITEM_KLEN(chashdb_item),
@@ -1274,7 +1274,7 @@ EC_BOOL chashdb_insert_item_by_key(CHASHDB *chashdb, const UINT32 klen, const UI
 
     if(CHASHDB_ICNUM(chashdb) >= CHASHDB_IMNUM(chashdb))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_insert_item_by_key: chashdb is full where item cur num %ld and max num %ld\n",
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_insert_item_by_key: chashdb is full where item cur num %ld and max num %ld\n",
                             CHASHDB_ICNUM(chashdb),
                             CHASHDB_IMNUM(chashdb));
         return (EC_FALSE);
@@ -1282,7 +1282,7 @@ EC_BOOL chashdb_insert_item_by_key(CHASHDB *chashdb, const UINT32 klen, const UI
 
     if(CHASHDB_EOFF(chashdb) + sizeof(CHASHDB_ITEM) > CHASHDB_BASE_BUFF_LEN(chashdb))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_insert_item_by_key: no space to insert item where end offset %u, buff len %ld\n",
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_insert_item_by_key: no space to insert item where end offset %u, buff len %ld\n",
                             CHASHDB_EOFF(chashdb), CHASHDB_BASE_BUFF_LEN(chashdb));
         return (EC_FALSE);
     }
@@ -1301,7 +1301,7 @@ EC_BOOL chashdb_insert_item_by_key(CHASHDB *chashdb, const UINT32 klen, const UI
         cmp = chashdb_item_cmp(chashdb_item, klen, key, second_hash);
         if(0 == cmp)
         {
-            sys_log(LOGSTDOUT, "error:chashdb_insert_item_by_key: found collision\n");
+            dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_insert_item_by_key: found collision\n");
             return (EC_FALSE);
         }
 
@@ -1354,14 +1354,14 @@ EC_BOOL chashdb_set(CHASHDB *chashdb, const UINT32 klen, const UINT8 *key, const
 
     if(CHASHDB_KEY_MAX_SIZE < klen)
     {
-        sys_log(LOGSTDOUT, "error:chashdb_set: klen %ld overflow\n", klen);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_set: klen %ld overflow\n", klen);
         return (EC_FALSE);
     }
 
     chashdb_item = chashdb_item_new();
     if(NULL_PTR == chashdb_item)
     {
-        sys_log(LOGSTDOUT, "error:chashdb_set: new item failed\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_set: new item failed\n");
         return (EC_FALSE);
     }
 
@@ -1387,7 +1387,7 @@ EC_BOOL chashdb_set(CHASHDB *chashdb, const UINT32 klen, const UINT8 *key, const
 
     if(EC_FALSE == chashdb_insert_item_by_key(chashdb, klen, key, first_hash, second_hash, chashdb_item))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_set: set item failed where klen %ld, key %s\n", klen, (char *)key);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_set: set item failed where klen %ld, key %s\n", klen, (char *)key);
         chashdb_item_free(chashdb_item);
         return (EC_FALSE);
     }
@@ -1430,7 +1430,7 @@ EC_BOOL chashdb_flush(const CHASHDB *chashdb)
 
     if(0 < (wsize >> (WORDSIZE - 1)))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_flush: wsize %lx overflow\n", wsize);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_flush: wsize %lx overflow\n", wsize);
         return (EC_FALSE);
     }
 
@@ -1450,17 +1450,17 @@ EC_BOOL chashdb_load(CHASHDB *chashdb)
     /*load header*/
     if(EC_FALSE == chashdb_header_load(chashdb, 0, chashdb_header))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_load: load header failed\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_load: load header failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == chashdb_header_is_valid(chashdb_header))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_load: corrupted header\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_load: corrupted header\n");
         return (EC_FALSE);
     }
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] chashdb_load: header is:\n");
+    dbg_log(SEC_0061_CHASHDB, 9)(LOGSTDOUT, "[DEBUG] chashdb_load: header is:\n");
     chashdb_header_print(LOGSTDOUT, chashdb_header);
 #endif
 
@@ -1469,13 +1469,13 @@ EC_BOOL chashdb_load(CHASHDB *chashdb)
 
     if(NULL_PTR == base_buff)
     {
-        sys_log(LOGSTDOUT, "error:chashdb_load: alloc whole file memory failed where file size %u\n", CHASHDB_HEADER_FSIZE(chashdb_header));
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_load: alloc whole file memory failed where file size %u\n", CHASHDB_HEADER_FSIZE(chashdb_header));
         return (EC_FALSE);
     }
 
     if(EC_FALSE == chashdb_buff_load(chashdb, 0, base_buff_len, base_buff))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_load: load %ld bytes failed\n", base_buff_len);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_load: load %ld bytes failed\n", base_buff_len);
         SAFE_FREE(base_buff, LOC_CHASHDB_0015);
         return (EC_FALSE);
     }
@@ -1510,28 +1510,28 @@ CHASHDB *chashdb_open(const char *dbname)
 
     if(0 != access(dbname, F_OK))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_open: chashdb file %s not exist\n", dbname);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_open: chashdb file %s not exist\n", dbname);
         return (NULL_PTR);
     }
 
     chashdb = chashdb_new(dbname);
     if(NULL_PTR == chashdb)
     {
-        sys_log(LOGSTDOUT, "error:chashdb_open: new chashdb for file %s failed\n", dbname);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_open: new chashdb for file %s failed\n", dbname);
         return (NULL_PTR);
     }
 
     CHASHDB_FD(chashdb) = open(dbname, O_RDWR, 0666);
     if(ERR_FD == CHASHDB_FD(chashdb))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_open: open chashdb file %s failed\n", dbname);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_open: open chashdb file %s failed\n", dbname);
         chashdb_free(chashdb);
         return (NULL_PTR);
     }
 
     if(EC_FALSE == chashdb_load(chashdb))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_open: load chashdb file %s failed\n", dbname);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_open: load chashdb file %s failed\n", dbname);
         chashdb_free(chashdb);
         return (NULL_PTR);
     }
@@ -1566,26 +1566,26 @@ EC_BOOL chashdb_create(const char *dbname, const UINT32 chashdb_mode, const UINT
 
     if(0 == access(dbname, F_OK))/*exist*/
     {
-        sys_log(LOGSTDOUT, "error:chashdb_create: file %s exist already\n", dbname);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_create: file %s exist already\n", dbname);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == chashdb_header_create(chashdb_header, chashdb_mode, first_chash_algo_id, second_chash_algo_id))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_create: create header failed\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_create: create header failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == chashdb_header_is_valid(chashdb_header))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_create: create header is invalid\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_create: create header is invalid\n");
         return (EC_FALSE);
     }
 
     chashdb = chashdb_new(dbname);
     if(NULL_PTR == chashdb)
     {
-        sys_log(LOGSTDOUT, "error:chashdb_create: new chashdb for file %s failed\n", dbname);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_create: new chashdb for file %s failed\n", dbname);
         return (EC_FALSE);
     }
 
@@ -1593,7 +1593,7 @@ EC_BOOL chashdb_create(const char *dbname, const UINT32 chashdb_mode, const UINT
     base_buff = (UINT8 *)SAFE_MALLOC(base_buff_len, LOC_CHASHDB_0016);;
     if(NULL_PTR == base_buff)
     {
-        sys_log(LOGSTDOUT, "error:chashdb_create: alloc buff failed where buff len %u\n", base_buff_len);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_create: alloc buff failed where buff len %u\n", base_buff_len);
         chashdb_free(chashdb);
         return (EC_FALSE);
     }
@@ -1625,14 +1625,14 @@ EC_BOOL chashdb_create(const char *dbname, const UINT32 chashdb_mode, const UINT
     CHASHDB_FD(chashdb) = open(dbname, O_RDWR | O_CREAT, 0666);
     if(ERR_FD == CHASHDB_FD(chashdb))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_create: cannot open file %s\n", dbname);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_create: cannot open file %s\n", dbname);
         chashdb_free(chashdb);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == chashdb_buff_flush(chashdb, 0, CHASHDB_HEADER_FSIZE(chashdb_header), CHASHDB_BASE_BUFF(chashdb)))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_create: create chashdb file %s failed\n", dbname);
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_create: create chashdb file %s failed\n", dbname);
         chashdb_free(chashdb);
         return (EC_FALSE);
     }
@@ -1787,22 +1787,22 @@ void chashdb_set_test(const char *dbname)
     chashdb_unlink(dbname);
     if(EC_FALSE == chashdb_create(dbname, CHASHDB_500M_MODE, CHASH_AP_ALGO_ID, CHASH_SDBM_ALGO_ID))
     {
-        sys_log(LOGSTDOUT, "error:chashdb_set_test: create chashdb failed\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_set_test: create chashdb failed\n");
         return;
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] chashdb_set_test: create %s successfully\n", dbname);
+    dbg_log(SEC_0061_CHASHDB, 9)(LOGSTDOUT, "[DEBUG] chashdb_set_test: create %s successfully\n", dbname);
 
     chashdb = chashdb_open(dbname);
     if(NULL_PTR == chashdb)
     {
-        sys_log(LOGSTDOUT, "error:chashdb_set_test: open chashdb failed\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_set_test: open chashdb failed\n");
         return;
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] chashdb_set_test: open %s successfully\n", dbname);
+    dbg_log(SEC_0061_CHASHDB, 9)(LOGSTDOUT, "[DEBUG] chashdb_set_test: open %s successfully\n", dbname);
 
-    sys_log(LOGSTDOUT, "[DEBUG] chashdb_set_test: header is:\n");
+    dbg_log(SEC_0061_CHASHDB, 9)(LOGSTDOUT, "[DEBUG] chashdb_set_test: header is:\n");
     chashdb_header_print(LOGSTDOUT, CHASHDB_HDR(chashdb));
 
     for(record_pos = 0; record_pos < record_max; record_pos ++)
@@ -1819,7 +1819,7 @@ void chashdb_set_test(const char *dbname)
 
         if(EC_FALSE == chashdb_set(chashdb, klen, key, vlen, value, CHASHDB_DATA_REPLICA_MAX_NUM))
         {
-            //sys_log(LOGSTDOUT, "error:chashdb_test: set chashdb failed where key = %s\n", (char *)key);
+            //dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_test: set chashdb failed where key = %s\n", (char *)key);
             continue;
         }
     }
@@ -1842,13 +1842,13 @@ void chashdb_get_test(const char *dbname)
     chashdb = chashdb_open(dbname);
     if(NULL_PTR == chashdb)
     {
-        sys_log(LOGSTDOUT, "error:chashdb_get_test: open chashdb failed\n");
+        dbg_log(SEC_0061_CHASHDB, 0)(LOGSTDOUT, "error:chashdb_get_test: open chashdb failed\n");
         return;
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] chashdb_get_test: open %s successfully\n", dbname);
+    dbg_log(SEC_0061_CHASHDB, 9)(LOGSTDOUT, "[DEBUG] chashdb_get_test: open %s successfully\n", dbname);
 
-    sys_log(LOGSTDOUT, "[DEBUG] chashdb_get_test: header is:\n");
+    dbg_log(SEC_0061_CHASHDB, 9)(LOGSTDOUT, "[DEBUG] chashdb_get_test: header is:\n");
     chashdb_header_print(LOGSTDOUT, CHASHDB_HDR(chashdb));
 
     for(record_pos = 0; record_pos < record_max; record_pos ++)
@@ -1863,10 +1863,10 @@ void chashdb_get_test(const char *dbname)
 
         if(EC_FALSE == chashdb_get(chashdb, klen, key, &vlen, &value))
         {
-            sys_log(LOGSTDOUT, "chashdb_get_test: got failed: key = %s\n", (char *)key);
+            dbg_log(SEC_0061_CHASHDB, 5)(LOGSTDOUT, "chashdb_get_test: got failed: key = %s\n", (char *)key);
             continue;
         }
-        //sys_log(LOGSTDOUT, "chashdb_get_test: got successful: key = %s\n", (char *)key);
+        //dbg_log(SEC_0061_CHASHDB, 5)(LOGSTDOUT, "chashdb_get_test: got successful: key = %s\n", (char *)key);
     }
 
     chashdb_close(chashdb);
@@ -1884,10 +1884,10 @@ void chashdb_test()
     {
         //chashdb_set_test(dbname);
         chashdb_get_test(dbname);
-        //sys_log(LOGSTDOUT, "loop %ld end\n", index);
+        //dbg_log(SEC_0061_CHASHDB, 5)(LOGSTDOUT, "loop %ld end\n", index);
     }
 
-    //sys_log(LOGSTDOUT, "===========================================================================\n");
+    //dbg_log(SEC_0061_CHASHDB, 5)(LOGSTDOUT, "===========================================================================\n");
     //chashdb_show(LOGSTDOUT, dbname);
 
     print_static_mem_status(LOGSTDOUT);

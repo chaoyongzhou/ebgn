@@ -61,7 +61,7 @@ EC_BOOL cbc_md_reg(const UINT32 md_type, const UINT32 md_capaciy)
     CARRAY_LOCK(g_cbc, LOC_CBC_0004);
     if(md_type >= carray_size(g_cbc))
     {
-        sys_log(LOGSTDOUT, "error:cbc_md_reg: md_type %ld overflow the cbc size %ld", md_type, carray_size(g_cbc));
+        dbg_log(SEC_0091_CBC, 0)(LOGSTDOUT, "error:cbc_md_reg: md_type %ld overflow the cbc size %ld", md_type, carray_size(g_cbc));
         CARRAY_UNLOCK(g_cbc, LOC_CBC_0005);
         return (EC_FALSE);
     }
@@ -69,7 +69,7 @@ EC_BOOL cbc_md_reg(const UINT32 md_type, const UINT32 md_capaciy)
     md_cindex = (CINDEX *)carray_get_no_lock(g_cbc, md_type);
     if(NULL_PTR != md_cindex)
     {
-        sys_log(LOGSTDOUT, "error:cbc_md_reg: md_type %ld has already registered\n", md_type);
+        dbg_log(SEC_0091_CBC, 0)(LOGSTDOUT, "error:cbc_md_reg: md_type %ld has already registered\n", md_type);
         CARRAY_UNLOCK(g_cbc, LOC_CBC_0006);
         return (EC_FALSE);
     }
@@ -77,7 +77,7 @@ EC_BOOL cbc_md_reg(const UINT32 md_type, const UINT32 md_capaciy)
     md_cindex = cindex_new(md_capaciy, MM_UINT32, LOC_CBC_0007);/*note: the data item type is (void *) */
     if(NULL_PTR == md_cindex)
     {
-        sys_log(LOGSTDOUT, "error:cbc_md_reg: failed to register md_type %ld\n", md_type);
+        dbg_log(SEC_0091_CBC, 0)(LOGSTDOUT, "error:cbc_md_reg: failed to register md_type %ld\n", md_type);
         CARRAY_UNLOCK(g_cbc, LOC_CBC_0008);
         return (EC_FALSE);
     }
@@ -85,7 +85,7 @@ EC_BOOL cbc_md_reg(const UINT32 md_type, const UINT32 md_capaciy)
     carray_set_no_lock(g_cbc, md_type, md_cindex);
     CARRAY_UNLOCK(g_cbc, LOC_CBC_0009);
 
-    sys_log(LOGSTDOUT, "[DEBUG] cbc_md_reg: reg type %ld, capacity %ld\n", md_type, md_capaciy);
+    dbg_log(SEC_0091_CBC, 9)(LOGSTDOUT, "[DEBUG] cbc_md_reg: reg type %ld, capacity %ld\n", md_type, md_capaciy);
     return (EC_TRUE);
 }
 
@@ -101,7 +101,7 @@ EC_BOOL cbc_md_unreg(const UINT32 md_type)
         cindex_free(md_cindex, LOC_CBC_0012);
     }
     CARRAY_UNLOCK(g_cbc, LOC_CBC_0013);
-    sys_log(LOGSTDOUT, "[DEBUG] cbc_md_unreg: unreg type %ld\n", md_type);
+    //dbg_log(SEC_0091_CBC, 9)(LOGSTDOUT, "[DEBUG] cbc_md_unreg: unreg type %ld\n", md_type);
     return (EC_TRUE);
 }
 
@@ -123,7 +123,7 @@ UINT32 cbc_md_capacity(const UINT32 md_type)
     md_cindex = (CINDEX *)carray_get(g_cbc, md_type);
     if(NULL_PTR == md_cindex)
     {
-        sys_log(LOGSTDERR, "cbc_md_capacity: md_type %ld is not registered in CBC\n", md_type);
+        dbg_log(SEC_0091_CBC, 0)(LOGSTDERR, "cbc_md_capacity: md_type %ld is not registered in CBC\n", md_type);
         return (0);
     }
 
@@ -137,7 +137,7 @@ UINT32 cbc_md_num(const UINT32 md_type)
     md_cindex = (CINDEX *)carray_get(g_cbc, md_type);
     if(NULL_PTR == md_cindex)
     {
-        sys_log(LOGSTDERR, "cbc_md_num: md_type %ld is not registered in CBC\n", md_type);
+        dbg_log(SEC_0091_CBC, 0)(LOGSTDERR, "cbc_md_num: md_type %ld is not registered in CBC\n", md_type);
         return (0);
     }
 
@@ -150,7 +150,7 @@ void *cbc_md_get(const UINT32 md_type, const UINT32 pos)
     md_cindex = (CINDEX *)carray_get(g_cbc, md_type);
     if(0 == md_cindex)
     {
-        sys_log(LOGSTDERR, "cbc_md_get: md_type %ld is not registered in CBC\n", md_type);
+        dbg_log(SEC_0091_CBC, 0)(LOGSTDERR, "cbc_md_get: md_type %ld is not registered in CBC\n", md_type);
         return (void *)0;
     }
     return cindex_spy(md_cindex, pos);
@@ -170,14 +170,14 @@ UINT32 cbc_md_add(const UINT32 md_type, const void *md)
     md_cindex = (CINDEX *)carray_get(g_cbc, md_type);
     if(NULL_PTR == md_cindex)
     {
-        sys_log(LOGSTDOUT, "error:cbc_md_add: md_type %ld was not registered\n", md_type);
+        dbg_log(SEC_0091_CBC, 0)(LOGSTDOUT, "error:cbc_md_add: md_type %ld was not registered\n", md_type);
         return (ERR_MODULE_ID);
     }
 
     pos = cindex_reserve(md_cindex, md);
     if(CINDEX_ERR_POS == pos)
     {
-        sys_log(LOGSTDOUT, "error:cbc_md_add: failed to reserve index for md %lx with type %ld\n", md, md_type);
+        dbg_log(SEC_0091_CBC, 0)(LOGSTDOUT, "error:cbc_md_add: failed to reserve index for md %lx with type %ld\n", md, md_type);
         return (ERR_MODULE_ID);
     }
 
@@ -192,14 +192,14 @@ void * cbc_md_del(const UINT32 md_type, const UINT32 pos)
     md_cindex = (CINDEX *)carray_get(g_cbc, md_type);
     if(NULL_PTR == md_cindex)
     {
-        sys_log(LOGSTDOUT, "error:cbc_md_del: md_type %ld was not registered\n", md_type);
+        dbg_log(SEC_0091_CBC, 0)(LOGSTDOUT, "error:cbc_md_del: md_type %ld was not registered\n", md_type);
         return (NULL_PTR);
     }
 
     md = cindex_release(md_cindex, pos);
     if(NULL_PTR == md)
     {
-        sys_log(LOGSTDOUT, "error:cbc_md_del: md with md_type %ld at pos %ld does not exist\n", md_type, md);
+        dbg_log(SEC_0091_CBC, 0)(LOGSTDOUT, "error:cbc_md_del: md with md_type %ld at pos %ld does not exist\n", md_type, md);
         return (NULL_PTR);
     }
     return (md);
@@ -243,7 +243,7 @@ UINT32 cbc_sum()
 
     if(NULL_PTR == g_cbc)
     {
-        sys_log(LOGSTDOUT, "cbc_sum: error:g_cbc is null\n");
+        dbg_log(SEC_0091_CBC, 0)(LOGSTDOUT, "cbc_sum: error:g_cbc is null\n");
         return (0);
     }
 

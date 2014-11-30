@@ -137,7 +137,7 @@ UINT32 bgn_fp_start( const BIGINT *p )
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == p )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_start: p is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_start: p is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, ERR_MODULE_ID);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -207,12 +207,12 @@ UINT32 bgn_fp_start( const BIGINT *p )
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == bgnfp_p )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_start: bgnfp_p is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_start: bgnfp_p is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == bgnfp_res )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_start: bgnfp_res is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_start: bgnfp_res is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -271,7 +271,7 @@ void bgn_fp_end(const UINT32 bgnfp_md_id)
 
     if ( MAX_NUM_OF_BGNFP_MD < bgnfp_md_id )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_end: bgnfp_md_id = %ld is overflow.\n",bgnfp_md_id);
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_end: bgnfp_md_id = %ld is overflow.\n",bgnfp_md_id);
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 
@@ -286,7 +286,7 @@ void bgn_fp_end(const UINT32 bgnfp_md_id)
 
     if ( 0 == bgnfp_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_end: bgnfp_md_id = %ld is not started.\n",bgnfp_md_id);
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_end: bgnfp_md_id = %ld is not started.\n",bgnfp_md_id);
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 
@@ -331,12 +331,12 @@ void bgn_fp_clone(const UINT32 bgnfp_md_id,const BIGINT * src,BIGINT * des)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_clone: src is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_clone: src is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_clone: des is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_clone: des is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -370,12 +370,12 @@ int bgn_fp_cmp(const UINT32 bgnfp_md_id,const BIGINT * a,const BIGINT *b)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_cmp: a is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_cmp: a is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_cmp: b is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_cmp: b is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -407,7 +407,7 @@ void bgn_fp_set_zero(const UINT32 bgnfp_md_id,BIGINT * a)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_set_zero: a is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_set_zero: a is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -439,7 +439,7 @@ void bgn_fp_set_one(const UINT32 bgnfp_md_id,BIGINT * a)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_set_one: a is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_set_one: a is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -471,7 +471,7 @@ void bgn_fp_set_word(const UINT32 bgnfp_md_id,BIGINT *a,const UINT32 n)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_set_word: a is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_set_word: a is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -505,12 +505,12 @@ void bgn_fp_set_e(const UINT32 bgnfp_md_id,BIGINT *e,const UINT32 nth)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == e )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_set_word: e is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_set_word: e is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( BIGINTSIZE <= nth )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_set_word: nth = %ld is overflow.\n", nth);
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_set_word: nth = %ld is overflow.\n", nth);
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -542,7 +542,7 @@ void bgn_fp_set_max(const UINT32 bgnfp_md_id,BIGINT * a)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_set_max: a is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_set_max: a is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -578,7 +578,7 @@ EC_BOOL bgn_fp_is_zero(const UINT32 bgnfp_md_id,const BIGINT* src)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_is_zero: src is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_is_zero: src is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -612,7 +612,7 @@ EC_BOOL bgn_fp_is_one(const UINT32 bgnfp_md_id,const BIGINT* src)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_is_one: src is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_is_one: src is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -646,7 +646,7 @@ EC_BOOL bgn_fp_is_n(const UINT32 bgnfp_md_id,const BIGINT* src, const UINT32 n)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_is_n: src is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_is_n: src is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -680,7 +680,7 @@ EC_BOOL bgn_fp_is_odd(const UINT32 bgnfp_md_id,const BIGINT *src)
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_is_odd: src is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_is_odd: src is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -716,12 +716,12 @@ EC_BOOL bgn_fp_shr_lessbgnsize(const UINT32 bgnfp_md_id,const BIGINT *a, const U
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_shr_lessbgnsize: a is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_shr_lessbgnsize: a is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_shr_lessbgnsize: c is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_shr_lessbgnsize: c is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( WORDSIZE <= nbits )
@@ -762,12 +762,12 @@ void bgn_fp_shl_onewordsize(const UINT32 bgnfp_md_id,const BIGINT * a, BIGINT * 
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_shl_onewordsize: a is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_shl_onewordsize: a is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_shl_onewordsize: c is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_shl_onewordsize: c is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif /* ECC_DEBUG_SWITCH */
@@ -802,12 +802,12 @@ void bgn_fp_shl_lesswordsize(const UINT32 bgnfp_md_id,const BIGINT * a, const UI
 #if ( SWITCH_ON == ECC_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_shl_lesswordsize: a is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_shl_lesswordsize: a is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_shl_lesswordsize: c is null.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_shl_lesswordsize: c is null.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( WORDSIZE <= nbits )
@@ -865,12 +865,12 @@ int bgn_fp_naf(const UINT32 bgnfp_md_id,const BIGINT *k,int *s)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == k )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_naf: k is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_naf: k is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == s )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_naf: s is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_naf: s is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -915,17 +915,17 @@ void bgn_fp_add(const UINT32 bgnfp_md_id,const BIGINT *a,const BIGINT *b, BIGINT
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_add: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_add: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_add: b is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_add: b is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_add: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_add: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -968,17 +968,17 @@ void bgn_fp_sub(const UINT32 bgnfp_md_id,const BIGINT *a,const BIGINT *b,BIGINT 
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_sub: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_sub: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_sub: b is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_sub: b is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_sub: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_sub: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1013,12 +1013,12 @@ void bgn_fp_neg(const UINT32 bgnfp_md_id,const BIGINT *a,BIGINT *c )
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_neg: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_neg: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_neg: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_neg: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1060,17 +1060,17 @@ void bgn_fp_mul(const UINT32 bgnfp_md_id,const BIGINT *a,const BIGINT *b,BIGINT 
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_mul: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_mul: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_mul: b is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_mul: b is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_mul: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_mul: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1110,12 +1110,12 @@ void bgn_fp_smul(const UINT32 bgnfp_md_id,const BIGINT *a,const UINT32 b,BIGINT 
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_smul: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_smul: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_smul: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_smul: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1157,12 +1157,12 @@ void bgn_fp_squ(const UINT32 bgnfp_md_id,const BIGINT *a,BIGINT *c )
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_squ: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_squ: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_squ: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_squ: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1212,12 +1212,12 @@ void bgn_fp_sexp(const UINT32 bgnfp_md_id,const BIGINT *a,const UINT32 e,BIGINT 
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_sexp: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_sexp: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_sexp: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_sexp: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1270,17 +1270,17 @@ void bgn_fp_exp(const UINT32 bgnfp_md_id,const BIGINT *a,const BIGINT *e,BIGINT 
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_exp: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_exp: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == e )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_exp: e is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_exp: e is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_exp: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_exp: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1358,12 +1358,12 @@ EC_BOOL bgn_fp_inv(const UINT32 bgnfp_md_id,const BIGINT *a,BIGINT *c )
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_inv: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_inv: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_inv: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_inv: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1403,17 +1403,17 @@ EC_BOOL bgn_fp_div(const UINT32 bgnfp_md_id,const BIGINT *a, const BIGINT *b, BI
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_div: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_div: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_div: b is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_div: b is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_div: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_div: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1477,12 +1477,12 @@ EC_BOOL bgn_fp_sdiv(const UINT32 bgnfp_md_id,const UINT32 a, const BIGINT *b, BI
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_sdiv: b is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_sdiv: b is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_sdiv: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_sdiv: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1558,12 +1558,12 @@ EC_BOOL bgn_fp_divs(const UINT32 bgnfp_md_id,const BIGINT *a, const UINT32 b, BI
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_divs: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_divs: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_divs: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_divs: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1688,14 +1688,14 @@ int bgn_fp_legendre(const UINT32 bgnfp_md_id,const BIGINT *a)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_legendre: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_legendre: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( MAX_NUM_OF_BGNFP_MD <= bgnfp_md_id || 0 == g_bgnfp_md[ bgnfp_md_id ].usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_legendre: bgnfp module #0x%lx not started.\n",bgnfp_md_id);
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_legendre: bgnfp module #0x%lx not started.\n",bgnfp_md_id);
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1707,7 +1707,7 @@ int bgn_fp_legendre(const UINT32 bgnfp_md_id,const BIGINT *a)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( 0 <= bgn_z_cmp(bgnz_md_id, a, bgnfp_p) )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_legendre: a >= p.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_legendre: a >= p.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -1889,19 +1889,19 @@ static EC_BOOL bgn_fp_squroot_common(const UINT32 bgnfp_md_id,const BIGINT *a,BI
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_squroot_common: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_squroot_common: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_squroot_common: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_squroot_common: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( MAX_NUM_OF_BGNFP_MD <= bgnfp_md_id || 0 == g_bgnfp_md[ bgnfp_md_id ].usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_squroot_common: bgnfp module #0x%lx not started.\n",bgnfp_md_id);
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_squroot_common: bgnfp module #0x%lx not started.\n",bgnfp_md_id);
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -2073,19 +2073,19 @@ EC_BOOL bgn_fp_squroot(const UINT32 bgnfp_md_id,const BIGINT *a,BIGINT *c)
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_squroot: a is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_squroot: a is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_squroot: c is NULL_PTR.\n");
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_squroot: c is NULL_PTR.\n");
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
 #if ( SWITCH_ON == BIGINT_DEBUG_SWITCH )
     if ( MAX_NUM_OF_BGNFP_MD <= bgnfp_md_id || 0 == g_bgnfp_md[ bgnfp_md_id ].usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:bgn_fp_squroot: bgnfp module #0x%lx not started.\n",bgnfp_md_id);
+        dbg_log(SEC_0102_BGNFP, 0)(LOGSTDOUT,"error:bgn_fp_squroot: bgnfp module #0x%lx not started.\n",bgnfp_md_id);
         dbg_exit(MD_BGNFP, bgnfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/

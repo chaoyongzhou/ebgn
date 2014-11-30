@@ -9,6 +9,8 @@
 extern "C"{
 #endif/*__cplusplus*/
 
+extern int main_crfsc(int argc, char **argv);
+extern int main_chfs(int argc, char **argv);
 extern int main_crfs(int argc, char **argv);
 extern int main_cdfs(int argc, char **argv);
 extern int main_cbgt(int argc, char **argv);
@@ -20,10 +22,14 @@ extern int main_udp(int argc, char **argv);
 extern int main_csession(int argc, char **argv);
 extern int main_cscore(int argc, char **argv);
 extern int main_ict(int argc, char **argv);
+extern int main_default(int argc, char **argv);
 
 int main(int argc, char **argv)
 {
-    main_crfs(argc, argv);
+    //main_default(argc, argv);
+    main_crfsc(argc, argv);
+    //main_chfs(argc, argv);
+    //main_crfs(argc, argv);
     //main_cdfs(argc, argv);
     //main_cbgt(argc, argv);
     //main_exec(argc, argv);

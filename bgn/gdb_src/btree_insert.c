@@ -37,7 +37,7 @@ __splitNode(BTree *tree, BTreeNode *rootNode, uint8_t **key,
         }
 
         *split = 0;
-        sys_log(LOGSTDOUT, "error:__splitNode:found duplicate\n");
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:__splitNode:found duplicate\n");
         return 0;
     }
 
@@ -47,7 +47,7 @@ __splitNode(BTree *tree, BTreeNode *rootNode, uint8_t **key,
     {
         temp1                 = rootNode->keys[i];
         tempSize1             = rootNode->keySizes[i];
-        rootNode->keys[i]     = keyDup(*key, LOC_BTREE_0164);
+        rootNode->keys[i]     = keyDup(*key, LOC_BTREE_0105);
         rootNode->keySizes[i] = keyLen(*key);
         j = i;
 
@@ -78,7 +78,7 @@ __splitNode(BTree *tree, BTreeNode *rootNode, uint8_t **key,
     }
     else
     {
-        temp1     = keyDup(*key, LOC_BTREE_0165);
+        temp1     = keyDup(*key, LOC_BTREE_0106);
         tempSize1 = keyLen(temp1);
 
         if (BTREE_IS_LEAF(rootNode))
@@ -95,8 +95,8 @@ __splitNode(BTree *tree, BTreeNode *rootNode, uint8_t **key,
     else
         div = (uint32_t)(tree->order / 2);
 
-    keyFree(*key, LOC_BTREE_0166);
-    *key = keyDup(rootNode->keys[div], LOC_BTREE_0167);
+    keyFree(*key, LOC_BTREE_0107);
+    *key = keyDup(rootNode->keys[div], LOC_BTREE_0108);
 
     tempNode           = btreeNewNode(tree);
     tempNode->keyCount = tree->order - 1 - div;
@@ -134,7 +134,7 @@ __splitNode(BTree *tree, BTreeNode *rootNode, uint8_t **key,
     {
         rootNode->keyCount = div;
 
-        keyFree(rootNode->keys[rootNode->keyCount], LOC_BTREE_0168);
+        keyFree(rootNode->keys[rootNode->keyCount], LOC_BTREE_0109);
         rootNode->keys[rootNode->keyCount]     = NULL;
         rootNode->keySizes[rootNode->keyCount] = 0;
     }
@@ -152,9 +152,9 @@ static void print_keys(BTreeNode *rootNode)
     uint8_t i;
     for(i = 0; i < rootNode->keyCount; i ++)
     {
-        sys_log(LOGSTDOUT,"%s,", rootNode->keys[i]);
+        dbg_log(SEC_0130_BTREE, 5)(LOGSTDOUT,"%s,", rootNode->keys[i]);
     }
-    sys_log(LOGSTDOUT,"\n");
+    dbg_log(SEC_0130_BTREE, 5)(LOGSTDOUT,"\n");
 }
 
 static void print_kvs(BTreeNode *rootNode)
@@ -163,7 +163,7 @@ static void print_kvs(BTreeNode *rootNode)
     for(i = 0; i < rootNode->keyCount; i ++)
     {
         keyPrintHs(LOGSTDOUT, rootNode->keys[i]);
-        sys_log(LOGSTDOUT,"\n");
+        dbg_log(SEC_0130_BTREE, 5)(LOGSTDOUT,"\n");
     }
 
 }
@@ -180,7 +180,7 @@ __addKey(BTree *tree, BTreeNode *rootNode, uint8_t **key, offset_t *filePos,
 
     *split = 0;
 
-    //sys_log(LOGSTDOUT,"[DEBUG]  __addKey: beg: \n");
+    //dbg_log(SEC_0130_BTREE, 9)(LOGSTDOUT,"[DEBUG]  __addKey: beg: \n");
     //print_kvs(rootNode);
 
     for (i = 0;
@@ -197,9 +197,9 @@ __addKey(BTree *tree, BTreeNode *rootNode, uint8_t **key, offset_t *filePos,
             btreeWriteNode(rootNode);
         }
 
-        //sys_log(LOGSTDOUT,"[DEBUG]  __addKey: end[0]: \n");
+        //dbg_log(SEC_0130_BTREE, 9)(LOGSTDOUT,"[DEBUG]  __addKey: end[0]: \n");
         //print_kvs(rootNode);
-        sys_log(LOGSTDOUT, "error:__addKey:found duplicate\n");
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:__addKey:found duplicate\n");
         return 0;
     }
 
@@ -210,7 +210,7 @@ __addKey(BTree *tree, BTreeNode *rootNode, uint8_t **key, offset_t *filePos,
         temp1     = rootNode->keys[i];
         tempSize1 = rootNode->keySizes[i];
 
-        rootNode->keys[i]     = keyDup(*key, LOC_BTREE_0169);
+        rootNode->keys[i]     = keyDup(*key, LOC_BTREE_0110);
         rootNode->keySizes[i] = keyLen(*key);
 
         j = i;
@@ -242,7 +242,7 @@ __addKey(BTree *tree, BTreeNode *rootNode, uint8_t **key, offset_t *filePos,
     }
     else
     {
-        rootNode->keys[i]     = keyDup(*key, LOC_BTREE_0170);
+        rootNode->keys[i]     = keyDup(*key, LOC_BTREE_0111);
         rootNode->keySizes[i] = keyLen(*key);
 
         if (BTREE_IS_LEAF(rootNode))
@@ -257,7 +257,7 @@ __addKey(BTree *tree, BTreeNode *rootNode, uint8_t **key, offset_t *filePos,
     GDB_SET_DIRTY(rootNode->block);
     btreeWriteNode(rootNode);
 
-    //sys_log(LOGSTDOUT,"[DEBUG]  __addKey: end[1]: \n");
+    //dbg_log(SEC_0130_BTREE, 9)(LOGSTDOUT,"[DEBUG]  __addKey: end[1]: \n");
     //print_kvs(rootNode);
     return 1;
 }
@@ -271,7 +271,7 @@ __insertKey(BTree *tree, offset_t rootOffset, uint8_t **key,
 
     if (rootOffset < DB_HEADER_BLOCK_SIZE)
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0130_BTREE, 5)(LOGSTDOUT,
                 _("error:__insertKey: rootOffset = %d in __insertKey('%s')\n"),
                 rootOffset, *key);
         exit(1);
@@ -280,7 +280,7 @@ __insertKey(BTree *tree, offset_t rootOffset, uint8_t **key,
     rootNode = btreeReadNode(tree, rootOffset);
     if(NULL == rootNode)
     {
-        sys_log(LOGSTDOUT, "error:__insertKey: read root node from offset %d failed\n", rootOffset);
+        dbg_log(SEC_0130_BTREE, 0)(LOGSTDOUT, "error:__insertKey: read root node from offset %d failed\n", rootOffset);
         return (0);
     }
 
@@ -334,18 +334,18 @@ btreeInsert(BTree *tree, const uint8_t *key, offset_t filePos, uint8_t replaceDu
     if (tree == NULL || key == NULL || filePos == 0 ||
         tree->block->db->mode == PM_MODE_READ_ONLY)
     {
-        sys_log(LOGSTDOUT,"[DEBUG]btreeInsert: tree %lx, key %lx, filePos %d, mode %o(PM_MODE_READ_ONLY %o)\n",
+        dbg_log(SEC_0130_BTREE, 9)(LOGSTDOUT,"[DEBUG]btreeInsert: tree %lx, key %lx, filePos %d, mode %o(PM_MODE_READ_ONLY %o)\n",
                 tree, key, filePos, tree->block->db->mode, PM_MODE_READ_ONLY);
         return GDB_ERROR;
     }
 
 #if 0
-    sys_log(LOGSTDOUT,"btreeInsert: ==> ");
+    dbg_log(SEC_0130_BTREE, 5)(LOGSTDOUT,"btreeInsert: ==> ");
     keyPrint(LOGSTDOUT, key);
     sys_print(LOGSTDOUT,"\n");
 #endif
 
-    newKey = keyDup(key, LOC_BTREE_0171);
+    newKey = keyDup(key, LOC_BTREE_0112);
 
     success = 0;
     split = 0;
@@ -361,13 +361,13 @@ btreeInsert(BTree *tree, const uint8_t *key, offset_t filePos, uint8_t replaceDu
 
     if (tree->root != 0)
     {
-        //sys_log(LOGSTDOUT,"[DEBUG]btreeInsert: root is not zero\n");
+        //dbg_log(SEC_0130_BTREE, 9)(LOGSTDOUT,"[DEBUG]btreeInsert: root is not zero\n");
         success = __insertKey(tree, tree->root, &newKey, &tree->_insFilePos,
                               &split, replaceDup);
 
         if (success == 0)
         {
-            keyFree(newKey, LOC_BTREE_0172);
+            keyFree(newKey, LOC_BTREE_0113);
             return (replaceDup ? GDB_SUCCESS : GDB_DUPLICATE);
         }
     }
@@ -378,13 +378,13 @@ btreeInsert(BTree *tree, const uint8_t *key, offset_t filePos, uint8_t replaceDu
     {
         BTreeNode *node = btreeNewNode(tree);
 
-        node->keys[0]     = keyDup(newKey, LOC_BTREE_0173);
+        node->keys[0]     = keyDup(newKey, LOC_BTREE_0114);
         node->keySizes[0] = keyLen(newKey);
         node->keyCount    = 1;
 
         if (tree->root == 0)
         {
-            //sys_log(LOGSTDOUT,"[DEBUG]btreeInsert: root is zero, split = %d\n", split);
+            //dbg_log(SEC_0130_BTREE, 9)(LOGSTDOUT,"[DEBUG]btreeInsert: root is zero, split = %d\n", split);
 
             node->children[0] = tree->_insFilePos;
             BTREE_SET_LEAF(node);
@@ -395,7 +395,7 @@ btreeInsert(BTree *tree, const uint8_t *key, offset_t filePos, uint8_t replaceDu
         }
         else
         {
-            //sys_log(LOGSTDOUT,"[DEBUG]btreeInsert: split = %d\n", split);
+            //dbg_log(SEC_0130_BTREE, 9)(LOGSTDOUT,"[DEBUG]btreeInsert: split = %d\n", split);
             node->children[0] = tree->root;
             node->children[1] = tree->_insFilePos;
 
@@ -406,7 +406,7 @@ btreeInsert(BTree *tree, const uint8_t *key, offset_t filePos, uint8_t replaceDu
         btreeDestroyNode(node);
     }
 
-    keyFree(newKey, LOC_BTREE_0174);
+    keyFree(newKey, LOC_BTREE_0115);
 
     return GDB_SUCCESS;
 }

@@ -261,7 +261,7 @@ void conv_end(const UINT32 conv_md_id)
 
     if ( MAX_NUM_OF_CONV_MD < conv_md_id )
     {
-        sys_log(LOGSTDOUT,"error:conv_end: conv_md_id = %ld is overflow.\n",conv_md_id);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_end: conv_md_id = %ld is overflow.\n",conv_md_id);
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -276,7 +276,7 @@ void conv_end(const UINT32 conv_md_id)
 
     if ( 0 == conv_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:conv_end: conv_md_id = %ld is not started.\n",conv_md_id);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_end: conv_md_id = %ld is not started.\n",conv_md_id);
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -316,7 +316,7 @@ static EC_BOOL conv_check_decstr(const UINT32 conv_md_id,const UINT8 *decstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_check_decstr: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_check_decstr: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -335,8 +335,8 @@ static EC_BOOL conv_check_decstr(const UINT32 conv_md_id,const UINT8 *decstr,con
     {
         if ( EC_FALSE == CONV_CHAR_IS_DIGIT( decstr[ index ] ) )
         {
-            sys_log(LOGSTDOUT,"error:conv_check_decstr:\n");
-            sys_log(LOGSTDOUT,"char No.%ld '%c' is not a valid digit\n",index,decstr[ index ]);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_check_decstr:\n");
+            dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"char No.%ld '%c' is not a valid digit\n",index,decstr[ index ]);
             return EC_FALSE;
         }
     }
@@ -358,7 +358,7 @@ static EC_BOOL conv_check_hexstr(const UINT32 conv_md_id,const UINT8 *hexstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_check_hexstr: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_check_hexstr: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -377,8 +377,8 @@ static EC_BOOL conv_check_hexstr(const UINT32 conv_md_id,const UINT8 *hexstr,con
     {
         if ( EC_FALSE == CONV_CHAR_IS_HEX( hexstr[ index ] ) )
         {
-            sys_log(LOGSTDOUT,"error:conv_check_hexstr:\n");
-            sys_log(LOGSTDOUT,"char No.%ld '%c' is not a valid hex symbol\n",index,hexstr[ index ]);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_check_hexstr:\n");
+            dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"char No.%ld '%c' is not a valid hex symbol\n",index,hexstr[ index ]);
             return EC_FALSE;
         }
     }
@@ -400,7 +400,7 @@ static EC_BOOL conv_check_binstr(const UINT32 conv_md_id,const UINT8 *binstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_check_binstr: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_check_binstr: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -419,8 +419,8 @@ static EC_BOOL conv_check_binstr(const UINT32 conv_md_id,const UINT8 *binstr,con
     {
         if ( EC_FALSE == CONV_CHAR_IS_BIN( binstr[ index ] ) )
         {
-            sys_log(LOGSTDOUT,"error:conv_check_binstr:\n");
-            sys_log(LOGSTDOUT,"char No.%ld '%c' is not a valid binary symbol\n",index,binstr[ index ]);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_check_binstr:\n");
+            dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"char No.%ld '%c' is not a valid binary symbol\n",index,binstr[ index ]);
             return EC_FALSE;
         }
     }
@@ -441,7 +441,7 @@ static UINT32 conv_decchar_to_num(const UINT32 conv_md_id,const UINT8 ch, UINT32
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == num )
     {
-        sys_log(LOGSTDOUT,"error:conv_decchar_to_num: num is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_decchar_to_num: num is null.\n");
         return ((UINT32)(-1));
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -458,7 +458,7 @@ static UINT32 conv_decchar_to_num(const UINT32 conv_md_id,const UINT8 ch, UINT32
 
     if (EC_FALSE == CONV_CHAR_IS_DIGIT(ch))
     {
-        sys_log(LOGSTDOUT,"error:conv_decchar_to_num: %c is invalid digit symbol.\n",ch);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_decchar_to_num: %c is invalid digit symbol.\n",ch);
         return ((UINT32)(-1));
     }
 
@@ -480,7 +480,7 @@ static UINT32 conv_num_to_decchar(const UINT32 conv_md_id,const UINT32 num, UINT
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == ch )
     {
-        sys_log(LOGSTDOUT,"error:conv_num_to_decchar: ch is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_num_to_decchar: ch is null.\n");
         return ((UINT32)(-1));
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -496,7 +496,7 @@ static UINT32 conv_num_to_decchar(const UINT32 conv_md_id,const UINT32 num, UINT
 #endif/*BIGINT_DEBUG_SWITCH*/
     if ( 9 < num )
     {
-        sys_log(LOGSTDOUT,"error:conv_num_to_decchar: num = %ld is invalid single digit.\n",num);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_num_to_decchar: num = %ld is invalid single digit.\n",num);
         return ((UINT32)(-1));
     }
 
@@ -520,7 +520,7 @@ static UINT32 conv_hexchar_to_num(const UINT32 conv_md_id,const UINT8 ch, UINT32
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == num )
     {
-        sys_log(LOGSTDOUT,"error:conv_hexchar_to_num: num is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hexchar_to_num: num is null.\n");
         return ((UINT32)(-1));
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -537,7 +537,7 @@ static UINT32 conv_hexchar_to_num(const UINT32 conv_md_id,const UINT8 ch, UINT32
 
     if (EC_FALSE == CONV_CHAR_IS_HEX(ch))
     {
-        sys_log(LOGSTDOUT,"error:conv_hexchar_to_num: %c is invalid hex symbol.\n",ch);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hexchar_to_num: %c is invalid hex symbol.\n",ch);
         return ((UINT32)(-1));
     }
 
@@ -555,7 +555,7 @@ static UINT32 conv_hexchar_to_num(const UINT32 conv_md_id,const UINT8 ch, UINT32
     }
     else
     {
-        sys_log(LOGSTDOUT,"error:conv_hexchar_to_num: %c is invalid hex symbol.\n",ch);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hexchar_to_num: %c is invalid hex symbol.\n",ch);
         return ((UINT32)(-1));
     }
 
@@ -578,7 +578,7 @@ static UINT32 conv_num_to_hexchar(const UINT32 conv_md_id,const UINT32 num, UINT
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == ch )
     {
-        sys_log(LOGSTDOUT,"error:conv_num_to_hexchar: ch is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_num_to_hexchar: ch is null.\n");
         return ((UINT32)(-1));
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -595,7 +595,7 @@ static UINT32 conv_num_to_hexchar(const UINT32 conv_md_id,const UINT32 num, UINT
 
     if ( 15 < num)
     {
-        sys_log(LOGSTDOUT,"error:conv_num_to_hexchar: num = %ld is invalid single digit.\n",num);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_num_to_hexchar: num = %ld is invalid single digit.\n",num);
         return ((UINT32)(-1));
     }
 
@@ -622,7 +622,7 @@ static UINT32 conv_binchar_to_num(const UINT32 conv_md_id,const UINT8 ch, UINT32
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == num )
     {
-        sys_log(LOGSTDOUT,"error:conv_binchar_to_num: num is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_binchar_to_num: num is null.\n");
         return ((UINT32)(-1));
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -639,7 +639,7 @@ static UINT32 conv_binchar_to_num(const UINT32 conv_md_id,const UINT8 ch, UINT32
 
     if (EC_FALSE == CONV_CHAR_IS_BIN(ch))
     {
-        sys_log(LOGSTDOUT,"error:conv_binchar_to_num: %c is invalid binary symbol.\n",ch);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_binchar_to_num: %c is invalid binary symbol.\n",ch);
         return ((UINT32)(-1));
     }
 
@@ -653,7 +653,7 @@ static UINT32 conv_binchar_to_num(const UINT32 conv_md_id,const UINT8 ch, UINT32
     }
     else
     {
-        sys_log(LOGSTDOUT,"error:conv_binchar_to_num: %c is invalid binary symbol.\n",ch);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_binchar_to_num: %c is invalid binary symbol.\n",ch);
         return ((UINT32)(-1));
     }
 
@@ -672,7 +672,7 @@ static UINT32 conv_num_to_binchar(const UINT32 conv_md_id,const UINT32 num, UINT
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == ch )
     {
-        sys_log(LOGSTDOUT,"error:conv_num_to_binchar: ch is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_num_to_binchar: ch is null.\n");
         return ((UINT32)(-1));
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -689,7 +689,7 @@ static UINT32 conv_num_to_binchar(const UINT32 conv_md_id,const UINT32 num, UINT
 
     if ( 1 < num)
     {
-        sys_log(LOGSTDOUT,"error:conv_num_to_binchar: num = %ld is invalid single digit.\n",num);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_num_to_binchar: num = %ld is invalid single digit.\n",num);
         return ((UINT32)(-1));
     }
 
@@ -748,12 +748,12 @@ static UINT32 conv_str_to_bgn(const UINT32 conv_md_id,const UINT8 *srcstr,const 
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == srcstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_str_to_bgn: srcstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_str_to_bgn: srcstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_str_to_bgn: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_str_to_bgn: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -799,7 +799,7 @@ static UINT32 conv_str_to_bgn(const UINT32 conv_md_id,const UINT8 *srcstr,const 
         /*if c1 > 0 which means the number is overflow,then report error and return*/
         if ( EC_FALSE == bgn_z_is_zero(bgnz_md_id, c1))
         {
-            sys_log(LOGSTDOUT,"error:conv_str_to_bgn: the number is overflow.\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_str_to_bgn: the number is overflow.\n");
 
 #if ( SWITCH_ON == STATIC_MEMORY_SWITCH )
             free_static_mem(MD_CONV, conv_md_id, MM_BIGINT, a, LOC_CONV_0005);
@@ -819,7 +819,7 @@ static UINT32 conv_str_to_bgn(const UINT32 conv_md_id,const UINT8 *srcstr,const 
         /*get the current digit value*/
         if ( 0 != conv_char_to_num(conv_md_id,srcstr[ index ], &digit) )
         {
-            sys_log(LOGSTDOUT,"error:conv_str_to_bgn: failed to convert char(%c) to num.\n", srcstr[ index ]);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_str_to_bgn: failed to convert char(%c) to num.\n", srcstr[ index ]);
 #if ( SWITCH_ON == STATIC_MEMORY_SWITCH )
             free_static_mem(MD_CONV, conv_md_id, MM_BIGINT, a, LOC_CONV_0009);
             free_static_mem(MD_CONV, conv_md_id, MM_BIGINT, c0, LOC_CONV_0010);
@@ -834,7 +834,7 @@ static UINT32 conv_str_to_bgn(const UINT32 conv_md_id,const UINT8 *srcstr,const 
         carry = bgn_z_sadd(bgnz_md_id, a, digit, a);
         if ( 0 < carry )
         {
-            sys_log(LOGSTDOUT,"error:conv_str_to_bgn: the decimal number is overflow.\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_str_to_bgn: the decimal number is overflow.\n");
 #if ( SWITCH_ON == STATIC_MEMORY_SWITCH )
             free_static_mem(MD_CONV, conv_md_id, MM_BIGINT, a, LOC_CONV_0013);
             free_static_mem(MD_CONV, conv_md_id, MM_BIGINT, c0, LOC_CONV_0014);
@@ -903,17 +903,17 @@ static UINT32 conv_bgn_to_str(const UINT32 conv_md_id,const BIGINT *src,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_bgn_to_str: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_str: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == desstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bgn_to_str: desstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_str: desstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == desstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_bgn_to_str: desstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_str: desstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -995,7 +995,7 @@ static UINT32 conv_bgn_to_str(const UINT32 conv_md_id,const BIGINT *src,
         /*if the decimal desstring is full, then warning and return error code*/
         if ( index >= desstrmaxlen )
         {
-            sys_log(LOGSTDOUT,"error:conv_bgn_to_str: desstr is overflow.\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_str: desstr is overflow.\n");
 #if ( SWITCH_ON == STATIC_MEMORY_SWITCH )
             free_static_mem(MD_CONV, conv_md_id, MM_BIGINT, a, LOC_CONV_0026);
             free_static_mem(MD_CONV, conv_md_id, MM_BIGINT, q, LOC_CONV_0027);
@@ -1008,7 +1008,7 @@ static UINT32 conv_bgn_to_str(const UINT32 conv_md_id,const BIGINT *src,
 
         if ( 0 != conv_num_to_char(conv_md_id,digit, &(tmp_desstr[ index ]) ))
         {
-            sys_log(LOGSTDOUT,"error:conv_bgn_to_str: failed to convert num(%ld) to char.\n",digit);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_str: failed to convert num(%ld) to char.\n",digit);
 #if ( SWITCH_ON == STATIC_MEMORY_SWITCH )
             free_static_mem(MD_CONV, conv_md_id, MM_BIGINT, a, LOC_CONV_0031);
             free_static_mem(MD_CONV, conv_md_id, MM_BIGINT, q, LOC_CONV_0032);
@@ -1081,12 +1081,12 @@ static UINT32 conv_str_to_ebgn(const UINT32 conv_md_id,const UINT8 *srcstr,const
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == srcstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_str_to_ebgn: srcstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_str_to_ebgn: srcstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_str_to_ebgn: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_str_to_ebgn: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -1144,7 +1144,7 @@ static UINT32 conv_str_to_ebgn(const UINT32 conv_md_id,const UINT8 *srcstr,const
         /*get the current digit value*/
         if ( 0 != conv_char_to_num(conv_md_id, srcstr[ index ], &digit) )
         {
-            sys_log(LOGSTDOUT,"error:conv_str_to_ebgn: failed to convert char(%c) to num.\n", srcstr[ index ]);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_str_to_ebgn: failed to convert char(%c) to num.\n", srcstr[ index ]);
 
             ebgn_z_destroy(ebgnz_md_id, a);
             ebgn_z_destroy(ebgnz_md_id, c0);
@@ -1209,17 +1209,17 @@ static UINT32 conv_ebgn_to_str(const UINT32 conv_md_id,const EBGN *src,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_to_str: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_str: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == desstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_to_str: desstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_str: desstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == desstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_to_str: desstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_str: desstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -1290,7 +1290,7 @@ static UINT32 conv_ebgn_to_str(const UINT32 conv_md_id,const EBGN *src,
     /*keep one char space for sgn '+' or '-'*/
         if ( index >= desstrmaxlen - 1 )
         {
-            sys_log(LOGSTDOUT,"error:conv_ebgn_to_str: desstr is overflow.\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_str: desstr is overflow.\n");
 
             ebgn_z_destroy(ebgnz_md_id, a);
             ebgn_z_destroy(ebgnz_md_id, q);
@@ -1302,7 +1302,7 @@ static UINT32 conv_ebgn_to_str(const UINT32 conv_md_id,const EBGN *src,
 
         if ( 0 != conv_num_to_char(conv_md_id,digit, &(desstr[ index ]) ))
         {
-            sys_log(LOGSTDOUT,"error:conv_ebgn_to_str: failed to convert num(%ld) to char.\n",digit);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_str: failed to convert num(%ld) to char.\n",digit);
 
             ebgn_z_destroy(ebgnz_md_id, a);
             ebgn_z_destroy(ebgnz_md_id, q);
@@ -1371,12 +1371,12 @@ UINT32 conv_dec_to_bgn(const UINT32 conv_md_id,const UINT8 *decstr,const UINT32 
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_bgn: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_bgn: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_bgn: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_bgn: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -1393,7 +1393,7 @@ UINT32 conv_dec_to_bgn(const UINT32 conv_md_id,const UINT8 *decstr,const UINT32 
 
     if ( EC_FALSE == conv_check_decstr(conv_md_id, decstr, decstrlen) )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_bgn: invalid decstr\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_bgn: invalid decstr\n");
         return ((UINT32)(-1));
     }
 
@@ -1417,17 +1417,17 @@ UINT32 conv_bgn_to_dec(const UINT32 conv_md_id,const BIGINT *src, UINT8 *decstr,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_bgn_to_dec: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_dec: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bgn_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_bgn_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -1468,12 +1468,12 @@ UINT32 conv_hex_to_bgn(const UINT32 conv_md_id,const UINT8 *hexstr,const UINT32 
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_bgn: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_bgn: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_bgn: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_bgn: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -1490,7 +1490,7 @@ UINT32 conv_hex_to_bgn(const UINT32 conv_md_id,const UINT8 *hexstr,const UINT32 
 
     if ( EC_FALSE == conv_check_hexstr(conv_md_id, hexstr, hexstrlen) )
     {
-    sys_log(LOGSTDERR,"error:conv_hex_to_bgn: invalid hexstr\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_bgn: invalid hexstr\n");
         return ((UINT32)(-1));
     }
 
@@ -1515,17 +1515,17 @@ UINT32 conv_bgn_to_hex(const UINT32 conv_md_id,const BIGINT *src, UINT8 *hexstr,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_bgn_to_hex: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_hex: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bgn_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_bgn_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -1566,12 +1566,12 @@ UINT32 conv_bin_to_bgn(const UINT32 conv_md_id,const UINT8 *binstr,const UINT32 
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_bgn: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_bgn: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_bgn: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_bgn: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -1588,7 +1588,7 @@ UINT32 conv_bin_to_bgn(const UINT32 conv_md_id,const UINT8 *binstr,const UINT32 
 
     if ( EC_FALSE == conv_check_binstr(conv_md_id, binstr, binstrlen) )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_bgn: invalid binstr\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_bgn: invalid binstr\n");
         return ((UINT32)(-1));
     }
 
@@ -1613,17 +1613,17 @@ UINT32 conv_bgn_to_bin(const UINT32 conv_md_id,const BIGINT *src, UINT8 *binstr,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_bgn_to_bin: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_bin: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bgn_to_bin: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_bin: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_bgn_to_bin: binstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bgn_to_bin: binstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -1672,12 +1672,12 @@ UINT32 conv_dec_to_ec_curve_point(const UINT32 conv_md_id,const UINT8 *decstr,co
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ec_curve_point: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ec_curve_point: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ec_curve_point: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ec_curve_point: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -1705,7 +1705,7 @@ UINT32 conv_dec_to_ec_curve_point(const UINT32 conv_md_id,const UINT8 *decstr,co
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 10, conv_decchar_to_num, &(des->x));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ec_curve_point: x conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ec_curve_point: x conversion failed\n");
 
     return ret;
     }
@@ -1727,7 +1727,7 @@ UINT32 conv_dec_to_ec_curve_point(const UINT32 conv_md_id,const UINT8 *decstr,co
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 10, conv_decchar_to_num, &(des->y));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ec_curve_point: y conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ec_curve_point: y conversion failed\n");
 
     return ret;
     }
@@ -1735,7 +1735,7 @@ UINT32 conv_dec_to_ec_curve_point(const UINT32 conv_md_id,const UINT8 *decstr,co
     /* redundant checking */
     if( index + 1 != decstrlen )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ec_curve_point: invalid format string\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ec_curve_point: invalid format string\n");
 
     return ((UINT32)(-1));
     }
@@ -1768,17 +1768,17 @@ UINT32 conv_ec_curve_point_to_dec(const UINT32 conv_md_id,const EC_CURVE_POINT *
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_point_to_dec: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_point_to_dec: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_point_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_point_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_point_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_point_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -1802,7 +1802,7 @@ UINT32 conv_ec_curve_point_to_dec(const UINT32 conv_md_id,const EC_CURVE_POINT *
     ret = conv_bgn_to_str(conv_md_id, &(src->x), 10, conv_num_to_decchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_point_to_dec: x conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_point_to_dec: x conversion failed\n");
 
         return ret;
     }
@@ -1814,7 +1814,7 @@ UINT32 conv_ec_curve_point_to_dec(const UINT32 conv_md_id,const EC_CURVE_POINT *
     ret = conv_bgn_to_str(conv_md_id, &(src->y), 10, conv_num_to_decchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_point_to_dec: y conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_point_to_dec: y conversion failed\n");
 
         return ret;
     }
@@ -1853,12 +1853,12 @@ UINT32 conv_hex_to_ec_curve_point(const UINT32 conv_md_id,const UINT8 *hexstr,co
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ec_curve_point: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ec_curve_point: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ec_curve_point: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ec_curve_point: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -1886,7 +1886,7 @@ UINT32 conv_hex_to_ec_curve_point(const UINT32 conv_md_id,const UINT8 *hexstr,co
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 16, conv_hexchar_to_num, &(des->x));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_hex_to_ec_curve_point: x conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ec_curve_point: x conversion failed\n");
 
         return ret;
     }
@@ -1908,7 +1908,7 @@ UINT32 conv_hex_to_ec_curve_point(const UINT32 conv_md_id,const UINT8 *hexstr,co
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 16, conv_hexchar_to_num, &(des->y));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_hex_to_ec_curve_point: y conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ec_curve_point: y conversion failed\n");
 
         return ret;
     }
@@ -1916,7 +1916,7 @@ UINT32 conv_hex_to_ec_curve_point(const UINT32 conv_md_id,const UINT8 *hexstr,co
     /* redundant checking */
     if( index + 1 != hexstrlen )
     {
-        sys_log(LOGSTDERR,"error:conv_hex_to_ec_curve_point: invalid format string\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ec_curve_point: invalid format string\n");
 
         return ((UINT32)(-1));
     }
@@ -1948,17 +1948,17 @@ UINT32 conv_ec_curve_point_to_hex(const UINT32 conv_md_id,const EC_CURVE_POINT *
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_point_to_hex: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_point_to_hex: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_point_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_point_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_point_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_point_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -1982,7 +1982,7 @@ UINT32 conv_ec_curve_point_to_hex(const UINT32 conv_md_id,const EC_CURVE_POINT *
     ret = conv_bgn_to_str(conv_md_id, &(src->x), 16, conv_num_to_hexchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_point_to_hex: x conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_point_to_hex: x conversion failed\n");
 
         return ret;
     }
@@ -1994,7 +1994,7 @@ UINT32 conv_ec_curve_point_to_hex(const UINT32 conv_md_id,const EC_CURVE_POINT *
     ret = conv_bgn_to_str(conv_md_id, &(src->y), 16, conv_num_to_hexchar, curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_point_to_hex: y conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_point_to_hex: y conversion failed\n");
 
         return ret;
     }
@@ -2033,12 +2033,12 @@ UINT32 conv_bin_to_ec_curve_point(const UINT32 conv_md_id,const UINT8 *binstr,co
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ec_curve_point: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ec_curve_point: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ec_curve_point: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ec_curve_point: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -2066,7 +2066,7 @@ UINT32 conv_bin_to_ec_curve_point(const UINT32 conv_md_id,const UINT8 *binstr,co
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 2, conv_binchar_to_num, &(des->x));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_bin_to_ec_curve_point: x conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ec_curve_point: x conversion failed\n");
 
         return ret;
     }
@@ -2088,7 +2088,7 @@ UINT32 conv_bin_to_ec_curve_point(const UINT32 conv_md_id,const UINT8 *binstr,co
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 2, conv_binchar_to_num, &(des->y));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_bin_to_ec_curve_point: y conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ec_curve_point: y conversion failed\n");
 
         return ret;
     }
@@ -2096,7 +2096,7 @@ UINT32 conv_bin_to_ec_curve_point(const UINT32 conv_md_id,const UINT8 *binstr,co
     /* redundant checking */
     if( index + 1 != binstrlen )
     {
-        sys_log(LOGSTDERR,"error:conv_bin_to_ec_curve_point: invalid format string\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ec_curve_point: invalid format string\n");
 
         return ((UINT32)(-1));
     }
@@ -2125,17 +2125,17 @@ UINT32 conv_ec_curve_point_to_bin(const UINT32 conv_md_id,const EC_CURVE_POINT *
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_point_to_bin: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_point_to_bin: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_point_to_bin: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_point_to_bin: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_point_to_bin: binstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_point_to_bin: binstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -2159,7 +2159,7 @@ UINT32 conv_ec_curve_point_to_bin(const UINT32 conv_md_id,const EC_CURVE_POINT *
     ret = conv_bgn_to_str(conv_md_id, &(src->x), 2, conv_num_to_binchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_point_to_bin: x conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_point_to_bin: x conversion failed\n");
 
         return ret;
     }
@@ -2171,7 +2171,7 @@ UINT32 conv_ec_curve_point_to_bin(const UINT32 conv_md_id,const EC_CURVE_POINT *
     ret = conv_bgn_to_str(conv_md_id, &(src->y), 2, conv_num_to_binchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_point_to_bin: y conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_point_to_bin: y conversion failed\n");
 
         return ret;
     }
@@ -2211,12 +2211,12 @@ UINT32 conv_dec_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *decst
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ec_curve_aff_point: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ec_curve_aff_point: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ec_curve_aff_point: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ec_curve_aff_point: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -2244,7 +2244,7 @@ UINT32 conv_dec_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *decst
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 10, conv_decchar_to_num, &(des->x));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_dec_to_ec_curve_aff_point: x conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ec_curve_aff_point: x conversion failed\n");
 
         return ret;
     }
@@ -2266,7 +2266,7 @@ UINT32 conv_dec_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *decst
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 10, conv_decchar_to_num, &(des->y));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_dec_to_ec_curve_aff_point: y conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ec_curve_aff_point: y conversion failed\n");
 
         return ret;
     }
@@ -2288,14 +2288,14 @@ UINT32 conv_dec_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *decst
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 10, conv_decchar_to_num, &(des->z));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_dec_to_ec_curve_aff_point: z conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ec_curve_aff_point: z conversion failed\n");
 
         return ret;
     }
     /* redundant checking */
     if( index + 1 != decstrlen )
     {
-        sys_log(LOGSTDERR,"error:conv_dec_to_ec_curve_aff_point: invalid format string\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ec_curve_aff_point: invalid format string\n");
 
         return ((UINT32)(-1));
     }
@@ -2328,17 +2328,17 @@ UINT32 conv_ec_curve_aff_point_to_dec(const UINT32 conv_md_id,const EC_CURVE_AFF
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_dec: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_dec: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -2362,7 +2362,7 @@ UINT32 conv_ec_curve_aff_point_to_dec(const UINT32 conv_md_id,const EC_CURVE_AFF
     ret = conv_bgn_to_str(conv_md_id, &(src->x), 10, conv_num_to_decchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_aff_point_to_dec: x conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_aff_point_to_dec: x conversion failed\n");
 
         return ret;
     }
@@ -2374,7 +2374,7 @@ UINT32 conv_ec_curve_aff_point_to_dec(const UINT32 conv_md_id,const EC_CURVE_AFF
     ret = conv_bgn_to_str(conv_md_id, &(src->y), 10, conv_num_to_decchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_aff_point_to_dec: y conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_aff_point_to_dec: y conversion failed\n");
 
         return ret;
     }
@@ -2386,7 +2386,7 @@ UINT32 conv_ec_curve_aff_point_to_dec(const UINT32 conv_md_id,const EC_CURVE_AFF
     ret = conv_bgn_to_str(conv_md_id, &(src->z), 10, conv_num_to_decchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_aff_point_to_dec: z conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_aff_point_to_dec: z conversion failed\n");
 
         return ret;
     }
@@ -2425,12 +2425,12 @@ UINT32 conv_hex_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *hexst
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ec_curve_aff_point: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ec_curve_aff_point: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ec_curve_aff_point: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ec_curve_aff_point: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -2458,7 +2458,7 @@ UINT32 conv_hex_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *hexst
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 16, conv_hexchar_to_num, &(des->x));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_hex_to_ec_curve_aff_point: x conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ec_curve_aff_point: x conversion failed\n");
 
         return ret;
     }
@@ -2480,7 +2480,7 @@ UINT32 conv_hex_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *hexst
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 16, conv_hexchar_to_num, &(des->y));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_hex_to_ec_curve_aff_point: y conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ec_curve_aff_point: y conversion failed\n");
 
         return ret;
     }
@@ -2498,7 +2498,7 @@ UINT32 conv_hex_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *hexst
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 16, conv_hexchar_to_num, &(des->z));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_hex_to_ec_curve_aff_point: z conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ec_curve_aff_point: z conversion failed\n");
 
         return ret;
     }
@@ -2506,7 +2506,7 @@ UINT32 conv_hex_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *hexst
     /* redundant checking */
     if( index + 1 != hexstrlen )
     {
-        sys_log(LOGSTDERR,"error:conv_hex_to_ec_curve_aff_point: invalid format string\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ec_curve_aff_point: invalid format string\n");
 
         return ((UINT32)(-1));
     }
@@ -2538,17 +2538,17 @@ UINT32 conv_ec_curve_aff_point_to_hex(const UINT32 conv_md_id,const EC_CURVE_AFF
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_hex: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_hex: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -2572,7 +2572,7 @@ UINT32 conv_ec_curve_aff_point_to_hex(const UINT32 conv_md_id,const EC_CURVE_AFF
     ret = conv_bgn_to_str(conv_md_id, &(src->x), 16, conv_num_to_hexchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_aff_point_to_hex: x conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_aff_point_to_hex: x conversion failed\n");
 
         return ret;
     }
@@ -2584,7 +2584,7 @@ UINT32 conv_ec_curve_aff_point_to_hex(const UINT32 conv_md_id,const EC_CURVE_AFF
     ret = conv_bgn_to_str(conv_md_id, &(src->y), 16, conv_num_to_hexchar, curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_aff_point_to_hex: y conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_aff_point_to_hex: y conversion failed\n");
 
         return ret;
     }
@@ -2596,7 +2596,7 @@ UINT32 conv_ec_curve_aff_point_to_hex(const UINT32 conv_md_id,const EC_CURVE_AFF
     ret = conv_bgn_to_str(conv_md_id, &(src->z), 16, conv_num_to_hexchar, curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_aff_point_to_hex: z conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_aff_point_to_hex: z conversion failed\n");
 
         return ret;
     }
@@ -2635,12 +2635,12 @@ UINT32 conv_bin_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *binst
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ec_curve_aff_point: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ec_curve_aff_point: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ec_curve_aff_point: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ec_curve_aff_point: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -2668,7 +2668,7 @@ UINT32 conv_bin_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *binst
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 2, conv_binchar_to_num, &(des->x));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_bin_to_ec_curve_aff_point: x conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ec_curve_aff_point: x conversion failed\n");
 
         return ret;
     }
@@ -2690,7 +2690,7 @@ UINT32 conv_bin_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *binst
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 2, conv_binchar_to_num, &(des->y));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_bin_to_ec_curve_aff_point: y conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ec_curve_aff_point: y conversion failed\n");
 
         return ret;
     }
@@ -2708,7 +2708,7 @@ UINT32 conv_bin_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *binst
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 2, conv_binchar_to_num, &(des->z));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_bin_to_ec_curve_aff_point: z conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ec_curve_aff_point: z conversion failed\n");
 
         return ret;
     }
@@ -2716,7 +2716,7 @@ UINT32 conv_bin_to_ec_curve_aff_point(const UINT32 conv_md_id,const UINT8 *binst
     /* redundant checking */
     if( index + 1 != binstrlen )
     {
-        sys_log(LOGSTDERR,"error:conv_bin_to_ec_curve_aff_point: invalid format string\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ec_curve_aff_point: invalid format string\n");
 
         return ((UINT32)(-1));
     }
@@ -2745,17 +2745,17 @@ UINT32 conv_ec_curve_aff_point_to_bin(const UINT32 conv_md_id,const EC_CURVE_AFF
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_bin: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_bin: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_bin: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_bin: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_bin: binstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ec_curve_aff_point_to_bin: binstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -2779,7 +2779,7 @@ UINT32 conv_ec_curve_aff_point_to_bin(const UINT32 conv_md_id,const EC_CURVE_AFF
     ret = conv_bgn_to_str(conv_md_id, &(src->x), 2, conv_num_to_binchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_aff_point_to_bin: x conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_aff_point_to_bin: x conversion failed\n");
 
         return ret;
     }
@@ -2791,7 +2791,7 @@ UINT32 conv_ec_curve_aff_point_to_bin(const UINT32 conv_md_id,const EC_CURVE_AFF
     ret = conv_bgn_to_str(conv_md_id, &(src->y), 2, conv_num_to_binchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_aff_point_to_bin: y conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_aff_point_to_bin: y conversion failed\n");
 
         return ret;
     }
@@ -2803,7 +2803,7 @@ UINT32 conv_ec_curve_aff_point_to_bin(const UINT32 conv_md_id,const EC_CURVE_AFF
     ret = conv_bgn_to_str(conv_md_id, &(src->z), 2, conv_num_to_binchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ec_curve_aff_point_to_bin: z conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ec_curve_aff_point_to_bin: z conversion failed\n");
 
         return ret;
     }
@@ -2843,12 +2843,12 @@ UINT32 conv_dec_to_ecf2n_curve(const UINT32 conv_md_id,const UINT8 *decstr,const
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ecf2n_curve: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ecf2n_curve: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ecf2n_curve: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ecf2n_curve: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -2876,7 +2876,7 @@ UINT32 conv_dec_to_ecf2n_curve(const UINT32 conv_md_id,const UINT8 *decstr,const
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 10, conv_decchar_to_num, &(des->a));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_dec_to_ecf2n_curve: a conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ecf2n_curve: a conversion failed\n");
 
         return ret;
     }
@@ -2898,7 +2898,7 @@ UINT32 conv_dec_to_ecf2n_curve(const UINT32 conv_md_id,const UINT8 *decstr,const
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 10, conv_decchar_to_num, &(des->b));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ecf2n_curve: b conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ecf2n_curve: b conversion failed\n");
 
     return ret;
     }
@@ -2906,7 +2906,7 @@ UINT32 conv_dec_to_ecf2n_curve(const UINT32 conv_md_id,const UINT8 *decstr,const
     /* redundant checking */
     if( index + 1 != decstrlen )
     {
-        sys_log(LOGSTDERR,"error:conv_dec_to_ecf2n_curve: invalid format string\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ecf2n_curve: invalid format string\n");
 
         return ((UINT32)(-1));
     }
@@ -2939,17 +2939,17 @@ UINT32 conv_ecf2n_curve_to_dec(const UINT32 conv_md_id,const ECF2N_CURVE *src,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecf2n_curve_to_dec: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecf2n_curve_to_dec: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecf2n_curve_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecf2n_curve_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecf2n_curve_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecf2n_curve_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -2973,7 +2973,7 @@ UINT32 conv_ecf2n_curve_to_dec(const UINT32 conv_md_id,const ECF2N_CURVE *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->a), 10, conv_num_to_decchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ecf2n_curve_to_dec: a conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecf2n_curve_to_dec: a conversion failed\n");
 
         return ret;
     }
@@ -2985,7 +2985,7 @@ UINT32 conv_ecf2n_curve_to_dec(const UINT32 conv_md_id,const ECF2N_CURVE *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->b), 10, conv_num_to_decchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_ecf2n_curve_to_dec: b conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecf2n_curve_to_dec: b conversion failed\n");
 
         return ret;
     }
@@ -3024,12 +3024,12 @@ UINT32 conv_hex_to_ecf2n_curve(const UINT32 conv_md_id,const UINT8 *hexstr,const
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ecf2n_curve: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ecf2n_curve: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ecf2n_curve: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ecf2n_curve: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -3057,7 +3057,7 @@ UINT32 conv_hex_to_ecf2n_curve(const UINT32 conv_md_id,const UINT8 *hexstr,const
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 16, conv_hexchar_to_num, &(des->a));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_hex_to_ecf2n_curve: a conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ecf2n_curve: a conversion failed\n");
 
         return ret;
     }
@@ -3079,7 +3079,7 @@ UINT32 conv_hex_to_ecf2n_curve(const UINT32 conv_md_id,const UINT8 *hexstr,const
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 16, conv_hexchar_to_num, &(des->b));
     if ( 0 != ret )
     {
-        sys_log(LOGSTDERR,"error:conv_hex_to_ecf2n_curve: b conversion failed\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ecf2n_curve: b conversion failed\n");
 
         return ret;
     }
@@ -3087,7 +3087,7 @@ UINT32 conv_hex_to_ecf2n_curve(const UINT32 conv_md_id,const UINT8 *hexstr,const
     /* redundant checking */
     if( index + 1 != hexstrlen )
     {
-        sys_log(LOGSTDERR,"error:conv_hex_to_ecf2n_curve: invalid format string\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ecf2n_curve: invalid format string\n");
 
         return ((UINT32)(-1));
     }
@@ -3119,17 +3119,17 @@ UINT32 conv_ecf2n_curve_to_hex(const UINT32 conv_md_id,const ECF2N_CURVE *src,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecf2n_curve_to_hex: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecf2n_curve_to_hex: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecf2n_curve_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecf2n_curve_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecf2n_curve_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecf2n_curve_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -3153,7 +3153,7 @@ UINT32 conv_ecf2n_curve_to_hex(const UINT32 conv_md_id,const ECF2N_CURVE *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->a), 16, conv_num_to_hexchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecf2n_curve_to_hex: a conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecf2n_curve_to_hex: a conversion failed\n");
 
     return ret;
     }
@@ -3165,7 +3165,7 @@ UINT32 conv_ecf2n_curve_to_hex(const UINT32 conv_md_id,const ECF2N_CURVE *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->b), 16, conv_num_to_hexchar, curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecf2n_curve_to_hex: b conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecf2n_curve_to_hex: b conversion failed\n");
 
     return ret;
     }
@@ -3204,12 +3204,12 @@ UINT32 conv_bin_to_ecf2n_curve(const UINT32 conv_md_id,const UINT8 *binstr,const
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ecf2n_curve: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ecf2n_curve: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ecf2n_curve: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ecf2n_curve: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -3237,7 +3237,7 @@ UINT32 conv_bin_to_ecf2n_curve(const UINT32 conv_md_id,const UINT8 *binstr,const
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 2, conv_binchar_to_num, &(des->a));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ecf2n_curve: a conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ecf2n_curve: a conversion failed\n");
 
     return ret;
     }
@@ -3259,7 +3259,7 @@ UINT32 conv_bin_to_ecf2n_curve(const UINT32 conv_md_id,const UINT8 *binstr,const
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 2, conv_binchar_to_num, &(des->b));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ecf2n_curve: b conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ecf2n_curve: b conversion failed\n");
 
     return ret;
     }
@@ -3267,7 +3267,7 @@ UINT32 conv_bin_to_ecf2n_curve(const UINT32 conv_md_id,const UINT8 *binstr,const
     /* redundant checking */
     if( index + 1 != binstrlen )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ecf2n_curve: invalid format string\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ecf2n_curve: invalid format string\n");
 
     return ((UINT32)(-1));
     }
@@ -3296,17 +3296,17 @@ UINT32 conv_ecf2n_curve_to_bin(const UINT32 conv_md_id,const ECF2N_CURVE *src,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecf2n_curve_to_bin: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecf2n_curve_to_bin: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecf2n_curve_to_bin: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecf2n_curve_to_bin: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecf2n_curve_to_bin: binstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecf2n_curve_to_bin: binstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -3330,7 +3330,7 @@ UINT32 conv_ecf2n_curve_to_bin(const UINT32 conv_md_id,const ECF2N_CURVE *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->a), 2, conv_num_to_binchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecf2n_curve_to_bin: a conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecf2n_curve_to_bin: a conversion failed\n");
 
     return ret;
     }
@@ -3342,7 +3342,7 @@ UINT32 conv_ecf2n_curve_to_bin(const UINT32 conv_md_id,const ECF2N_CURVE *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->b), 2, conv_num_to_binchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecf2n_curve_to_bin: b conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecf2n_curve_to_bin: b conversion failed\n");
 
     return ret;
     }
@@ -3382,12 +3382,12 @@ UINT32 conv_dec_to_ecfp_curve(const UINT32 conv_md_id,const UINT8 *decstr,const 
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ecfp_curve: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ecfp_curve: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ecfp_curve: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ecfp_curve: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -3415,7 +3415,7 @@ UINT32 conv_dec_to_ecfp_curve(const UINT32 conv_md_id,const UINT8 *decstr,const 
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 10, conv_decchar_to_num, &(des->a));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ecfp_curve: a conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ecfp_curve: a conversion failed\n");
 
     return ret;
     }
@@ -3437,7 +3437,7 @@ UINT32 conv_dec_to_ecfp_curve(const UINT32 conv_md_id,const UINT8 *decstr,const 
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 10, conv_decchar_to_num, &(des->b));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ecfp_curve: b conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ecfp_curve: b conversion failed\n");
 
     return ret;
     }
@@ -3445,7 +3445,7 @@ UINT32 conv_dec_to_ecfp_curve(const UINT32 conv_md_id,const UINT8 *decstr,const 
     /* redundant checking */
     if( index + 1 != decstrlen )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ecfp_curve: invalid format string\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ecfp_curve: invalid format string\n");
 
     return ((UINT32)(-1));
     }
@@ -3478,17 +3478,17 @@ UINT32 conv_ecfp_curve_to_dec(const UINT32 conv_md_id,const ECFP_CURVE *src,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecfp_curve_to_dec: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecfp_curve_to_dec: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecfp_curve_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecfp_curve_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecfp_curve_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecfp_curve_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -3512,7 +3512,7 @@ UINT32 conv_ecfp_curve_to_dec(const UINT32 conv_md_id,const ECFP_CURVE *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->a), 10, conv_num_to_decchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecfp_curve_to_dec: a conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecfp_curve_to_dec: a conversion failed\n");
 
     return ret;
     }
@@ -3524,7 +3524,7 @@ UINT32 conv_ecfp_curve_to_dec(const UINT32 conv_md_id,const ECFP_CURVE *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->b), 10, conv_num_to_decchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecfp_curve_to_dec: b conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecfp_curve_to_dec: b conversion failed\n");
 
     return ret;
     }
@@ -3563,12 +3563,12 @@ UINT32 conv_hex_to_ecfp_curve(const UINT32 conv_md_id,const UINT8 *hexstr,const 
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ecfp_curve: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ecfp_curve: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ecfp_curve: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ecfp_curve: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -3596,7 +3596,7 @@ UINT32 conv_hex_to_ecfp_curve(const UINT32 conv_md_id,const UINT8 *hexstr,const 
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 16, conv_hexchar_to_num, &(des->a));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_hex_to_ecfp_curve: a conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ecfp_curve: a conversion failed\n");
 
     return ret;
     }
@@ -3618,7 +3618,7 @@ UINT32 conv_hex_to_ecfp_curve(const UINT32 conv_md_id,const UINT8 *hexstr,const 
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 16, conv_hexchar_to_num, &(des->b));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_hex_to_ecfp_curve: b conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ecfp_curve: b conversion failed\n");
 
     return ret;
     }
@@ -3626,7 +3626,7 @@ UINT32 conv_hex_to_ecfp_curve(const UINT32 conv_md_id,const UINT8 *hexstr,const 
     /* redundant checking */
     if( index + 1 != hexstrlen )
     {
-    sys_log(LOGSTDERR,"error:conv_hex_to_ecfp_curve: invalid format string\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ecfp_curve: invalid format string\n");
 
     return ((UINT32)(-1));
     }
@@ -3658,17 +3658,17 @@ UINT32 conv_ecfp_curve_to_hex(const UINT32 conv_md_id,const ECFP_CURVE *src,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecfp_curve_to_hex: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecfp_curve_to_hex: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecfp_curve_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecfp_curve_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecfp_curve_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecfp_curve_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -3692,7 +3692,7 @@ UINT32 conv_ecfp_curve_to_hex(const UINT32 conv_md_id,const ECFP_CURVE *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->a), 16, conv_num_to_hexchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecfp_curve_to_hex: a conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecfp_curve_to_hex: a conversion failed\n");
 
     return ret;
     }
@@ -3704,7 +3704,7 @@ UINT32 conv_ecfp_curve_to_hex(const UINT32 conv_md_id,const ECFP_CURVE *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->b), 16, conv_num_to_hexchar, curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecfp_curve_to_hex: b conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecfp_curve_to_hex: b conversion failed\n");
 
     return ret;
     }
@@ -3743,12 +3743,12 @@ UINT32 conv_bin_to_ecfp_curve(const UINT32 conv_md_id,const UINT8 *binstr,const 
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ecfp_curve: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ecfp_curve: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ecfp_curve: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ecfp_curve: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -3776,7 +3776,7 @@ UINT32 conv_bin_to_ecfp_curve(const UINT32 conv_md_id,const UINT8 *binstr,const 
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 2, conv_binchar_to_num, &(des->a));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ecfp_curve: a conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ecfp_curve: a conversion failed\n");
 
     return ret;
     }
@@ -3798,7 +3798,7 @@ UINT32 conv_bin_to_ecfp_curve(const UINT32 conv_md_id,const UINT8 *binstr,const 
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 2, conv_binchar_to_num, &(des->b));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ecfp_curve: b conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ecfp_curve: b conversion failed\n");
 
     return ret;
     }
@@ -3806,7 +3806,7 @@ UINT32 conv_bin_to_ecfp_curve(const UINT32 conv_md_id,const UINT8 *binstr,const 
     /* redundant checking */
     if( index + 1 != binstrlen )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ecfp_curve: invalid format string\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ecfp_curve: invalid format string\n");
 
     return ((UINT32)(-1));
     }
@@ -3835,17 +3835,17 @@ UINT32 conv_ecfp_curve_to_bin(const UINT32 conv_md_id,const ECFP_CURVE *src,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecfp_curve_to_bin: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecfp_curve_to_bin: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecfp_curve_to_bin: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecfp_curve_to_bin: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecfp_curve_to_bin: binstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecfp_curve_to_bin: binstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -3869,7 +3869,7 @@ UINT32 conv_ecfp_curve_to_bin(const UINT32 conv_md_id,const ECFP_CURVE *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->a), 2, conv_num_to_binchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecfp_curve_to_bin: a conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecfp_curve_to_bin: a conversion failed\n");
 
     return ret;
     }
@@ -3881,7 +3881,7 @@ UINT32 conv_ecfp_curve_to_bin(const UINT32 conv_md_id,const ECFP_CURVE *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->b), 2, conv_num_to_binchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecfp_curve_to_bin: b conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecfp_curve_to_bin: b conversion failed\n");
 
     return ret;
     }
@@ -3921,12 +3921,12 @@ UINT32 conv_dec_to_ecc_keypair(const UINT32 conv_md_id,const UINT8 *decstr,const
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ecc_keypair: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ecc_keypair: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ecc_keypair: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ecc_keypair: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -3954,7 +3954,7 @@ UINT32 conv_dec_to_ecc_keypair(const UINT32 conv_md_id,const UINT8 *decstr,const
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 10, conv_decchar_to_num, &(des->private_key));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ecc_keypair: private_key conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ecc_keypair: private_key conversion failed\n");
 
     return ret;
     }
@@ -3976,7 +3976,7 @@ UINT32 conv_dec_to_ecc_keypair(const UINT32 conv_md_id,const UINT8 *decstr,const
     ret = conv_dec_to_ec_curve_point(conv_md_id, curstr, curstrlen, &(des->public_key));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ecc_keypair: public_key conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ecc_keypair: public_key conversion failed\n");
 
     return ret;
     }
@@ -3984,7 +3984,7 @@ UINT32 conv_dec_to_ecc_keypair(const UINT32 conv_md_id,const UINT8 *decstr,const
     /* redundant checking */
     if( index + 1 != decstrlen )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ecc_keypair: invalid format string\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ecc_keypair: invalid format string\n");
 
     return ((UINT32)(-1));
     }
@@ -4017,17 +4017,17 @@ UINT32 conv_ecc_keypair_to_dec(const UINT32 conv_md_id,const ECC_KEYPAIR *src,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_keypair_to_dec: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_keypair_to_dec: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_keypair_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_keypair_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_keypair_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_keypair_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -4051,7 +4051,7 @@ UINT32 conv_ecc_keypair_to_dec(const UINT32 conv_md_id,const ECC_KEYPAIR *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->private_key), 10, conv_num_to_decchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecc_keypair_to_dec: private_key conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecc_keypair_to_dec: private_key conversion failed\n");
 
     return ret;
     }
@@ -4063,7 +4063,7 @@ UINT32 conv_ecc_keypair_to_dec(const UINT32 conv_md_id,const ECC_KEYPAIR *src,
     ret = conv_ec_curve_point_to_dec(conv_md_id, &(src->public_key), curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecc_keypair_to_dec: public_key conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecc_keypair_to_dec: public_key conversion failed\n");
 
     return ret;
     }
@@ -4102,12 +4102,12 @@ UINT32 conv_hex_to_ecc_keypair(const UINT32 conv_md_id,const UINT8 *hexstr,const
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ecc_keypair: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ecc_keypair: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ecc_keypair: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ecc_keypair: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -4135,7 +4135,7 @@ UINT32 conv_hex_to_ecc_keypair(const UINT32 conv_md_id,const UINT8 *hexstr,const
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 16, conv_hexchar_to_num, &(des->private_key));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_hex_to_ecc_keypair: private_key conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ecc_keypair: private_key conversion failed\n");
 
     return ret;
     }
@@ -4157,7 +4157,7 @@ UINT32 conv_hex_to_ecc_keypair(const UINT32 conv_md_id,const UINT8 *hexstr,const
     ret = conv_hex_to_ec_curve_point(conv_md_id, curstr, curstrlen, &(des->public_key));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_hex_to_ecc_keypair: public_key conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ecc_keypair: public_key conversion failed\n");
 
     return ret;
     }
@@ -4165,7 +4165,7 @@ UINT32 conv_hex_to_ecc_keypair(const UINT32 conv_md_id,const UINT8 *hexstr,const
     /* redundant checking */
     if( index + 1 != hexstrlen )
     {
-    sys_log(LOGSTDERR,"error:conv_hex_to_ecc_keypair: invalid format string\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ecc_keypair: invalid format string\n");
 
     return ((UINT32)(-1));
     }
@@ -4197,17 +4197,17 @@ UINT32 conv_ecc_keypair_to_hex(const UINT32 conv_md_id,const ECC_KEYPAIR *src,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_keypair_to_hex: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_keypair_to_hex: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_keypair_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_keypair_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_keypair_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_keypair_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -4231,7 +4231,7 @@ UINT32 conv_ecc_keypair_to_hex(const UINT32 conv_md_id,const ECC_KEYPAIR *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->private_key), 16, conv_num_to_hexchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecc_keypair_to_hex: private_key conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecc_keypair_to_hex: private_key conversion failed\n");
 
     return ret;
     }
@@ -4243,7 +4243,7 @@ UINT32 conv_ecc_keypair_to_hex(const UINT32 conv_md_id,const ECC_KEYPAIR *src,
     ret = conv_ec_curve_point_to_hex(conv_md_id, &(src->public_key), curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecc_keypair_to_hex: public_key conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecc_keypair_to_hex: public_key conversion failed\n");
 
     return ret;
     }
@@ -4282,12 +4282,12 @@ UINT32 conv_bin_to_ecc_keypair(const UINT32 conv_md_id,const UINT8 *binstr,const
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ecc_keypair: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ecc_keypair: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ecc_keypair: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ecc_keypair: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -4315,7 +4315,7 @@ UINT32 conv_bin_to_ecc_keypair(const UINT32 conv_md_id,const UINT8 *binstr,const
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 2, conv_binchar_to_num, &(des->private_key));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ecc_keypair: private_key conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ecc_keypair: private_key conversion failed\n");
 
     return ret;
     }
@@ -4337,7 +4337,7 @@ UINT32 conv_bin_to_ecc_keypair(const UINT32 conv_md_id,const UINT8 *binstr,const
     ret = conv_bin_to_ec_curve_point(conv_md_id, curstr, curstrlen, &(des->public_key));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ecc_keypair: public_key conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ecc_keypair: public_key conversion failed\n");
 
     return ret;
     }
@@ -4345,7 +4345,7 @@ UINT32 conv_bin_to_ecc_keypair(const UINT32 conv_md_id,const UINT8 *binstr,const
     /* redundant checking */
     if( index + 1 != binstrlen )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ecc_keypair: invalid format string\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ecc_keypair: invalid format string\n");
 
     return ((UINT32)(-1));
     }
@@ -4374,17 +4374,17 @@ UINT32 conv_ecc_keypair_to_bin(const UINT32 conv_md_id,const ECC_KEYPAIR *src,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_keypair_to_bin: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_keypair_to_bin: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_keypair_to_bin: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_keypair_to_bin: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_keypair_to_bin: binstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_keypair_to_bin: binstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -4408,7 +4408,7 @@ UINT32 conv_ecc_keypair_to_bin(const UINT32 conv_md_id,const ECC_KEYPAIR *src,
     ret = conv_bgn_to_str(conv_md_id, &(src->private_key), 2, conv_num_to_binchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecc_keypair_to_bin: private_key conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecc_keypair_to_bin: private_key conversion failed\n");
 
     return ret;
     }
@@ -4420,7 +4420,7 @@ UINT32 conv_ecc_keypair_to_bin(const UINT32 conv_md_id,const ECC_KEYPAIR *src,
     ret = conv_ec_curve_point_to_bin(conv_md_id, &(src->public_key), curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecc_keypair_to_bin: public_key conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecc_keypair_to_bin: public_key conversion failed\n");
 
     return ret;
     }
@@ -4460,12 +4460,12 @@ UINT32 conv_dec_to_ecc_signature(const UINT32 conv_md_id,const UINT8 *decstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ecc_signature: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ecc_signature: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ecc_signature: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ecc_signature: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -4493,7 +4493,7 @@ UINT32 conv_dec_to_ecc_signature(const UINT32 conv_md_id,const UINT8 *decstr,con
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 10, conv_decchar_to_num, &(des->r));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ecc_signature: r conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ecc_signature: r conversion failed\n");
 
     return ret;
     }
@@ -4515,7 +4515,7 @@ UINT32 conv_dec_to_ecc_signature(const UINT32 conv_md_id,const UINT8 *decstr,con
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 10, conv_decchar_to_num, &(des->s));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ecc_signature: s conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ecc_signature: s conversion failed\n");
 
     return ret;
     }
@@ -4523,7 +4523,7 @@ UINT32 conv_dec_to_ecc_signature(const UINT32 conv_md_id,const UINT8 *decstr,con
     /* redundant checking */
     if( index + 1 != decstrlen )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ecc_signature: invalid format string\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ecc_signature: invalid format string\n");
 
     return ((UINT32)(-1));
     }
@@ -4556,17 +4556,17 @@ UINT32 conv_ecc_signature_to_dec(const UINT32 conv_md_id,const ECC_SIGNATURE *sr
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_signature_to_dec: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_signature_to_dec: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_signature_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_signature_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_signature_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_signature_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -4590,7 +4590,7 @@ UINT32 conv_ecc_signature_to_dec(const UINT32 conv_md_id,const ECC_SIGNATURE *sr
     ret = conv_bgn_to_str(conv_md_id, &(src->r), 10, conv_num_to_decchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecc_signature_to_dec: r conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecc_signature_to_dec: r conversion failed\n");
 
     return ret;
     }
@@ -4602,7 +4602,7 @@ UINT32 conv_ecc_signature_to_dec(const UINT32 conv_md_id,const ECC_SIGNATURE *sr
     ret = conv_bgn_to_str(conv_md_id, &(src->s), 10, conv_num_to_decchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecc_signature_to_dec: s conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecc_signature_to_dec: s conversion failed\n");
 
     return ret;
     }
@@ -4641,12 +4641,12 @@ UINT32 conv_hex_to_ecc_signature(const UINT32 conv_md_id,const UINT8 *hexstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ecc_signature: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ecc_signature: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ecc_signature: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ecc_signature: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -4674,7 +4674,7 @@ UINT32 conv_hex_to_ecc_signature(const UINT32 conv_md_id,const UINT8 *hexstr,con
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 16, conv_hexchar_to_num, &(des->r));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_hex_to_ecc_signature: r conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ecc_signature: r conversion failed\n");
 
     return ret;
     }
@@ -4696,7 +4696,7 @@ UINT32 conv_hex_to_ecc_signature(const UINT32 conv_md_id,const UINT8 *hexstr,con
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 16, conv_hexchar_to_num, &(des->s));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_hex_to_ecc_signature: s conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ecc_signature: s conversion failed\n");
 
     return ret;
     }
@@ -4704,7 +4704,7 @@ UINT32 conv_hex_to_ecc_signature(const UINT32 conv_md_id,const UINT8 *hexstr,con
     /* redundant checking */
     if( index + 1 != hexstrlen )
     {
-    sys_log(LOGSTDERR,"error:conv_hex_to_ecc_signature: invalid format string\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ecc_signature: invalid format string\n");
 
     return ((UINT32)(-1));
     }
@@ -4736,17 +4736,17 @@ UINT32 conv_ecc_signature_to_hex(const UINT32 conv_md_id,const ECC_SIGNATURE *sr
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_signature_to_hex: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_signature_to_hex: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_signature_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_signature_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_signature_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_signature_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -4770,7 +4770,7 @@ UINT32 conv_ecc_signature_to_hex(const UINT32 conv_md_id,const ECC_SIGNATURE *sr
     ret = conv_bgn_to_str(conv_md_id, &(src->r), 16, conv_num_to_hexchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecc_signature_to_hex: r conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecc_signature_to_hex: r conversion failed\n");
 
     return ret;
     }
@@ -4782,7 +4782,7 @@ UINT32 conv_ecc_signature_to_hex(const UINT32 conv_md_id,const ECC_SIGNATURE *sr
     ret = conv_bgn_to_str(conv_md_id, &(src->s), 16, conv_num_to_hexchar, curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecc_signature_to_hex: s conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecc_signature_to_hex: s conversion failed\n");
 
     return ret;
     }
@@ -4821,12 +4821,12 @@ UINT32 conv_bin_to_ecc_signature(const UINT32 conv_md_id,const UINT8 *binstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ecc_signature: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ecc_signature: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ecc_signature: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ecc_signature: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -4854,7 +4854,7 @@ UINT32 conv_bin_to_ecc_signature(const UINT32 conv_md_id,const UINT8 *binstr,con
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 2, conv_binchar_to_num, &(des->r));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ecc_signature: r conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ecc_signature: r conversion failed\n");
 
     return ret;
     }
@@ -4876,7 +4876,7 @@ UINT32 conv_bin_to_ecc_signature(const UINT32 conv_md_id,const UINT8 *binstr,con
     ret = conv_str_to_bgn(conv_md_id, curstr, curstrlen, 2, conv_binchar_to_num, &(des->s));
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ecc_signature: s conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ecc_signature: s conversion failed\n");
 
     return ret;
     }
@@ -4884,7 +4884,7 @@ UINT32 conv_bin_to_ecc_signature(const UINT32 conv_md_id,const UINT8 *binstr,con
     /* redundant checking */
     if( index + 1 != binstrlen )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ecc_signature: invalid format string\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ecc_signature: invalid format string\n");
 
     return ((UINT32)(-1));
     }
@@ -4913,17 +4913,17 @@ UINT32 conv_ecc_signature_to_bin(const UINT32 conv_md_id,const ECC_SIGNATURE *sr
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_signature_to_bin: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_signature_to_bin: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_signature_to_bin: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_signature_to_bin: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ecc_signature_to_bin: binstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ecc_signature_to_bin: binstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -4947,7 +4947,7 @@ UINT32 conv_ecc_signature_to_bin(const UINT32 conv_md_id,const ECC_SIGNATURE *sr
     ret = conv_bgn_to_str(conv_md_id, &(src->r), 2, conv_num_to_binchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecc_signature_to_bin: r conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecc_signature_to_bin: r conversion failed\n");
 
     return ret;
     }
@@ -4959,7 +4959,7 @@ UINT32 conv_ecc_signature_to_bin(const UINT32 conv_md_id,const ECC_SIGNATURE *sr
     ret = conv_bgn_to_str(conv_md_id, &(src->s), 2, conv_num_to_binchar,curstr, curstrmaxlen, &curstrlen);
     if ( 0 != ret )
     {
-    sys_log(LOGSTDERR,"error:conv_ecc_signature_to_bin: s conversion failed\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_ecc_signature_to_bin: s conversion failed\n");
 
     return ret;
     }
@@ -4993,12 +4993,12 @@ static UINT32 conv_dec_to_poly_0(const UINT32 conv_md_id,const UINT8 *decstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_poly_0: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_poly_0: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_poly_0: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_poly_0: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -5018,7 +5018,7 @@ static UINT32 conv_dec_to_poly_0(const UINT32 conv_md_id,const UINT8 *decstr,con
 
     pos = 0;
 
-    //sys_log(LOGSTDOUT,"conv_dec_to_poly_0     : beg: %.*s\n", decstrlen - pos, decstr + pos);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_dec_to_poly_0     : beg: %.*s\n", decstrlen - pos, decstr + pos);
 
     /* format is () which measn poly = 0 */
     if( 2 == decstrlen )
@@ -5041,7 +5041,7 @@ static UINT32 conv_dec_to_poly_0(const UINT32 conv_md_id,const UINT8 *decstr,con
         /* item = deg ( bgn | poly ) */
         if( 0 != conv_dec_to_poly_item_0(conv_md_id, decstr + pos, decstrlen - pos, item,  &nused) )
         {
-            sys_log(LOGSTDERR,
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,
                 "conv_dec_to_poly_0: failed to conv decstr %.*s to poly_item\n", decstrlen - pos, decstr + pos);
             return ((UINT32)(-1));
         }
@@ -5059,8 +5059,8 @@ static UINT32 conv_dec_to_poly_0(const UINT32 conv_md_id,const UINT8 *decstr,con
         *decstrusedlen = pos;
     }
 
-    //sys_log(LOGSTDOUT,"conv_dec_to_poly_0     : end: %.*s\n", decstrlen - pos, decstr + pos);
-    //sys_log(LOGSTDOUT,"conv_dec_to_poly_0     : eat: %.*s\n", pos, decstr);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_dec_to_poly_0     : end: %.*s\n", decstrlen - pos, decstr + pos);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_dec_to_poly_0     : eat: %.*s\n", pos, decstr);
 
     return ( 0 );
 }
@@ -5083,12 +5083,12 @@ UINT32 conv_dec_to_poly(const UINT32 conv_md_id,const UINT8 *decstr,const UINT32
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_poly: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_poly: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_poly: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_poly: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -5106,7 +5106,7 @@ UINT32 conv_dec_to_poly(const UINT32 conv_md_id,const UINT8 *decstr,const UINT32
     ret = conv_dec_to_poly_0(conv_md_id, decstr, decstrlen, des, 0);
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"conv_dec_to_poly: conv_dec_to_poly_0 failed where string is %.*s\n", decstrlen, decstr);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_dec_to_poly: conv_dec_to_poly_0 failed where string is %.*s\n", decstrlen, decstr);
         return ((UINT32)(-1));
     }
     return ( 0 );
@@ -5135,17 +5135,17 @@ UINT32 conv_poly_to_dec(const UINT32 conv_md_id,const POLY *src, UINT8 *decstr,c
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_to_dec: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_to_dec: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -5184,7 +5184,7 @@ UINT32 conv_poly_to_dec(const UINT32 conv_md_id,const POLY *src, UINT8 *decstr,c
         ret = conv_poly_item_to_dec(conv_md_id, item, decstr + ret_decstrlen, decstrmaxlen - ret_decstrlen, &cur_decstrlen);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_poly_to_dec: conv_poly_item_to_dec failed\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_poly_to_dec: conv_poly_item_to_dec failed\n");
             return ((UINT32)(-1));
         }
         ret_decstrlen += cur_decstrlen;
@@ -5221,12 +5221,12 @@ static UINT32 conv_hex_to_poly_0(const UINT32 conv_md_id,const UINT8 *hexstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_poly_0: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_poly_0: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_poly_0: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_poly_0: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -5246,7 +5246,7 @@ static UINT32 conv_hex_to_poly_0(const UINT32 conv_md_id,const UINT8 *hexstr,con
 
     pos = 0;
 
-    //sys_log(LOGSTDOUT,"conv_hex_to_poly_0     : beg: %.*s\n", hexstrlen - pos, hexstr + pos);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_hex_to_poly_0     : beg: %.*s\n", hexstrlen - pos, hexstr + pos);
 
     /* format is () which measn poly = 0 */
     if( 2 == hexstrlen )
@@ -5269,7 +5269,7 @@ static UINT32 conv_hex_to_poly_0(const UINT32 conv_md_id,const UINT8 *hexstr,con
         /* item = deg ( bgn | poly ) */
         if( 0 != conv_hex_to_poly_item_0(conv_md_id, hexstr + pos, hexstrlen - pos, item,  &nused) )
         {
-            sys_log(LOGSTDERR,
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,
                 "conv_hex_to_poly_0: failed to conv hexstr %.*s to poly_item\n", hexstrlen - pos, hexstr + pos);
             return ((UINT32)(-1));
         }
@@ -5287,8 +5287,8 @@ static UINT32 conv_hex_to_poly_0(const UINT32 conv_md_id,const UINT8 *hexstr,con
         *hexstrusedlen = pos;
     }
 
-    //sys_log(LOGSTDOUT,"conv_hex_to_poly_0     : end: %.*s\n", hexstrlen - pos, hexstr + pos);
-    //sys_log(LOGSTDOUT,"conv_hex_to_poly_0     : eat: %.*s\n", pos, hexstr);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_hex_to_poly_0     : end: %.*s\n", hexstrlen - pos, hexstr + pos);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_hex_to_poly_0     : eat: %.*s\n", pos, hexstr);
 
     return ( 0 );
 }
@@ -5311,12 +5311,12 @@ UINT32 conv_hex_to_poly(const UINT32 conv_md_id,const UINT8 *hexstr,const UINT32
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_poly: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_poly: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_poly: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_poly: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -5334,7 +5334,7 @@ UINT32 conv_hex_to_poly(const UINT32 conv_md_id,const UINT8 *hexstr,const UINT32
     ret = conv_hex_to_poly_0(conv_md_id, hexstr, hexstrlen, des, 0);
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"conv_hex_to_poly: conv_hex_to_poly_0 failed where string is %.*s\n", hexstrlen, hexstr);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_hex_to_poly: conv_hex_to_poly_0 failed where string is %.*s\n", hexstrlen, hexstr);
         return ((UINT32)(-1));
     }
     return ( 0 );
@@ -5363,17 +5363,17 @@ UINT32 conv_poly_to_hex(const UINT32 conv_md_id,const POLY *src, UINT8 *hexstr,c
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_to_hex: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_to_hex: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -5412,7 +5412,7 @@ UINT32 conv_poly_to_hex(const UINT32 conv_md_id,const POLY *src, UINT8 *hexstr,c
         ret = conv_poly_item_to_hex(conv_md_id, item, hexstr + ret_hexstrlen, hexstrmaxlen - ret_hexstrlen, &cur_hexstrlen);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_poly_to_hex: conv_poly_item_to_hex failed\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_poly_to_hex: conv_poly_item_to_hex failed\n");
             return ((UINT32)(-1));
         }
         ret_hexstrlen += cur_hexstrlen;
@@ -5449,12 +5449,12 @@ static UINT32 conv_bin_to_poly_0(const UINT32 conv_md_id,const UINT8 *binstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_poly_0: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_poly_0: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_poly_0: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_poly_0: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -5474,7 +5474,7 @@ static UINT32 conv_bin_to_poly_0(const UINT32 conv_md_id,const UINT8 *binstr,con
 
     pos = 0;
 
-    //sys_log(LOGSTDOUT,"conv_bin_to_poly_0     : beg: %.*s\n", binstrlen - pos, binstr + pos);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_bin_to_poly_0     : beg: %.*s\n", binstrlen - pos, binstr + pos);
 
     /* format is () which measn poly = 0 */
     if( 2 == binstrlen )
@@ -5497,7 +5497,7 @@ static UINT32 conv_bin_to_poly_0(const UINT32 conv_md_id,const UINT8 *binstr,con
         /* item = deg ( bgn | poly ) */
         if( 0 != conv_bin_to_poly_item_0(conv_md_id, binstr + pos, binstrlen - pos, item,  &nused) )
         {
-            sys_log(LOGSTDERR,
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,
                 "conv_bin_to_poly_0: failed to conv binstr %.*s to poly_item\n", binstrlen - pos, binstr + pos);
             return ((UINT32)(-1));
         }
@@ -5515,8 +5515,8 @@ static UINT32 conv_bin_to_poly_0(const UINT32 conv_md_id,const UINT8 *binstr,con
         *binstrusedlen = pos;
     }
 
-    //sys_log(LOGSTDOUT,"conv_bin_to_poly_0     : end: %.*s\n", binstrlen - pos, binstr + pos);
-    //sys_log(LOGSTDOUT,"conv_bin_to_poly_0     : eat: %.*s\n", pos, binstr);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_bin_to_poly_0     : end: %.*s\n", binstrlen - pos, binstr + pos);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_bin_to_poly_0     : eat: %.*s\n", pos, binstr);
 
     return ( 0 );
 }
@@ -5539,12 +5539,12 @@ UINT32 conv_bin_to_poly(const UINT32 conv_md_id,const UINT8 *binstr,const UINT32
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_poly: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_poly: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_poly: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_poly: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -5562,7 +5562,7 @@ UINT32 conv_bin_to_poly(const UINT32 conv_md_id,const UINT8 *binstr,const UINT32
     ret = conv_bin_to_poly_0(conv_md_id, binstr, binstrlen, des, 0);
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"conv_bin_to_poly: conv_bin_to_poly_0 failed where string is %.*s\n", binstrlen, binstr);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_bin_to_poly: conv_bin_to_poly_0 failed where string is %.*s\n", binstrlen, binstr);
         return ((UINT32)(-1));
     }
     return ( 0 );
@@ -5591,17 +5591,17 @@ UINT32 conv_poly_to_bin(const UINT32 conv_md_id,const POLY *src, UINT8 *binstr,c
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_to_bin: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_to_bin: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_to_bin: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_to_bin: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_to_bin: binstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_to_bin: binstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -5640,7 +5640,7 @@ UINT32 conv_poly_to_bin(const UINT32 conv_md_id,const POLY *src, UINT8 *binstr,c
         ret = conv_poly_item_to_bin(conv_md_id, item, binstr + ret_binstrlen, binstrmaxlen - ret_binstrlen, &cur_binstrlen);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_poly_to_bin: conv_poly_item_to_bin failed\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_poly_to_bin: conv_poly_item_to_bin failed\n");
             return ((UINT32)(-1));
         }
         ret_binstrlen += cur_binstrlen;
@@ -5685,12 +5685,12 @@ static UINT32 conv_dec_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *decst
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_poly_item_0: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_poly_item_0: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_poly_item_0: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_poly_item_0: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -5707,7 +5707,7 @@ static UINT32 conv_dec_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *decst
 
     pos = 0;
 
-    sys_log(LOGSTDOUT,"conv_dec_to_poly_item_0: beg: %.*s\n", decstrlen - pos, decstr + pos);
+    dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_dec_to_poly_item_0: beg: %.*s\n", decstrlen - pos, decstr + pos);
 
     /* do degree */
     for( index = 0; index < decstrlen; index ++ )
@@ -5724,7 +5724,7 @@ static UINT32 conv_dec_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *decst
     ret = conv_dec_to_deg(conv_md_id, decstr + pos, decstrlen_of_deg, POLY_ITEM_DEG(des) );
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"conv_dec_to_poly_item_0: failed to conv %.*s to degree\n", decstrlen_of_deg, decstr + pos);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_dec_to_poly_item_0: failed to conv %.*s to degree\n", decstrlen_of_deg, decstr + pos);
         return ((UINT32)(-1));
     }
 
@@ -5732,7 +5732,7 @@ static UINT32 conv_dec_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *decst
 
     if( '(' != decstr[ pos ] )
     {
-        sys_log(LOGSTDERR,"conv_dec_to_poly_item_0: error:coe not beg with '(' %.*s\n", decstrlen - pos, decstr + pos);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_dec_to_poly_item_0: error:coe not beg with '(' %.*s\n", decstrlen - pos, decstr + pos);
         return ((UINT32)(-1));
     }
 
@@ -5747,7 +5747,7 @@ static UINT32 conv_dec_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *decst
         ret = conv_dec_to_poly_0(conv_md_id, decstr + pos, decstrlen - pos, poly_coe_of_item, &nused);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_dec_to_poly_item_0: failed to conv %.*s to poly coe\n", decstrlen - pos, decstr + pos);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_dec_to_poly_item_0: failed to conv %.*s to poly coe\n", decstrlen - pos, decstr + pos);
             return ((UINT32)(-1));
         }
 
@@ -5768,7 +5768,7 @@ static UINT32 conv_dec_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *decst
 
         if( index >= decstrlen )
         {
-            sys_log(LOGSTDERR,"conv_dec_to_poly_item_0: error string %.*s\n", decstrlen - pos, decstr + pos);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_dec_to_poly_item_0: error string %.*s\n", decstrlen - pos, decstr + pos);
             return ((UINT32)(-1));
         }
 
@@ -5776,7 +5776,7 @@ static UINT32 conv_dec_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *decst
         ret = conv_dec_to_bgn(conv_md_id, decstr + pos, index - pos, bgn_coe_of_item);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_dec_to_poly_item_0: failed to conv %.*s to bgn coe\n", index - pos, decstr + pos);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_dec_to_poly_item_0: failed to conv %.*s to bgn coe\n", index - pos, decstr + pos);
             return ((UINT32)(-1));
         }
 
@@ -5796,8 +5796,8 @@ static UINT32 conv_dec_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *decst
         *decstrusedlen = pos;
     }
 
-    sys_log(LOGSTDOUT,"conv_dec_to_poly_item_0: end: %.*s\n", decstrlen - pos, decstr + pos);
-    sys_log(LOGSTDOUT,"conv_dec_to_poly_item_0: eat: %.*s\n", pos, decstr);
+    dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_dec_to_poly_item_0: end: %.*s\n", decstrlen - pos, decstr + pos);
+    dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_dec_to_poly_item_0: eat: %.*s\n", pos, decstr);
 
     return ( 0 );
 }
@@ -5820,12 +5820,12 @@ UINT32 conv_dec_to_poly_item(const UINT32 conv_md_id,const UINT8 *decstr,const U
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_poly_item: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_poly_item: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_poly_item: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_poly_item: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -5843,7 +5843,7 @@ UINT32 conv_dec_to_poly_item(const UINT32 conv_md_id,const UINT8 *decstr,const U
     ret = conv_dec_to_poly_item_0(conv_md_id, decstr, decstrlen, des, 0);
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"conv_dec_to_poly_item: failed to conv string to poly_item: %.*s\n", decstrlen, decstr);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_dec_to_poly_item: failed to conv string to poly_item: %.*s\n", decstrlen, decstr);
         return ((UINT32)(-1));
     }
 
@@ -5871,17 +5871,17 @@ UINT32 conv_poly_item_to_dec(const UINT32 conv_md_id,const POLY_ITEM *src, UINT8
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_item_to_dec: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_item_to_dec: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_item_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_item_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_item_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_item_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -5904,7 +5904,7 @@ UINT32 conv_poly_item_to_dec(const UINT32 conv_md_id,const POLY_ITEM *src, UINT8
                   &cur_decstrlen);
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"conv_poly_item_to_dec: failed to conv degree to decstr\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_poly_item_to_dec: failed to conv degree to decstr\n");
         return ((UINT32)(-1));
     }
 
@@ -5921,7 +5921,7 @@ UINT32 conv_poly_item_to_dec(const UINT32 conv_md_id,const POLY_ITEM *src, UINT8
                       &cur_decstrlen);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_poly_item_to_dec: failed to conv bgn coe to decstr\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_poly_item_to_dec: failed to conv bgn coe to decstr\n");
             return ((UINT32)(-1));
         }
 
@@ -5935,7 +5935,7 @@ UINT32 conv_poly_item_to_dec(const UINT32 conv_md_id,const POLY_ITEM *src, UINT8
                       &cur_decstrlen);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_poly_item_to_dec: failed to conv poly coe to decstr\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_poly_item_to_dec: failed to conv poly coe to decstr\n");
             return ((UINT32)(-1));
         }
 
@@ -5978,12 +5978,12 @@ static UINT32 conv_hex_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *hexst
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_poly_item_0: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_poly_item_0: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_poly_item_0: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_poly_item_0: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6000,7 +6000,7 @@ static UINT32 conv_hex_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *hexst
 
     pos = 0;
 
-    //sys_log(LOGSTDOUT,"conv_hex_to_poly_item_0: beg: %.*s\n", hexstrlen - pos, hexstr + pos);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_hex_to_poly_item_0: beg: %.*s\n", hexstrlen - pos, hexstr + pos);
 
     /* do degree */
     for( index = 0; index < hexstrlen; index ++ )
@@ -6017,7 +6017,7 @@ static UINT32 conv_hex_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *hexst
     ret = conv_hex_to_deg(conv_md_id, hexstr + pos, hexstrlen_of_deg, POLY_ITEM_DEG(des) );
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"conv_hex_to_poly_item_0: failed to conv %.*s to degree\n", hexstrlen_of_deg, hexstr + pos);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_hex_to_poly_item_0: failed to conv %.*s to degree\n", hexstrlen_of_deg, hexstr + pos);
         return ((UINT32)(-1));
     }
 
@@ -6025,7 +6025,7 @@ static UINT32 conv_hex_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *hexst
 
     if( '(' != hexstr[ pos ] )
     {
-        sys_log(LOGSTDERR,"conv_hex_to_poly_item_0: error:coe not beg with '(' %.*s\n", hexstrlen - pos, hexstr + pos);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_hex_to_poly_item_0: error:coe not beg with '(' %.*s\n", hexstrlen - pos, hexstr + pos);
         return ((UINT32)(-1));
     }
 
@@ -6040,7 +6040,7 @@ static UINT32 conv_hex_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *hexst
         ret = conv_hex_to_poly_0(conv_md_id, hexstr + pos, hexstrlen - pos, poly_coe_of_item, &nused);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_hex_to_poly_item_0: failed to conv %.*s to poly coe\n", hexstrlen - pos, hexstr + pos);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_hex_to_poly_item_0: failed to conv %.*s to poly coe\n", hexstrlen - pos, hexstr + pos);
             return ((UINT32)(-1));
         }
 
@@ -6061,7 +6061,7 @@ static UINT32 conv_hex_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *hexst
 
         if( index >= hexstrlen )
         {
-            sys_log(LOGSTDERR,"conv_hex_to_poly_item_0: error string %.*s\n", hexstrlen - pos, hexstr + pos);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_hex_to_poly_item_0: error string %.*s\n", hexstrlen - pos, hexstr + pos);
             return ((UINT32)(-1));
         }
 
@@ -6069,7 +6069,7 @@ static UINT32 conv_hex_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *hexst
         ret = conv_hex_to_bgn(conv_md_id, hexstr + pos, index - pos, bgn_coe_of_item);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_hex_to_poly_item_0: failed to conv %.*s to bgn coe\n", index - pos, hexstr + pos);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_hex_to_poly_item_0: failed to conv %.*s to bgn coe\n", index - pos, hexstr + pos);
             return ((UINT32)(-1));
         }
 
@@ -6089,8 +6089,8 @@ static UINT32 conv_hex_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *hexst
         *hexstrusedlen = pos;
     }
 
-    //sys_log(LOGSTDOUT,"conv_hex_to_poly_item_0: end: %.*s\n", hexstrlen - pos, hexstr + pos);
-    //sys_log(LOGSTDOUT,"conv_hex_to_poly_item_0: eat: %.*s\n", pos, hexstr);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_hex_to_poly_item_0: end: %.*s\n", hexstrlen - pos, hexstr + pos);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_hex_to_poly_item_0: eat: %.*s\n", pos, hexstr);
 
     return ( 0 );
 }
@@ -6113,12 +6113,12 @@ UINT32 conv_hex_to_poly_item(const UINT32 conv_md_id,const UINT8 *hexstr,const U
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_poly_item: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_poly_item: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_poly_item: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_poly_item: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6136,7 +6136,7 @@ UINT32 conv_hex_to_poly_item(const UINT32 conv_md_id,const UINT8 *hexstr,const U
     ret = conv_hex_to_poly_item_0(conv_md_id, hexstr, hexstrlen, des, 0);
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"conv_hex_to_poly_item: failed to conv string to poly_item: %.*s\n", hexstrlen, hexstr);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_hex_to_poly_item: failed to conv string to poly_item: %.*s\n", hexstrlen, hexstr);
         return ((UINT32)(-1));
     }
 
@@ -6164,17 +6164,17 @@ UINT32 conv_poly_item_to_hex(const UINT32 conv_md_id,const POLY_ITEM *src, UINT8
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_item_to_hex: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_item_to_hex: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_item_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_item_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_item_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_item_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6197,7 +6197,7 @@ UINT32 conv_poly_item_to_hex(const UINT32 conv_md_id,const POLY_ITEM *src, UINT8
                   &cur_hexstrlen);
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"conv_poly_item_to_hex: failed to conv degree to hexstr\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_poly_item_to_hex: failed to conv degree to hexstr\n");
         return ((UINT32)(-1));
     }
 
@@ -6214,7 +6214,7 @@ UINT32 conv_poly_item_to_hex(const UINT32 conv_md_id,const POLY_ITEM *src, UINT8
                       &cur_hexstrlen);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_poly_item_to_hex: failed to conv bgn coe to hexstr\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_poly_item_to_hex: failed to conv bgn coe to hexstr\n");
             return ((UINT32)(-1));
         }
 
@@ -6228,7 +6228,7 @@ UINT32 conv_poly_item_to_hex(const UINT32 conv_md_id,const POLY_ITEM *src, UINT8
                       &cur_hexstrlen);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_poly_item_to_hex: failed to conv poly coe to hexstr\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_poly_item_to_hex: failed to conv poly coe to hexstr\n");
             return ((UINT32)(-1));
         }
 
@@ -6271,12 +6271,12 @@ static UINT32 conv_bin_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *binst
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_poly_item_0: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_poly_item_0: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_poly_item_0: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_poly_item_0: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6293,7 +6293,7 @@ static UINT32 conv_bin_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *binst
 
     pos = 0;
 
-    //sys_log(LOGSTDOUT,"conv_bin_to_poly_item_0: beg: %.*s\n", binstrlen - pos, binstr + pos);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_bin_to_poly_item_0: beg: %.*s\n", binstrlen - pos, binstr + pos);
 
     /* do degree */
     for( index = 0; index < binstrlen; index ++ )
@@ -6310,7 +6310,7 @@ static UINT32 conv_bin_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *binst
     ret = conv_bin_to_deg(conv_md_id, binstr + pos, binstrlen_of_deg, POLY_ITEM_DEG(des) );
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"conv_bin_to_poly_item_0: failed to conv %.*s to degree\n", binstrlen_of_deg, binstr + pos);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_bin_to_poly_item_0: failed to conv %.*s to degree\n", binstrlen_of_deg, binstr + pos);
         return ((UINT32)(-1));
     }
 
@@ -6318,7 +6318,7 @@ static UINT32 conv_bin_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *binst
 
     if( '(' != binstr[ pos ] )
     {
-        sys_log(LOGSTDERR,"conv_bin_to_poly_item_0: error:coe not beg with '(' %.*s\n", binstrlen - pos, binstr + pos);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_bin_to_poly_item_0: error:coe not beg with '(' %.*s\n", binstrlen - pos, binstr + pos);
         return ((UINT32)(-1));
     }
 
@@ -6333,7 +6333,7 @@ static UINT32 conv_bin_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *binst
         ret = conv_bin_to_poly_0(conv_md_id, binstr + pos, binstrlen - pos, poly_coe_of_item, &nused);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_bin_to_poly_item_0: failed to conv %.*s to poly coe\n", binstrlen - pos, binstr + pos);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_bin_to_poly_item_0: failed to conv %.*s to poly coe\n", binstrlen - pos, binstr + pos);
             return ((UINT32)(-1));
         }
 
@@ -6354,7 +6354,7 @@ static UINT32 conv_bin_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *binst
 
         if( index >= binstrlen )
         {
-            sys_log(LOGSTDERR,"conv_bin_to_poly_item_0: error string %.*s\n", binstrlen - pos, binstr + pos);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_bin_to_poly_item_0: error string %.*s\n", binstrlen - pos, binstr + pos);
             return ((UINT32)(-1));
         }
 
@@ -6362,7 +6362,7 @@ static UINT32 conv_bin_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *binst
         ret = conv_bin_to_bgn(conv_md_id, binstr + pos, index - pos, bgn_coe_of_item);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_bin_to_poly_item_0: failed to conv %.*s to bgn coe\n", index - pos, binstr + pos);
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_bin_to_poly_item_0: failed to conv %.*s to bgn coe\n", index - pos, binstr + pos);
             return ((UINT32)(-1));
         }
 
@@ -6382,8 +6382,8 @@ static UINT32 conv_bin_to_poly_item_0(const UINT32 conv_md_id,const UINT8 *binst
         *binstrusedlen = pos;
     }
 
-    //sys_log(LOGSTDOUT,"conv_bin_to_poly_item_0: end: %.*s\n", binstrlen - pos, binstr + pos);
-    //sys_log(LOGSTDOUT,"conv_bin_to_poly_item_0: eat: %.*s\n", pos, binstr);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_bin_to_poly_item_0: end: %.*s\n", binstrlen - pos, binstr + pos);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT,"conv_bin_to_poly_item_0: eat: %.*s\n", pos, binstr);
 
     return ( 0 );
 }
@@ -6405,12 +6405,12 @@ UINT32 conv_bin_to_poly_item(const UINT32 conv_md_id,const UINT8 *binstr,const U
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_poly_item: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_poly_item: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_poly_item: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_poly_item: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6428,7 +6428,7 @@ UINT32 conv_bin_to_poly_item(const UINT32 conv_md_id,const UINT8 *binstr,const U
     ret = conv_bin_to_poly_item_0(conv_md_id, binstr, binstrlen, des, 0);
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"conv_bin_to_poly_item: failed to conv string to poly_item: %.*s\n", binstrlen, binstr);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_bin_to_poly_item: failed to conv string to poly_item: %.*s\n", binstrlen, binstr);
         return ((UINT32)(-1));
     }
 
@@ -6456,17 +6456,17 @@ UINT32 conv_poly_item_to_bin(const UINT32 conv_md_id,const POLY_ITEM *src, UINT8
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_item_to_bin: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_item_to_bin: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_item_to_bin: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_item_to_bin: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_poly_item_to_bin: binstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_poly_item_to_bin: binstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6489,7 +6489,7 @@ UINT32 conv_poly_item_to_bin(const UINT32 conv_md_id,const POLY_ITEM *src, UINT8
                   &cur_binstrlen);
     if( 0 != ret )
     {
-        sys_log(LOGSTDERR,"conv_poly_item_to_bin: failed to conv degree to binstr\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_poly_item_to_bin: failed to conv degree to binstr\n");
         return ((UINT32)(-1));
     }
 
@@ -6506,7 +6506,7 @@ UINT32 conv_poly_item_to_bin(const UINT32 conv_md_id,const POLY_ITEM *src, UINT8
                       &cur_binstrlen);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_poly_item_to_bin: failed to conv bgn coe to binstr\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_poly_item_to_bin: failed to conv bgn coe to binstr\n");
             return ((UINT32)(-1));
         }
 
@@ -6520,7 +6520,7 @@ UINT32 conv_poly_item_to_bin(const UINT32 conv_md_id,const POLY_ITEM *src, UINT8
                       &cur_binstrlen);
         if( 0 != ret )
         {
-            sys_log(LOGSTDERR,"conv_poly_item_to_bin: failed to conv poly coe to binstr\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"conv_poly_item_to_bin: failed to conv poly coe to binstr\n");
             return ((UINT32)(-1));
         }
 
@@ -6560,12 +6560,12 @@ UINT32 conv_dec_to_uint32(const UINT32 conv_md_id,const UINT8 *decstr,const UINT
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_uint32: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_uint32: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_uint32: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_uint32: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6624,12 +6624,12 @@ UINT32 conv_uint32_to_dec(const UINT32 conv_md_id,const UINT32 src, UINT8 *decst
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_uint32_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint32_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_uint32_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint32_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6690,12 +6690,12 @@ UINT32 conv_hex_to_uint32(const UINT32 conv_md_id,const UINT8 *hexstr,const UINT
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_uint32: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_uint32: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_uint32: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_uint32: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6712,7 +6712,7 @@ UINT32 conv_hex_to_uint32(const UINT32 conv_md_id,const UINT8 *hexstr,const UINT
 
     if((WORDSIZE / 4 ) > hexstrlen)
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_uint32: buffer is not enough with length %d.\n", hexstrlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_uint32: buffer is not enough with length %d.\n", hexstrlen);
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -6722,7 +6722,7 @@ UINT32 conv_hex_to_uint32(const UINT32 conv_md_id,const UINT8 *hexstr,const UINT
         conv_hexchar_to_num(conv_md_id, *(hexstr + pos), &e);
         data = ((data << 4) | e);
     }
-    //sys_log(LOGSTDOUT, "conv_hex_to_uint32: %0lx <--- %.*s\n", data, WORDSIZE/4, hexstr);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_hex_to_uint32: %0lx <--- %.*s\n", data, WORDSIZE/4, hexstr);
     *des = data;
 
     return 0;
@@ -6746,12 +6746,12 @@ UINT32 conv_uint32_to_hex(const UINT32 conv_md_id,const UINT32 src, UINT8 *hexst
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_uint32_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint32_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_uint32_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint32_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6768,7 +6768,7 @@ UINT32 conv_uint32_to_hex(const UINT32 conv_md_id,const UINT32 src, UINT8 *hexst
 
     if((WORDSIZE / 4 ) > hexstrmaxlen)
     {
-        sys_log(LOGSTDOUT,"error:conv_uint32_to_hex: buffer is not enough with max length %d.\n", hexstrmaxlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint32_to_hex: buffer is not enough with max length %d.\n", hexstrmaxlen);
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -6780,7 +6780,7 @@ UINT32 conv_uint32_to_hex(const UINT32 conv_md_id,const UINT32 src, UINT8 *hexst
         conv_num_to_hexchar(conv_md_id, data & e, hexstr + pos);
         data >>= 4;
     }
-    //sys_log(LOGSTDOUT, "conv_uint32_to_hex: %0lx ---> %.*s\n", src, WORDSIZE/4, hexstr);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_uint32_to_hex: %0lx ---> %.*s\n", src, WORDSIZE/4, hexstr);
     *hexstrlen = (WORDSIZE / 4 );
 
     return (0);
@@ -6815,12 +6815,12 @@ UINT32 conv_bin_to_uint32(const UINT32 conv_md_id,const UINT8 *binstr,const UINT
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_uint32: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_uint32: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_uint32: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_uint32: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6879,12 +6879,12 @@ UINT32 conv_uint32_to_bin(const UINT32 conv_md_id,const UINT32 src, UINT8 *binst
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_uint32_to_bin: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint32_to_bin: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_uint32_to_bin: binstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint32_to_bin: binstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6929,12 +6929,12 @@ UINT32 conv_real_to_dec(const UINT32 conv_md_id,const REAL * src, UINT8 *decstr,
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_real_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_real_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_real_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_real_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6951,7 +6951,7 @@ UINT32 conv_real_to_dec(const UINT32 conv_md_id,const REAL * src, UINT8 *decstr,
 
     if( DOUBLE_IN_CHAR > decstrmaxlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_real_to_dec: decstr buf is not enough: decstrmaxlen = %d\n", decstrmaxlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_real_to_dec: decstr buf is not enough: decstrmaxlen = %d\n", decstrmaxlen);
         return ((UINT32)(-1));
     }
 #if (32 == DOUBLE_IN_CHAR)
@@ -6973,12 +6973,12 @@ UINT32 conv_dec_to_real(const UINT32 conv_md_id,const UINT8 *decstr,const UINT32
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_real: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_real: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_real: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_real: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -6995,7 +6995,7 @@ UINT32 conv_dec_to_real(const UINT32 conv_md_id,const UINT8 *decstr,const UINT32
 
     if( DOUBLE_IN_CHAR > decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_real: decstrlen %d is out of range\n", decstrlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_real: decstrlen %d is out of range\n", decstrlen);
         return ((UINT32)(-1));
     }
 
@@ -7020,7 +7020,7 @@ UINT32 conv_real_to_hex(const UINT32 conv_md_id,const REAL * src, UINT8 *hexstr,
         conv_uint32_to_hex_0(conv_md_id, data + idx, hexstr + sum_len, hexstrmaxlen - sum_len, &this_len);
         sum_len += this_len;
     }
-    //sys_log(LOGSTDOUT, "conv_real_to_hex: real = %f, str = %.*s\n", *src, sum_len, hexstr);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_real_to_hex: real = %f, str = %.*s\n", *src, sum_len, hexstr);
     *hexstrlen = sum_len;
     return (0);
 
@@ -7042,7 +7042,7 @@ UINT32 conv_hex_to_real(const UINT32 conv_md_id,const UINT8 *hexstr,const UINT32
         conv_hex_to_uint32(conv_md_id, hexstr + sum_len, hexstrlen - sum_len, data + idx);
         sum_len += (WORDSIZE / 4 );
     }
-    //sys_log(LOGSTDOUT, "conv_hex_to_real: real = %f, str = %.*s\n", *des, sum_len, hexstr);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_hex_to_real: real = %f, str = %.*s\n", *des, sum_len, hexstr);
 
     /*trick here!*/
     //return conv_dec_to_real(conv_md_id, hexstr, hexstrlen, des);
@@ -7125,12 +7125,12 @@ UINT32 conv_dec_to_vectorr_block(const UINT32 conv_md_id,const UINT8 *decstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_vectorr_block: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_vectorr_block: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == vector_block )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_vectorr_block: vector_block is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_vectorr_block: vector_block is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -7150,7 +7150,7 @@ UINT32 conv_dec_to_vectorr_block(const UINT32 conv_md_id,const UINT8 *decstr,con
 
     if( (WORDSIZE / 4) > left_decstrlen )
     {
-        sys_log(LOGSTDOUT, "error:conv_dec_to_vectorr_block: left_decstrlen %d is too small\n", left_decstrlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT, "error:conv_dec_to_vectorr_block: left_decstrlen %d is too small\n", left_decstrlen);
         return ((UINT32)(-1));
     }
 
@@ -7174,7 +7174,7 @@ UINT32 conv_dec_to_vectorr_block(const UINT32 conv_md_id,const UINT8 *decstr,con
 
         if( len > left_decstrlen )
         {
-            sys_log(LOGSTDOUT, "error:conv_dec_to_vectorr_block: corrupted vector with not enough data\n");
+            dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT, "error:conv_dec_to_vectorr_block: corrupted vector with not enough data\n");
             return ((UINT32)(-1));
         }
 
@@ -7204,17 +7204,17 @@ UINT32 conv_vectorr_block_to_hex(const UINT32 conv_md_id,const VECTOR_BLOCK * ve
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == vector_block )
     {
-        sys_log(LOGSTDOUT,"error:conv_vectorr_block_to_hex: vector_block is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_vectorr_block_to_hex: vector_block is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_vectorr_block_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_vectorr_block_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_vectorr_block_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_vectorr_block_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -7272,12 +7272,12 @@ UINT32 conv_hex_to_vectorr_block(const UINT32 conv_md_id,const UINT8 *hexstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_vectorr_block: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_vectorr_block: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == vector_block )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_vectorr_block: vector_block is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_vectorr_block: vector_block is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -7338,17 +7338,17 @@ UINT32 conv_vectorr_to_dec(const UINT32 conv_md_id,const VECTOR * vector, UINT8 
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == vector )
     {
-        sys_log(LOGSTDOUT,"error:conv_vectorr_to_dec: vector is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_vectorr_to_dec: vector is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_vectorr_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_vectorr_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_vectorr_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_vectorr_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -7370,7 +7370,7 @@ UINT32 conv_vectorr_to_dec(const UINT32 conv_md_id,const VECTOR * vector, UINT8 
 
     if( (2 * (WORDSIZE / 4)) > left_decstrmaxlen )
     {
-        sys_log(LOGSTDOUT, "error:conv_vectorr_to_dec: left_decstrmaxlen %d is too small\n", left_decstrmaxlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT, "error:conv_vectorr_to_dec: left_decstrmaxlen %d is too small\n", left_decstrmaxlen);
         return ((UINT32)(-1));
     }
 
@@ -7415,12 +7415,12 @@ UINT32 conv_dec_to_vectorr(const UINT32 conv_md_id,const UINT8 *decstr,const UIN
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_vectorr: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_vectorr: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == vector )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_vectorr: vector is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_vectorr: vector is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -7443,7 +7443,7 @@ UINT32 conv_dec_to_vectorr(const UINT32 conv_md_id,const UINT8 *decstr,const UIN
 
     if( (2 * (WORDSIZE / 4)) > left_decstrlen )
     {
-        sys_log(LOGSTDOUT, "error:conv_dec_to_vectorr: left_decstrlen %d is too small\n", left_decstrlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT, "error:conv_dec_to_vectorr: left_decstrlen %d is too small\n", left_decstrlen);
         return ((UINT32)(-1));
     }
 
@@ -7484,17 +7484,17 @@ UINT32 conv_vectorr_to_hex(const UINT32 conv_md_id,const VECTOR * vector, UINT8 
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == vector )
     {
-        sys_log(LOGSTDOUT,"error:conv_vectorr_to_hex: vector is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_vectorr_to_hex: vector is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_vectorr_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_vectorr_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_vectorr_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_vectorr_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -7548,12 +7548,12 @@ UINT32 conv_hex_to_vectorr(const UINT32 conv_md_id,const UINT8 *hexstr,const UIN
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_vectorr: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_vectorr: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == vector )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_vectorr: vector is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_vectorr: vector is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -7637,17 +7637,17 @@ UINT32 conv_matrixr_block_to_dec(const UINT32 conv_md_id,const MATRIX_BLOCK * ma
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == matrix_block )
     {
-        sys_log(LOGSTDOUT,"error:conv_matrixr_block_to_dec: matrix_block is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_matrixr_block_to_dec: matrix_block is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_matrixr_block_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_matrixr_block_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_matrixr_block_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_matrixr_block_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -7669,7 +7669,7 @@ UINT32 conv_matrixr_block_to_dec(const UINT32 conv_md_id,const MATRIX_BLOCK * ma
 
     if( (3 * (WORDSIZE / 4)) > left_decstrmaxlen )
     {
-        sys_log(LOGSTDOUT, "error:conv_matrixr_block_to_dec: left_decstrmaxlen %d is too small\n", left_decstrmaxlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT, "error:conv_matrixr_block_to_dec: left_decstrmaxlen %d is too small\n", left_decstrmaxlen);
         return ((UINT32)(-1));
     }
 
@@ -7693,15 +7693,15 @@ UINT32 conv_matrixr_block_to_dec(const UINT32 conv_md_id,const MATRIX_BLOCK * ma
 
     if( row_num * col_num > left_decstrmaxlen )
     {
-        sys_log(LOGSTDOUT, "error:conv_matrixr_block_to_dec: left_decstrmaxlen %d is too small\n", left_decstrmaxlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT, "error:conv_matrixr_block_to_dec: left_decstrmaxlen %d is too small\n", left_decstrmaxlen);
         return ((UINT32)(-1));
     }
-    //sys_log(LOGSTDOUT, "beg-------------------------------------------------------------------------------------\n");
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "beg-------------------------------------------------------------------------------------\n");
     for(row_idx = 0; row_idx < row_num; row_idx ++)
     {
         for(col_idx = 0; col_idx < col_num; col_idx ++)
         {
-            //sys_log(LOGSTDOUT, "row_idx %d col_idx %d------------------------------------------------------------\n", row_idx, col_idx);
+            //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "row_idx %d col_idx %d------------------------------------------------------------\n", row_idx, col_idx);
 
             data_addr = MATRIXR_BLOCK_GET_DATA_ADDR(matrix_block, row_idx, col_idx);
             if(NULL_PTR == data_addr)
@@ -7714,7 +7714,7 @@ UINT32 conv_matrixr_block_to_dec(const UINT32 conv_md_id,const MATRIX_BLOCK * ma
             *decstrlen        += len;
         }
     }
-    //sys_log(LOGSTDOUT, "end-------------------------------------------------------------------------------------\n");
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "end-------------------------------------------------------------------------------------\n");
 
     return (0);
 }
@@ -7737,12 +7737,12 @@ UINT32 conv_dec_to_matrixr_block(const UINT32 conv_md_id,const UINT8 *decstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_matrixr_block: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_matrixr_block: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == matrix_block )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_matrixr_block: matrix_block is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_matrixr_block: matrix_block is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -7763,7 +7763,7 @@ UINT32 conv_dec_to_matrixr_block(const UINT32 conv_md_id,const UINT8 *decstr,con
 
     if( (3 * (WORDSIZE / 4)) > left_decstrlen )
     {
-        sys_log(LOGSTDOUT, "error:conv_dec_to_matrixr_block: left_decstrlen %d is too small\n", left_decstrlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT, "error:conv_dec_to_matrixr_block: left_decstrlen %d is too small\n", left_decstrlen);
         return ((UINT32)(-1));
     }
 #if (32 == WORDSIZE)
@@ -7776,7 +7776,7 @@ UINT32 conv_dec_to_matrixr_block(const UINT32 conv_md_id,const UINT8 *decstr,con
     cur_decstr     += len;
     left_decstrlen -= len;
 
-    //sys_log(LOGSTDOUT, "conv_dec_to_matrixr_block: rotated_flag %d, row_num %d, col_num %d\n", rotated_flag, row_num, col_num);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_dec_to_matrixr_block: rotated_flag %d, row_num %d, col_num %d\n", rotated_flag, row_num, col_num);
 
     MATRIX_BLOCK_SET_ROTATED_FLAG(matrix_block, rotated_flag);
     MATRIX_BLOCK_SET_ROW_NUM(matrix_block, row_num);
@@ -7784,10 +7784,10 @@ UINT32 conv_dec_to_matrixr_block(const UINT32 conv_md_id,const UINT8 *decstr,con
 
     if( row_num * col_num * DOUBLE_IN_CHAR > left_decstrlen )
     {
-        sys_log(LOGSTDOUT, "error:conv_dec_to_matrixr_block: left_decstrlen %d is too small\n", left_decstrlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT, "error:conv_dec_to_matrixr_block: left_decstrlen %d is too small\n", left_decstrlen);
         return ((UINT32)(-1));
     }
-    //sys_log(LOGSTDOUT, "beg#####################################################################################\n");
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "beg#####################################################################################\n");
 
     for(row_idx = 0; row_idx < row_num; row_idx ++)
     {
@@ -7798,12 +7798,12 @@ UINT32 conv_dec_to_matrixr_block(const UINT32 conv_md_id,const UINT8 *decstr,con
             alloc_static_mem(MD_CONV, conv_md_id, MM_REAL, &data_addr, LOC_CONV_0060);
             conv_dec_to_real(conv_md_id, cur_decstr, left_decstrlen, data_addr);
             MATRIX_BLOCK_SET_DATA_ADDR(matrix_block, row_idx, col_idx, data_addr);
-            //sys_log(LOGSTDOUT, "row_idx %d col_idx %d, addr %08lx, val %+032.14f\n", row_idx, col_idx, data_addr, *data_addr);
+            //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "row_idx %d col_idx %d, addr %08lx, val %+032.14f\n", row_idx, col_idx, data_addr, *data_addr);
             cur_decstr     += len;
             left_decstrlen -= len;
         }
     }
-    //sys_log(LOGSTDOUT, "end#####################################################################################\n");
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "end#####################################################################################\n");
     return (0);
 }
 
@@ -7827,17 +7827,17 @@ UINT32 conv_matrixr_block_to_hex(const UINT32 conv_md_id,const MATRIX_BLOCK * ma
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == matrix_block )
     {
-        sys_log(LOGSTDOUT,"error:conv_matrixr_block_to_hex: matrix_block is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_matrixr_block_to_hex: matrix_block is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_matrixr_block_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_matrixr_block_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_matrixr_block_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_matrixr_block_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -7879,7 +7879,7 @@ UINT32 conv_matrixr_block_to_hex(const UINT32 conv_md_id,const MATRIX_BLOCK * ma
 
     if( row_num * col_num > left_hexstrmaxlen )
     {
-        sys_log(LOGSTDOUT, "error:conv_matrixr_block_to_hex: left_hexstrmaxlen %d is too small\n", left_hexstrmaxlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT, "error:conv_matrixr_block_to_hex: left_hexstrmaxlen %d is too small\n", left_hexstrmaxlen);
         return ((UINT32)(-1));
     }
 
@@ -7917,12 +7917,12 @@ UINT32 conv_hex_to_matrixr_block(const UINT32 conv_md_id,const UINT8 *hexstr,con
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_matrixr_block: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_matrixr_block: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == matrix_block )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_matrixr_block: matrix_block is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_matrixr_block: matrix_block is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -7998,17 +7998,17 @@ UINT32 conv_matrixr_to_dec(const UINT32 conv_md_id,const MATRIX * matrix, UINT8 
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDOUT,"error:conv_matrixr_to_dec: matrix is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_matrixr_to_dec: matrix is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_matrixr_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_matrixr_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_matrixr_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_matrixr_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8030,7 +8030,7 @@ UINT32 conv_matrixr_to_dec(const UINT32 conv_md_id,const MATRIX * matrix, UINT8 
 
     if( (3 * (WORDSIZE / 4)) > left_decstrmaxlen )
     {
-        sys_log(LOGSTDOUT, "error:conv_matrixr_to_dec: left_decstrmaxlen %d is too small\n", left_decstrmaxlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT, "error:conv_matrixr_to_dec: left_decstrmaxlen %d is too small\n", left_decstrmaxlen);
         return ((UINT32)(-1));
     }
 
@@ -8089,12 +8089,12 @@ UINT32 conv_dec_to_matrixr(const UINT32 conv_md_id,const UINT8 *decstr,const UIN
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_matrixr: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_matrixr: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_matrixr: matrix is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_matrixr: matrix is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8113,14 +8113,14 @@ UINT32 conv_dec_to_matrixr(const UINT32 conv_md_id,const UINT8 *decstr,const UIN
 
     if( (3 * (WORDSIZE / 4)) > decstrlen )
     {
-        sys_log(LOGSTDOUT, "error:conv_dec_to_matrixr: decstrlen %d is too small\n", decstrlen);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT, "error:conv_dec_to_matrixr: decstrlen %d is too small\n", decstrlen);
         return ((UINT32)(-1));
     }
 
     cur_decstr = (UINT8 *)decstr;
     left_decstrlen = decstrlen;
 
-    //sys_log(LOGSTDOUT, "conv_dec_to_matrixr: matrix %lx, decstr: %.*s\n", matrix, left_decstrlen, cur_decstr);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_dec_to_matrixr: matrix %lx, decstr: %.*s\n", matrix, left_decstrlen, cur_decstr);
 #if (32 == WORDSIZE)
     sscanf((char *)cur_decstr, "%08lx%08lx%08lx", &rotated_flag, &row_num, &col_num);
 #endif/*WORDSIZE*/
@@ -8130,24 +8130,24 @@ UINT32 conv_dec_to_matrixr(const UINT32 conv_md_id,const UINT8 *decstr,const UIN
     len = (3 * (WORDSIZE / 4));
     cur_decstr     += len;
     left_decstrlen -= len;
-    //sys_log(LOGSTDOUT, "conv_dec_to_matrixr: rotated_flag %d, row_num %d, col_num %d\n", rotated_flag, row_num, col_num);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_dec_to_matrixr: rotated_flag %d, row_num %d, col_num %d\n", rotated_flag, row_num, col_num);
 
-    //sys_log(LOGSTDOUT, "conv_dec_to_matrixr: matrixr_md_id %d\n", matrixr_md_id);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_dec_to_matrixr: matrixr_md_id %d\n", matrixr_md_id);
     if(row_num != MATRIX_GET_ROW_NUM(matrix)
     || col_num != MATRIX_GET_COL_NUM(matrix))
     {
         matrix_r_clean_matrix(matrixr_md_id, matrix);
         matrix_r_new_matrix_skeleton(matrixr_md_id, row_num, col_num, matrix);
     }
-    //sys_log(LOGSTDOUT, "conv_dec_to_matrixr: matrix_r_new_matrix_skeleton back\n");
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_dec_to_matrixr: matrix_r_new_matrix_skeleton back\n");
 
 
     MATRIX_ROW_COL_BLOCKS_LOOP_NEXT(matrix, block_row_idx, block_col_idx)
     {
         matrix_row_block = MATRIX_GET_BLOCK(matrix, block_row_idx, block_col_idx);
-        //sys_log(LOGSTDOUT, "conv_dec_to_matrixr: beg: handle matrix_block %lx in matrix %lx\n", matrix_row_block, matrix);
+        //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_dec_to_matrixr: beg: handle matrix_block %lx in matrix %lx\n", matrix_row_block, matrix);
         conv_dec_to_matrixr_block(conv_md_id, cur_decstr, left_decstrlen, matrix_row_block);
-        //sys_log(LOGSTDOUT, "conv_dec_to_matrixr: end: handle matrix_block %lx in matrix %lx\n", matrix_row_block, matrix);
+        //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_dec_to_matrixr: end: handle matrix_block %lx in matrix %lx\n", matrix_row_block, matrix);
 
         len = (3 * (WORDSIZE / 4)) /*rotate flag, row num, col num of matrix block*/
             + DOUBLE_IN_CHAR * MATRIX_BLOCK_GET_ROW_NUM(matrix_row_block) * MATRIX_BLOCK_GET_COL_NUM(matrix_row_block);
@@ -8173,17 +8173,17 @@ UINT32 conv_matrixr_to_hex(const UINT32 conv_md_id,const MATRIX * matrix, UINT8 
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDOUT,"error:conv_matrixr_to_hex: matrix is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_matrixr_to_hex: matrix is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_matrixr_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_matrixr_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_matrixr_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_matrixr_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8251,12 +8251,12 @@ UINT32 conv_hex_to_matrixr(const UINT32 conv_md_id,const UINT8 *hexstr,const UIN
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_matrixr: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_matrixr: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == matrix )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_matrixr: matrix is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_matrixr: matrix is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8291,21 +8291,21 @@ UINT32 conv_hex_to_matrixr(const UINT32 conv_md_id,const UINT8 *hexstr,const UIN
     cur_hexstr     += len;
     left_hexstrlen -= len;
 
-    //sys_log(LOGSTDOUT, "conv_hex_to_matrixr: matrixr_md_id %d\n", matrixr_md_id);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_hex_to_matrixr: matrixr_md_id %d\n", matrixr_md_id);
     if(row_num != MATRIX_GET_ROW_NUM(matrix)
     || col_num != MATRIX_GET_COL_NUM(matrix))
     {
         matrix_r_clean_matrix(matrixr_md_id, matrix);
         matrix_r_new_matrix_skeleton(matrixr_md_id, row_num, col_num, matrix);
     }
-    //sys_log(LOGSTDOUT, "conv_hex_to_matrixr: matrix_r_new_matrix_skeleton back\n");
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_hex_to_matrixr: matrix_r_new_matrix_skeleton back\n");
 
     MATRIX_ROW_COL_BLOCKS_LOOP_NEXT(matrix, block_row_idx, block_col_idx)
     {
         matrix_row_block = MATRIX_GET_BLOCK(matrix, block_row_idx, block_col_idx);
-        //sys_log(LOGSTDOUT, "conv_hex_to_matrixr: beg: handle matrix_block %lx in matrix %lx\n", matrix_row_block, matrix);
+        //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_hex_to_matrixr: beg: handle matrix_block %lx in matrix %lx\n", matrix_row_block, matrix);
         conv_hex_to_matrixr_block(conv_md_id, cur_hexstr, left_hexstrlen, matrix_row_block);
-        //sys_log(LOGSTDOUT, "conv_hex_to_matrixr: end: handle matrix_block %lx in matrix %lx\n", matrix_row_block, matrix);
+        //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_hex_to_matrixr: end: handle matrix_block %lx in matrix %lx\n", matrix_row_block, matrix);
 
         len = (3 * (WORDSIZE / 4)) /*rotate flag, row num, col num of matrix block*/
             + (DOUBLESIZE / 4) * MATRIX_BLOCK_GET_ROW_NUM(matrix_row_block) * MATRIX_BLOCK_GET_COL_NUM(matrix_row_block);
@@ -8352,12 +8352,12 @@ UINT32 conv_dec_to_uint16(const UINT32 conv_md_id,const UINT8 *decstr,const UINT
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_uint16: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_uint16: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_uint16: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_uint16: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8379,7 +8379,7 @@ UINT32 conv_dec_to_uint16(const UINT32 conv_md_id,const UINT8 *decstr,const UINT
     {
     if( tmp > max )
     {
-        sys_log(LOGSTDERR,"error:conv_dec_to_uint16: %ld overflow of UINT16\n", tmp);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_uint16: %ld overflow of UINT16\n", tmp);
         ret = ((UINT32)(-3));
     }
     else
@@ -8407,12 +8407,12 @@ UINT32 conv_uint16_to_dec(const UINT32 conv_md_id, const UINT16 src, UINT8 *decs
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_uint16_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint16_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_uint16_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint16_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8460,12 +8460,12 @@ UINT32 conv_hex_to_uint16(const UINT32 conv_md_id,const UINT8 *hexstr,const UINT
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_uint16: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_uint16: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_uint16: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_uint16: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8487,7 +8487,7 @@ UINT32 conv_hex_to_uint16(const UINT32 conv_md_id,const UINT8 *hexstr,const UINT
     {
     if( tmp > max )
     {
-        sys_log(LOGSTDERR,"error:conv_hex_to_uint16: %ld overflow of UINT16\n", tmp);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_uint16: %ld overflow of UINT16\n", tmp);
         ret = ((UINT32)(-3));
     }
     else
@@ -8517,12 +8517,12 @@ UINT32 conv_uint16_to_hex(const UINT32 conv_md_id,const UINT16 src, UINT8 *hexst
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_uint16_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint16_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_uint16_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint16_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8570,12 +8570,12 @@ UINT32 conv_bin_to_uint16(const UINT32 conv_md_id,const UINT8 *binstr,const UINT
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_uint16: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_uint16: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_uint16: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_uint16: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8597,7 +8597,7 @@ UINT32 conv_bin_to_uint16(const UINT32 conv_md_id,const UINT8 *binstr,const UINT
     {
     if( tmp > max )
     {
-        sys_log(LOGSTDERR,"error:conv_bin_to_uint16: %ld overflow of UINT16\n", tmp);
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_uint16: %ld overflow of UINT16\n", tmp);
         ret = ((UINT32)(-3));
     }
     else
@@ -8626,12 +8626,12 @@ UINT32 conv_uint16_to_bin(const UINT32 conv_md_id,const UINT16 src, UINT8 *binst
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_uint16_to_bin: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint16_to_bin: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_uint16_to_bin: binstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_uint16_to_bin: binstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8678,12 +8678,12 @@ UINT32 conv_dec_to_ebgn(const UINT32 conv_md_id,const UINT8 *decstr,const UINT32
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ebgn: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ebgn: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_dec_to_ebgn: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_dec_to_ebgn: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8700,7 +8700,7 @@ UINT32 conv_dec_to_ebgn(const UINT32 conv_md_id,const UINT8 *decstr,const UINT32
 
     if ( 0 < decstrlen && EC_FALSE == conv_check_decstr(conv_md_id, decstr + 1, decstrlen - 1) )
     {
-    sys_log(LOGSTDERR,"error:conv_dec_to_ebgn: invalid decstr\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_dec_to_ebgn: invalid decstr\n");
         return ((UINT32)(-1));
     }
 
@@ -8726,17 +8726,17 @@ UINT32 conv_ebgn_to_dec(const UINT32 conv_md_id,const EBGN *src, UINT8 *decstr,c
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_to_dec: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_dec: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_to_dec: decstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_dec: decstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == decstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_to_dec: decstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_dec: decstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -8777,12 +8777,12 @@ UINT32 conv_hex_to_ebgn(const UINT32 conv_md_id,const UINT8 *hexstr,const UINT32
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ebgn: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ebgn: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_ebgn: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_ebgn: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8799,7 +8799,7 @@ UINT32 conv_hex_to_ebgn(const UINT32 conv_md_id,const UINT8 *hexstr,const UINT32
 
     if ( 0 < hexstrlen && EC_FALSE == conv_check_hexstr(conv_md_id, hexstr + 1, hexstrlen - 1) )
     {
-    sys_log(LOGSTDERR,"error:conv_hex_to_ebgn: invalid hexstr\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_hex_to_ebgn: invalid hexstr\n");
         return ((UINT32)(-1));
     }
 
@@ -8825,17 +8825,17 @@ UINT32 conv_ebgn_to_hex(const UINT32 conv_md_id,const EBGN *src, UINT8 *hexstr,c
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_to_hex: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_hex: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -8875,12 +8875,12 @@ UINT32 conv_bin_to_ebgn(const UINT32 conv_md_id,const UINT8 *binstr,const UINT32
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ebgn: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ebgn: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:conv_bin_to_ebgn: des is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_bin_to_ebgn: des is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -8897,7 +8897,7 @@ UINT32 conv_bin_to_ebgn(const UINT32 conv_md_id,const UINT8 *binstr,const UINT32
 
     if ( 0 < binstrlen && EC_FALSE == conv_check_binstr(conv_md_id, binstr + 1, binstrlen - 1) )
     {
-    sys_log(LOGSTDERR,"error:conv_bin_to_ebgn: invalid binstr\n");
+    dbg_log(SEC_0110_CONV, 0)(LOGSTDERR,"error:conv_bin_to_ebgn: invalid binstr\n");
         return ((UINT32)(-1));
     }
 
@@ -8923,17 +8923,17 @@ UINT32 conv_ebgn_to_bin(const UINT32 conv_md_id,const EBGN *src, UINT8 *binstr,c
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_to_bin: src is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_bin: src is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_to_bin: binstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_bin: binstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == binstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_to_bin: binstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_to_bin: binstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 
@@ -8976,17 +8976,17 @@ UINT32 conv_mod_node_to_hex(const UINT32 conv_md_id,const MOD_NODE * mod_node, U
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == mod_node )
     {
-        sys_log(LOGSTDOUT,"error:conv_mod_node_to_hex: mod_node is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_mod_node_to_hex: mod_node is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_mod_node_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_mod_node_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_mod_node_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_mod_node_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -9033,12 +9033,12 @@ UINT32 conv_hex_to_mod_node(const UINT32 conv_md_id,const UINT8 *hexstr,const UI
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_mod_node: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_mod_node: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == mod_node )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_mod_node: mod_node is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_mod_node: mod_node is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -9088,17 +9088,17 @@ UINT32 conv_mod_node_to_hex(const UINT32 conv_md_id,const MOD_NODE * mod_node, U
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == mod_node )
     {
-        sys_log(LOGSTDOUT,"error:conv_mod_node_to_hex: mod_node is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_mod_node_to_hex: mod_node is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_mod_node_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_mod_node_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_mod_node_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_mod_node_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -9141,12 +9141,12 @@ UINT32 conv_hex_to_mod_node(const UINT32 conv_md_id,const UINT8 *hexstr,const UI
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_mod_node: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_mod_node: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == mod_node )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_mod_node: mod_node is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_mod_node: mod_node is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -9214,17 +9214,17 @@ UINT32 conv_mod_mgr_to_hex(const UINT32 conv_md_id,const MOD_MGR * mod_mgr, UINT
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == mod_mgr )
     {
-        sys_log(LOGSTDOUT,"error:conv_mod_mgr_to_hex: mod_mgr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_mod_mgr_to_hex: mod_mgr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_mod_mgr_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_mod_mgr_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_mod_mgr_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_mod_mgr_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -9247,13 +9247,13 @@ UINT32 conv_mod_mgr_to_hex(const UINT32 conv_md_id,const MOD_MGR * mod_mgr, UINT
     cur_hexstr        += len;
     left_hexstrmaxlen -= len;
 
-    //sys_log(LOGSTDOUT, "conv_mod_mgr_to_hex: load balancing: %d -> %.*s\n", MOD_MGR_LOAD_BALANCING(mod_mgr), len, cur_hexstr - len);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_mod_mgr_to_hex: load balancing: %d -> %.*s\n", MOD_MGR_LOAD_BALANCING(mod_mgr), len, cur_hexstr - len);
 
     conv_mod_node_to_hex(conv_md_id, MOD_MGR_LOCAL_MOD(mod_mgr), cur_hexstr, left_hexstrmaxlen, &len);
     cur_hexstr        += len;
     left_hexstrmaxlen -= len;
 #if 0
-    sys_log(LOGSTDOUT, "conv_mod_mgr_to_hex: local mod: comm %ld, rank %ld, modi %ld -> %.*s\n",
+    dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_mod_mgr_to_hex: local mod: comm %ld, rank %ld, modi %ld -> %.*s\n",
                     MOD_NODE_COMM(MOD_MGR_LOCAL_MOD(mod_mgr)),
                     MOD_NODE_RANK(MOD_MGR_LOCAL_MOD(mod_mgr)),
                     MOD_NODE_MODI(MOD_MGR_LOCAL_MOD(mod_mgr)),
@@ -9263,7 +9263,7 @@ UINT32 conv_mod_mgr_to_hex(const UINT32 conv_md_id,const MOD_MGR * mod_mgr, UINT
     cur_hexstr        += len;
     left_hexstrmaxlen -= len;
 
-    //sys_log(LOGSTDOUT, "conv_mod_mgr_to_hex: remote mod num: %d -> %.*s\n", MOD_MGR_REMOTE_NUM(mod_mgr), len, cur_hexstr - len);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_mod_mgr_to_hex: remote mod num: %d -> %.*s\n", MOD_MGR_REMOTE_NUM(mod_mgr), len, cur_hexstr - len);
 
     for(mod_idx = 0; mod_idx < MOD_MGR_REMOTE_NUM(mod_mgr); mod_idx ++)
     {
@@ -9272,7 +9272,7 @@ UINT32 conv_mod_mgr_to_hex(const UINT32 conv_md_id,const MOD_MGR * mod_mgr, UINT
         left_hexstrmaxlen -= len;
 
 #if 0
-        sys_log(LOGSTDOUT, "conv_mod_mgr_to_hex: remote mod: No %ld: comm %ld, rank %ld, modi %ld -> %.*s\n",
+        dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_mod_mgr_to_hex: remote mod: No %ld: comm %ld, rank %ld, modi %ld -> %.*s\n",
                     mod_idx,
                     MOD_NODE_COMM(MOD_MGR_REMOTE_MOD(mod_mgr, mod_idx)),
                     MOD_NODE_RANK(MOD_MGR_REMOTE_MOD(mod_mgr, mod_idx)),
@@ -9299,12 +9299,12 @@ UINT32 conv_hex_to_mod_mgr(const UINT32 conv_md_id,const UINT8 *hexstr,const UIN
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_mod_mgr: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_mod_mgr: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == mod_mgr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_mod_mgr: mod_mgr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_mod_mgr: mod_mgr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -9323,21 +9323,21 @@ UINT32 conv_hex_to_mod_mgr(const UINT32 conv_md_id,const UINT8 *hexstr,const UIN
     cur_hexstr = hexstr;
     left_hexstrlen = hexstrlen;
 
-    //sys_log(LOGSTDOUT, "conv_hex_to_mod_mgr: mod_mgr %lx:\n", mod_mgr);
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_hex_to_mod_mgr: mod_mgr %lx:\n", mod_mgr);
 
     conv_hex_to_uint32(conv_md_id, cur_hexstr, left_hexstrlen, &(MOD_MGR_LOAD_BALANCING(mod_mgr)));
     len = (WORDSIZE / 4);
     cur_hexstr     += len;
     left_hexstrlen -= len;
 
-    //sys_log(LOGSTDOUT, "conv_hex_to_mod_mgr: load balancing: %.*s -> %d\n", len, cur_hexstr - len, MOD_MGR_LOAD_BALANCING(mod_mgr));
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_hex_to_mod_mgr: load balancing: %.*s -> %d\n", len, cur_hexstr - len, MOD_MGR_LOAD_BALANCING(mod_mgr));
 
     conv_hex_to_mod_node(conv_md_id, cur_hexstr, left_hexstrlen, MOD_MGR_LOCAL_MOD(mod_mgr));
     len = (WORDSIZE / 4) * 3;
     cur_hexstr     += len;
     left_hexstrlen -= len;
 #if 0
-    sys_log(LOGSTDOUT, "conv_hex_to_mod_mgr: local mod: %.*s -> comm %ld, rank %ld, modi %ld\n",
+    dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_hex_to_mod_mgr: local mod: %.*s -> comm %ld, rank %ld, modi %ld\n",
                     len, cur_hexstr - len,
                     MOD_NODE_COMM(MOD_MGR_LOCAL_MOD(mod_mgr)),
                     MOD_NODE_RANK(MOD_MGR_LOCAL_MOD(mod_mgr)),
@@ -9348,7 +9348,7 @@ UINT32 conv_hex_to_mod_mgr(const UINT32 conv_md_id,const UINT8 *hexstr,const UIN
     cur_hexstr     += len;
     left_hexstrlen -= len;
 
-    //sys_log(LOGSTDOUT, "conv_hex_to_mod_mgr: remote mod num: %.*s -> %d\n", len, cur_hexstr - len, MOD_MGR_REMOTE_NUM(mod_mgr));
+    //dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_hex_to_mod_mgr: remote mod num: %.*s -> %d\n", len, cur_hexstr - len, MOD_MGR_REMOTE_NUM(mod_mgr));
 
     mm_size = MOD_MGR_REMOTE_NUM(mod_mgr) * sizeof(MOD_NODE);
  #if 1
@@ -9360,14 +9360,14 @@ UINT32 conv_hex_to_mod_mgr(const UINT32 conv_md_id,const UINT8 *hexstr,const UIN
     }
     else
     {
-        sys_log(LOGSTDOUT, "error:conv_hex_to_mod_mgr: not support so large task mod table\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT, "error:conv_hex_to_mod_mgr: not support so large task mod table\n");
         return ((UINT32)(-1));
     }
 #else
     MOD_MGR_REMOTE(mod_mgr) = malloc(mm_size);
     if(NULL_PTR == MOD_MGR_REMOTE(mod_mgr))
     {
-         sys_log(LOGSTDOUT,"error:conv_hex_to_mod_mgr: failed to alloc memory for MOD_MGR_REMOTE(%lx).\n", mod_mgr);
+         dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_mod_mgr: failed to alloc memory for MOD_MGR_REMOTE(%lx).\n", mod_mgr);
          return ((UINT32)(-1));
     }
     MOD_MGR_REMOTE_MAX(mod_mgr) = MOD_MGR_REMOTE_NUM(mod_mgr);
@@ -9384,7 +9384,7 @@ UINT32 conv_hex_to_mod_mgr(const UINT32 conv_md_id,const UINT8 *hexstr,const UIN
         left_hexstrlen -= len;
 
 #if 0
-        sys_log(LOGSTDOUT, "conv_hex_to_mod_mgr: remote mod: No %ld: %.*s -> comm %ld, rank %ld, modi %ld\n",
+        dbg_log(SEC_0110_CONV, 5)(LOGSTDOUT, "conv_hex_to_mod_mgr: remote mod: No %ld: %.*s -> comm %ld, rank %ld, modi %ld\n",
                     mod_idx, len, cur_hexstr - len,
                     MOD_NODE_COMM(MOD_MGR_REMOTE_MOD(mod_mgr, mod_idx)),
                     MOD_NODE_RANK(MOD_MGR_REMOTE_MOD(mod_mgr, mod_idx)),
@@ -9410,17 +9410,17 @@ UINT32 conv_mod_mgr_to_hex(const UINT32 conv_md_id,const MOD_MGR * mod_mgr, UINT
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == mod_mgr )
     {
-        sys_log(LOGSTDOUT,"error:conv_mod_mgr_to_hex: mod_mgr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_mod_mgr_to_hex: mod_mgr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_mod_mgr_to_hex: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_mod_mgr_to_hex: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == hexstrlen )
     {
-        sys_log(LOGSTDOUT,"error:conv_mod_mgr_to_hex: hexstrlen is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_mod_mgr_to_hex: hexstrlen is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -9482,12 +9482,12 @@ UINT32 conv_hex_to_mod_mgr(const UINT32 conv_md_id,const UINT8 *hexstr,const UIN
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == hexstr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_mod_mgr: hexstr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_mod_mgr: hexstr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
     if ( NULL_PTR == mod_mgr )
     {
-        sys_log(LOGSTDOUT,"error:conv_hex_to_mod_mgr: mod_mgr is null.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_hex_to_mod_mgr: mod_mgr is null.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif /* CONV_DEBUG_SWITCH */
@@ -9564,7 +9564,7 @@ static UINT32 conv_ebgn_item_destory(const UINT32 conv_md_id, EBGN_ITEM *item)
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == item )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_item_destory: item is NULL_PTR.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_item_destory: item is NULL_PTR.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif/*CONV_DEBUG_SWITCH*/
@@ -9599,7 +9599,7 @@ UINT32 conv_ebgn_clean(const UINT32 conv_md_id, EBGN *ebgn)
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_clean: ebgn is NULL_PTR.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_clean: ebgn is NULL_PTR.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif/*CONV_DEBUG_SWITCH*/
@@ -9642,7 +9642,7 @@ UINT32 conv_ebgn_destroy(const UINT32 conv_md_id, EBGN *ebgn)
 #if ( SWITCH_ON == CONV_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:conv_ebgn_destroy: ebgn is NULL_PTR.\n");
+        dbg_log(SEC_0110_CONV, 0)(LOGSTDOUT,"error:conv_ebgn_destroy: ebgn is NULL_PTR.\n");
         dbg_exit(MD_CONV, conv_md_id);
     }
 #endif/*CONV_DEBUG_SWITCH*/

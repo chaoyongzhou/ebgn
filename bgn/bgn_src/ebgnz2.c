@@ -50,7 +50,7 @@ void print_ebgn_z2_status()
     if ( EC_FALSE == g_ebgnz2_md_init_flag )
     {
 
-        sys_log(LOGSTDOUT,"no EBGNZ2 Module started.\n");
+        dbg_log(SEC_0118_EBGNZ2, 5)(LOGSTDOUT,"no EBGNZ2 Module started.\n");
         return ;
     }
 
@@ -207,7 +207,7 @@ void ebgn_z2_end(const UINT32 ebgnz2_md_id)
 
     if ( MAX_NUM_OF_EBGNZ2_MD < ebgnz2_md_id )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_end: ebgnz2_md_id = %ld is overflow.\n",ebgnz2_md_id);
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_end: ebgnz2_md_id = %ld is overflow.\n",ebgnz2_md_id);
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 
@@ -222,7 +222,7 @@ void ebgn_z2_end(const UINT32 ebgnz2_md_id)
 
     if ( 0 == ebgnz2_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_end: ebgnz2_md_id = %ld is not started.\n",ebgnz2_md_id);
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_end: ebgnz2_md_id = %ld is not started.\n",ebgnz2_md_id);
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 
@@ -263,7 +263,7 @@ UINT32 ebgn_z2_alloc_ebgn(const UINT32 ebgnz2_md_id,EBGN **ppebgn)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == ppebgn )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_alloc_ebgn: ppebgn is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_alloc_ebgn: ppebgn is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -293,7 +293,7 @@ UINT32 ebgn_z2_free_ebgn(const UINT32 ebgnz2_md_id,EBGN *ebgn)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_free_ebgn: ebgn is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_free_ebgn: ebgn is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -323,7 +323,7 @@ static UINT32 ebgn_z2_item_destory(const UINT32 ebgnz2_md_id, EBGN_ITEM *item)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == item )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_item_destory: item is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_item_destory: item is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -358,7 +358,7 @@ UINT32 ebgn_z2_clean(const UINT32 ebgnz2_md_id, EBGN *ebgn)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_clean: ebgn is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_clean: ebgn is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -398,7 +398,7 @@ UINT32 ebgn_z2_destroy(const UINT32 ebgnz2_md_id, EBGN *ebgn)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_destroy: ebgn is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_destroy: ebgn is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -429,12 +429,12 @@ static UINT32 ebgn_z2_item_clone(const UINT32 ebgnz2_md_id, const EBGN_ITEM *ite
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_item_clone: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_item_clone: item_a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_item_clone: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_item_clone: item_c is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -480,12 +480,12 @@ UINT32 ebgn_z2_clone(const UINT32 ebgnz2_md_id,const EBGN *src, EBGN *des)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_clone: src is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_clone: src is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == des )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_clone: des is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_clone: des is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -542,12 +542,12 @@ int ebgn_z2_cmp(const UINT32 ebgnz2_md_id,const EBGN * a,const EBGN *b)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_cmp: a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_cmp: a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_cmp: b is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_cmp: b is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -577,12 +577,12 @@ UINT32 ebgn_z2_move(const UINT32 ebgnz2_md_id, EBGN *ebgn_a, EBGN *ebgn_c)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn_a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_move: ebgn_a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_move: ebgn_a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == ebgn_c )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_move: ebgn_c is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_move: ebgn_c is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -631,7 +631,7 @@ EC_BOOL ebgn_z2_is_zero(const UINT32 ebgnz2_md_id,const EBGN * src)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_is_zero: src is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_is_zero: src is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -665,7 +665,7 @@ EC_BOOL ebgn_z2_is_one(const UINT32 ebgnz2_md_id,const EBGN * src)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_is_one: src is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_is_one: src is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -699,7 +699,7 @@ EC_BOOL ebgn_z2_is_odd(const UINT32 ebgnz2_md_id,const EBGN *src)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == src )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_is_odd: src is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_is_odd: src is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -728,7 +728,7 @@ UINT32 ebgn_z2_set_zero(const UINT32 ebgnz2_md_id,EBGN * a)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_set_zero: a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_set_zero: a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -754,7 +754,7 @@ UINT32 ebgn_z2_set_one(const UINT32 ebgnz2_md_id,EBGN * a)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_set_one: a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_set_one: a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -786,7 +786,7 @@ UINT32 ebgn_z2_set_word(const UINT32 ebgnz2_md_id,const UINT32 n, EBGN *a)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_set_word: a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_set_word: a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -840,12 +840,12 @@ UINT32 ebgn_z2_set_n(const UINT32 ebgnz2_md_id,const BIGINT *n, EBGN *a)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == n )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_set_n: n is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_set_n: n is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_set_n: a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_set_n: a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -902,7 +902,7 @@ UINT32 ebgn_z2_deg(const UINT32 ebgnz2_md_id,const EBGN *a)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_deg: a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_deg: a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -948,7 +948,7 @@ UINT32 ebgn_z2_set_e(const UINT32 ebgnz2_md_id,EBGN *ebgn,const UINT32 e)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_set_e: ebgn is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_set_e: ebgn is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1011,7 +1011,7 @@ UINT32 ebgn_z2_get_bit(const UINT32 ebgnz2_md_id,const EBGN *a, const UINT32 nth
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_get_bit: a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_get_bit: a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1052,7 +1052,7 @@ UINT32 ebgn_z2_set_bit(const UINT32 ebgnz2_md_id,EBGN *ebgn_a, const UINT32 nthb
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn_a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_set_bit: ebgn_a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_set_bit: ebgn_a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1134,7 +1134,7 @@ UINT32 ebgn_z2_clear_bit(const UINT32 ebgnz2_md_id,EBGN *ebgn_a, const UINT32 nt
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn_a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_clear_bit: ebgn_a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_clear_bit: ebgn_a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1218,12 +1218,12 @@ UINT32 ebgn_z2_shr(const UINT32 ebgnz2_md_id,const EBGN *ebgn_a, const UINT32 nb
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn_a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_shr: ebgn_a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_shr: ebgn_a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == ebgn_c )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_shr: ebgn_c is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_shr: ebgn_c is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1390,12 +1390,12 @@ UINT32 ebgn_z2_shl(const UINT32 ebgnz2_md_id,const EBGN *ebgn_a, const UINT32 nb
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn_a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_shl: ebgn_a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_shl: ebgn_a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == ebgn_c )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_shl: ebgn_c is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_shl: ebgn_c is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1549,17 +1549,17 @@ UINT32 ebgn_z2_add(const UINT32 ebgnz2_md_id,const EBGN * ebgn_a,const EBGN * eb
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn_a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_add: ebgn_a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_add: ebgn_a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == ebgn_b )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_add: ebgn_b is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_add: ebgn_b is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == ebgn_c )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_add: ebgn_c is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_add: ebgn_c is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1662,17 +1662,17 @@ UINT32 ebgn_z2_sub(const UINT32 ebgnz2_md_id,const EBGN * a,const EBGN * b,EBGN 
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_sub: a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_sub: a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_sub: b is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_sub: b is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_sub: c is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_sub: c is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1707,17 +1707,17 @@ UINT32 ebgn_z2_add_offset(const UINT32 ebgnz2_md_id,const EBGN *a,const EBGN *b,
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_add_offset: a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_add_offset: a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_add_offset: b is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_add_offset: b is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_add_offset: c is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_add_offset: c is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1774,12 +1774,12 @@ UINT32 ebgn_z2_squ(const UINT32 ebgnz2_md_id, const EBGN *ebgn_a, EBGN *ebgn_c)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == ebgn_a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_squ: ebgn_a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_squ: ebgn_a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == ebgn_c )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_squ: ebgn_c is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_squ: ebgn_c is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1885,7 +1885,7 @@ void ebgn_z2_premul(const UINT32 ebgnz2_md_id,const EBGN * a)
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_premul: a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_premul: a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -1990,17 +1990,17 @@ UINT32 ebgn_z2_mul(const UINT32 ebgnz2_md_id,const EBGN * a,const EBGN * b,EBGN 
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_mul: a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_mul: a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_mul: b is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_mul: b is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == c )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_mul: c is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_mul: c is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -2045,7 +2045,7 @@ UINT32 ebgn_z2_mul(const UINT32 ebgnz2_md_id,const EBGN * a,const EBGN * b,EBGN 
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
         if ( INTMAX <= word_offset )
         {
-            sys_log(LOGSTDOUT,"error:ebgn_z2_mul: word_offset = %ld overflow\n",word_offset);
+            dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_mul: word_offset = %ld overflow\n",word_offset);
             dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
         }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -2099,22 +2099,22 @@ UINT32 ebgn_z2_div(const UINT32 ebgnz2_md_id,const EBGN * a,const EBGN * b,EBGN 
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( NULL_PTR == a )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_div: a is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_div: a is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == b )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_div: b is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_div: b is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == q )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_div: q is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_div: q is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( NULL_PTR == r )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_div: r is NULL_PTR.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_div: r is NULL_PTR.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/
@@ -2123,27 +2123,27 @@ UINT32 ebgn_z2_div(const UINT32 ebgnz2_md_id,const EBGN * a,const EBGN * b,EBGN 
 #if ( SWITCH_ON == EBGN_DEBUG_SWITCH )
     if ( a == q )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_div: address of a and q conflict.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_div: address of a and q conflict.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( a == r )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_div: address of a and r conflict.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_div: address of a and r conflict.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( b == q )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_div: address of b and q conflict.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_div: address of b and q conflict.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( b == r )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_div: address of b and r conflict.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_div: address of b and r conflict.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
     if ( q == r )
     {
-        sys_log(LOGSTDOUT,"error:ebgn_z2_div: address of q and r conflict.\n");
+        dbg_log(SEC_0118_EBGNZ2, 0)(LOGSTDOUT,"error:ebgn_z2_div: address of q and r conflict.\n");
         dbg_exit(MD_EBGNZ2, ebgnz2_md_id);
     }
 #endif/*EBGN_DEBUG_SWITCH*/

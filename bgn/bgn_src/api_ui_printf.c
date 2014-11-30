@@ -81,7 +81,7 @@ void api_ui_register(size_t buffer_sz, API_UI_PRINTF_HANDLER handler)
 
     /* Allocate the node and both buffers at the same time */
     mem_sz = buffer_sz * 2 + sizeof(API_UI_BUFFER);
-    node = (API_UI_BUFFER*)api_ui_malloc(mem_sz, LOC_API_0078);
+    node = (API_UI_BUFFER*)api_ui_malloc(mem_sz, LOC_API_0466);
 
     if (node != NULL)
     {
@@ -139,7 +139,7 @@ void api_ui_unregister()
             (*(node->handler))("%s",node->primary);/*calling handler*/
 
             /* Free the memory */
-            api_ui_free(node, LOC_API_0079);
+            api_ui_free(node, LOC_API_0467);
             break;
         }
         index_ptr = &((*index_ptr)->next);
@@ -264,16 +264,16 @@ int api_ui_vprintf_imp(const char* debug_file, unsigned debug_line, const char* 
     if (index_list == NULL)
     {
 
-        sys_log(LOGSTDOUT,"api_ui_printf - Threadid 0x%x not registered - file: %s line %u",
+        dbg_log(SEC_0010_API, 5)(LOGSTDOUT,"api_ui_printf - Threadid 0x%x not registered - file: %s line %u",
                   threadId, debug_file, debug_line );
         return -1;
     }
 
 
-    str_temp = (char *) api_ui_malloc((index_list->size)*2, LOC_API_0080);
+    str_temp = (char *) api_ui_malloc((index_list->size)*2, LOC_API_0468);
     if (NULL == str_temp)
     {
-        sys_log(LOGSTDOUT, "api_ui_printf - could not allocate %d bytes - file: %s line %u",
+        dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "api_ui_printf - could not allocate %d bytes - file: %s line %u",
                   (index_list->size)*2, debug_file, debug_line );
         return -2;
     }
@@ -285,14 +285,14 @@ int api_ui_vprintf_imp(const char* debug_file, unsigned debug_line, const char* 
      */
     if (size > index_list->size)
     {
-        sys_log(LOGSTDOUT, "api_ui_printf - Printing %d - allowed %d - file: %s line %u",
+        dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "api_ui_printf - Printing %d - allowed %d - file: %s line %u",
                   size,index_list->size, debug_file, debug_line );
-        api_ui_free(str_temp, LOC_API_0081);
+        api_ui_free(str_temp, LOC_API_0469);
         return -3;
     }
 
     strncpy(index_list->secondary, str_temp, size);
-    api_ui_free(str_temp, LOC_API_0082);
+    api_ui_free(str_temp, LOC_API_0470);
 
     cpy_sz = index_list->size - index_list->index - 1;
 
@@ -337,7 +337,7 @@ void huge_api_ui_printf(char *huge_buff)
 
     if (NULL == huge_buff)
     {
-        sys_log(LOGSTDOUT, "huge_api_ui_printf() - huge buffer given to be printed is NULL");
+        dbg_log(SEC_0010_API, 5)(LOGSTDOUT, "huge_api_ui_printf() - huge buffer given to be printed is NULL");
         return;
     }
 

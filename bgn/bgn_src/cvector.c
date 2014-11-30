@@ -132,7 +132,7 @@ void cvector_init(CVECTOR *cvector, const UINT32 capacity, const UINT32 mm_type,
 
 UINT32 cvector_init_0(const UINT32 md_id, CVECTOR *cvector)
 {
-    //sys_log(LOGSTDOUT, "info:cvector_init_0: cvector = %lx, cmutex = %lx\n", cvector, &(cvector->cmutex));
+    //dbg_log(SEC_0080_CVECTOR, 3)(LOGSTDOUT, "info:cvector_init_0: cvector = %lx, cmutex = %lx\n", cvector, &(cvector->cmutex));
     cvector_init(cvector, 0, MM_END, CVECTOR_LOCK_ENABLE, LOC_CVECTOR_0001);
     return (0);
 }
@@ -345,7 +345,7 @@ EC_BOOL cvector_expand(CVECTOR *cvector)
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "error:cvector_expand: failed to expand cvector with capacity %ld and size %ld\n", cvector->capacity, cvector->size);
+    dbg_log(SEC_0080_CVECTOR, 0)(LOGSTDOUT, "error:cvector_expand: failed to expand cvector with capacity %ld and size %ld\n", cvector->capacity, cvector->size);
 
     CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0016);
     return (EC_FALSE);
@@ -388,6 +388,36 @@ EC_BOOL cvector_cmp(const CVECTOR *cvector_1st, const CVECTOR *cvector_2nd, EC_B
     return (EC_TRUE);
 }
 
+UINT32 cvector_add(CVECTOR *cvector, const void *data)
+{
+    UINT32 pos;
+
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0017);
+    for(pos = 0; pos < cvector->size; pos ++)
+    {
+        if(NULL_PTR == cvector->data[ pos ])
+        {
+            cvector->data[ pos ] = (void *)data;
+            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0018);
+            return (pos);
+        }
+    }
+
+    if( pos < cvector->capacity )
+    {
+        cvector->data[ pos ] = (void *)data;
+        cvector->size ++;    
+        
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0019);
+        return (pos);
+    }
+
+    pos = cvector_push_no_lock(cvector, data);    
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0020);
+    
+    return (pos);
+}
+
 UINT32 cvector_push(CVECTOR *cvector, const void *data)
 {
     UINT32 pos;
@@ -402,13 +432,13 @@ UINT32 cvector_push(CVECTOR *cvector, const void *data)
         }
     }
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0017);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0021);
     pos = cvector->size;
 
     cvector->data[ pos ] = (void *)data;
     cvector->size ++;
 
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0018);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0022);
     return (pos);
 }
 
@@ -416,16 +446,16 @@ void *cvector_pop(CVECTOR *cvector)
 {
     void *data;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0019);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0023);
     if( 0 == cvector->size )
     {
-        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0020);
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0024);
         return (void *)0;
     }
 
     cvector->size --;
     data = cvector->data[ cvector->size ];
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0021);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0025);
 
     return (data);
 }
@@ -434,31 +464,31 @@ void **cvector_get_addr(const CVECTOR *cvector, const UINT32 pos)
 {
     void **addr;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0022);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0026);
     if(pos >= cvector->size)
     {
-        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0023);
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0027);
         return (void **)0;
     }
 
     addr = &(cvector->data[ pos ]);
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0024);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0028);
     return (addr);
 }
 
 void *cvector_get(const CVECTOR *cvector, const UINT32 pos)
 {
     void *data;
-    //sys_log(LOGSTDOUT, "cvector_get: cvector %lx, size %ld, pos %ld\n", cvector, cvector->size, pos);
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0025);
+    //dbg_log(SEC_0080_CVECTOR, 5)(LOGSTDOUT, "cvector_get: cvector %lx, size %ld, pos %ld\n", cvector, cvector->size, pos);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0029);
     if(pos >= cvector->size)
     {
-        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0026);
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0030);
         return (void *)0;
     }
 
     data = cvector->data[ pos ];
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0027);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0031);
     return (data);
 }
 
@@ -467,17 +497,17 @@ void *cvector_set(CVECTOR *cvector, const UINT32 pos, const void *data)
 {
     void *old_data;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0028);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0032);
     if(pos >= cvector->size)
     {
-        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0029);
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0033);
         return (void *)0;
     }
 
     old_data = cvector->data[ pos ];
     cvector->data[ pos ] = (void *)data;
 
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0030);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0034);
     return old_data;
 }
 
@@ -507,7 +537,7 @@ void cvector_codec_set(CVECTOR *cvector, const UINT32 data_mm_type)
 {
     TYPE_CONV_ITEM *type_conv_item;
 
-    //CVECTOR_LOCK(cvector, LOC_CVECTOR_0031);
+    //CVECTOR_LOCK(cvector, LOC_CVECTOR_0035);
     cvector->data_mm_type = data_mm_type;
 
     type_conv_item = dbg_query_type_conv_item_by_mm(data_mm_type);
@@ -530,7 +560,7 @@ void cvector_codec_set(CVECTOR *cvector, const UINT32 data_mm_type)
         cvector->data_free         = NULL_PTR;
     }
 
-    //CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0032);
+    //CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0036);
 
     return;
 }
@@ -553,7 +583,7 @@ void *cvector_codec_get(const CVECTOR *cvector, const UINT32 choice)
             return (void *)cvector->data_free;
     }
 
-    sys_log(LOGSTDOUT, "error:cvector_codec_get: invalid choice %ld\n", choice);
+    dbg_log(SEC_0080_CVECTOR, 0)(LOGSTDOUT, "error:cvector_codec_get: invalid choice %ld\n", choice);
     return (NULL_PTR);
 }
 
@@ -576,12 +606,12 @@ void cvector_loop_front(const CVECTOR *cvector, void (*handler)(void *))
 {
     UINT32 pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0033);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0037);
     for(pos = 0; pos < cvector->size; pos ++)
     {
         handler(cvector->data[ pos ]);
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0034);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0038);
     return;
 }
 
@@ -589,12 +619,12 @@ void cvector_loop_front_with_location(const CVECTOR *cvector, void (*handler)(vo
 {
     UINT32 pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0035);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0039);
     for(pos = 0; pos < cvector->size; pos ++)
     {
         handler(cvector->data[ pos ], location);
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0036);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0040);
     return;
 }
 
@@ -602,12 +632,12 @@ void cvector_loop_front_with_modi(const CVECTOR *cvector, const UINT32 modi, UIN
 {
     UINT32 pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0037);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0041);
     for(pos = 0; pos < cvector->size; pos ++)
     {
         handler(modi, cvector->data[ pos ]);
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0038);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0042);
     return;
 }
 
@@ -615,12 +645,12 @@ void cvector_loop_back(const CVECTOR *cvector, void (*handler)(void *))
 {
     UINT32 pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0039);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0043);
     for(pos = cvector->size; pos -- > 0; )
     {
         handler(cvector->data[ pos ]);
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0040);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0044);
     return;
 }
 
@@ -628,12 +658,12 @@ void cvector_loop_back_with_location(const CVECTOR *cvector, void (*handler)(voi
 {
     UINT32 pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0041);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0045);
     for(pos = cvector->size; pos -- > 0; )
     {
         handler(cvector->data[ pos ], location);
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0042);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0046);
     return;
 }
 
@@ -641,12 +671,12 @@ void cvector_loop_back_with_modi(const CVECTOR *cvector, const UINT32 modi, UINT
 {
     UINT32 pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0043);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0047);
     for(pos = cvector->size; pos -- > 0; )
     {
         handler(modi, cvector->data[ pos ]);
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0044);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0048);
     return;
 }
 
@@ -664,16 +694,16 @@ UINT32 cvector_search_front(const CVECTOR *cvector, const void *data, EC_BOOL (*
         data_cmp = cmp;
     }
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0045);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0049);
     for(pos = 0; pos < cvector->size; pos ++)
     {
         if(EC_TRUE == data_cmp(cvector->data[ pos ], data))
         {
-            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0046);
+            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0050);
             return pos;
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0047);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0051);
     return CVECTOR_ERR_POS;
 }
 
@@ -692,16 +722,16 @@ UINT32 cvector_search_back(const CVECTOR *cvector, const void *data, EC_BOOL (*c
         data_cmp = cmp;
     }
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0048);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0052);
     for(pos = cvector->size; pos -- > 0; )
     {
         if(EC_TRUE == data_cmp(cvector->data[ pos ], data))
         {
-            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0049);
+            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0053);
             return pos;
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0050);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0054);
     return CVECTOR_ERR_POS;
 }
 
@@ -709,19 +739,19 @@ UINT32 cvector_insert_front(CVECTOR *cvector, const void *data)
 {
     UINT32 pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0051);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0055);
     for(pos = 0; pos < cvector->size; pos ++)
     {
         if(NULL_PTR == cvector->data[ pos ])
         {
             cvector->data[ pos ] = (void *)data;
             cvector->size ++;
-            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0052);
+            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0056);
             return (pos);
         }
     }
     pos = cvector_push_no_lock(cvector, data);
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0053);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0057);
     return (pos);
 }
 
@@ -729,19 +759,19 @@ UINT32 cvector_insert_back(CVECTOR *cvector, const void *data)
 {
     UINT32 pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0054);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0058);
     for(pos = cvector->size; pos -- > 0; )
     {
         if(NULL_PTR == cvector->data[ pos ])
         {
             cvector->data[ pos ] = (void *)data;
             cvector->size ++;
-            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0055);
+            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0059);
             return (pos);
         }
     }
     pos = cvector_push_no_lock(cvector, data);
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0056);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0060);
     return (pos);
 }
 
@@ -754,16 +784,16 @@ EC_BOOL cvector_runthrough_front(const CVECTOR *cvector, const void *pvoid, EC_B
         return (EC_FALSE);
     }
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0057);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0061);
     for(pos = 0; pos < cvector->size; pos ++)
     {
         if(EC_FALSE == handle(cvector->data[ pos ], pvoid))
         {
-            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0058);
+            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0062);
             return (EC_FALSE);
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0059);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0063);
     return (EC_TRUE);
 }
 
@@ -776,16 +806,16 @@ EC_BOOL cvector_runthrough_back(const CVECTOR *cvector, const void *pvoid, EC_BO
         return (EC_FALSE);
     }
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0060);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0064);
     for(pos = cvector->size; pos -- > 0; )
     {
         if(EC_TRUE == handle(cvector->data[ pos ], pvoid))
         {
-            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0061);
+            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0065);
             return (EC_TRUE);
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0062);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0066);
     return (EC_TRUE);
 }
 
@@ -793,7 +823,7 @@ EC_BOOL cvector_delete(CVECTOR *cvector, const void * data)
 {
     UINT32 pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0063);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0067);
     for(pos = 0; pos < cvector->size; pos ++)
     {
         if(data == cvector->data[ pos ])
@@ -804,7 +834,7 @@ EC_BOOL cvector_delete(CVECTOR *cvector, const void * data)
 
     if(pos >= cvector->size)
     {
-        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0064);
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0068);
         return (EC_FALSE);
     }
 
@@ -816,7 +846,7 @@ EC_BOOL cvector_delete(CVECTOR *cvector, const void * data)
     cvector->data[ pos ] = NULL_PTR;
     cvector->size --;
 
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0065);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0069);
     return (EC_TRUE);
 }
 
@@ -834,10 +864,10 @@ void *cvector_vote(const CVECTOR *cvector, EC_BOOL (*voter)(const void *, const 
 
     void *best_data;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0066);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0070);
     if(EC_TRUE == cvector_is_empty(cvector))
     {
-        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0067);
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0071);
         return (void *)0;
     }
 
@@ -849,7 +879,7 @@ void *cvector_vote(const CVECTOR *cvector, EC_BOOL (*voter)(const void *, const 
             best_data = cvector->data[ pos ];
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0068);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0072);
     return best_data;
 }
 
@@ -859,10 +889,10 @@ UINT32 cvector_vote_pos(const CVECTOR *cvector, EC_BOOL (*voter)(const void *, c
 
     UINT32 best_data_pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0069);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0073);
     if(EC_TRUE == cvector_is_empty(cvector))
     {
-        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0070);
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0074);
         return (CVECTOR_ERR_POS);
     }
 
@@ -874,7 +904,7 @@ UINT32 cvector_vote_pos(const CVECTOR *cvector, EC_BOOL (*voter)(const void *, c
             best_data_pos = pos;
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0071);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0075);
     return (best_data_pos);
 }
 
@@ -895,12 +925,12 @@ void *cvector_vote_with_prev_filter(const CVECTOR *cvector, const void *conditio
 
     void *best_data;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0072);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0076);
 
     best_data = NULL_PTR;
     if(EC_TRUE == cvector_is_empty(cvector))
     {
-        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0073);
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0077);
         return (void *)0;
     }
 
@@ -916,7 +946,7 @@ void *cvector_vote_with_prev_filter(const CVECTOR *cvector, const void *conditio
     /*if not find any data satifying condition, then return nothing*/
     if(pos >=  cvector->size)
     {
-        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0074);
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0078);
         return (void *)0;
     }
 
@@ -934,7 +964,7 @@ void *cvector_vote_with_prev_filter(const CVECTOR *cvector, const void *conditio
             best_data = cvector->data[ pos ];
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0075);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0079);
     return (best_data);
 }
 
@@ -944,12 +974,12 @@ void *cvector_vote_with_post_filter(const CVECTOR *cvector, const void *conditio
 
     void *best_data;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0076);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0080);
 
     best_data = NULL_PTR;
     if(EC_TRUE == cvector_is_empty(cvector))
     {
-        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0077);
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0081);
         return (void *)0;
     }
 
@@ -965,7 +995,7 @@ void *cvector_vote_with_post_filter(const CVECTOR *cvector, const void *conditio
     /*if not find any data satifying condition, then return nothing*/
     if(pos >=  cvector->size)
     {
-        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0078);
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0082);
         return (void *)0;
     }
 
@@ -983,7 +1013,7 @@ void *cvector_vote_with_post_filter(const CVECTOR *cvector, const void *conditio
             best_data = cvector->data[ pos ];
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0079);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0083);
     return (best_data);
 }
 
@@ -992,10 +1022,10 @@ void *cvector_erase(CVECTOR *cvector, const UINT32 pos)
     void *data;
     UINT32 cur;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0080);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0084);
     if(pos >= cvector->size)
     {
-        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0081);
+        CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0085);
         return (void *)0;
     }
 
@@ -1007,7 +1037,7 @@ void *cvector_erase(CVECTOR *cvector, const UINT32 pos)
 
     cvector->size --;
 
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0082);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0086);
     return data;
 }
 
@@ -1015,7 +1045,7 @@ void cvector_clean(CVECTOR *cvector, void (*cleaner)(void *), const UINT32 locat
 {
     /*seems it is quite NOT necessary to clean codec setting! but if set, we may be in greate trouble*/
 
-    //sys_log(LOGSTDOUT, "cvector_clean: cvector %lx, cleaner %lx, location %ld\n", cvector, cleaner, location);
+    //dbg_log(SEC_0080_CVECTOR, 5)(LOGSTDOUT, "cvector_clean: cvector %lx, cleaner %lx, location %ld\n", cvector, cleaner, location);
     if( NULL_PTR != cleaner)
     {
         cvector_loop_front(cvector, cleaner);
@@ -1040,7 +1070,7 @@ void cvector_clean_with_location(CVECTOR *cvector, void (*cleaner)(void *, const
 {
     /*seems it is quite NOT necessary to clean codec setting! but if set, we may be in greate trouble*/
 
-    //sys_log(LOGSTDOUT, "cvector_clean: cvector %lx, cleaner %lx, location %ld\n", cvector, cleaner, location);
+    //dbg_log(SEC_0080_CVECTOR, 5)(LOGSTDOUT, "cvector_clean: cvector %lx, cleaner %lx, location %ld\n", cvector, cleaner, location);
     if( NULL_PTR != cleaner)
     {
         cvector_loop_front_with_location(cvector, cleaner, location);
@@ -1065,7 +1095,7 @@ void cvector_clean_with_modi(CVECTOR *cvector, const UINT32 modi, UINT32 (*clean
 {
     /*seems it is quite NOT necessary to clean codec setting! but if set, we may be in greate trouble*/
 
-    //sys_log(LOGSTDOUT, "cvector_clean: cvector %lx, cleaner %lx, location %ld\n", cvector, cleaner, location);
+    //dbg_log(SEC_0080_CVECTOR, 5)(LOGSTDOUT, "cvector_clean: cvector %lx, cleaner %lx, location %ld\n", cvector, cleaner, location);
     if( NULL_PTR != cleaner)
     {
         cvector_loop_front_with_modi(cvector, modi, cleaner);
@@ -1096,7 +1126,7 @@ void cvector_merge_with_clone(const CVECTOR *cvector_src, CVECTOR *cvector_des, 
 
     cvector_codec_clone(cvector_src, cvector_des);
 
-    CVECTOR_LOCK(cvector_src, LOC_CVECTOR_0083);
+    CVECTOR_LOCK(cvector_src, LOC_CVECTOR_0087);
     /*not necessary to lock cvector_des here*/
 
     if(NULL_PTR == cvector_data_malloc || NULL_PTR == cvector_data_clone)
@@ -1124,7 +1154,7 @@ void cvector_merge_with_clone(const CVECTOR *cvector_src, CVECTOR *cvector_des, 
             }
         }
     }
-    CVECTOR_UNLOCK(cvector_src, LOC_CVECTOR_0084);
+    CVECTOR_UNLOCK(cvector_src, LOC_CVECTOR_0088);
     return;
 }
 
@@ -1137,7 +1167,7 @@ void cvector_merge_with_move(CVECTOR *cvector_src, CVECTOR *cvector_des, EC_BOOL
 
     cvector_codec_clone(cvector_src, cvector_des);
 
-    CVECTOR_LOCK(cvector_src, LOC_CVECTOR_0085);
+    CVECTOR_LOCK(cvector_src, LOC_CVECTOR_0089);
     /*not necessary to lock cvector_des here*/
 
     for(pos = 0; pos < cvector_src->size; pos ++)
@@ -1150,7 +1180,29 @@ void cvector_merge_with_move(CVECTOR *cvector_src, CVECTOR *cvector_des, EC_BOOL
         }
     }
 
-    CVECTOR_UNLOCK(cvector_src, LOC_CVECTOR_0086);
+    CVECTOR_UNLOCK(cvector_src, LOC_CVECTOR_0090);
+    return;
+}
+
+void cvector_merge_direct(CVECTOR *cvector_src, CVECTOR *cvector_des)
+{
+    UINT32 pos;
+    void *src_data;
+
+    CVECTOR_LOCK(cvector_src, LOC_CVECTOR_0091);
+    /*not necessary to lock cvector_des here*/
+
+    for(pos = 0; pos < cvector_src->size; pos ++)
+    {
+        src_data = cvector_src->data[ pos ];
+        if(NULL_PTR != src_data)
+        {
+            cvector_push(cvector_des, src_data);
+            cvector_src->data[ pos ] = NULL_PTR;
+        }
+    }
+
+    CVECTOR_UNLOCK(cvector_src, LOC_CVECTOR_0092);
     return;
 }
 
@@ -1170,7 +1222,7 @@ UINT32 cvector_count(const CVECTOR *cvector, const void *data, EC_BOOL (*cmp)(co
         data_cmp = cmp;
     }
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0087);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0093);
     for(count = 0, pos = 0; pos < cvector->size; pos ++)
     {
         if(EC_TRUE == data_cmp(cvector->data[ pos ], data))
@@ -1178,7 +1230,7 @@ UINT32 cvector_count(const CVECTOR *cvector, const void *data, EC_BOOL (*cmp)(co
             count ++;
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0088);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0094);
     return (count);
 }
 
@@ -1188,7 +1240,7 @@ void cvector_print(LOG *log, const CVECTOR *cvector, void (*handler)(LOG *, cons
 
     sys_log(log, "cvector %lx, size %ld, capacity %ld\n", cvector, cvector->size, cvector->capacity);
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0089);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0095);
     for(pos = 0; pos < cvector->size; pos ++)
     {
         if(NULL_PTR == cvector->data[ pos ])
@@ -1206,7 +1258,7 @@ void cvector_print(LOG *log, const CVECTOR *cvector, void (*handler)(LOG *, cons
         sys_log(log, "cvector %lx No. %ld: ", cvector, pos);
         (handler)(log, cvector->data[ pos ]);
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0090);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0096);
     return;
 }
 
@@ -1214,7 +1266,7 @@ void cvector_print_level(LOG *log, const CVECTOR *cvector, const UINT32 level, v
 {
     UINT32 pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0091);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0097);
     for(pos = 0; pos < cvector->size; pos ++)
     {
         void *data;
@@ -1230,7 +1282,7 @@ void cvector_print_level(LOG *log, const CVECTOR *cvector, const UINT32 level, v
             sys_print(log, " %lx\n", data);
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0092);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0098);
     return;
 }
 
@@ -1238,18 +1290,18 @@ EC_BOOL cvector_check_all_is_true(const CVECTOR *cvector)
 {
     UINT32 pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0093);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0099);
     for(pos = 0; pos < cvector->size; pos ++)
     {
         UINT32 *data;
         data = (UINT32 *)(cvector->data[ pos ]);
         if(EC_FALSE == (*data))
         {
-            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0094);
+            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0100);
             return (EC_FALSE);
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0095);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0101);
     return (EC_TRUE);
 }
 
@@ -1257,18 +1309,18 @@ EC_BOOL cvector_check_one_is_true(const CVECTOR *cvector)
 {
     UINT32 pos;
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0096);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0102);
     for(pos = 0; pos < cvector->size; pos ++)
     {
         UINT32 *data;
         data = (UINT32 *)(cvector->data[ pos ]);
         if(EC_TRUE == (*data))
         {
-            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0097);
+            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0103);
             return (EC_TRUE);
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0098);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0104);
     return (EC_FALSE);
 }
 
@@ -1293,20 +1345,20 @@ EC_BOOL cvector_loop(CVECTOR *cvector,
 
     if(0 == func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:cvector_loop: func_para_num must be larger than 1\n");
+        dbg_log(SEC_0080_CVECTOR, 0)(LOGSTDOUT, "error:cvector_loop: func_para_num must be larger than 1\n");
         return (EC_FALSE);
     }
 
     if(MAX_NUM_OF_FUNC_PARAS < func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:cvector_loop: func_para_num %ld overflow which must be smaller than %ld\n", 
+        dbg_log(SEC_0080_CVECTOR, 0)(LOGSTDOUT, "error:cvector_loop: func_para_num %ld overflow which must be smaller than %ld\n", 
                            func_para_num, MAX_NUM_OF_FUNC_PARAS);
         return (EC_FALSE);
     }
 
     if(cvector_data_pos >= func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:cvector_loop: invalid setting where cvector_data_pos %ld >= func_para_num %ld\n", 
+        dbg_log(SEC_0080_CVECTOR, 0)(LOGSTDOUT, "error:cvector_loop: invalid setting where cvector_data_pos %ld >= func_para_num %ld\n", 
                            cvector_data_pos, func_para_num);
         return (EC_FALSE);
     }
@@ -1318,7 +1370,7 @@ EC_BOOL cvector_loop(CVECTOR *cvector,
     }
     va_end(ap);
 
-    CVECTOR_LOCK(cvector, LOC_CVECTOR_0099);
+    CVECTOR_LOCK(cvector, LOC_CVECTOR_0105);
     size = cvector_size(cvector);
     for(pos = 0; pos < size; pos ++)
     {
@@ -1329,8 +1381,8 @@ EC_BOOL cvector_loop(CVECTOR *cvector,
 
         if(EC_FALSE == dbg_caller(handler_func_addr, func_para_num, func_para_value, (UINT32 *)handler_retval_addr))
         {
-            sys_log(LOGSTDOUT, "error:cvector_loop: dbg_caller failed\n");
-            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0100);
+            dbg_log(SEC_0080_CVECTOR, 0)(LOGSTDOUT, "error:cvector_loop: dbg_caller failed\n");
+            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0106);
             return (EC_FALSE);
         }
 
@@ -1338,11 +1390,11 @@ EC_BOOL cvector_loop(CVECTOR *cvector,
         && NULL_PTR != handler_retval_addr
         && EC_FALSE == handler_retval_checker(handler_retval_addr))
         {
-            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0101);
+            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0107);
             return (EC_FALSE);
         }
     }
-    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0102);
+    CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0108);
 
     return ( EC_TRUE );
 }
@@ -1357,7 +1409,7 @@ void cvector_free_no_lock(CVECTOR *cvector, const UINT32 location)
         cvector->capacity = 0;
         cvector->size = 0;
     }
-    CVECTOR_CLEAN_LOCK(cvector, LOC_CVECTOR_0103);
+    CVECTOR_CLEAN_LOCK(cvector, LOC_CVECTOR_0109);
     SAFE_FREE(cvector, location);
 }
 /*note: clone cvector_src to the tail of cvector_des*/
@@ -1501,12 +1553,12 @@ EC_BOOL cvector_expand_no_lock(CVECTOR *cvector)
     if(0 == cvector->capacity)
     {
         capacity = 128; /*default*/
-        data = (void **)SAFE_MALLOC(sizeof(void *) * capacity, LOC_CVECTOR_0104);
+        data = (void **)SAFE_MALLOC(sizeof(void *) * capacity, LOC_CVECTOR_0110);
     }
     else
     {
         capacity = 2 * (cvector->capacity);/*double the old capacity*/
-        data = (void **)SAFE_REALLOC(cvector->data, sizeof(void *) * (cvector->capacity), sizeof(void *) * capacity, LOC_CVECTOR_0105);
+        data = (void **)SAFE_REALLOC(cvector->data, sizeof(void *) * (cvector->capacity), sizeof(void *) * capacity, LOC_CVECTOR_0111);
     }
 
     if(data)
@@ -1523,7 +1575,7 @@ EC_BOOL cvector_expand_no_lock(CVECTOR *cvector)
         return (EC_TRUE);
     }
 
-    sys_log(LOGSTDOUT, "error:cvector_expand_no_lock: failed to expand cvector with capacity %ld and size %ld\n", cvector->capacity, cvector->size);
+    dbg_log(SEC_0080_CVECTOR, 0)(LOGSTDOUT, "error:cvector_expand_no_lock: failed to expand cvector with capacity %ld and size %ld\n", cvector->capacity, cvector->size);
 
     return (EC_FALSE);
 }
@@ -1563,6 +1615,32 @@ EC_BOOL cvector_cmp_no_lock(const CVECTOR *cvector_1st, const CVECTOR *cvector_2
         }
     }
     return (EC_TRUE);
+}
+
+UINT32 cvector_add_no_lock(CVECTOR *cvector, const void *data)
+{
+    UINT32 pos;
+
+    for(pos = 0; pos < cvector->size; pos ++)
+    {
+        if(NULL_PTR == cvector->data[ pos ])
+        {
+            cvector->data[ pos ] = (void *)data;
+            return (pos);
+        }
+    }
+
+    if( pos < cvector->capacity )
+    {
+        cvector->data[ pos ] = (void *)data;
+        cvector->size ++;    
+        
+        return (pos);
+    }
+
+    pos = cvector_push_no_lock(cvector, data);    
+    
+    return (pos);
 }
 
 UINT32 cvector_push_no_lock(CVECTOR *cvector, const void *data)
@@ -2015,7 +2093,7 @@ void cvector_clean_no_lock(CVECTOR *cvector, void (*cleaner)(void *), const UINT
 {
     /*seems it is quite NOT necessary to clean codec setting! but if set, we may be in greate trouble*/
 
-    //sys_log(LOGSTDOUT, "cvector_clean_no_lock: cvector %lx, cleaner %lx, location %ld\n", cvector, cleaner, location);
+    //dbg_log(SEC_0080_CVECTOR, 5)(LOGSTDOUT, "cvector_clean_no_lock: cvector %lx, cleaner %lx, location %ld\n", cvector, cleaner, location);
     if( NULL_PTR != cleaner)
     {
         cvector_loop_front_no_lock(cvector, cleaner);
@@ -2036,7 +2114,7 @@ void cvector_clean_with_location_no_lock(CVECTOR *cvector, void (*cleaner)(void 
 {
     /*seems it is quite NOT necessary to clean codec setting! but if set, we may be in greate trouble*/
 
-    //sys_log(LOGSTDOUT, "cvector_clean: cvector %lx, cleaner %lx, location %ld\n", cvector, cleaner, location);
+    //dbg_log(SEC_0080_CVECTOR, 5)(LOGSTDOUT, "cvector_clean: cvector %lx, cleaner %lx, location %ld\n", cvector, cleaner, location);
     if( NULL_PTR != cleaner)
     {
         cvector_loop_front_with_location(cvector, cleaner, location);
@@ -2058,7 +2136,7 @@ void cvector_clean_with_modi_no_lock(CVECTOR *cvector, const UINT32 modi, UINT32
 {
     /*seems it is quite NOT necessary to clean codec setting! but if set, we may be in greate trouble*/
 
-    //sys_log(LOGSTDOUT, "cvector_clean_no_lock: cvector %lx, cleaner %lx, location %ld\n", cvector, cleaner, location);
+    //dbg_log(SEC_0080_CVECTOR, 5)(LOGSTDOUT, "cvector_clean_no_lock: cvector %lx, cleaner %lx, location %ld\n", cvector, cleaner, location);
     if( NULL_PTR != cleaner)
     {
         cvector_loop_front_with_modi_no_lock(cvector, modi, cleaner);
@@ -2135,6 +2213,24 @@ void cvector_merge_with_move_no_lock(CVECTOR *cvector_src, CVECTOR *cvector_des,
         if(CVECTOR_ERR_POS == cvector_search_front_no_lock(cvector_des, src_data, cvector_data_cmp))
         {
             cvector_push_no_lock(cvector_des, src_data);
+            cvector_src->data[ pos ] = NULL_PTR;
+        }
+    }
+
+    return;
+}
+
+void cvector_merge_direct_no_lock(CVECTOR *cvector_src, CVECTOR *cvector_des)
+{
+    UINT32 pos;
+    void *src_data;
+
+    for(pos = 0; pos < cvector_src->size; pos ++)
+    {
+        src_data = cvector_src->data[ pos ];
+        if(NULL_PTR != src_data)
+        {
+            cvector_push(cvector_des, src_data);
             cvector_src->data[ pos ] = NULL_PTR;
         }
     }
@@ -2265,20 +2361,20 @@ EC_BOOL cvector_loop_no_lock(CVECTOR *cvector,
 
     if(0 == func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:cvector_loop: func_para_num must be larger than 1\n");
+        dbg_log(SEC_0080_CVECTOR, 0)(LOGSTDOUT, "error:cvector_loop: func_para_num must be larger than 1\n");
         return (EC_FALSE);
     }
 
     if(MAX_NUM_OF_FUNC_PARAS < func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:cvector_loop: func_para_num %ld overflow which must be smaller than %ld\n", 
+        dbg_log(SEC_0080_CVECTOR, 0)(LOGSTDOUT, "error:cvector_loop: func_para_num %ld overflow which must be smaller than %ld\n", 
                            func_para_num, MAX_NUM_OF_FUNC_PARAS);
         return (EC_FALSE);
     }
 
     if(cvector_data_pos >= func_para_num)
     {
-        sys_log(LOGSTDOUT, "error:cvector_loop: invalid setting where cvector_data_pos %ld >= func_para_num %ld\n", 
+        dbg_log(SEC_0080_CVECTOR, 0)(LOGSTDOUT, "error:cvector_loop: invalid setting where cvector_data_pos %ld >= func_para_num %ld\n", 
                            cvector_data_pos, func_para_num);
         return (EC_FALSE);
     }
@@ -2300,8 +2396,8 @@ EC_BOOL cvector_loop_no_lock(CVECTOR *cvector,
 
         if(EC_FALSE == dbg_caller(handler_func_addr, func_para_num, func_para_value, (UINT32 *)handler_retval_addr))
         {
-            sys_log(LOGSTDOUT, "error:cvector_loop: dbg_caller failed\n");
-            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0106);
+            dbg_log(SEC_0080_CVECTOR, 0)(LOGSTDOUT, "error:cvector_loop: dbg_caller failed\n");
+            CVECTOR_UNLOCK(cvector, LOC_CVECTOR_0112);
             return (EC_FALSE);
         }
 

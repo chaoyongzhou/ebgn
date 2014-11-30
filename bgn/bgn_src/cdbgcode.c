@@ -36,7 +36,7 @@ EC_BOOL cdbgcode_pack_uint32(const UINT32 *in_buff, const UINT32 data_num, UINT8
         {
             if(this_pos >= out_buff_max_len)
             {
-                sys_log(LOGSTDOUT, "error:cdbgcode_pack_uint32: overflow where pos = %ld and out_buff_max_len = %ld\n", this_pos, out_buff_max_len);
+                dbg_log(SEC_0042_CDBGCODE, 0)(LOGSTDOUT, "error:cdbgcode_pack_uint32: overflow where pos = %ld and out_buff_max_len = %ld\n", this_pos, out_buff_max_len);
                 return (EC_FALSE);
             }
 
@@ -64,7 +64,7 @@ EC_BOOL cdbgcode_unpack_uint32(const UINT8 *in_buff, const UINT32 in_buff_max_le
     {
         if(this_pos >= in_buff_max_len)
         {
-            sys_log(LOGSTDOUT, "error:cdbgcode_unpack_uint32: overflow where pos = %ld and in_buff_max_len = %ld\n", this_pos, in_buff_max_len);
+            dbg_log(SEC_0042_CDBGCODE, 0)(LOGSTDOUT, "error:cdbgcode_unpack_uint32: overflow where pos = %ld and in_buff_max_len = %ld\n", this_pos, in_buff_max_len);
             return (EC_FALSE);
         }
 
@@ -94,7 +94,7 @@ EC_BOOL cdbgcode_pack_uint16(const UINT16 *in_buff, const UINT32 data_num, UINT8
         {
             if(this_pos >= out_buff_max_len)
             {
-                sys_log(LOGSTDOUT, "error:cdbgcode_pack_uint16: overflow where pos = %ld and out_buff_max_len = %ld\n", this_pos, out_buff_max_len);
+                dbg_log(SEC_0042_CDBGCODE, 0)(LOGSTDOUT, "error:cdbgcode_pack_uint16: overflow where pos = %ld and out_buff_max_len = %ld\n", this_pos, out_buff_max_len);
                 return (EC_FALSE);
             }
 
@@ -122,7 +122,7 @@ EC_BOOL cdbgcode_unpack_uint16(const UINT8 *in_buff, const UINT32 in_buff_max_le
     {
         if(this_pos >= in_buff_max_len)
         {
-            sys_log(LOGSTDOUT, "error:cdbgcode_unpack_uint16: overflow where pos = %ld and in_buff_max_len = %ld\n", this_pos, in_buff_max_len);
+            dbg_log(SEC_0042_CDBGCODE, 0)(LOGSTDOUT, "error:cdbgcode_unpack_uint16: overflow where pos = %ld and in_buff_max_len = %ld\n", this_pos, in_buff_max_len);
             return (EC_FALSE);
         }
 
@@ -145,7 +145,7 @@ EC_BOOL cdbgcode_pack_uint8(const UINT8 *in_buff, const UINT32 data_num, UINT8 *
     {
         if(this_pos >= out_buff_max_len)
         {
-            sys_log(LOGSTDOUT, "error:cdbgcode_pack_uint8: overflow where pos = %ld and out_buff_max_len = %ld\n", this_pos, out_buff_max_len);
+            dbg_log(SEC_0042_CDBGCODE, 0)(LOGSTDOUT, "error:cdbgcode_pack_uint8: overflow where pos = %ld and out_buff_max_len = %ld\n", this_pos, out_buff_max_len);
             return (EC_FALSE);
         }
         out_buff[ this_pos ++ ] = *(in_buff + data_idx);
@@ -171,7 +171,7 @@ EC_BOOL cdbgcode_unpack_uint8(const UINT8 *in_buff, const UINT32 in_buff_max_len
     {
         if(this_pos >= in_buff_max_len)
         {
-            sys_log(LOGSTDOUT, "error:cdbgcode_unpack_uint8: overflow where pos = %ld and in_buff_max_len = %ld\n", this_pos, in_buff_max_len);
+            dbg_log(SEC_0042_CDBGCODE, 0)(LOGSTDOUT, "error:cdbgcode_unpack_uint8: overflow where pos = %ld and in_buff_max_len = %ld\n", this_pos, in_buff_max_len);
             return (EC_FALSE);
         }
 
@@ -201,7 +201,7 @@ EC_BOOL cdbgcode_pack_real(const REAL *in_buff, const UINT32 data_num, UINT8 *ou
         {
             if(this_pos >= out_buff_max_len)
             {
-                sys_log(LOGSTDOUT, "error:cdbgcode_pack_real: overflow where pos = %ld and out_buff_max_len = %ld\n", this_pos, out_buff_max_len);
+                dbg_log(SEC_0042_CDBGCODE, 0)(LOGSTDOUT, "error:cdbgcode_pack_real: overflow where pos = %ld and out_buff_max_len = %ld\n", this_pos, out_buff_max_len);
                 return (EC_FALSE);
             }
 
@@ -229,7 +229,7 @@ EC_BOOL cdbgcode_unpack_real(const UINT8 *in_buff, const UINT32 in_buff_max_len,
     {
         if(this_pos >= in_buff_max_len)
         {
-            sys_log(LOGSTDOUT, "error:cdbgcode_unpack_real: overflow where pos = %ld and in_buff_max_len = %ld\n", this_pos, in_buff_max_len);
+            dbg_log(SEC_0042_CDBGCODE, 0)(LOGSTDOUT, "error:cdbgcode_unpack_real: overflow where pos = %ld and in_buff_max_len = %ld\n", this_pos, in_buff_max_len);
             return (EC_FALSE);
         }
 
@@ -256,7 +256,7 @@ EC_BOOL cdbgcode_pack(const UINT8 *in_buff, const UINT32 data_num, const UINT32 
             return cdbgcode_pack_real((REAL *)in_buff, data_num, out_buff, out_buff_max_len, position);
     }
 
-    sys_log(LOGSTDOUT, "error:cdbgcode_pack: unknown data_type %ld\n", data_type);
+    dbg_log(SEC_0042_CDBGCODE, 0)(LOGSTDOUT, "error:cdbgcode_pack: unknown data_type %ld\n", data_type);
     return (EC_FALSE);
 }
 
@@ -274,7 +274,7 @@ EC_BOOL cdbgcode_unpack(const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT
             return cdbgcode_unpack_real(in_buff, in_buff_max_len, position, (REAL *)out_buff, data_num);
     }
 
-    sys_log(LOGSTDOUT, "error:cdbgcode_unpack: unknown data_type %ld\n", data_type);
+    dbg_log(SEC_0042_CDBGCODE, 0)(LOGSTDOUT, "error:cdbgcode_unpack: unknown data_type %ld\n", data_type);
     return (EC_FALSE);
 }
 
@@ -292,7 +292,7 @@ EC_BOOL cdbgcode_pack_size(const UINT32 data_num, const UINT32 data_type, UINT32
             return cdbgcode_pack_real_size(data_num, size);
     }
 
-    sys_log(LOGSTDOUT, "error:cdbgcode_pack_size: unknown data_type %ld\n", data_type);
+    dbg_log(SEC_0042_CDBGCODE, 0)(LOGSTDOUT, "error:cdbgcode_pack_size: unknown data_type %ld\n", data_type);
     return (EC_FALSE);
 }
 

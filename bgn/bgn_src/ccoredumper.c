@@ -32,7 +32,7 @@ EC_BOOL ccoredumper_write(const char *file_name)
 {
     if(0 != WriteCoreDump(file_name))
     {
-        sys_log(LOGSTDOUT, "error:ccoredumper_write:failed to dump core to file %s\n", file_name);
+        dbg_log(SEC_0107_CCOREDUMPER, 0)(LOGSTDOUT, "error:ccoredumper_write:failed to dump core to file %s\n", file_name);
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -43,7 +43,7 @@ EC_BOOL ccoredumper_write_with(const struct CoreDumpParameters *params,const cha
 {
     if(0 != WriteCoreDumpWith(params, file_name))
     {
-        sys_log(LOGSTDOUT, "error:ccoredumper_write_with:failed to dump core to file %s\n", file_name);
+        dbg_log(SEC_0107_CCOREDUMPER, 0)(LOGSTDOUT, "error:ccoredumper_write_with:failed to dump core to file %s\n", file_name);
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -57,7 +57,7 @@ EC_BOOL ccoredumper_write_limited(const char *file_name, size_t max_length)
 {
     if(0 != WriteCoreDumpLimited(file_name, max_length))
     {
-        sys_log(LOGSTDOUT, "error:ccoredumper_write_limited:failed to dump core to file %s with max length %ld\n", file_name, max_length);
+        dbg_log(SEC_0107_CCOREDUMPER, 0)(LOGSTDOUT, "error:ccoredumper_write_limited:failed to dump core to file %s with max length %ld\n", file_name, max_length);
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -73,7 +73,7 @@ EC_BOOL ccoredumper_write_limited_by_priority(const char *file_name, size_t max_
 {
     if(0 != WriteCoreDumpLimitedByPriority(file_name, max_length))
     {
-        sys_log(LOGSTDOUT, "error:ccoredumper_write_limited_by_priority:failed to dump core to file %s with max length %ld\n", file_name, max_length);
+        dbg_log(SEC_0107_CCOREDUMPER, 0)(LOGSTDOUT, "error:ccoredumper_write_limited_by_priority:failed to dump core to file %s with max length %ld\n", file_name, max_length);
         return (EC_FALSE);
     }
     return (EC_TRUE);
@@ -90,7 +90,7 @@ EC_BOOL ccoredumper_write_compressed(const char *file_name, size_t max_length, c
 {
     if(0 != WriteCompressedCoreDump(file_name, max_length, compressors, selected_compressor))
     {
-        sys_log(LOGSTDOUT, "error:ccoredumper_write_compressed:failed to dump core to file %s with max length %ld\n", file_name, max_length);
+        dbg_log(SEC_0107_CCOREDUMPER, 0)(LOGSTDOUT, "error:ccoredumper_write_compressed:failed to dump core to file %s with max length %ld\n", file_name, max_length);
         return (EC_FALSE);
     }
     return (EC_TRUE);

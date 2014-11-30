@@ -46,18 +46,61 @@ typedef struct
 {
     /* used counter >= 0 */
     UINT32      usedcounter;
+    EC_BOOL     terminate_flag;
 
     MOD_MGR    *chfsdn_mod_mgr;
     MOD_MGR    *chfsnpp_mod_mgr;
 
     CRFSDN     *crfsdn;
-    CHFSNP_MGR *chfsnpmgr;/*namespace pool*/    
+    CHFSNP_MGR *chfsnpmgr;/*namespace pool*/   
+
+    CROUTINE_RWLOCK     crwlock;
 }CHFS_MD;
 
-#define CHFS_MD_DN_MOD_MGR(chfs_md)  ((chfs_md)->chfsdn_mod_mgr)
-#define CHFS_MD_NPP_MOD_MGR(chfs_md) ((chfs_md)->chfsnpp_mod_mgr)
-#define CHFS_MD_DN(chfs_md)          ((chfs_md)->crfsdn)
-#define CHFS_MD_NPP(chfs_md)         ((chfs_md)->chfsnpmgr)
+#define CHFS_MD_TERMINATE_FLAG(chfs_md)  ((chfs_md)->terminate_flag)
+#define CHFS_MD_DN_MOD_MGR(chfs_md)      ((chfs_md)->chfsdn_mod_mgr)
+#define CHFS_MD_NPP_MOD_MGR(chfs_md)     ((chfs_md)->chfsnpp_mod_mgr)
+#define CHFS_MD_DN(chfs_md)              ((chfs_md)->crfsdn)
+#define CHFS_MD_NPP(chfs_md)             ((chfs_md)->chfsnpmgr)
+#define CHFS_CRWLOCK(chfs_md)            (&((chfs_md)->crwlock))
+
+#if 0
+#define CHFS_INIT_LOCK(chfs_md, location)  (croutine_rwlock_init(CHFS_CRWLOCK(chfs_md), CMUTEX_PROCESS_PRIVATE, location))
+#define CHFS_CLEAN_LOCK(chfs_md, location) (croutine_rwlock_clean(CHFS_CRWLOCK(chfs_md), location))
+
+#define CHFS_RDLOCK(chfs_md, location)     (croutine_rwlock_rdlock(CHFS_CRWLOCK(chfs_md), location))
+#define CHFS_WRLOCK(chfs_md, location)     (croutine_rwlock_wrlock(CHFS_CRWLOCK(chfs_md), location))
+#define CHFS_UNLOCK(chfs_md, location)     (croutine_rwlock_unlock(CHFS_CRWLOCK(chfs_md), location))
+#endif
+
+#if 1
+#define CHFS_INIT_LOCK(chfs_md, location)  do{\
+    sys_log(LOGSTDOUT, "[DEBUG] CHFS_INIT_LOCK: CHFS_CRWLOCK %p, at %s:%ld\n", CHFS_CRWLOCK(chfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+    croutine_rwlock_init(CHFS_CRWLOCK(chfs_md), CMUTEX_PROCESS_PRIVATE, location);\
+}while(0)
+
+#define CHFS_CLEAN_LOCK(chfs_md, location) do{\
+    sys_log(LOGSTDOUT, "[DEBUG] CHFS_CLEAN_LOCK: CHFS_CRWLOCK %p, at %s:%ld\n", CHFS_CRWLOCK(chfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+    croutine_rwlock_clean(CHFS_CRWLOCK(chfs_md), location);\
+}while(0)    
+
+#define CHFS_RDLOCK(chfs_md, location)     do{\
+    sys_log(LOGSTDOUT, "[DEBUG] CHFS_RDLOCK: CHFS_CRWLOCK %p, at %s:%ld\n", CHFS_CRWLOCK(chfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+    croutine_rwlock_rdlock(CHFS_CRWLOCK(chfs_md), location);\
+    sys_log(LOGSTDOUT, "[DEBUG] CHFS_RDLOCK: CHFS_CRWLOCK %p, at %s:%ld done\n", CHFS_CRWLOCK(chfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+}while(0)
+
+#define CHFS_WRLOCK(chfs_md, location)     do{\
+    sys_log(LOGSTDOUT, "[DEBUG] CHFS_WRLOCK: CHFS_CRWLOCK %p, at %s:%ld\n", CHFS_CRWLOCK(chfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+    croutine_rwlock_wrlock(CHFS_CRWLOCK(chfs_md), location);\
+    sys_log(LOGSTDOUT, "[DEBUG] CHFS_WRLOCK: CHFS_CRWLOCK %p, at %s:%ld done\n", CHFS_CRWLOCK(chfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+}while(0)
+#define CHFS_UNLOCK(chfs_md, location)     do{\
+    sys_log(LOGSTDOUT, "[DEBUG] CHFS_UNLOCK: CHFS_CRWLOCK %p, at %s:%ld\n", CHFS_CRWLOCK(chfs_md), MM_LOC_FILE_NAME(location),MM_LOC_LINE_NO(location));\
+    croutine_rwlock_unlock(CHFS_CRWLOCK(chfs_md), location);\
+}while(0)
+#endif
+
 
 /**
 *   for test only
@@ -222,6 +265,20 @@ EC_BOOL chfs_set(const UINT32 chfs_md_id, const CSTRING *home_dir, const UINT32 
 
 /**
 *
+*  reserve space from dn
+*
+**/
+EC_BOOL chfs_reserve_dn(const UINT32 chfs_md_id, const UINT32 data_len, CHFSNP_FNODE *chfsnp_fnode);
+
+/**
+*
+*  release space to dn
+*
+**/
+EC_BOOL chfs_release_dn(const UINT32 chfs_md_id, const CHFSNP_FNODE *chfsnp_fnode);
+
+/**
+*
 *  write a file
 *
 **/
@@ -243,6 +300,34 @@ EC_BOOL chfs_create_dn(const UINT32 chfs_md_id, const CSTRING *root_dir);
 
 /**
 *
+*  add a disk to data node
+*
+**/
+EC_BOOL chfs_add_disk(const UINT32 chfs_md_id, const UINT32 disk_no);
+
+/**
+*
+*  delete a disk from data node
+*
+**/
+EC_BOOL chfs_del_disk(const UINT32 chfs_md_id, const UINT32 disk_no);
+
+/**
+*
+*  mount a disk to data node
+*
+**/
+EC_BOOL chfs_mount_disk(const UINT32 chfs_md_id, const UINT32 disk_no);
+
+/**
+*
+*  umount a disk from data node
+*
+**/
+EC_BOOL chfs_umount_disk(const UINT32 chfs_md_id, const UINT32 disk_no);
+
+/**
+*
 *  open data node
 *
 **/
@@ -257,10 +342,24 @@ EC_BOOL chfs_close_dn(const UINT32 chfs_md_id);
 
 /**
 *
+*  export data into data node
+*
+**/
+EC_BOOL chfs_export_dn(const UINT32 chfs_md_id, const CBYTES *cbytes, const CHFSNP_FNODE *chfsnp_fnode);
+
+/**
+*
 *  write data node
 *
 **/
 EC_BOOL chfs_write_dn(const UINT32 chfs_md_id, const CBYTES *cbytes, CHFSNP_FNODE *chfsnp_fnode);
+
+/**
+*
+*  write data node in cache
+*
+**/
+EC_BOOL chfs_write_dn_cache(const UINT32 chfs_md_id, const CBYTES *cbytes, CHFSNP_FNODE *chfsnp_fnode);
 
 /**
 *
@@ -295,6 +394,7 @@ EC_BOOL chfs_delete_npp(const UINT32 chfs_md_id, const CSTRING *path, CVECTOR *c
 *  delete file data from current dn
 *
 **/
+static EC_BOOL __chfs_delete_dn(const UINT32 chfs_md_id, const CHFSNP_FNODE *chfsnp_fnode);;
 EC_BOOL chfs_delete_dn(const UINT32 chfs_md_id, const CHFSNP_FNODE *chfsnp_fnode);
 
 /**

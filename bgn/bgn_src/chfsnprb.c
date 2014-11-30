@@ -36,7 +36,7 @@ uint32_t chfsnprb_node_new(CHFSNPRB_POOL *pool)
     node_pos_t = CHFSNPRB_POOL_FREE_HEAD(pool);
     if(CHFSNPRB_ERR_POS == node_pos_t)
     {
-        sys_log(LOGSTDERR, "error:chfsnprb_node_new: no free node in pool\n");
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_node_new: no free node in pool\n");
         return (CHFSNPRB_ERR_POS);
     }
     
@@ -1061,7 +1061,7 @@ EC_BOOL chfsnprb_pool_init(CHFSNPRB_POOL *pool, const uint32_t node_max_num, con
 
     if(CHFSNPRB_POOL_MAX_SIZE < node_max_num)
     {
-        sys_log(LOGSTDERR, "error:chfsnprb_pool_init: node_max_num %u overflow!\n", node_max_num);
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_pool_init: node_max_num %u overflow!\n", node_max_num);
         return (EC_FALSE);
     }
 
@@ -1248,7 +1248,7 @@ EC_BOOL chfsnprb_flush(const CHFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize = sizeof(uint32_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CHFSNPRB_POOL_FREE_HEAD(pool))))
     {
-        sys_log(LOGSTDOUT, "error:chfsnprb_flush: write CHFSNPRB_POOL_FREE_HEAD at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDOUT, "error:chfsnprb_flush: write CHFSNPRB_POOL_FREE_HEAD at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1256,7 +1256,7 @@ EC_BOOL chfsnprb_flush(const CHFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint32_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CHFSNPRB_POOL_NODE_MAX_NUM(pool))))
     {
-        sys_log(LOGSTDOUT, "error:chfsnprb_flush: write CHFSNPRB_POOL_NODE_MAX_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDOUT, "error:chfsnprb_flush: write CHFSNPRB_POOL_NODE_MAX_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }    
 
@@ -1264,7 +1264,7 @@ EC_BOOL chfsnprb_flush(const CHFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint32_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CHFSNPRB_POOL_NODE_USED_NUM(pool))))
     {
-        sys_log(LOGSTDOUT, "error:chfsnprb_flush: write CHFSNPRB_POOL_NODE_USED_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDOUT, "error:chfsnprb_flush: write CHFSNPRB_POOL_NODE_USED_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }     
 
@@ -1272,7 +1272,7 @@ EC_BOOL chfsnprb_flush(const CHFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint32_t);
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)&(CHFSNPRB_POOL_NODE_SIZEOF(pool))))
     {
-        sys_log(LOGSTDOUT, "error:chfsnprb_flush: write CHFSNPRB_POOL_NODE_SIZEOF at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDOUT, "error:chfsnprb_flush: write CHFSNPRB_POOL_NODE_SIZEOF at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
    
@@ -1280,7 +1280,7 @@ EC_BOOL chfsnprb_flush(const CHFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = CHFSNPRB_POOL_NODE_MAX_NUM(pool) * CHFSNPRB_POOL_NODE_SIZEOF(pool);    
     if(EC_FALSE == c_file_flush(fd, offset, osize, (uint8_t *)CHFSNPRB_POOL_NODE_TBL(pool)))
     {
-        sys_log(LOGSTDOUT, "error:chfsnprb_flush: write CHFSNPRB_POOL_NODE_TBL at offset %u of fd %d failed where CHFSNPRB_POOL_NODE_MAX_NUM is %u\n", 
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDOUT, "error:chfsnprb_flush: write CHFSNPRB_POOL_NODE_TBL at offset %u of fd %d failed where CHFSNPRB_POOL_NODE_MAX_NUM is %u\n", 
                             (*offset), fd, CHFSNPRB_POOL_NODE_MAX_NUM(pool));
         return (EC_FALSE);
     }
@@ -1299,7 +1299,7 @@ EC_BOOL chfsnprb_load(CHFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize = sizeof(uint32_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(CHFSNPRB_POOL_FREE_HEAD(pool))))
     {
-        sys_log(LOGSTDOUT, "error:chfsnprb_load: load CHFSNPRB_POOL_FREE_HEAD at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDOUT, "error:chfsnprb_load: load CHFSNPRB_POOL_FREE_HEAD at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
 
@@ -1307,7 +1307,7 @@ EC_BOOL chfsnprb_load(CHFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint32_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(node_max_num)))
     {
-        sys_log(LOGSTDOUT, "error:chfsnprb_load: load CHFSNPRB_POOL_NODE_MAX_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDOUT, "error:chfsnprb_load: load CHFSNPRB_POOL_NODE_MAX_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
     CHFSNPRB_POOL_NODE_MAX_NUM(pool) = node_max_num;
@@ -1316,7 +1316,7 @@ EC_BOOL chfsnprb_load(CHFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint32_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(node_used_num)))
     {
-        sys_log(LOGSTDOUT, "error:chfsnprb_load: load CHFSNPRB_POOL_NODE_USED_NUM at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDOUT, "error:chfsnprb_load: load CHFSNPRB_POOL_NODE_USED_NUM at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
     CHFSNPRB_POOL_NODE_MAX_NUM(pool) = node_used_num;    
@@ -1325,7 +1325,7 @@ EC_BOOL chfsnprb_load(CHFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = sizeof(uint32_t);
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)&(node_sizeof)))
     {
-        sys_log(LOGSTDOUT, "error:chfsnprb_load: load CHFSNPRB_POOL_NODE_SIZEOF at offset %u of fd %d failed\n", (*offset), fd);
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDOUT, "error:chfsnprb_load: load CHFSNPRB_POOL_NODE_SIZEOF at offset %u of fd %d failed\n", (*offset), fd);
         return (EC_FALSE);
     }
     CHFSNPRB_POOL_NODE_SIZEOF(pool) = node_sizeof;
@@ -1334,7 +1334,7 @@ EC_BOOL chfsnprb_load(CHFSNPRB_POOL *pool, int fd, UINT32 *offset)
     osize  = CHFSNPRB_POOL_NODE_MAX_NUM(pool) * CHFSNPRB_POOL_NODE_SIZEOF(pool);    
     if(EC_FALSE == c_file_load(fd, offset, osize, (uint8_t *)CHFSNPRB_POOL_NODE_TBL(pool)))
     {
-        sys_log(LOGSTDOUT, "error:chfsnprb_load: load CHFSNPRB_POOL_NODE_TBL at offset %u of fd %d failed where CHFSNPRB_POOL_NODE_MAX_NUM is %u\n", 
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDOUT, "error:chfsnprb_load: load CHFSNPRB_POOL_NODE_TBL at offset %u of fd %d failed where CHFSNPRB_POOL_NODE_MAX_NUM is %u\n", 
                             (*offset), fd, CHFSNPRB_POOL_NODE_MAX_NUM(pool));
         return (EC_FALSE);
     }
@@ -1359,7 +1359,7 @@ EC_BOOL chfsnprb_node_debug_cmp(const CHFSNPRB_NODE *node_1st, const CHFSNPRB_NO
 {
     if(CHFSNPRB_NODE_USED_FLAG(node_1st) != CHFSNPRB_NODE_USED_FLAG(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent CHFSNPRB_NODE_USED_FLAG: %u != %u\n", 
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent CHFSNPRB_NODE_USED_FLAG: %u != %u\n", 
                             CHFSNPRB_NODE_USED_FLAG(node_1st), CHFSNPRB_NODE_USED_FLAG(node_2nd));
         return (EC_FALSE);
     }
@@ -1372,28 +1372,28 @@ EC_BOOL chfsnprb_node_debug_cmp(const CHFSNPRB_NODE *node_1st, const CHFSNPRB_NO
 
     if(CHFSNPRB_NODE_COLOR(node_1st) != CHFSNPRB_NODE_COLOR(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent CHFSNPRB_NODE_COLOR: %u != %u\n", 
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent CHFSNPRB_NODE_COLOR: %u != %u\n", 
                             CHFSNPRB_NODE_COLOR(node_1st), CHFSNPRB_NODE_COLOR(node_2nd));
         return (EC_FALSE);
     }  
 
     if(CHFSNPRB_NODE_PARENT_POS(node_1st) != CHFSNPRB_NODE_PARENT_POS(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent CHFSNPRB_NODE_PARENT_POS: %u != %u\n", 
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent CHFSNPRB_NODE_PARENT_POS: %u != %u\n", 
                             CHFSNPRB_NODE_PARENT_POS(node_1st), CHFSNPRB_NODE_PARENT_POS(node_2nd));
         return (EC_FALSE);
     }  
 
     if(CHFSNPRB_NODE_RIGHT_POS(node_1st) != CHFSNPRB_NODE_RIGHT_POS(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent CHFSNPRB_NODE_RIGHT_POS: %u != %u\n", 
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent CHFSNPRB_NODE_RIGHT_POS: %u != %u\n", 
                             CHFSNPRB_NODE_RIGHT_POS(node_1st), CHFSNPRB_NODE_RIGHT_POS(node_2nd));
         return (EC_FALSE);
     }
 
     if(CHFSNPRB_NODE_LEFT_POS(node_1st) != CHFSNPRB_NODE_LEFT_POS(node_2nd))
     {
-        sys_log(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent CHFSNPRB_NODE_LEFT_POS: %u != %u\n", 
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent CHFSNPRB_NODE_LEFT_POS: %u != %u\n", 
                             CHFSNPRB_NODE_LEFT_POS(node_1st), CHFSNPRB_NODE_LEFT_POS(node_2nd));
         return (EC_FALSE);
     }    
@@ -1402,7 +1402,7 @@ EC_BOOL chfsnprb_node_debug_cmp(const CHFSNPRB_NODE *node_1st, const CHFSNPRB_NO
     {
         if(0 != node_cmp_data(node_1st, node_2nd))
         {
-            sys_log(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent data part\n");
+            dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent data part\n");
             return (EC_FALSE);
         }
     }
@@ -1410,7 +1410,7 @@ EC_BOOL chfsnprb_node_debug_cmp(const CHFSNPRB_NODE *node_1st, const CHFSNPRB_NO
     {
         if(CHFSNPRB_NODE_NEXT_POS(node_1st) != CHFSNPRB_NODE_NEXT_POS(node_2nd))
         {
-            sys_log(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent CHFSNPRB_NODE_NEXT_POS: %u != %u\n", 
+            dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_node_debug_cmp: inconsistent CHFSNPRB_NODE_NEXT_POS: %u != %u\n", 
                                 CHFSNPRB_NODE_NEXT_POS(node_1st), CHFSNPRB_NODE_NEXT_POS(node_2nd));
             return (EC_FALSE);
         }    
@@ -1425,28 +1425,28 @@ EC_BOOL chfsnprb_debug_cmp(const CHFSNPRB_POOL *pool_1st, const CHFSNPRB_POOL *p
     
     if(CHFSNPRB_POOL_FREE_HEAD(pool_1st) != CHFSNPRB_POOL_FREE_HEAD(pool_2nd))
     {
-        sys_log(LOGSTDERR, "error:chfsnprb_debug_cmp: inconsistent CHFSNPRB_POOL_FREE_HEAD: %u != %u\n", 
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_debug_cmp: inconsistent CHFSNPRB_POOL_FREE_HEAD: %u != %u\n", 
                             CHFSNPRB_POOL_FREE_HEAD(pool_1st), CHFSNPRB_POOL_FREE_HEAD(pool_2nd));
         return (EC_FALSE);
     }
 
     if(CHFSNPRB_POOL_NODE_MAX_NUM(pool_1st) != CHFSNPRB_POOL_NODE_MAX_NUM(pool_2nd))
     {
-        sys_log(LOGSTDERR, "error:chfsnprb_debug_cmp: inconsistent CHFSNPRB_POOL_NODE_MAX_NUM: %u != %u\n", 
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_debug_cmp: inconsistent CHFSNPRB_POOL_NODE_MAX_NUM: %u != %u\n", 
                             CHFSNPRB_POOL_NODE_MAX_NUM(pool_1st), CHFSNPRB_POOL_NODE_MAX_NUM(pool_2nd));
         return (EC_FALSE);
     }
 
     if(CHFSNPRB_POOL_NODE_USED_NUM(pool_1st) != CHFSNPRB_POOL_NODE_USED_NUM(pool_2nd))
     {
-        sys_log(LOGSTDERR, "error:chfsnprb_debug_cmp: inconsistent CHFSNPRB_POOL_NODE_USED_NUM: %u != %u\n", 
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_debug_cmp: inconsistent CHFSNPRB_POOL_NODE_USED_NUM: %u != %u\n", 
                             CHFSNPRB_POOL_NODE_USED_NUM(pool_1st), CHFSNPRB_POOL_NODE_USED_NUM(pool_2nd));
         return (EC_FALSE);
     }    
 
     if(CHFSNPRB_POOL_NODE_SIZEOF(pool_1st) != CHFSNPRB_POOL_NODE_SIZEOF(pool_2nd))
     {
-        sys_log(LOGSTDERR, "error:chfsnprb_debug_cmp: inconsistent CHFSNPRB_POOL_NODE_SIZEOF: %u != %u\n", 
+        dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_debug_cmp: inconsistent CHFSNPRB_POOL_NODE_SIZEOF: %u != %u\n", 
                             CHFSNPRB_POOL_NODE_SIZEOF(pool_1st), CHFSNPRB_POOL_NODE_SIZEOF(pool_2nd));
         return (EC_FALSE);
     }  
@@ -1462,7 +1462,7 @@ EC_BOOL chfsnprb_debug_cmp(const CHFSNPRB_POOL *pool_1st, const CHFSNPRB_POOL *p
 
         if(EC_FALSE == chfsnprb_node_debug_cmp(node_1st, node_2nd, node_cmp_data))
         {
-            sys_log(LOGSTDERR, "error:chfsnprb_debug_cmp: inconsistent node at pos %u\n", node_pos);
+            dbg_log(SEC_0073_CHFSNPRB, 0)(LOGSTDERR, "error:chfsnprb_debug_cmp: inconsistent node at pos %u\n", node_pos);
             return (EC_FALSE);
         }
     }

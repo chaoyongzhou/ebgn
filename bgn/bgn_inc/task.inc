@@ -31,6 +31,7 @@ extern "C"{
 #include "cparacfg.inc"
 #include "csyscfg.h"
 #include "cxml.h"
+#include "csys.inc"
 
 #include "mod.inc"
 #include "cload.h"
@@ -198,7 +199,7 @@ typedef struct _TASK_NODE
     UINT32        task_status;                 /* task req or rsp status in status machine */
     UINT32        task_flag;                   /* send complete or recv complete flag*/
 
-    CMUTEX        croutine_mutex;      /* used by task req and task rsp for alignment when task req in IS_SENT state while task rsp in decoding*/
+    CMUTEX        cmutex;                      /* used by task req and task rsp for alignment when task req in IS_SENT state while task rsp in decoding*/
 
     union
     {
@@ -282,39 +283,34 @@ do{\
 /* task req manager */
 typedef struct _TASK_MGR
 {  
-    EC_BOOL      croutine_flag;/*when task_mgr in croutine, set to EC_TRUE, otherwise set to EC_FALSE*/
-    union
-    {
-        CCOND          ccond;
-        CROUTINE_COND  croutine_cond;
-    }u;
-
-    MOD_MGR *    mod_mgr;         /* module mgr will deploy load balancing*/
-    EC_BOOL      free_flag;       /* free or not free mod_mgr when free task mgr*/
-
-    UINT32       task_prio;       /* task priority which will be followed by TASK_REQ and TASK_RSP*/
-
-    UINT32       task_seqno;      /* manage which tasks with this sequence number */
-    UINT32       sub_seqno_gen;   /* generator of sub sequence number in the same task mgr*/
-    CLIST        task_queue;      /* task node queue */
-
-    CHECKER      ret_val_checker; /* check return value in response*/
-
-    UINT32       need_rsp_flag;   /* need or not response of task req*/
-
-    UINT32       counter[ TASK_MGR_COUNTER_END ];
-    CRWLOCK      crwlock;          /* lock for above num getting or setting */
-
-    UINT32       need_reschedule_flag; /*need or not re-schedule task req when taskcomm broken*/
+    CROUTINE_COND     croutine_cond;
     
-    UINT32       time_to_live;    /* task mgr is effective only in seconds. -1 means always living until the expected responses collected*/
-    CTIMET       start_time;      /* start time*/
-    CTIMET       end_time;        /* end time*/
+    MOD_MGR *         mod_mgr;         /* module mgr will deploy load balancing*/
+    EC_BOOL           free_flag;       /* free or not free mod_mgr when free task mgr*/
 
-    EC_BOOL      jump_flag;       /* jump or not jump*/
-    int          jump_state;      /* long jump flag*/
-    int          reserved;        /* for alignment*/
-    JUMP_ENV     jump_env;        /* save stack info by setjmp and restore it by longjump*/
+    UINT32            task_prio;       /* task priority which will be followed by TASK_REQ and TASK_RSP*/
+
+    UINT32            task_seqno;      /* manage which tasks with this sequence number */
+    UINT32            sub_seqno_gen;   /* generator of sub sequence number in the same task mgr*/
+    CLIST             task_queue;      /* task node queue */
+
+    CHECKER           ret_val_checker; /* check return value in response*/
+
+    UINT32            need_rsp_flag;   /* need or not response of task req*/
+
+    UINT32            counter[ TASK_MGR_COUNTER_END ];
+    CROUTINE_RWLOCK   croutine_rwlock; /* lock for above num getting or setting */
+
+    UINT32            need_reschedule_flag; /*need or not re-schedule task req when taskcomm broken*/
+    
+    UINT32            time_to_live;    /* task mgr is effective only in seconds. -1 means always living until the expected responses collected*/
+    CTMV              start_time;      /* start time*/
+    CTMV              end_time;        /* end time*/
+
+    EC_BOOL           jump_flag;       /* jump or not jump*/
+    int               jump_state;      /* long jump flag*/
+    int               reserved;        /* for alignment*/
+    JUMP_ENV          jump_env;        /* save stack info by setjmp and restore it by longjump*/
 }TASK_MGR;
 
 /*task context*/
@@ -328,8 +324,8 @@ typedef struct
 
 typedef struct
 {
-    CMUTEX  cmutex;
-    UINT32  light; /*EC_TRUE: green light, enable isending; EC_FALSE: red light, disable isending*/
+    CROUTINE_MUTEX  croutine_mutex;
+    UINT32          light; /*EC_TRUE: green light, enable isending; EC_FALSE: red light, disable isending*/
 }TASK_RANK_NODE;
 
 
@@ -409,11 +405,15 @@ typedef struct
 #define TASK_REPORT_NODE_FAIL_RSP_NUM(task_report_node)                 ((task_report_node)->fail_rsp_num)
 
 
+#define TASK_BRD_TIME_STR_SIZE         ((int)64)
+
 /*task board*/
 typedef struct _TASK_BRD
 {
     CTIMET       ctime;/*current task_brd time on wall*/
     CTM          ctm;  /*current task_brd time on wall*/
+    CTMV         ctmv;
+    char         time_str[64];
 
     CEPOLL      *cepoll;
     
@@ -441,15 +441,18 @@ typedef struct _TASK_BRD
     CVECTOR      type_conv_vec;
     CVECTOR      func_addr_vec;
 
+    pid_t        do_slave_pid;
+    int          rsvd2;
+    
     CTHREAD_ID   do_slave_cthread_id;            /* do_slave thread  */
-    CTHREAD_ID   do_routine_cthread_id;            /* do_slave thread  */
+    CTHREAD_ID   do_routine_cthread_id;          /* do_routine thread  */
     CTHREAD_ID   do_cbtimer_cthread_id;          /* do_cbtimer thread*/
     CTHREAD_ID   bcast_cthread_id;               /* dhcp_server_do   */    
 
     UINT32       super_md_id;
     UINT32       ganglia_md_id;
 
-    CCOND        fwd_ccond;        /* CCOND for forwarding process. release it when forward process is ready*/ 
+    CROUTINE_COND        fwd_croutine_cond;        /* CCOND for forwarding process. release it when forward process is ready*/ 
 
     UINT32       this_tcid;        /* taskComm id*/
     UINT32       this_comm;        /* communicator of current process*/
@@ -500,8 +503,9 @@ typedef struct _TASK_BRD
     //EC_BOOL      dbg_flag;
     //UINT32       dbg_counter;
 
-    UINT32       active_counter;
     CLOAD_STAT   cload_stat;
+
+    CSYS_CPU_AVG_STAT cpu_avg_stat;
 }TASK_BRD;
 
 
@@ -741,13 +745,21 @@ typedef MOD_MGR * (* MD_FGET_MOD_MGR)(const UINT32);
 #define TASK_NODE_TAG(task_node)                             ((task_node)->this_tag)
 #define TASK_NODE_STATUS(task_node)                          ((task_node)->task_status)
 #define TASK_NODE_COMP(task_node)                            ((task_node)->task_flag)
-#define TASK_NODE_CMUTEX(task_node)                          (&((task_node)->croutine_mutex))
+#define TASK_NODE_CMUTEX(task_node)                          (&((task_node)->cmutex))
 
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)
 #define TASK_NODE_CMUTEX_INIT(task_node, location)           (cmutex_init(TASK_NODE_CMUTEX(task_node), CMUTEX_PROCESS_PRIVATE, location))
 #define TASK_NODE_CMUTEX_CLEAN(task_node, location)          (cmutex_clean(TASK_NODE_CMUTEX(task_node), location))
 #define TASK_NODE_CMUTEX_LOCK(task_node, location)           (cmutex_lock(TASK_NODE_CMUTEX(task_node), location))
 #define TASK_NODE_CMUTEX_UNLOCK(task_node, location)         (cmutex_unlock(TASK_NODE_CMUTEX(task_node), location))
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/
 
+#if (SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)
+#define TASK_NODE_CMUTEX_INIT(task_node, location)           do{}while(0)
+#define TASK_NODE_CMUTEX_CLEAN(task_node, location)          do{}while(0)
+#define TASK_NODE_CMUTEX_LOCK(task_node, location)           do{}while(0)
+#define TASK_NODE_CMUTEX_UNLOCK(task_node, location)         do{}while(0)
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)*/
 
 #define TASK_NODE_SEND_TCID(task_node)                       (TASK_ANY_SEND_TCID(TASK_NODE_ANY(task_node)))
 #define TASK_NODE_SEND_COMM(task_node)                       (TASK_ANY_SEND_COMM(TASK_NODE_ANY(task_node)))
@@ -784,30 +796,28 @@ typedef MOD_MGR * (* MD_FGET_MOD_MGR)(const UINT32);
 #define TASK_MGR_TIME_TO_LIVE(task_mgr)                    ((task_mgr)->time_to_live)
 #define TASK_MGR_START_TIME(task_mgr)                      ((task_mgr)->start_time)
 #define TASK_MGR_END_TIME(task_mgr)                        ((task_mgr)->end_time)
+#define TASK_MGR_START_TIME_SEC(task_mgr)                  ((task_mgr)->start_time.tv_sec)
+#define TASK_MGR_END_TIME_SEC(task_mgr)                    ((task_mgr)->end_time.tv_sec)
+#define TASK_MGR_START_TIME_MSEC(task_mgr)                 ((task_mgr)->start_time.tv_usec / 1000)
+#define TASK_MGR_END_TIME_MSEC(task_mgr)                   ((task_mgr)->end_time.tv_usec / 1000)
 #define TASK_MGR_JMP_FLAG(task_mgr)                        ((task_mgr)->jump_flag)
 #define TASK_MGR_JMP_STATE(task_mgr)                       ((task_mgr)->jump_state)
 #define TASK_MGR_JMP_ENV(task_mgr)                         ((task_mgr)->jump_env)
 
-#define TASK_MGR_CROUTINE_FLAG(task_mgr)                   ((task_mgr)->croutine_flag)
-#define TASK_MGR_CTHREAD_COND(task_mgr)                    (&((task_mgr)->u.ccond))
-#define TASK_MGR_CROUTINE_COND(task_mgr)                   (&((task_mgr)->u.croutine_cond))
-#define TASK_MGR_CCOND_INIT(task_mgr, location)             \
-    ((EC_TRUE == TASK_MGR_CROUTINE_FLAG(task_mgr))? croutine_cond_init(TASK_MGR_CROUTINE_COND(task_mgr), location): ccond_init(TASK_MGR_CTHREAD_COND(task_mgr), location))
-#define TASK_MGR_CCOND_CLEAN(task_mgr, location)            \
-    ((EC_TRUE == TASK_MGR_CROUTINE_FLAG(task_mgr))? croutine_cond_clean(TASK_MGR_CROUTINE_COND(task_mgr), location): ccond_clean(TASK_MGR_CTHREAD_COND(task_mgr), location))
-#define TASK_MGR_CCOND_RESERVE(task_mgr, counter, location) \
-    ((EC_TRUE == TASK_MGR_CROUTINE_FLAG(task_mgr))? croutine_cond_reserve(TASK_MGR_CROUTINE_COND(task_mgr), counter, location): ccond_reserve(TASK_MGR_CTHREAD_COND(task_mgr), counter, location))
-#define TASK_MGR_CCOND_RELEASE(task_mgr, location)          \
-    ((EC_TRUE == TASK_MGR_CROUTINE_FLAG(task_mgr))? croutine_cond_release(TASK_MGR_CROUTINE_COND(task_mgr), location): ccond_release(TASK_MGR_CTHREAD_COND(task_mgr), location))
-#define TASK_MGR_CCOND_WAIT(task_mgr, location)             \
-    ((EC_TRUE == TASK_MGR_CROUTINE_FLAG(task_mgr))? croutine_cond_wait(TASK_MGR_CROUTINE_COND(task_mgr), location): ccond_wait(TASK_MGR_CTHREAD_COND(task_mgr), location))
+#define TASK_MGR_CROUTINE_COND(task_mgr)                   (&((task_mgr)->croutine_cond))
+#define TASK_MGR_CCOND_INIT(task_mgr, location)             croutine_cond_init(TASK_MGR_CROUTINE_COND(task_mgr), location)
+#define TASK_MGR_CCOND_CLEAN(task_mgr, location)            croutine_cond_clean(TASK_MGR_CROUTINE_COND(task_mgr), location)
+#define TASK_MGR_CCOND_RESERVE(task_mgr, counter, location) croutine_cond_reserve(TASK_MGR_CROUTINE_COND(task_mgr), counter, location)
+#define TASK_MGR_CCOND_RELEASE(task_mgr, location)          croutine_cond_release(TASK_MGR_CROUTINE_COND(task_mgr), location)
+#define TASK_MGR_CCOND_RELEASE_ALL(task_mgr, location)      croutine_cond_release_all(TASK_MGR_CROUTINE_COND(task_mgr), location)
+#define TASK_MGR_CCOND_WAIT(task_mgr, location)             croutine_cond_wait(TASK_MGR_CROUTINE_COND(task_mgr), location)
 
-#define TASK_MGR_CRWLOCK(task_mgr)                         (&((task_mgr)->crwlock))
-#define TASK_MGR_CRWLOCK_INIT(task_mgr, location)          do{crwlock_init(TASK_MGR_CRWLOCK(task_mgr), CMUTEX_PROCESS_PRIVATE, location);}while(0)
-#define TASK_MGR_CRWLOCK_CLEAN(task_mgr, location)         do{crwlock_clean(TASK_MGR_CRWLOCK(task_mgr), location);}while(0)
-#define TASK_MGR_CRWLOCK_RDLOCK(task_mgr, location)        do{crwlock_rdlock(TASK_MGR_CRWLOCK(task_mgr), location);}while(0)
-#define TASK_MGR_CRWLOCK_WRLOCK(task_mgr, location)        do{crwlock_wrlock(TASK_MGR_CRWLOCK(task_mgr), location);}while(0)
-#define TASK_MGR_CRWLOCK_UNLOCK(task_mgr, location)        do{crwlock_unlock(TASK_MGR_CRWLOCK(task_mgr), location);}while(0)
+#define TASK_MGR_CRWLOCK(task_mgr)                         (&((task_mgr)->croutine_rwlock))
+#define TASK_MGR_CRWLOCK_INIT(task_mgr, location)          do{croutine_rwlock_init(TASK_MGR_CRWLOCK(task_mgr), CMUTEX_PROCESS_PRIVATE, location);}while(0)
+#define TASK_MGR_CRWLOCK_CLEAN(task_mgr, location)         do{croutine_rwlock_clean(TASK_MGR_CRWLOCK(task_mgr), location);}while(0)
+#define TASK_MGR_CRWLOCK_RDLOCK(task_mgr, location)        do{croutine_rwlock_rdlock(TASK_MGR_CRWLOCK(task_mgr), location);}while(0)
+#define TASK_MGR_CRWLOCK_WRLOCK(task_mgr, location)        do{croutine_rwlock_wrlock(TASK_MGR_CRWLOCK(task_mgr), location);}while(0)
+#define TASK_MGR_CRWLOCK_UNLOCK(task_mgr, location)        do{croutine_rwlock_unlock(TASK_MGR_CRWLOCK(task_mgr), location);}while(0)
 
 #define TASK_MGR_ADD_REQ_TAIL(task_mgr, task_req)    \
         clist_push_back(TASK_MGR_QUEUE(task_mgr), TASK_REQ_NODE(task_req))
@@ -816,17 +826,19 @@ typedef MOD_MGR * (* MD_FGET_MOD_MGR)(const UINT32);
 #define TASK_CONTEXT_TASK_RSP(task_context)   ((task_context)->task_rsp)
 
 /*---------------------------------------- interface of task rank node ----------------------------------------------*/
-#define TASK_RANK_NODE_CMUTEX(task_rank_node)                           (&((task_rank_node)->cmutex))
-#define TASK_RANK_NODE_CMUTEX_INIT(task_rank_node, location)            (cmutex_init(TASK_RANK_NODE_CMUTEX(task_rank_node), CMUTEX_PROCESS_PRIVATE, location))
-#define TASK_RANK_NODE_CMUTEX_CLEAN(task_rank_node, location)           (cmutex_clean(TASK_RANK_NODE_CMUTEX(task_rank_node), location))
-#define TASK_RANK_NODE_LOCK(task_rank_node, location)                   (cmutex_lock(TASK_RANK_NODE_CMUTEX(task_rank_node), location))
-#define TASK_RANK_NODE_UNLOCK(task_rank_node, location)                 (cmutex_unlock(TASK_RANK_NODE_CMUTEX(task_rank_node), location))
+#define TASK_RANK_NODE_CMUTEX(task_rank_node)                           (&((task_rank_node)->croutine_mutex))
+#define TASK_RANK_NODE_CMUTEX_INIT(task_rank_node, location)            (croutine_mutex_init(TASK_RANK_NODE_CMUTEX(task_rank_node), CMUTEX_PROCESS_PRIVATE, location))
+#define TASK_RANK_NODE_CMUTEX_CLEAN(task_rank_node, location)           (croutine_mutex_clean(TASK_RANK_NODE_CMUTEX(task_rank_node), location))
+#define TASK_RANK_NODE_LOCK(task_rank_node, location)                   (croutine_mutex_lock(TASK_RANK_NODE_CMUTEX(task_rank_node), location))
+#define TASK_RANK_NODE_UNLOCK(task_rank_node, location)                 (croutine_mutex_unlock(TASK_RANK_NODE_CMUTEX(task_rank_node), location))
 #define TASK_RANK_NODE_LIGHT(task_rank_node)                            ((task_rank_node)->light)
 
 
 /*---------------------------------------- interface of task board ----------------------------------------------*/
 #define TASK_BRD_CTIME(task_brd)                           ((task_brd)->ctime)
 #define TASK_BRD_CTM(task_brd)                             (&((task_brd)->ctm))
+#define TASK_BRD_CTMV(task_brd)                            (&((task_brd)->ctmv))
+#define TASK_BRD_TIME_STR(task_brd)                        ((task_brd)->time_str)
 #define TASK_BRD_CEPOLL(task_brd)                          ((task_brd)->cepoll)
 #define TASK_BRD_CSIG(task_brd)                            (&((task_brd)->csig))
 #define TASK_BRD_TASK_MGR_STACK(task_brd)                  (&((task_brd)->task_mgr_stack))
@@ -835,24 +847,26 @@ typedef MOD_MGR * (* MD_FGET_MOD_MGR)(const UINT32);
 #define TASK_BRD_STACK_MGR_STACK_POP(task_brd)             (cstack_pop(TASK_BRD_TASK_MGR_STACK(task_brd)))
 #define TASK_BRD_STACK_MGR_STACK_TOP(task_brd)             (cstack_top(TASK_BRD_TASK_MGR_STACK(task_brd)))
 
-#define TASK_BRD_TYPE_CONV_VEC(task_brd)       (&((task_brd)->type_conv_vec))
-#define TASK_BRD_FUNC_ADDR_VEC(task_brd)       (&((task_brd)->func_addr_vec))
+#define TASK_BRD_TYPE_CONV_VEC(task_brd)                   (&((task_brd)->type_conv_vec))
+#define TASK_BRD_FUNC_ADDR_VEC(task_brd)                   (&((task_brd)->func_addr_vec))
 
-#define TASK_BRD_SUPER_MD_ID(task_brd)         ((task_brd)->super_md_id)
-#define TASK_BRD_GANGLIA_MD_ID(task_brd)       ((task_brd)->ganglia_md_id)
+#define TASK_BRD_SUPER_MD_ID(task_brd)                     ((task_brd)->super_md_id)
+#define TASK_BRD_GANGLIA_MD_ID(task_brd)                   ((task_brd)->ganglia_md_id)
 
-#define TASK_BRD_DO_SLAVE_CTHREAD_ID(task_brd)          ((task_brd)->do_slave_cthread_id)
-#define TASK_BRD_DO_ROUTINE_CTHREAD_ID(task_brd)        ((task_brd)->do_routine_cthread_id)
-#define TASK_BRD_DO_CBTIMER_CTHREAD_ID(task_brd)        ((task_brd)->do_cbtimer_cthread_id)
-#define TASK_BRD_BCAST_CTHREAD_ID(task_brd)             ((task_brd)->bcast_cthread_id)
+#define TASK_BRD_DO_SLAVE_PID(task_brd)                    ((task_brd)->do_slave_pid)
 
-#define TASK_BRD_FWD_CCOND(task_brd)                               (&((task_brd)->fwd_ccond))
-#define TASK_BRD_FWD_CCOND_INIT(task_brd, location)                 ccond_init(TASK_BRD_FWD_CCOND(task_brd), location)
-#define TASK_BRD_FWD_CCOND_CLEAN(task_brd, location)                ccond_clean(TASK_BRD_FWD_CCOND(task_brd), location)
-#define TASK_BRD_FWD_CCOND_RESERVE(task_brd, counter, location)     ccond_reserve(TASK_BRD_FWD_CCOND(task_brd), counter, location)
-#define TASK_BRD_FWD_CCOND_RELEASE(task_brd, location)              ccond_release(TASK_BRD_FWD_CCOND(task_brd), location)
-#define TASK_BRD_FWD_CCOND_RELEASE_ALL(task_brd, location)          ccond_release_all(TASK_BRD_FWD_CCOND(task_brd), location)
-#define TASK_BRD_FWD_CCOND_WAIT(task_brd, location)                 ccond_wait(TASK_BRD_FWD_CCOND(task_brd), location)
+#define TASK_BRD_DO_SLAVE_CTHREAD_ID(task_brd)             ((task_brd)->do_slave_cthread_id)
+#define TASK_BRD_DO_ROUTINE_CTHREAD_ID(task_brd)           ((task_brd)->do_routine_cthread_id)
+#define TASK_BRD_DO_CBTIMER_CTHREAD_ID(task_brd)           ((task_brd)->do_cbtimer_cthread_id)
+#define TASK_BRD_BCAST_CTHREAD_ID(task_brd)                ((task_brd)->bcast_cthread_id)
+
+#define TASK_BRD_FWD_CCOND(task_brd)                               (&((task_brd)->fwd_croutine_cond))
+#define TASK_BRD_FWD_CCOND_INIT(task_brd, location)                 croutine_cond_init(TASK_BRD_FWD_CCOND(task_brd), location)
+#define TASK_BRD_FWD_CCOND_CLEAN(task_brd, location)                croutine_cond_clean(TASK_BRD_FWD_CCOND(task_brd), location)
+#define TASK_BRD_FWD_CCOND_RESERVE(task_brd, counter, location)     croutine_cond_reserve(TASK_BRD_FWD_CCOND(task_brd), counter, location)
+#define TASK_BRD_FWD_CCOND_RELEASE(task_brd, location)              croutine_cond_release(TASK_BRD_FWD_CCOND(task_brd), location)
+#define TASK_BRD_FWD_CCOND_RELEASE_ALL(task_brd, location)          croutine_cond_release_all(TASK_BRD_FWD_CCOND(task_brd), location)
+#define TASK_BRD_FWD_CCOND_WAIT(task_brd, location)                 croutine_cond_wait(TASK_BRD_FWD_CCOND(task_brd), location)
 
 #define TASK_BRD_MD_NODE_TBL(task_brd)             (&((task_brd)->md_node_tbl))
 
@@ -892,11 +906,21 @@ typedef MOD_MGR * (* MD_FGET_MOD_MGR)(const UINT32);
 #define TASK_BRD_ARGING_TASK_MGR_LIST_INIT(task_brd, location)         (clist_init(TASK_BRD_AGING_TASK_MGR_LIST(task_brd), MM_IGNORE, location))
 
 #define TASK_BRD_SEQNO(task_brd)                             ((task_brd)->task_seqno_spool)
+
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)
 #define TASK_BRD_SEQNO_CMUTEX(task_brd)                      (&((task_brd)->task_seqno_spool_cmutex))
 #define TASK_BRD_SEQNO_CMUTEX_INT(task_brd, location)        (cmutex_init(TASK_BRD_SEQNO_CMUTEX(task_brd), CMUTEX_PROCESS_PRIVATE, location))
 #define TASK_BRD_SEQNO_CMUTEX_CLEAN(task_brd, location)      (cmutex_clean(TASK_BRD_SEQNO_CMUTEX(task_brd), location))
 #define TASK_BRD_SEQNO_CMUTEX_LOCK(task_brd, location)       (cmutex_lock(TASK_BRD_SEQNO_CMUTEX(task_brd), location))
 #define TASK_BRD_SEQNO_CMUTEX_UNLOCK(task_brd, location)     (cmutex_unlock(TASK_BRD_SEQNO_CMUTEX(task_brd), location))
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/
+
+#if (SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)
+#define TASK_BRD_SEQNO_CMUTEX_INT(task_brd, location)        do{}while(0)
+#define TASK_BRD_SEQNO_CMUTEX_CLEAN(task_brd, location)      do{}while(0)
+#define TASK_BRD_SEQNO_CMUTEX_LOCK(task_brd, location)       do{}while(0)
+#define TASK_BRD_SEQNO_CMUTEX_UNLOCK(task_brd, location)     do{}while(0)
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)*/
 
 #if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)
 #define TASK_BRD_CROUTINE_POOL(task_brd)                     (NULL_PTR)/*xxx*/
@@ -943,6 +967,7 @@ typedef MOD_MGR * (* MD_FGET_MOD_MGR)(const UINT32);
 #define TASK_BRD_SIZE(task_brd)                              ((task_brd)->this_size)
 #define TASK_BRD_RANK(task_brd)                              ((task_brd)->this_rank)
 #define TASK_BRD_CLOAD_STAT(task_brd)                        (&((task_brd)->cload_stat))
+#define TASK_BRD_CPU_AVG_STAT(task_brd)                      (&((task_brd)->cpu_avg_stat))
 #define TASK_BRD_IPADDR(task_brd)                            ((task_brd)->this_ipaddr)
 #define TASK_BRD_PORT(task_brd)                              ((task_brd)->this_port)
 #define TASK_BRD_QUEUE(task_brd, queue_type)                 (&((task_brd)->task_queue[ (queue_type) ]))
@@ -955,36 +980,6 @@ typedef MOD_MGR * (* MD_FGET_MOD_MGR)(const UINT32);
 #define TASK_BRD_ENABLE_FLAG(task_brd)                       ((task_brd)->enable_flag)
 #define TASK_BRD_RESET_FLAG(task_brd)                        ((task_brd)->reset_flag)
 #define TASK_BRD_ABORT_FLAG(task_brd)                        (CPROC_ABORT_FLAG(TASK_BRD_CPROC(task_brd)))
-
-#define TASK_BRD_ACTIVE_COUNTER(task_brd)                    ((task_brd)->active_counter)
-
-#define TASK_BRD_DEFAULT_ACTIVE_COUNTER()                    (TASK_BRD_ACTIVE_COUNTER(task_brd_default_get()))
-
-#if 1
-#define TASK_BRD_DEFAULT_ACTIVE_COUNTER_INC(location)        do{++ TASK_BRD_DEFAULT_ACTIVE_COUNTER();}while(0)
-#define TASK_BRD_DEFAULT_ACTIVE_COUNTER_CLR(location)        do{TASK_BRD_DEFAULT_ACTIVE_COUNTER() = 0; }while(0)
-#define TASK_BRD_DEFAULT_ACTIVE_COUNTER_IS_SET(location)     (0 < TASK_BRD_DEFAULT_ACTIVE_COUNTER())
-#define TASK_BRD_DEFAULT_ACTIVE_COUNTER_IS_NOT_SET(location) (0 == TASK_BRD_DEFAULT_ACTIVE_COUNTER())
-#endif
-#if 0
-#define TASK_BRD_DEFAULT_ACTIVE_COUNTER_INC(location)        do{\
-    ++ TASK_BRD_DEFAULT_ACTIVE_COUNTER();\
-    sys_log(LOGSTDOUT, "[DEBUG] TASK_BRD_DEFAULT_ACTIVE_COUNTER ++ at %s:%ld\n", \
-    MM_LOC_FILE_NAME(location), \
-    MM_LOC_LINE_NO(location));\
-}while(0)
-
-#define TASK_BRD_DEFAULT_ACTIVE_COUNTER_CLR(location)        do{\
-    TASK_BRD_DEFAULT_ACTIVE_COUNTER() = 0; \
-    sys_log(LOGSTDOUT, "[DEBUG] TASK_BRD_DEFAULT_ACTIVE_COUNTER clear at %s:%ld\n", \
-    MM_LOC_FILE_NAME(location), \
-    MM_LOC_LINE_NO(location));\
-}while(0)
-
-#define TASK_BRD_DEFAULT_ACTIVE_COUNTER_IS_SET()     (0 < TASK_BRD_DEFAULT_ACTIVE_COUNTER())
-#define TASK_BRD_DEFAULT_ACTIVE_COUNTER_IS_NOT_SET() (0 == TASK_BRD_DEFAULT_ACTIVE_COUNTER())
-
-#endif
 
 #endif /*_TASK_INC*/
 

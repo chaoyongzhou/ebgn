@@ -230,7 +230,7 @@ void poly_fp_end(const UINT32 polyfp_md_id)
 
     if ( MAX_NUM_OF_POLYFP_MD < polyfp_md_id )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_end: polyfp_md_id = %ld is overflow.\n",polyfp_md_id);
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_end: polyfp_md_id = %ld is overflow.\n",polyfp_md_id);
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -245,7 +245,7 @@ void poly_fp_end(const UINT32 polyfp_md_id)
 
     if ( 0 == polyfp_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_end: polyfp_md_id = %ld is not started.\n",polyfp_md_id);
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_end: polyfp_md_id = %ld is not started.\n",polyfp_md_id);
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -285,7 +285,7 @@ UINT32 poly_fp_alloc_bgn(const UINT32 polyfp_md_id, BIGINT **ppbgn)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == ppbgn )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_alloc_bgn: ppbgn is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_alloc_bgn: ppbgn is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -312,7 +312,7 @@ UINT32 poly_fp_alloc_deg(const UINT32 polyfp_md_id, DEGREE **ppdeg)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == ppdeg )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_alloc_deg: ppdeg is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_alloc_deg: ppdeg is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -339,7 +339,7 @@ UINT32 poly_fp_alloc_item(const UINT32 polyfp_md_id,POLY_ITEM **ppitem)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == ppitem )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_alloc_item: ppitem is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_alloc_item: ppitem is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -366,7 +366,7 @@ UINT32 poly_fp_alloc_poly(const UINT32 polyfp_md_id,POLY **pppoly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == pppoly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_alloc_poly: pppoly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_alloc_poly: pppoly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -396,7 +396,7 @@ UINT32 poly_fp_free_bgn(const UINT32 polyfp_md_id,BIGINT *bgn)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == bgn )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_free_bgn: bgn is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_free_bgn: bgn is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -423,7 +423,7 @@ UINT32 poly_fp_free_deg(const UINT32 polyfp_md_id,DEGREE *deg)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == deg )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_free_deg: deg is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_free_deg: deg is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -450,7 +450,7 @@ UINT32 poly_fp_free_item(const UINT32 polyfp_md_id,POLY_ITEM *item)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_free_item: item is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_free_item: item is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -477,7 +477,7 @@ UINT32 poly_fp_free_poly(const UINT32 polyfp_md_id,POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_free_poly: poly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_free_poly: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -506,7 +506,7 @@ UINT32 poly_fp_item_destory(const UINT32 polyfp_md_id, POLY_ITEM *item)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_destory: item is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_destory: item is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -548,7 +548,7 @@ UINT32 poly_fp_poly_clean(const UINT32 polyfp_md_id, POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_clean: poly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_clean: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -588,7 +588,7 @@ UINT32 poly_fp_poly_destory(const UINT32 polyfp_md_id, POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_destory: poly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_destory: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -616,12 +616,12 @@ UINT32 poly_fp_poly_clone(const UINT32 polyfp_md_id,const POLY *poly_a, POLY *po
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_clone: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_clone: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_clone: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_clone: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -669,12 +669,12 @@ UINT32 poly_fp_item_clone(const UINT32 polyfp_md_id,const POLY_ITEM *item_a, POL
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_clone: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_clone: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_clone: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_clone: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -734,7 +734,7 @@ UINT32 poly_fp_set_zero(const UINT32 polyfp_md_id,POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_set_zero: poly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_set_zero: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -772,7 +772,7 @@ UINT32 poly_fp_set_one(const UINT32 polyfp_md_id,POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_set_one: poly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_set_one: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -829,7 +829,7 @@ UINT32 poly_fp_set_word(const UINT32 polyfp_md_id,const UINT32 n, POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_set_word: poly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_set_word: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -886,12 +886,12 @@ UINT32 poly_fp_set_n(const UINT32 polyfp_md_id,const BIGINT *n, POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == n )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_set_n: n is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_set_n: n is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_set_n: poly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_set_n: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -949,12 +949,12 @@ UINT32 poly_fp_set_xn(const UINT32 polyfp_md_id,const DEGREE *deg, POLY *poly)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == deg )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_set_xn: deg is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_set_xn: deg is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_set_xn: poly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_set_xn: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -1011,7 +1011,7 @@ UINT32 poly_fp_set_xn_word(const UINT32 polyfp_md_id,const UINT32 deg, POLY *pol
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_set_xn_word: poly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_set_xn_word: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -1060,12 +1060,12 @@ EC_BOOL poly_fp_item_cmp(const UINT32 polyfp_md_id,const POLY_ITEM *item_a, cons
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_cmp: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_cmp: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == item_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_cmp: item_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_cmp: item_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -1117,12 +1117,12 @@ EC_BOOL poly_fp_poly_cmp(const UINT32 polyfp_md_id,const POLY *poly_a, const POL
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_cmp: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_cmp: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_cmp: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_cmp: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -1197,12 +1197,12 @@ static UINT32 poly_fp_adc_n(const UINT32 polyfp_md_id,const BIGINT *n, POLY *pol
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == n )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_adc_n: n is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_adc_n: n is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_adc_n: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_adc_n: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -1292,17 +1292,17 @@ UINT32 poly_fp_add_n(const UINT32 polyfp_md_id,const POLY *poly_a, const BIGINT 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_add_n: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_add_n: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == n )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_add_n: n is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_add_n: n is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_add_n: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_add_n: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -1372,7 +1372,7 @@ static UINT32 poly_fp_double_poly(const UINT32 polyfp_md_id, POLY *poly_c)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_double_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_double_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -1530,12 +1530,12 @@ UINT32 poly_fp_adc_poly(const UINT32 polyfp_md_id,const POLY *poly_a, POLY *poly
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_adc_poly: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_adc_poly: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_adc_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_adc_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -1838,17 +1838,17 @@ UINT32 poly_fp_add_poly(const UINT32 polyfp_md_id,const POLY *poly_a, const POLY
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_add_poly: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_add_poly: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_add_poly: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_add_poly: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_add_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_add_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2160,17 +2160,17 @@ UINT32 poly_fp_sub_poly_bgn(const UINT32 polyfp_md_id,const POLY *poly_a, const 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sub_poly_bgn: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sub_poly_bgn: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == bgn_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sub_poly_bgn: bgn_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sub_poly_bgn: bgn_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sub_poly_bgn: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sub_poly_bgn: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2315,17 +2315,17 @@ UINT32 poly_fp_sub_bgn_poly(const UINT32 polyfp_md_id,const BIGINT *bgn_a, const
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == bgn_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sub_bgn_poly: bgn_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sub_bgn_poly: bgn_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sub_bgn_poly: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sub_bgn_poly: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sub_bgn_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sub_bgn_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2366,7 +2366,7 @@ static UINT32 poly_fp_item_self_neg(const UINT32 polyfp_md_id, POLY_ITEM *item_c
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_self_neg: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_self_neg: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2435,12 +2435,12 @@ UINT32 poly_fp_item_neg(const UINT32 polyfp_md_id, const POLY_ITEM *item_a,POLY_
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_neg: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_neg: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_neg: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_neg: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2527,7 +2527,7 @@ static UINT32 poly_fp_poly_self_neg(const UINT32 polyfp_md_id, POLY *poly_c)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_self_neg: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_self_neg: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2582,12 +2582,12 @@ UINT32 poly_fp_poly_neg(const UINT32 polyfp_md_id, const POLY *poly_a, POLY *pol
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_neg: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_neg: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_neg: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_neg: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -2728,12 +2728,12 @@ static UINT32 poly_fp_sbb_c_a(const UINT32 polyfp_md_id, const POLY *poly_a, POL
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sbb_c_a: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sbb_c_a: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sbb_c_a: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sbb_c_a: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -3030,12 +3030,12 @@ static UINT32 poly_fp_sbb_a_c(const UINT32 polyfp_md_id, const POLY *poly_a, POL
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sbb_a_c: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sbb_a_c: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sbb_a_c: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sbb_a_c: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -3362,17 +3362,17 @@ UINT32 poly_fp_sub_poly(const UINT32 polyfp_md_id, const POLY *poly_a, const POL
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sub_poly: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sub_poly: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sub_poly: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sub_poly: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sub_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sub_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -3654,7 +3654,7 @@ UINT32 poly_fp_poly_output(const UINT32 polyfp_md_id,const POLY *poly, const UIN
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_output: poly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_output: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -3670,12 +3670,12 @@ UINT32 poly_fp_poly_output(const UINT32 polyfp_md_id,const POLY *poly, const UIN
 
     if ( NULL_PTR != info )
     {
-        sys_log(LOGSTDOUT,"%s: ",info);
+        dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"%s: ",info);
     }
 
     if ( depth >= 32 )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_output: depth = %ld overflow\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_output: depth = %ld overflow\n");
         return ((UINT32)(-1));
     }
 
@@ -3689,17 +3689,17 @@ UINT32 poly_fp_poly_output(const UINT32 polyfp_md_id,const POLY *poly, const UIN
 
     while( item != POLY_NULL_ITEM(poly) )
     {
-        sys_log(LOGSTDOUT,"%s deg: ", space_str);
+        dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"%s deg: ", space_str);
         print_deg_dec(LOGSTDOUT, POLY_ITEM_DEG(item));
 
         if ( EC_TRUE == POLY_ITEM_BGN_COE_FLAG(item) )
         {
-            sys_log(LOGSTDOUT,"%s coe: ", space_str);
+            dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"%s coe: ", space_str);
             print_bigint_dec(LOGSTDOUT, POLY_ITEM_BGN_COE(item));
         }
         else
         {
-            sys_log(LOGSTDOUT,"%s coe: \n", space_str);
+            dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"%s coe: \n", space_str);
             poly_fp_poly_output(polyfp_md_id, POLY_ITEM_POLY_COE(item), depth + 1, NULL_PTR);
         }
 
@@ -3742,12 +3742,12 @@ UINT32 poly_fp_item_move(const UINT32 polyfp_md_id, POLY_ITEM *item_a, POLY_ITEM
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_move: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_move: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_move: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_move: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -3807,12 +3807,12 @@ UINT32 poly_fp_poly_move(const UINT32 polyfp_md_id, POLY *poly_a, POLY *poly_c)
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_move: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_move: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_poly_move: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_poly_move: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -3952,12 +3952,12 @@ static UINT32 poly_fp_item_insert(const UINT32 polyfp_md_id, POLY_ITEM *item_a, 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_insert: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_insert: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_insert: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_insert: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4255,17 +4255,17 @@ static UINT32 poly_fp_item_mul(const UINT32 polyfp_md_id, const POLY_ITEM *item_
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_mul: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_mul: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == item_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_mul: item_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_mul: item_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_mul: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_mul: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4318,7 +4318,7 @@ static UINT32 poly_fp_item_mul(const UINT32 polyfp_md_id, const POLY_ITEM *item_
     carry = POLY_ITEM_DEG_ADD(bgnz_md_id, POLY_ITEM_DEG(item_a), POLY_ITEM_DEG(item_b), POLY_ITEM_DEG(item_c));
     if ( 0 < carry )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_mul: degree overflow.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_mul: degree overflow.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -4513,12 +4513,12 @@ static UINT32 poly_fp_item_mul_self(const UINT32 polyfp_md_id, const POLY_ITEM *
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_mul_self: item_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_mul_self: item_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_mul_self: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_mul_self: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4565,7 +4565,7 @@ static UINT32 poly_fp_item_squ_self(const UINT32 polyfp_md_id, POLY_ITEM *item_c
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == item_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_item_squ_self: item_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_item_squ_self: item_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4631,12 +4631,12 @@ static UINT32 poly_fp_mul_self_bgn(const UINT32 polyfp_md_id,const BIGINT *bgn_a
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == bgn_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_self_bgn: bgn_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_self_bgn: bgn_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_self_bgn: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_self_bgn: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4766,17 +4766,17 @@ UINT32 poly_fp_mul_bgn(const UINT32 polyfp_md_id,const POLY *poly_a,const BIGINT
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_bgn: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_bgn: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == bgn_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_bgn: bgn_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_bgn: bgn_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_bgn: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_bgn: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4929,12 +4929,12 @@ UINT32 poly_fp_mul_word(const UINT32 polyfp_md_id,const POLY *poly_a,const UINT3
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_word: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_word: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_word: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_word: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -4978,12 +4978,12 @@ static UINT32 poly_fp_mul_xn_self(const UINT32 polyfp_md_id, const DEGREE *deg, 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == deg )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_xn_self: deg is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_xn_self: deg is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_xn_self: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_xn_self: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5029,17 +5029,17 @@ static UINT32 poly_fp_mul_xn(const UINT32 polyfp_md_id,const POLY *poly_a, const
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_xn: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_xn: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == deg )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_xn: deg is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_xn: deg is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_xn: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_xn: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5093,12 +5093,12 @@ static UINT32 poly_fp_mul_self(const UINT32 polyfp_md_id,const POLY *poly_a, POL
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_self: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_self: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_self: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_self: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5180,17 +5180,17 @@ UINT32 poly_fp_mul_poly(const UINT32 polyfp_md_id,const POLY *poly_a,const POLY 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_poly: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_poly: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_poly: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_poly: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mul_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mul_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5297,12 +5297,12 @@ UINT32 poly_fp_squ_poly(const UINT32 polyfp_md_id,const POLY *poly_a,POLY *poly_
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_squ_poly: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_squ_poly: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_squ_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_squ_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5366,12 +5366,12 @@ UINT32 poly_fp_sexp(const UINT32 polyfp_md_id,const POLY *poly_a,const UINT32 e,
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sexp: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sexp: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_sexp: c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_sexp: c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*BIGINT_DEBUG_SWITCH*/
@@ -5473,17 +5473,17 @@ UINT32 poly_fp_exp(const UINT32 polyfp_md_id,const POLY *poly_a,const BIGINT *e,
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_exp: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_exp: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == e )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_exp: e is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_exp: e is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_exp: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_exp: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5561,7 +5561,7 @@ static EC_BOOL poly_fp_is_one_var_poly(const UINT32 polyfp_md_id, const POLY *po
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_is_one_var_poly: poly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_is_one_var_poly: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5609,7 +5609,7 @@ EC_BOOL poly_fp_is_monic(const UINT32 polyfp_md_id, const POLY *poly )
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_is_monic: poly is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_is_monic: poly is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5625,7 +5625,7 @@ EC_BOOL poly_fp_is_monic(const UINT32 polyfp_md_id, const POLY *poly )
 
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_is_monic: not support poly with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_is_monic: not support poly with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -5692,12 +5692,12 @@ UINT32 poly_fp_to_monic(const UINT32 polyfp_md_id, const POLY *poly_a, POLY * po
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_to_monic: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_to_monic: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_to_monic: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_to_monic: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5719,7 +5719,7 @@ UINT32 poly_fp_to_monic(const UINT32 polyfp_md_id, const POLY *poly_a, POLY * po
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_a) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_to_monic: not support poly_a with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_to_monic: not support poly_a with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -5730,7 +5730,7 @@ UINT32 poly_fp_to_monic(const UINT32 polyfp_md_id, const POLY *poly_a, POLY * po
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_c) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_to_monic: not support poly_c with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_to_monic: not support poly_c with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -5811,12 +5811,12 @@ static EC_BOOL poly_fp_check_valid_for_mod(const UINT32 polyfp_md_id, const POLY
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -5837,7 +5837,7 @@ static EC_BOOL poly_fp_check_valid_for_mod(const UINT32 polyfp_md_id, const POLY
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_a) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: not support poly_a with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: not support poly_a with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -5848,7 +5848,7 @@ static EC_BOOL poly_fp_check_valid_for_mod(const UINT32 polyfp_md_id, const POLY
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: not support poly_b with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: not support poly_b with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -5859,7 +5859,7 @@ static EC_BOOL poly_fp_check_valid_for_mod(const UINT32 polyfp_md_id, const POLY
     */
     if ( EC_TRUE == POLY_IS_EMPTY(poly_a) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: poly_a is empty.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: poly_a is empty.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -5870,7 +5870,7 @@ static EC_BOOL poly_fp_check_valid_for_mod(const UINT32 polyfp_md_id, const POLY
     */
     if ( EC_TRUE == POLY_IS_EMPTY(poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: poly_b is empty.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: poly_b is empty.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -5889,7 +5889,7 @@ static EC_BOOL poly_fp_check_valid_for_mod(const UINT32 polyfp_md_id, const POLY
     /*if deg(poly_b) >= threshold deg_thrd, then return FALSE*/
     if ( 0 <= POLY_ITEM_DEG_CMP(bgnz_md_id, POLY_DEG(poly_b), deg_thrd) )
     {
-        //sys_log(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: deg(poly_b) >= %ld is not supported.\n",MAX_POLY_DEG_SUPPORTED_FOR_MOD);
+        //dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: deg(poly_b) >= %ld is not supported.\n",MAX_POLY_DEG_SUPPORTED_FOR_MOD);
         free_static_mem(MD_POLYFP, polyfp_md_id, MM_BIGINT, deg_thrd, LOC_POLYFP_0105);
         return (EC_FALSE);
     }
@@ -5898,7 +5898,7 @@ static EC_BOOL poly_fp_check_valid_for_mod(const UINT32 polyfp_md_id, const POLY
     POLY_ITEM_DEG_ADD(bgnz_md_id, POLY_DEG(poly_b), deg_thrd, deg_thrd);
     if ( 0 <= POLY_ITEM_DEG_CMP(bgnz_md_id, POLY_DEG(poly_a), deg_thrd) )
     {
-        //sys_log(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: deg(poly_a) - deg(poly_b) >= %ld is not supported.\n",MAX_POLY_DEG_SUPPORTED_FOR_MOD);
+        //dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_check_valid_for_mod: deg(poly_a) - deg(poly_b) >= %ld is not supported.\n",MAX_POLY_DEG_SUPPORTED_FOR_MOD);
         free_static_mem(MD_POLYFP, polyfp_md_id, MM_BIGINT, deg_thrd, LOC_POLYFP_0106);
         return (EC_FALSE);
     }
@@ -5991,12 +5991,12 @@ static UINT32 poly_fp_mod_a_self(const UINT32 polyfp_md_id, const POLY *poly_b, 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_a_self: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_a_self: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_a_self: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_a_self: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -6017,7 +6017,7 @@ static UINT32 poly_fp_mod_a_self(const UINT32 polyfp_md_id, const POLY *poly_b, 
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_a_self: not support poly_b with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_a_self: not support poly_b with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -6028,7 +6028,7 @@ static UINT32 poly_fp_mod_a_self(const UINT32 polyfp_md_id, const POLY *poly_b, 
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_c) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_a_self: not support poly_c with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_a_self: not support poly_c with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -6039,7 +6039,7 @@ static UINT32 poly_fp_mod_a_self(const UINT32 polyfp_md_id, const POLY *poly_b, 
     */
     if ( EC_TRUE == POLY_IS_EMPTY(poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_a_self: poly_b is empty.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_a_self: poly_b is empty.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -6064,7 +6064,7 @@ static UINT32 poly_fp_mod_a_self(const UINT32 polyfp_md_id, const POLY *poly_b, 
     /*if invalid, then exit*/
     if ( EC_FALSE == poly_fp_check_valid_for_mod(polyfp_md_id, poly_c, poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_a_self: invalid degrees of poly_c and poly_b.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_a_self: invalid degrees of poly_c and poly_b.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -6082,7 +6082,7 @@ static UINT32 poly_fp_mod_a_self(const UINT32 polyfp_md_id, const POLY *poly_b, 
     alloc_static_mem(MD_POLYFP, polyfp_md_id, MM_BIGINT, &inv_of_bgn_coe_of_item_b, LOC_POLYFP_0108);
     if ( EC_FALSE == bgn_fp_inv(bgnfp_md_id, POLY_ITEM_BGN_COE(item_b), inv_of_bgn_coe_of_item_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_a_self: inversion failure.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_a_self: inversion failure.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -6149,7 +6149,7 @@ static UINT32 poly_fp_mod_a_self(const UINT32 polyfp_md_id, const POLY *poly_b, 
         POLY_ITEM_BGN_COE(item_t) = bgn_coe_of_item_t;
         POLY_ITEM_BGN_COE_FLAG(item_t) = EC_TRUE;
 
-        //sys_log(LOGSTDOUT,"poly_fp_mod_a_self: deg diff = ");
+        //dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"poly_fp_mod_a_self: deg diff = ");
         //print_bigint_dec(LOGSTDOUT, POLY_ITEM_DEG(item_t));
 
         POLY_ADD_ITEM_TAIL(poly_t, item_t);
@@ -6216,12 +6216,12 @@ static UINT32 poly_fp_mod_b_self(const UINT32 polyfp_md_id, const POLY *poly_a, 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_b_self: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_b_self: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_b_self: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_b_self: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -6243,7 +6243,7 @@ static UINT32 poly_fp_mod_b_self(const UINT32 polyfp_md_id, const POLY *poly_a, 
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_a) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_b_self: not support poly_a with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_b_self: not support poly_a with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -6255,7 +6255,7 @@ static UINT32 poly_fp_mod_b_self(const UINT32 polyfp_md_id, const POLY *poly_a, 
 
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_c) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_b_self: not support poly_c with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_b_self: not support poly_c with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -6266,7 +6266,7 @@ static UINT32 poly_fp_mod_b_self(const UINT32 polyfp_md_id, const POLY *poly_a, 
     */
     if ( EC_TRUE == POLY_IS_EMPTY(poly_c) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_b_self: poly_c is empty.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_b_self: poly_c is empty.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -6288,7 +6288,7 @@ static UINT32 poly_fp_mod_b_self(const UINT32 polyfp_md_id, const POLY *poly_a, 
     /*if invalid, then exit*/
     if ( EC_FALSE == poly_fp_check_valid_for_mod(polyfp_md_id, poly_a, poly_c) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_b_self: invalid degrees of poly_a and poly_c.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_b_self: invalid degrees of poly_a and poly_c.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -6433,17 +6433,17 @@ static UINT32 poly_fp_mod_poly_simple(const UINT32 polyfp_md_id,const POLY *poly
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_simple: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_simple: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_simple: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_simple: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_simple: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_simple: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -6465,7 +6465,7 @@ static UINT32 poly_fp_mod_poly_simple(const UINT32 polyfp_md_id,const POLY *poly
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_a) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_simple: not support poly_a with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_simple: not support poly_a with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -6476,7 +6476,7 @@ static UINT32 poly_fp_mod_poly_simple(const UINT32 polyfp_md_id,const POLY *poly
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_simple: not support poly_b with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_simple: not support poly_b with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -6487,7 +6487,7 @@ static UINT32 poly_fp_mod_poly_simple(const UINT32 polyfp_md_id,const POLY *poly
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_c) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_simple: not support poly_c with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_simple: not support poly_c with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -6499,7 +6499,7 @@ static UINT32 poly_fp_mod_poly_simple(const UINT32 polyfp_md_id,const POLY *poly
     */
     if ( EC_TRUE == POLY_IS_EMPTY(poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_simple: poly_b is empty.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_simple: poly_b is empty.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -6558,7 +6558,7 @@ static UINT32 poly_fp_mod_poly_simple(const UINT32 polyfp_md_id,const POLY *poly
     /*if invalid, then exit*/
     if ( EC_FALSE == poly_fp_check_valid_for_mod(polyfp_md_id, poly_a, poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_simple: invalid degrees of poly_a and poly_b.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_simple: invalid degrees of poly_a and poly_b.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -6595,7 +6595,7 @@ static UINT32 poly_fp_mod_poly_simple(const UINT32 polyfp_md_id,const POLY *poly
         alloc_static_mem(MD_POLYFP, polyfp_md_id, MM_BIGINT, &inv_of_bgn_coe_of_item_b, LOC_POLYFP_0115);
         if ( EC_FALSE == bgn_fp_inv(bgnfp_md_id, POLY_ITEM_BGN_COE(item_b), inv_of_bgn_coe_of_item_b) )
         {
-            sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_simple: inversion failure.\n");
+            dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_simple: inversion failure.\n");
             dbg_exit(MD_POLYFP, polyfp_md_id);
         }
     }
@@ -6669,7 +6669,7 @@ static UINT32 poly_fp_mod_poly_simple(const UINT32 polyfp_md_id,const POLY *poly
         POLY_ITEM_BGN_COE(item_t) = bgn_coe_of_item_t;
         POLY_ITEM_BGN_COE_FLAG(item_t) = EC_TRUE;
 #if 0
-        sys_log(LOGSTDOUT,"poly_fp_mod_poly_simple: deg diff = ");
+        dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"poly_fp_mod_poly_simple: deg diff = ");
         print_bigint_dec(LOGSTDOUT, POLY_ITEM_DEG(item_t));
 #endif
         POLY_ADD_ITEM_TAIL(poly_t, item_t);
@@ -6724,12 +6724,12 @@ static UINT32 poly_fp_xm_mod_pre(const UINT32 polyfp_md_id,
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_precomp_tbl )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_xm_mod_with_pre: poly_precomp_tbl is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_xm_mod_with_pre: poly_precomp_tbl is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_xm_mod_with_pre: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_xm_mod_with_pre: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -6755,7 +6755,7 @@ static UINT32 poly_fp_xm_mod_pre(const UINT32 polyfp_md_id,
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_xm_mod_with_pre: not support poly_b with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_xm_mod_with_pre: not support poly_b with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -6850,17 +6850,17 @@ static UINT32 poly_fp_mod_poly_with_pre(const UINT32 polyfp_md_id,
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -6932,12 +6932,12 @@ static UINT32 poly_fp_mod_poly_with_pre(const UINT32 polyfp_md_id,
         /*if delta_deg >= tbl_size,then overflow*/
         if ( 0 <= POLY_ITEM_DEG_CMP(bgnz_md_id, delta_deg, tbl_size) )
         {
-            sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: degree overflow.\n");
+            dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: degree overflow.\n");
 
-            sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: delta_deg = ");
+            dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: delta_deg = ");
             print_deg_dec(LOGSTDOUT, delta_deg);
 
-            sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: tbl_size = ");
+            dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: tbl_size = ");
             print_deg_dec(LOGSTDOUT, tbl_size);
 
             dbg_exit(MD_POLYFP, polyfp_md_id);
@@ -6945,12 +6945,12 @@ static UINT32 poly_fp_mod_poly_with_pre(const UINT32 polyfp_md_id,
 
         if ( EC_FALSE == bgn_z_get_word(bgnz_md_id, delta_deg, &delta_deg_t) )
         {
-            sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: degree overflow.\n");
+            dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: degree overflow.\n");
 
-            sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: delta_deg = ");
+            dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: delta_deg = ");
             print_deg_dec(LOGSTDOUT, delta_deg);
 
-            sys_log(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: tbl_size = ");
+            dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly_with_pre: tbl_size = ");
             print_deg_dec(LOGSTDOUT, tbl_size);
 
             dbg_exit(MD_POLYFP, polyfp_md_id);
@@ -7032,7 +7032,7 @@ static UINT32 poly_fp_xm_mod_poly_with_pre(const UINT32 polyfp_md_id,const DEGRE
     while ( 1 )
     {
         //print_cur_time(LOGSTDOUT, "poly_fp_xm_mod_poly_with_pre: loop # ");
-        //sys_log(LOGSTDOUT,"%ld\n",index);
+        //dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"%ld\n",index);
 
         e_bit = bgn_z_get_bit(bgnz_md_id, bgn_m, index);
         if ( 1 == e_bit )
@@ -7082,7 +7082,7 @@ static EC_BOOL poly_fp_check_mod_need_pre(const UINT32 polyfp_md_id, const POLY 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_check_mod_need_pre: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_check_mod_need_pre: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -7103,7 +7103,7 @@ static EC_BOOL poly_fp_check_mod_need_pre(const UINT32 polyfp_md_id, const POLY 
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_check_mod_need_pre: not support poly_b with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_check_mod_need_pre: not support poly_b with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -7115,7 +7115,7 @@ static EC_BOOL poly_fp_check_mod_need_pre(const UINT32 polyfp_md_id, const POLY 
     */
     if ( EC_TRUE == POLY_IS_EMPTY(poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_check_mod_need_pre: poly_b is empty.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_check_mod_need_pre: poly_b is empty.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -7170,17 +7170,17 @@ static UINT32 poly_fp_xm_mod_poly(const UINT32 polyfp_md_id,const DEGREE *deg,co
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == deg )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_xm_mod_poly: deg is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_xm_mod_poly: deg is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_xm_mod_poly: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_xm_mod_poly: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_xm_mod_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_xm_mod_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -7332,17 +7332,17 @@ UINT32 poly_fp_mod_poly(const UINT32 polyfp_md_id,const POLY *poly_a,const POLY 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -7368,7 +7368,7 @@ UINT32 poly_fp_mod_poly(const UINT32 polyfp_md_id,const POLY *poly_a,const POLY 
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_a) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly: not support poly_a with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly: not support poly_a with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -7379,7 +7379,7 @@ UINT32 poly_fp_mod_poly(const UINT32 polyfp_md_id,const POLY *poly_a,const POLY 
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly: not support poly_b with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly: not support poly_b with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -7390,7 +7390,7 @@ UINT32 poly_fp_mod_poly(const UINT32 polyfp_md_id,const POLY *poly_a,const POLY 
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_c) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly: not support poly_c with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly: not support poly_c with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -7402,7 +7402,7 @@ UINT32 poly_fp_mod_poly(const UINT32 polyfp_md_id,const POLY *poly_a,const POLY 
     */
     if ( EC_TRUE == POLY_IS_EMPTY(poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_mod_poly: poly_b is empty.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_mod_poly: poly_b is empty.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -7457,10 +7457,10 @@ UINT32 poly_fp_mod_poly(const UINT32 polyfp_md_id,const POLY *poly_a,const POLY 
     }
 #if 1
 #if 0
-    sys_log(LOGSTDOUT,"poly_fp_mod_poly: deg(poly_a) = ");
+    dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"poly_fp_mod_poly: deg(poly_a) = ");
     print_bigint_dec(LOGSTDOUT, POLY_DEG(poly_a));
 
-    sys_log(LOGSTDOUT,"poly_fp_mod_poly: deg(poly_b) = ");
+    dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"poly_fp_mod_poly: deg(poly_b) = ");
     print_bigint_dec(LOGSTDOUT, POLY_DEG(poly_b));
 #endif
     if ( EC_TRUE == poly_fp_check_valid_for_mod(polyfp_md_id, poly_a, poly_b) )
@@ -7519,10 +7519,10 @@ UINT32 poly_fp_mod_poly(const UINT32 polyfp_md_id,const POLY *poly_a,const POLY 
         poly_fp_xm_mod_poly(polyfp_md_id, POLY_ITEM_DEG(item_a), poly_b, poly_t2);
         //print_cur_time(LOGSTDOUT,"poly_fp_mod_poly: after poly_fp_xm_mod_poly.\n");
 #if 0
-        sys_log(LOGSTDOUT,"poly_f_mod_poly: \n");
-        sys_log(LOGSTDOUT,"x^");print_bigint_dec(LOGSTDOUT, POLY_ITEM_DEG(item_a));
-        sys_log(LOGSTDOUT,"poly_b:\n");print_poly_dec(LOGSTDOUT, poly_b);
-        sys_log(LOGSTDOUT,"poly_t2:\n");print_poly_dec(LOGSTDOUT, poly_t2);
+        dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"poly_f_mod_poly: \n");
+        dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"x^");print_bigint_dec(LOGSTDOUT, POLY_ITEM_DEG(item_a));
+        dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"poly_b:\n");print_poly_dec(LOGSTDOUT, poly_b);
+        dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"poly_t2:\n");print_poly_dec(LOGSTDOUT, poly_t2);
 #endif
         /*poly_t2 = poly_t2 * bgn_coe(item_a) = a_i * x^i mod poly_b */
         /*where a_i = bgn_coe(item_a) */
@@ -7570,22 +7570,22 @@ UINT32 poly_fp_exp_mod(const UINT32 polyfp_md_id, const POLY *poly_a, const BIGI
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_exp_mod: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_exp_mod: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == exp )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_exp_mod: exp is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_exp_mod: exp is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_exp_mod: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_exp_mod: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_exp_mod: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_exp_mod: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -7610,7 +7610,7 @@ UINT32 poly_fp_exp_mod(const UINT32 polyfp_md_id, const POLY *poly_a, const BIGI
 
     if ( EC_TRUE == POLY_IS_EMPTY(poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_exp_mod: poly_b is empty.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_exp_mod: poly_b is empty.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -7635,8 +7635,8 @@ UINT32 poly_fp_exp_mod(const UINT32 polyfp_md_id, const POLY *poly_a, const BIGI
 
     index = 0;
 
-    //sys_log(LOGSTDOUT,"poly_fp_exp_mod: deg(poly_ta) = ");print_deg_dec(LOGSTDOUT, POLY_DEG(poly_ta));
-    //sys_log(LOGSTDOUT,"poly_fp_exp_mod: deg(poly_b) = ");print_deg_dec(LOGSTDOUT, POLY_DEG(poly_b));
+    //dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"poly_fp_exp_mod: deg(poly_ta) = ");print_deg_dec(LOGSTDOUT, POLY_DEG(poly_ta));
+    //dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"poly_fp_exp_mod: deg(poly_b) = ");print_deg_dec(LOGSTDOUT, POLY_DEG(poly_b));
     while ( 1 )
     {
         e_bit = bgn_z_get_bit(bgnz_md_id, exp, index);
@@ -7645,7 +7645,7 @@ UINT32 poly_fp_exp_mod(const UINT32 polyfp_md_id, const POLY *poly_a, const BIGI
             /*poly_tc = poly_tc * poly_ta mod poly_b*/
             poly_fp_mul_self(polyfp_md_id, poly_ta, poly_tc);
             poly_fp_mod_poly(polyfp_md_id, poly_tc, poly_b, poly_tc);
-            //sys_log(LOGSTDOUT,"poly_fp_exp_mod: deg(poly_tc) = ");print_deg_dec(LOGSTDOUT, POLY_DEG(poly_tc));
+            //dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"poly_fp_exp_mod: deg(poly_tc) = ");print_deg_dec(LOGSTDOUT, POLY_DEG(poly_tc));
         }
         index ++;
         /*modify index == te_nbits to index >= te_nbits */
@@ -7657,7 +7657,7 @@ UINT32 poly_fp_exp_mod(const UINT32 polyfp_md_id, const POLY *poly_a, const BIGI
         /*poly_ta = poly_ta^2 mod poly_b*/
         poly_fp_squ_poly(polyfp_md_id, poly_ta, poly_ta);
         poly_fp_mod_poly(polyfp_md_id, poly_ta, poly_b, poly_ta);
-        //sys_log(LOGSTDOUT,"poly_fp_exp_mod: deg(poly_ta) = ");print_deg_dec(LOGSTDOUT, POLY_DEG(poly_ta));
+        //dbg_log(SEC_0055_POLYFP, 5)(LOGSTDOUT,"poly_fp_exp_mod: deg(poly_ta) = ");print_deg_dec(LOGSTDOUT, POLY_DEG(poly_ta));
     }
 
     poly_fp_poly_clean(polyfp_md_id, poly_c);
@@ -7764,17 +7764,17 @@ UINT32 poly_fp_gcd_poly(const UINT32 polyfp_md_id,const POLY *poly_a,const POLY 
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_gcd_poly: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_gcd_poly: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_b )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_gcd_poly: poly_b is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_gcd_poly: poly_b is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_gcd_poly: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_gcd_poly: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -7796,7 +7796,7 @@ UINT32 poly_fp_gcd_poly(const UINT32 polyfp_md_id,const POLY *poly_a,const POLY 
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_a) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_gcd_poly: not support poly_a with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_gcd_poly: not support poly_a with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -7807,7 +7807,7 @@ UINT32 poly_fp_gcd_poly(const UINT32 polyfp_md_id,const POLY *poly_a,const POLY 
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_b) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_gcd_poly: not support poly_b with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_gcd_poly: not support poly_b with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     /*
@@ -7818,7 +7818,7 @@ UINT32 poly_fp_gcd_poly(const UINT32 polyfp_md_id,const POLY *poly_a,const POLY 
     */
     if ( EC_FALSE == poly_fp_is_one_var_poly(polyfp_md_id, poly_c) )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_gcd_poly: not support poly_c with multi-var.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_gcd_poly: not support poly_c with multi-var.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 
@@ -8028,7 +8028,7 @@ static UINT32 poly_fp_dx_self(const UINT32 polyfp_md_id, POLY *poly_c )
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_dx_self: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_dx_self: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -8230,12 +8230,12 @@ UINT32 poly_fp_dx(const UINT32 polyfp_md_id,const POLY *poly_a, POLY *poly_c )
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_dx: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_dx: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_dx: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_dx: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -8428,7 +8428,7 @@ static UINT32 poly_fp_Dx_self(const UINT32 polyfp_md_id,const UINT32 depth_of_x,
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_Dx_self: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_Dx_self: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -8564,12 +8564,12 @@ UINT32 poly_fp_Dx(const UINT32 polyfp_md_id,const POLY *poly_a, const UINT32 dep
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_Dx: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_Dx: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_Dx: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_Dx: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -8785,12 +8785,12 @@ static UINT32 poly_fp_eval_x_self(const UINT32 polyfp_md_id, const BIGINT *bgn_n
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == bgn_n )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_eval_x_self: bgn_n is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_eval_x_self: bgn_n is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_eval_x_self: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_eval_x_self: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -9138,17 +9138,17 @@ UINT32 poly_fp_eval_x(const UINT32 polyfp_md_id,const POLY *poly_a, const BIGINT
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_eval_x: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_eval_x: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == bgn_n )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_eval_x: bgn_n is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_eval_x: bgn_n is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_eval_x: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_eval_x: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -9434,12 +9434,12 @@ static UINT32 poly_fp_eval_self(const UINT32 polyfp_md_id,const UINT32 depth_of_
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == bgn_n )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_eval_self: bgn_n is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_eval_self: bgn_n is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_eval_self: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_eval_self: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/
@@ -9573,17 +9573,17 @@ UINT32 poly_fp_eval(const UINT32 polyfp_md_id,const POLY *poly_a, const UINT32 d
 #if ( SWITCH_ON == POLY_DEBUG_SWITCH )
     if ( NULL_PTR == poly_a )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_eval: poly_a is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_eval: poly_a is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == bgn_n )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_eval: bgn_n is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_eval: bgn_n is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
     if ( NULL_PTR == poly_c )
     {
-        sys_log(LOGSTDOUT,"error:poly_fp_eval: poly_c is NULL_PTR.\n");
+        dbg_log(SEC_0055_POLYFP, 0)(LOGSTDOUT,"error:poly_fp_eval: poly_c is NULL_PTR.\n");
         dbg_exit(MD_POLYFP, polyfp_md_id);
     }
 #endif/*POLY_DEBUG_SWITCH*/

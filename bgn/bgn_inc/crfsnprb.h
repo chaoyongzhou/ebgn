@@ -26,19 +26,19 @@ extern "C"{
 
 typedef struct
 {
-    uint32_t rb_parent_pos:31;
+    uint32_t rb_parent_pos:31; /*value range: [0, 0x7FFFFFFF)*/
     uint32_t rb_used      : 1; /*CRFSNPRB_USED or CRFSNPRB_NOT_USED*/
         
-    uint32_t rb_right_pos :31;
+    uint32_t rb_right_pos :31; /*value range: [0, 0x7FFFFFFF)*/
     uint32_t rsvd1       : 1;
 
-    uint32_t rb_left_pos  :31;
+    uint32_t rb_left_pos  :31; /*value range: [0, 0x7FFFFFFF)*/
     uint32_t rb_color     : 1; /*CRFSNPRB_RED or CRFSNPRB_BLACK*/
 
     union
     {
         uint32_t rb_next_pos  :31; /*save next position*/
-        uint32_t rb_hash_data;          /*saved data*/
+        uint32_t rb_hash_data;     /*saved data*/
     }u;
 }CRFSNPRB_NODE; /*16B*/
 
@@ -71,9 +71,15 @@ typedef struct
 #define CRFSNPRB_POOL_NODE_USED_NUM(pool)     ((pool)->node_used_num)
 #define CRFSNPRB_POOL_NODE_SIZEOF(pool)       ((pool)->node_sizeof)
 #define CRFSNPRB_POOL_NODE_TBL(pool)          ((pool)->rb_nodes)
+#if 1
 #define CRFSNPRB_POOL_NODE(pool, this_pos)    \
     (CRFSNPRB_POOL_NODE_MAX_NUM(pool) > (this_pos) ? ((CRFSNPRB_NODE *)((void *)((pool)->rb_nodes) + (this_pos) * (CRFSNPRB_POOL_NODE_SIZEOF(pool)))) : NULL_PTR)
+#endif
+#if 0
+extern CRFSNPRB_NODE *__crfsnprb_node(CRFSNPRB_POOL *pool, const uint32_t node_pos);
 
+#define CRFSNPRB_POOL_NODE(pool, this_pos)  __crfsnprb_node(pool, this_pos)
+#endif
 /*new a CRFSNPRB_NODE and return its position*/
 uint32_t crfsnprb_node_new(CRFSNPRB_POOL *pool);
 
@@ -146,6 +152,8 @@ EC_BOOL crfsnprb_tree_insert_data(CRFSNPRB_POOL *pool, uint32_t *root_pos, const
 EC_BOOL crfsnprb_tree_delete_data(CRFSNPRB_POOL *pool, uint32_t *root_pos, const uint32_t data, const uint32_t klen, const uint8_t *key, uint32_t *delete_pos);
 
 EC_BOOL crfsnprb_tree_delete(CRFSNPRB_POOL *pool, uint32_t *root_pos, const uint32_t node_pos);
+
+EC_BOOL crfsnprb_tree_erase(CRFSNPRB_POOL *pool, const uint32_t node_pos, uint32_t *root_pos);
 
 EC_BOOL crfsnprb_flush_size(const CRFSNPRB_POOL *pool, UINT32 *size);
 

@@ -26,7 +26,7 @@ extern "C"{
 #include "log.h"
 
 #include "cvector.h"
-#include "croutine.h"
+#include "cmutex.h"
 #include "cstring.h"
 
 #include "cbloom.h"
@@ -400,7 +400,7 @@ typedef struct
     CDFSNP_HEADER   *header;        /* hashdb header */
     CBLOOM          *cbloom;        /* bloom filter  */
     CDFSNP_ITEM     *items;
-    CROUTINE_MUTEX   cmutex;        /* bucket cmutexs*/
+    CMUTEX           cmutex;        /* bucket cmutexs*/
 
     CHASH_ALGO       chash_algo_first;        /* hash algo for hash bucket              */
     CHASH_ALGO       chash_algo_second;       /* hash algo for btree in the hash bucket */
@@ -421,10 +421,10 @@ typedef struct
 #define CDFSNP_BASE_BUFF(cdfsnp)              ((cdfsnp)->base_buff)
 #define CDFSNP_BASE_BUFF_LEN(cdfsnp)          ((cdfsnp)->base_buff_len)
 
-#define CDFSNP_INIT_LOCK(cdfsnp, location)    (croutine_mutex_init(CDFSNP_CMUTEX(cdfsnp), CMUTEX_PROCESS_PRIVATE, location))
-#define CDFSNP_CLEAN_LOCK(cdfsnp, location)   (croutine_mutex_clean(CDFSNP_CMUTEX(cdfsnp), location))
-#define CDFSNP_LOCK(cdfsnp, location)         (croutine_mutex_lock(CDFSNP_CMUTEX(cdfsnp), location))
-#define CDFSNP_UNLOCK(cdfsnp, location)       (croutine_mutex_unlock(CDFSNP_CMUTEX(cdfsnp), location))
+#define CDFSNP_INIT_LOCK(cdfsnp, location)    (cmutex_init(CDFSNP_CMUTEX(cdfsnp), CMUTEX_PROCESS_PRIVATE, location))
+#define CDFSNP_CLEAN_LOCK(cdfsnp, location)   (cmutex_clean(CDFSNP_CMUTEX(cdfsnp), location))
+#define CDFSNP_LOCK(cdfsnp, location)         (cmutex_lock(CDFSNP_CMUTEX(cdfsnp), location))
+#define CDFSNP_UNLOCK(cdfsnp, location)       (cmutex_unlock(CDFSNP_CMUTEX(cdfsnp), location))
 
 #define CDFSNP_STATE(cdfsnp)                  (CDFSNP_HEADER_STATE(CDFSNP_HDR(cdfsnp)))
 #define CDFSNP_FSIZE(cdfsnp)                  (CDFSNP_HEADER_FSIZE(CDFSNP_HDR(cdfsnp)))

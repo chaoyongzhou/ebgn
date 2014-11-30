@@ -40,13 +40,13 @@ static EC_BOOL __cbtimer_clean_task_func(FUNC_ADDR_NODE * func_addr_node, TASK_F
 
     if(NULL_PTR == task_func)
     {
-        sys_log(LOGSTDOUT, "warn:__cbtimer_clean_task_func: task_func is null\n");
+        dbg_log(SEC_0002_CBTIMER, 1)(LOGSTDOUT, "warn:__cbtimer_clean_task_func: task_func is null\n");
         return (EC_TRUE);
     }
 
     if(NULL_PTR == func_addr_node)
     {
-        sys_log(LOGSTDOUT, "warn:__cbtimer_clean_task_func: func_addr_node is null\n");
+        dbg_log(SEC_0002_CBTIMER, 1)(LOGSTDOUT, "warn:__cbtimer_clean_task_func: func_addr_node is null\n");
         return (EC_TRUE);
     }
 
@@ -55,7 +55,7 @@ static EC_BOOL __cbtimer_clean_task_func(FUNC_ADDR_NODE * func_addr_node, TASK_F
         type_conv_item = dbg_query_type_conv_item_by_type(func_addr_node->func_ret_type);
         if( NULL_PTR == type_conv_item )
         {
-            sys_log(LOGSTDOUT,"error:__cbtimer_clean_task_func: ret type %ld conv item is not defined\n",
+            dbg_log(SEC_0002_CBTIMER, 0)(LOGSTDOUT,"error:__cbtimer_clean_task_func: ret type %ld conv item is not defined\n",
                     func_addr_node->func_ret_type);
             return (EC_FALSE);
         }
@@ -79,7 +79,7 @@ static EC_BOOL __cbtimer_clean_task_func(FUNC_ADDR_NODE * func_addr_node, TASK_F
         type_conv_item = dbg_query_type_conv_item_by_type(func_addr_node->func_para_type[ para_idx ]);
         if( NULL_PTR == type_conv_item )
         {
-            sys_log(LOGSTDOUT,"error:__cbtimer_clean_task_func: para %ld type %ld conv item is not defined\n",
+            dbg_log(SEC_0002_CBTIMER, 0)(LOGSTDOUT,"error:__cbtimer_clean_task_func: para %ld type %ld conv item is not defined\n",
                     para_idx, func_addr_node->func_para_type[ para_idx ]);
             return (EC_FALSE);
         }
@@ -178,7 +178,7 @@ EC_BOOL cbtimer_node_is_timeout(const CBTIMER_NODE *cbtimer_node, const CTIMET c
     REAL diff_nsec;
 
     diff_nsec = CTIMET_DIFF(CBTIMER_NODE_LAST_TIME(cbtimer_node), cur_time);
-    sys_log(LOGSTDNULL, "[DEBUG] cbtimer_node_is_timeout: diff_nsec %.2f, timeout_nsec %ld\n",
+    dbg_log(SEC_0002_CBTIMER, 9)(LOGSTDNULL, "[DEBUG] cbtimer_node_is_timeout: diff_nsec %.2f, timeout_nsec %ld\n",
                         diff_nsec, CBTIMER_NODE_TIMEOUT_NSEC(cbtimer_node));
     if(diff_nsec >= 0.0 + CBTIMER_NODE_TIMEOUT_NSEC(cbtimer_node))
     {
@@ -194,7 +194,7 @@ EC_BOOL cbtimer_node_is_expire(const CBTIMER_NODE *cbtimer_node, const CTIMET cu
         REAL diff_nsec;
 
         diff_nsec = CTIMET_DIFF(CBTIMER_NODE_START_TIME(cbtimer_node), cur_time);
-        sys_log(LOGSTDOUT, "[DEBUG] cbtimer_node_is_expire: diff_nsec %.2f, expire_nsec %ld\n",
+        dbg_log(SEC_0002_CBTIMER, 9)(LOGSTDOUT, "[DEBUG] cbtimer_node_is_expire: diff_nsec %.2f, expire_nsec %ld\n",
                             diff_nsec, CBTIMER_NODE_EXPIRE_NSEC(cbtimer_node));
         if(diff_nsec >= 0.0 + CBTIMER_NODE_EXPIRE_NSEC(cbtimer_node))
         {
@@ -232,7 +232,7 @@ EC_BOOL cbtimer_node_expire_handle(CBTIMER_NODE *cbtimer_node)
 
 EC_BOOL cbtimer_node_match_name(const CBTIMER_NODE *cbtimer_node, const CSTRING *name)
 {
-    return cstring_cmp(CBTIMER_NODE_NAME(cbtimer_node), name);
+    return cstring_is_equal(CBTIMER_NODE_NAME(cbtimer_node), name);
 }
 
 CLIST *cbtimer_new()
@@ -268,7 +268,7 @@ EC_BOOL cbtimer_free(CLIST *cbtimer_node_list)
 * when EC_FALSE is returned, unregister it
 *
 **/
-EC_BOOL cbtimer_add(CLIST *cbtimer_node_list, const UINT32 expire_nsec, const UINT32 timeout_nsec, const UINT32 timeout_func_id, ...)
+CBTIMER_NODE * cbtimer_add(CLIST *cbtimer_node_list, const UINT8 *name, const UINT32 expire_nsec, const UINT32 timeout_nsec, const UINT32 timeout_func_id, ...)
 {
     CBTIMER_NODE *cbtimer_node;
     FUNC_ADDR_NODE *func_addr_node;
@@ -282,21 +282,29 @@ EC_BOOL cbtimer_add(CLIST *cbtimer_node_list, const UINT32 expire_nsec, const UI
     mod_type = (timeout_func_id >> (WORDSIZE / 2));
     if( MD_END <= mod_type )
     {
-        sys_log(LOGSTDERR, "error:cbtimer_add: invalid timeout_func_id %lx\n", timeout_func_id);
-        return (EC_FALSE);
+        dbg_log(SEC_0002_CBTIMER, 0)(LOGSTDERR, "error:cbtimer_add: invalid timeout_func_id %lx\n", timeout_func_id);
+        return (NULL_PTR);
     }
 
     if(0 != dbg_fetch_func_addr_node_by_index(timeout_func_id, &func_addr_node))
     {
-        sys_log(LOGSTDOUT, "error:cbtimer_add: failed to fetch func addr node by func id %lx\n", timeout_func_id);
-        return (EC_FALSE);
+        dbg_log(SEC_0002_CBTIMER, 0)(LOGSTDOUT, "error:cbtimer_add: failed to fetch func addr node by func id %lx\n", timeout_func_id);
+        return (NULL_PTR);
     }
 
     cbtimer_node = cbtimer_node_new();
     if(NULL_PTR == cbtimer_node)
     {
-        sys_log(LOGSTDOUT, "error:cbtimer_add: new cbtimer node failed\n");
-        return (EC_FALSE);
+        dbg_log(SEC_0002_CBTIMER, 0)(LOGSTDOUT, "error:cbtimer_add: new cbtimer node failed\n");
+        return (NULL_PTR);
+    }
+
+    CBTIMER_NODE_NAME(cbtimer_node) = cstring_new(name, LOC_CBTIMER_0006);
+    if(NULL_PTR == CBTIMER_NODE_NAME(cbtimer_node))
+    {
+        cbtimer_node_free(cbtimer_node);
+        dbg_log(SEC_0002_CBTIMER, 0)(LOGSTDOUT, "error:cbtimer_add: new cbtimer node name string '%s'failed\n", (char *)name);
+        return (NULL_PTR);
     }
 
     CBTIMER_NODE_EXPIRE_NSEC(cbtimer_node)   = expire_nsec;
@@ -326,6 +334,26 @@ EC_BOOL cbtimer_add(CLIST *cbtimer_node_list, const UINT32 expire_nsec, const UI
 
     clist_push_back(cbtimer_node_list, (void *)cbtimer_node);
 
+    return (cbtimer_node);
+}
+
+EC_BOOL cbtimer_del(CLIST *cbtimer_node_list, const UINT8 *name)
+{
+    CSTRING name_cstr;
+
+    cstring_set_str(&name_cstr, name);
+
+    for(;;)
+    {
+        CBTIMER_NODE *cbtimer_node;
+        cbtimer_node = cbtimer_search_by_name(cbtimer_node_list, &name_cstr);
+        if(NULL_PTR == cbtimer_node)
+        {
+            return (EC_TRUE);
+        }
+
+        cbtimer_unregister(cbtimer_node_list, cbtimer_node);
+    }
     return (EC_TRUE);
 }
 
@@ -344,7 +372,7 @@ EC_BOOL cbtimer_unregister(CLIST *cbtimer_node_list, CBTIMER_NODE *cbtimer_node)
 {
     if(NULL_PTR != CBTIMER_NODE_NAME(cbtimer_node))
     {
-        sys_log(LOGSTDOUT, "cbtimer_unregister: unregister cbtimer %s\n", (char *)CBTIMER_NODE_NAME_STR(cbtimer_node));
+        dbg_log(SEC_0002_CBTIMER, 5)(LOGSTDOUT, "cbtimer_unregister: unregister cbtimer %s\n", (char *)CBTIMER_NODE_NAME_STR(cbtimer_node));
     }
 
     clist_del(cbtimer_node_list, cbtimer_node, NULL_PTR);
@@ -381,7 +409,7 @@ EC_BOOL cbtimer_handle(CLIST *cbtimer_node_list)
 
     handle_flag = EC_FALSE;
 
-    CLIST_LOCK(cbtimer_node_list, LOC_CBTIMER_0006);
+    CLIST_LOCK(cbtimer_node_list, LOC_CBTIMER_0007);
     CLIST_LOOP_NEXT(cbtimer_node_list, clist_data)
     {
         CBTIMER_NODE *cbtimer_node;
@@ -407,7 +435,7 @@ EC_BOOL cbtimer_handle(CLIST *cbtimer_node_list)
         {
             CLIST_DATA *clist_data_rmv;
 
-            sys_log(LOGSTDNULL, "[DEBUG] cbtimer_handle: cbtimer_node %s expired\n",
+            dbg_log(SEC_0002_CBTIMER, 9)(LOGSTDNULL, "[DEBUG] cbtimer_handle: cbtimer_node %s expired\n",
                                 (char *)CBTIMER_NODE_NAME_STR(cbtimer_node));
 
             clist_data_rmv = clist_data;
@@ -427,7 +455,7 @@ EC_BOOL cbtimer_handle(CLIST *cbtimer_node_list)
             continue;
         }
 
-        sys_log(LOGSTDNULL, "[DEBUG] cbtimer_handle: cbtimer_node %s  timeout\n",
+        dbg_log(SEC_0002_CBTIMER, 9)(LOGSTDNULL, "[DEBUG] cbtimer_handle: cbtimer_node %s  timeout\n",
                             (char *)CBTIMER_NODE_NAME_STR(cbtimer_node));
 
         handle_flag = EC_TRUE;/*handle one flag*/
@@ -436,7 +464,7 @@ EC_BOOL cbtimer_handle(CLIST *cbtimer_node_list)
         {
             CLIST_DATA *clist_data_rmv;
 
-            sys_log(LOGSTDOUT, "[DEBUG] cbtimer_handle: cbtimer_node %s timeout handler return EC_FALSE\n",
+            dbg_log(SEC_0002_CBTIMER, 9)(LOGSTDOUT, "[DEBUG] cbtimer_handle: cbtimer_node %s timeout handler return EC_FALSE\n",
                                 (char *)CBTIMER_NODE_NAME_STR(cbtimer_node));
 
             clist_data_rmv = clist_data;
@@ -450,10 +478,10 @@ EC_BOOL cbtimer_handle(CLIST *cbtimer_node_list)
         /*update timer*/
         CTIMET_GET(CBTIMER_NODE_LAST_TIME(cbtimer_node));
 
-        sys_log(LOGSTDNULL, "[DEBUG] cbtimer_handle: cbtimer_node_handle %s timeout handler return EC_TRUE\n",
+        dbg_log(SEC_0002_CBTIMER, 9)(LOGSTDNULL, "[DEBUG] cbtimer_handle: cbtimer_node_handle %s timeout handler return EC_TRUE\n",
                             (char *)CBTIMER_NODE_NAME_STR(cbtimer_node));
     }
-    CLIST_UNLOCK(cbtimer_node_list, LOC_CBTIMER_0007);
+    CLIST_UNLOCK(cbtimer_node_list, LOC_CBTIMER_0008);
     return (handle_flag);
 }
 

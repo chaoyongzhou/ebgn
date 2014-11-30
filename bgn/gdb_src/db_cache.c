@@ -19,7 +19,7 @@ gdbCacheAddBlockNoLock(GDatabase *db, GdbBlock *block)
 
     if (block->offset == 0)
     {
-        sys_log(LOGSTDOUT, "error:gdbCacheAddBlockNoLock: Trying to add a block to the list with offset 0.\n");
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbCacheAddBlockNoLock: Trying to add a block to the list with offset 0.\n");
         abort();
     }
 
@@ -32,7 +32,7 @@ gdbCacheAddBlockNoLock(GDatabase *db, GdbBlock *block)
     tempBlock = gdbCacheGetBlockNoLock(db, block->offset);
     if (tempBlock != NULL)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] gdbCacheAddBlockNoLock: get cached block %lx with detail %lx and offset %d, db %lx (vs %lx)\n",
+        dbg_log(SEC_0131_DB, 9)(LOGSTDOUT, "[DEBUG] gdbCacheAddBlockNoLock: get cached block %lx with detail %lx and offset %d, db %lx (vs %lx)\n",
                             block, block->detail, block->offset, block->db, db);
         return tempBlock;
     }
@@ -44,14 +44,14 @@ gdbCacheAddBlockNoLock(GDatabase *db, GdbBlock *block)
 
         newSize = 2 * db->openBlockSize;
 
-        MEM_CHECK(newBlocks = (GdbBlock **)SAFE_MALLOC(newSize * sizeof(GdbBlock *), LOC_DB_0047));
+        MEM_CHECK(newBlocks = (GdbBlock **)SAFE_MALLOC(newSize * sizeof(GdbBlock *), LOC_DB_0010));
         memset(newBlocks, 0, newSize * sizeof(GdbBlock *));
 
         for (i = 0; i < db->openBlockSize; i++)
         {
             newBlocks[i] = db->openBlocks[i];
         }
-        SAFE_FREE(db->openBlocks, LOC_DB_0048);
+        SAFE_FREE(db->openBlocks, LOC_DB_0011);
 
         db->openBlocks    = newBlocks;
         db->openBlockSize = newSize;
@@ -72,7 +72,7 @@ gdbCacheAddBlockNoLock(GDatabase *db, GdbBlock *block)
         }
     }
 
-    sys_log(LOGSTDOUT, "error:gdbCacheAddBlockNoLock: Unable to place the open block in the block list!\n");
+    dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbCacheAddBlockNoLock: Unable to place the open block in the block list!\n");
     return NULL;
 }
 
@@ -80,10 +80,10 @@ GdbBlock *
 gdbCacheAddBlock(GDatabase *db, GdbBlock *block)
 {
     GdbBlock *block_cached;
-    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0049);
+    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0012);
     block_cached = gdbCacheAddBlockNoLock(db, block);
-    //sys_log(LOGSTDOUT, "[DEBUG] gdbCacheAddBlock: openBlockCount %d, openBlockSize %d\n", db->openBlockCount, db->openBlockSize);
-    gdbUnlockFreeBlockList(db, LOC_DB_0050);
+    //dbg_log(SEC_0131_DB, 9)(LOGSTDOUT, "[DEBUG] gdbCacheAddBlock: openBlockCount %d, openBlockSize %d\n", db->openBlockCount, db->openBlockSize);
+    gdbUnlockFreeBlockList(db, LOC_DB_0013);
     return block_cached;
 }
 
@@ -94,13 +94,13 @@ gdbCacheRemoveBlockNoLock(GDatabase *db, GdbBlock *block)
 
     if (block->offset == 0)
     {
-        sys_log(LOGSTDOUT, "error:gdbCacheRemoveBlockNoLock: Trying to remove block from list with offset 0\n");
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbCacheRemoveBlockNoLock: Trying to remove block from list with offset 0\n");
         abort();
     }
 
     if (db->openBlockCount == 0)
     {
-        sys_log(LOGSTDOUT, "warn:gdbCacheRemoveBlockNoLock: db->openBlockCount == 0\n");
+        dbg_log(SEC_0131_DB, 1)(LOGSTDOUT, "warn:gdbCacheRemoveBlockNoLock: db->openBlockCount == 0\n");
         return 0;
     }
 
@@ -124,7 +124,7 @@ gdbCacheRemoveBlockNoLock(GDatabase *db, GdbBlock *block)
         }
     }
 
-    sys_log(LOGSTDOUT, "error:gdbCacheRemoveBlockNoLock: No open block found at offset %d!\n",
+    dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbCacheRemoveBlockNoLock: No open block found at offset %d!\n",
                         block->offset);
 
     return 0;
@@ -137,13 +137,13 @@ gdbCacheRemoveBlock(GDatabase *db, GdbBlock *block)
 
     if (block->offset == 0)
     {
-        sys_log(LOGSTDOUT, "error:gdbCacheRemoveBlock: Trying to remove block from list with offset 0\n");
+        dbg_log(SEC_0131_DB, 0)(LOGSTDOUT, "error:gdbCacheRemoveBlock: Trying to remove block from list with offset 0\n");
         abort();
     }
 
-    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0051);
+    gdbLockFreeBlockList(db, DB_WRITE_LOCK, LOC_DB_0014);
     refCount = gdbCacheRemoveBlockNoLock(db, block);
-    gdbUnlockFreeBlockList(db, LOC_DB_0052);
+    gdbUnlockFreeBlockList(db, LOC_DB_0015);
     return refCount;
 }
 
@@ -171,9 +171,9 @@ gdbCacheGetBlock(GDatabase *db, offset_t offset)
 {
     GdbBlock *block;
 
-    gdbLockFreeBlockList(db, DB_READ_LOCK, LOC_DB_0053);
+    gdbLockFreeBlockList(db, DB_READ_LOCK, LOC_DB_0016);
     block = gdbCacheGetBlockNoLock(db, offset);
-    gdbUnlockFreeBlockList(db, LOC_DB_0054);
+    gdbUnlockFreeBlockList(db, LOC_DB_0017);
     return block;
 }
 
@@ -198,9 +198,9 @@ gdbCachePrintBlockNoLock(LOG *log, const GDatabase *db)
 void
 gdbCachePrintBlock(LOG *log, GDatabase *db)
 {
-    gdbLockFreeBlockList(db, DB_READ_LOCK, LOC_DB_0055);
+    gdbLockFreeBlockList(db, DB_READ_LOCK, LOC_DB_0018);
     gdbCachePrintBlockNoLock(log, db);
-    gdbUnlockFreeBlockList(db, LOC_DB_0056);
+    gdbUnlockFreeBlockList(db, LOC_DB_0019);
     return;
 }
 

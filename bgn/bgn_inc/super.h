@@ -21,6 +21,7 @@ extern "C"{
 #include "tcnode.h"
 #include "cload.h"
 #include "cmutex.h"
+#include "cmutex.h"
 
 /*bitmap of open flags*/
 #define SUPER_O_RDONLY               ((UINT32)1)
@@ -55,19 +56,30 @@ typedef struct
     int      fd;
     int      rsvd;
     REAL     progress;
-    CROUTINE_MUTEX   croutine_mutex;
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)    
+    CMUTEX   cmutex;
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/
 }SUPER_FNODE;
 
 #define SUPER_FNODE_FNAME(super_fnode)      (&((super_fnode)->fname))
 #define SUPER_FNODE_FD(super_fnode)         ((super_fnode)->fd)
 #define SUPER_FNODE_PROGRESS(super_fnode)   ((super_fnode)->progress)
-#define SUPER_FNODE_CMUTEX(super_fnode)     (&((super_fnode)->croutine_mutex))
 
-#define SUPER_FNODE_CMUTEX_INIT(super_fnode, location)    (croutine_mutex_init(SUPER_FNODE_CMUTEX(super_fnode), CMUTEX_PROCESS_PRIVATE, location))
-#define SUPER_FNODE_CMUTEX_CLEAN(super_fnode, location)   (croutine_mutex_clean(SUPER_FNODE_CMUTEX(super_fnode), location))
-#define SUPER_FNODE_CMUTEX_LOCK(super_fnode, location)    (croutine_mutex_lock(SUPER_FNODE_CMUTEX(super_fnode), location))
-#define SUPER_FNODE_CMUTEX_UNLOCK(super_fnode, location)  (croutine_mutex_unlock(SUPER_FNODE_CMUTEX(super_fnode), location))
 
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)
+#define SUPER_FNODE_CMUTEX(super_fnode)     (&((super_fnode)->cmutex))
+#define SUPER_FNODE_CMUTEX_INIT(super_fnode, location)    (cmutex_init(SUPER_FNODE_CMUTEX(super_fnode), CMUTEX_PROCESS_PRIVATE, location))
+#define SUPER_FNODE_CMUTEX_CLEAN(super_fnode, location)   (cmutex_clean(SUPER_FNODE_CMUTEX(super_fnode), location))
+#define SUPER_FNODE_CMUTEX_LOCK(super_fnode, location)    (cmutex_lock(SUPER_FNODE_CMUTEX(super_fnode), location))
+#define SUPER_FNODE_CMUTEX_UNLOCK(super_fnode, location)  (cmutex_unlock(SUPER_FNODE_CMUTEX(super_fnode), location))
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/
+
+#if (SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)
+#define SUPER_FNODE_CMUTEX_INIT(super_fnode, location)    do{}while(0)
+#define SUPER_FNODE_CMUTEX_CLEAN(super_fnode, location)   do{}while(0)
+#define SUPER_FNODE_CMUTEX_LOCK(super_fnode, location)    do{}while(0)
+#define SUPER_FNODE_CMUTEX_UNLOCK(super_fnode, location)  do{}while(0)
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)*/
 
 /**
 *   for test only
@@ -250,6 +262,27 @@ void super_clean_mem(const UINT32 super_md_id);
 *
 **/
 void super_breathing_mem(const UINT32 super_md_id);
+
+/**
+*
+* show log level info
+*
+**/
+void super_show_log_level_tab(const UINT32 super_md_id, LOG *log);
+
+/**
+*
+* set log level
+*
+**/
+EC_BOOL super_set_log_level_tab(const UINT32 super_md_id, const UINT32 level);
+
+/**
+*
+* set log level of sector
+*
+**/
+EC_BOOL super_set_log_level_sector(const UINT32 super_md_id, const UINT32 sector, const UINT32 level);
 
 /**
 *
@@ -627,6 +660,9 @@ EC_BOOL super_exec_shell_ipaddr_cstr_cbtimer_set(const UINT32 super_md_id, const
 
 EC_BOOL super_exec_shell_ipaddr_cstr_cbtimer_unset(const UINT32 super_md_id, const CSTRING *ipaddr_cstr, const CSTRING *cbtimer_name);
 
+EC_BOOL super_say_hello(const UINT32 super_md_id, const UINT32 des_tcid, const UINT32 des_rank, CSTRING *cstring);
+
+EC_BOOL super_say_hello_loop(const UINT32 super_md_id, const UINT32 loops, const UINT32 des_tcid, const UINT32 des_rank);
 
 /*------------------------------------------------------ test for ict -----------------------------------------------------------------------*/
 EC_BOOL super_set_zone_size(const UINT32 super_md_id, const UINT32 obj_zone_size);
@@ -638,9 +674,6 @@ EC_BOOL super_get_data_vec(const UINT32 super_md_id, const CVECTOR *obj_id_vec, 
 EC_BOOL super_print_obj_vec(const UINT32 super_md_id, const CVECTOR *obj_vec, LOG *log);
 EC_BOOL super_print_data(const UINT32 super_md_id, LOG *log);
 EC_BOOL super_print_data_all(const UINT32 super_md_id, const UINT32 obj_zone_num, LOG *log);
-
-/*------------------------------------------------------ debug cmutex -----------------------------------------------------------------------*/
-EC_BOOL super_print_cmutex_stat(const UINT32 super_md_id, LOG *log);
 
 #endif /*_SUPER_H*/
 

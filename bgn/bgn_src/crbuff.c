@@ -39,7 +39,7 @@ extern "C"{
 #if 1
 #define PRINT_BUFF(info, buff, len) do{\
     UINT32 __pos__;\
-    sys_log(LOGSTDOUT, "%s: ", info);\
+    dbg_log(SEC_0033_CRBUFF, 5)(LOGSTDOUT, "%s: ", info);\
     for(__pos__ = 0; __pos__ < len; __pos__ ++)\
     {\
         sys_print(LOGSTDOUT, "%x,", ((UINT8 *)buff)[ __pos__ ]);\
@@ -60,13 +60,13 @@ static void crbuff_debug(const CRBUFF *crbuff, const char *info, const UINT32 po
 {
     if(0 < len)
     {
-        sys_log(LOGSTDOUT, "[DEBUG]%s:crbuff %lx, w_pos: %ld, r_pos %ld, readpos %ld + len %ld = %ld <----> max = %ld\n",
+        dbg_log(SEC_0033_CRBUFF, 9)(LOGSTDOUT, "[DEBUG]%s:crbuff %lx, w_pos: %ld, r_pos %ld, readpos %ld + len %ld = %ld <----> max = %ld\n",
                             (info), crbuff,
                             CRBUFF_WRITE_POS(crbuff), CRBUFF_READ_POS(crbuff),
                             (pos), (len), (pos) + (len), (max));
         if((pos) >= (max) || (pos) + (len) > (max))
         {
-            sys_log(LOGSTDOUT, "error:%s: overflow where pos %ld, len %ld, max %ld\n", (info), (pos), (len), (max));
+            dbg_log(SEC_0033_CRBUFF, 0)(LOGSTDOUT, "error:%s: overflow where pos %ld, len %ld, max %ld\n", (info), (pos), (len), (max));
             dbg_exit(MD_END, CMPI_ANY_MODI);
         }
     }
@@ -77,7 +77,7 @@ void crbuff_copy(const UINT8 *src, UINT8 *des, UINT32 len)
     BCOPY(src, des, len);
 #if 0
     UINT32 pos;
-    //sys_log(LOGSTDOUT, "[DEBUG] crbuff_copy: src %lx, des %lx, len %ld\n", src, des, len);
+    //dbg_log(SEC_0033_CRBUFF, 9)(LOGSTDOUT, "[DEBUG] crbuff_copy: src %lx, des %lx, len %ld\n", src, des, len);
     //PRINT_BUFF("[DEBUG] crbuff_copy: src = ", src, len);
     for(pos = 0; pos < len; pos ++)
     {
@@ -101,7 +101,7 @@ CRBUFF * crbuff_new(const UINT32 size)
     crbuff = (CRBUFF *)SAFE_MALLOC(sizeof(CRBUFF) + size, LOC_CRBUFF_0001);
     if(NULL_PTR == crbuff)
     {
-        sys_log(LOGSTDOUT, "error:crbuff_new: failed to alloc CRBUFF\n");
+        dbg_log(SEC_0033_CRBUFF, 0)(LOGSTDOUT, "error:crbuff_new: failed to alloc CRBUFF\n");
         return (NULL_PTR);
     }
 
@@ -175,7 +175,7 @@ static void crbuff_print_whole_cache(LOG *log, const CRBUFF *crbuff)
     UINT32 pos;
     UINT32 count;
 
-    sys_log(LOGSTDOUT, "crbuff %lx: whole cache: \n", crbuff);
+    dbg_log(SEC_0033_CRBUFF, 5)(LOGSTDOUT, "crbuff %lx: whole cache: \n", crbuff);
     for(count = 1, pos = 0; pos < CRBUFF_MAX_LEN(crbuff); count ++, pos ++)
     {
         crbuff_print_one_char_with_alignment(log, CRBUFF_CACHE_CHAR(crbuff, pos), count);
@@ -193,7 +193,7 @@ static void crbuff_print_to_read_cache(LOG *log, const CRBUFF *crbuff)
     total_read_len = CRBUFF_WRITE_POS(crbuff) - CRBUFF_READ_POS(crbuff);
     to_tail_len    = CRBUFF_MAX_LEN(crbuff) - (CRBUFF_READ_POS(crbuff) % CRBUFF_MAX_LEN(crbuff));
 
-    sys_log(LOGSTDOUT, "crbuff %lx: to read cache: \n", crbuff);
+    dbg_log(SEC_0033_CRBUFF, 5)(LOGSTDOUT, "crbuff %lx: to read cache: \n", crbuff);
     if(total_read_len >= to_tail_len)
     {
         UINT32 pos;
@@ -242,24 +242,24 @@ void crbuff_print(LOG *log, const CRBUFF *crbuff)
         return;
     }
     
-    sys_log(LOGSTDOUT, "crbuff %lx: max_len = %ld, read_pos = %ld, write_pos = %ld\n",
+    dbg_log(SEC_0033_CRBUFF, 5)(LOGSTDOUT, "crbuff %lx: max_len = %ld, read_pos = %ld, write_pos = %ld\n",
                     crbuff, CRBUFF_MAX_LEN(crbuff), CRBUFF_READ_POS(crbuff), CRBUFF_WRITE_POS(crbuff));
 
     if( 0 == CRBUFF_MAX_LEN(crbuff))
     {
-        sys_log(LOGSTDOUT, "crbuff %lx: whole cache: (null)\n"      , crbuff);
-        sys_log(LOGSTDOUT, "crbuff %lx: to read cache: (null)\n"    , crbuff);
+        dbg_log(SEC_0033_CRBUFF, 5)(LOGSTDOUT, "crbuff %lx: whole cache: (null)\n"      , crbuff);
+        dbg_log(SEC_0033_CRBUFF, 5)(LOGSTDOUT, "crbuff %lx: to read cache: (null)\n"    , crbuff);
         return;
     }
 
     //crbuff_print_whole_cache(log, crbuff);
     crbuff_print_to_read_cache(log, crbuff);
 
-    sys_log(LOGSTDOUT, "max len        : %ld\n", CRBUFF_MAX_LEN(crbuff));
-    sys_log(LOGSTDOUT, "total write len: %ld\n", crbuff_total_write_len(crbuff));
-    sys_log(LOGSTDOUT, "total read  len: %ld\n", crbuff_total_read_len(crbuff));
-    sys_log(LOGSTDOUT, "once  write len: %ld\n", crbuff_once_write_len(crbuff));
-    sys_log(LOGSTDOUT, "once  read  len: %ld\n", crbuff_once_read_len(crbuff));
+    dbg_log(SEC_0033_CRBUFF, 5)(LOGSTDOUT, "max len        : %ld\n", CRBUFF_MAX_LEN(crbuff));
+    dbg_log(SEC_0033_CRBUFF, 5)(LOGSTDOUT, "total write len: %ld\n", crbuff_total_write_len(crbuff));
+    dbg_log(SEC_0033_CRBUFF, 5)(LOGSTDOUT, "total read  len: %ld\n", crbuff_total_read_len(crbuff));
+    dbg_log(SEC_0033_CRBUFF, 5)(LOGSTDOUT, "once  write len: %ld\n", crbuff_once_write_len(crbuff));
+    dbg_log(SEC_0033_CRBUFF, 5)(LOGSTDOUT, "once  read  len: %ld\n", crbuff_once_read_len(crbuff));
     return;
 }
 
@@ -442,7 +442,7 @@ EC_BOOL crbuff_write(CRBUFF *crbuff, const UINT8 *in_buff, const UINT32 in_buff_
 
     if(0 == CRBUFF_MAX_LEN(crbuff))
     {
-        sys_log(LOGSTDOUT, "error:crbuff_write: crbuff %lx is empty\n", crbuff);
+        dbg_log(SEC_0033_CRBUFF, 0)(LOGSTDOUT, "error:crbuff_write: crbuff %lx is empty\n", crbuff);
         return (EC_FALSE);
     }
 
@@ -478,7 +478,7 @@ EC_BOOL crbuff_write(CRBUFF *crbuff, const UINT8 *in_buff, const UINT32 in_buff_
 
     if(0 == CRBUFF_MAX_LEN(crbuff))
     {
-        sys_log(LOGSTDOUT, "error:crbuff_write: crbuff %lx is empty\n", crbuff);
+        dbg_log(SEC_0033_CRBUFF, 0)(LOGSTDOUT, "error:crbuff_write: crbuff %lx is empty\n", crbuff);
         return (EC_FALSE);
     }
 
@@ -592,7 +592,7 @@ EC_BOOL crbuff_socket_recv(CRBUFF *crbuff, int sockfd)
         if(0 > recved_num)
         {
             /*no data to recv or found error*/
-            return csocket_no_ierror();
+            return csocket_no_ierror(sockfd);
         }
 
         if(0 == recved_num)
@@ -654,7 +654,7 @@ EC_BOOL crbuff_probe(const CRBUFF *crbuff, UINT8 *out_buff, const UINT32 out_buf
     if(last_pos <= CRBUFF_MAX_LEN(crbuff))
     {
         once_read_len = last_pos - read_pos;
-        //sys_log(LOGSTDOUT, "[DEBUG] crbuff_probe[1]: copy from crbuff pos %ld to out_buff pos %ld with len %ld\n", read_pos, pos, once_read_len);
+        //dbg_log(SEC_0033_CRBUFF, 9)(LOGSTDOUT, "[DEBUG] crbuff_probe[1]: copy from crbuff pos %ld to out_buff pos %ld with len %ld\n", read_pos, pos, once_read_len);
         CRBUFF_DEBUG_AND_ASSERT(crbuff,"crbuff_probe", read_pos, once_read_len, CRBUFF_MAX_LEN(crbuff));
         crbuff_copy(CRBUFF_CACHE(crbuff) + read_pos, out_buff + pos, once_read_len);
         pos += once_read_len;
@@ -663,7 +663,7 @@ EC_BOOL crbuff_probe(const CRBUFF *crbuff, UINT8 *out_buff, const UINT32 out_buf
     else if(read_pos >= CRBUFF_MAX_LEN(crbuff))
     {
         once_read_len = last_pos - read_pos;
-        //sys_log(LOGSTDOUT, "[DEBUG] crbuff_probe[2]: copy from crbuff pos %ld to out_buff pos %ld with len %ld\n", read_pos - CRBUFF_MAX_LEN(crbuff), pos, once_read_len);
+        //dbg_log(SEC_0033_CRBUFF, 9)(LOGSTDOUT, "[DEBUG] crbuff_probe[2]: copy from crbuff pos %ld to out_buff pos %ld with len %ld\n", read_pos - CRBUFF_MAX_LEN(crbuff), pos, once_read_len);
         CRBUFF_DEBUG_AND_ASSERT(crbuff,"crbuff_probe", read_pos - CRBUFF_MAX_LEN(crbuff), once_read_len, CRBUFF_MAX_LEN(crbuff));
         crbuff_copy(CRBUFF_CACHE(crbuff) + read_pos - CRBUFF_MAX_LEN(crbuff), out_buff + pos, once_read_len);
         pos += once_read_len;
@@ -672,13 +672,13 @@ EC_BOOL crbuff_probe(const CRBUFF *crbuff, UINT8 *out_buff, const UINT32 out_buf
     else
     {
         once_read_len = CRBUFF_MAX_LEN(crbuff) - read_pos;
-        //sys_log(LOGSTDOUT, "[DEBUG] crbuff_probe[3]: copy from crbuff pos %ld to out_buff pos %ld with len %ld\n", read_pos, pos, once_read_len);
+        //dbg_log(SEC_0033_CRBUFF, 9)(LOGSTDOUT, "[DEBUG] crbuff_probe[3]: copy from crbuff pos %ld to out_buff pos %ld with len %ld\n", read_pos, pos, once_read_len);
         CRBUFF_DEBUG_AND_ASSERT(crbuff,"crbuff_probe", read_pos, once_read_len, CRBUFF_MAX_LEN(crbuff));
         crbuff_copy(CRBUFF_CACHE(crbuff) + read_pos, out_buff + pos, once_read_len);
         pos += once_read_len;
 
         once_read_len = last_pos - CRBUFF_MAX_LEN(crbuff);
-        //sys_log(LOGSTDOUT, "[DEBUG] crbuff_probe[4]: copy from crbuff pos %ld to out_buff pos %ld with len %ld\n", 0, pos, once_read_len);
+        //dbg_log(SEC_0033_CRBUFF, 9)(LOGSTDOUT, "[DEBUG] crbuff_probe[4]: copy from crbuff pos %ld to out_buff pos %ld with len %ld\n", 0, pos, once_read_len);
         CRBUFF_DEBUG_AND_ASSERT(crbuff,"crbuff_probe", 0, once_read_len, CRBUFF_MAX_LEN(crbuff));
         crbuff_copy(CRBUFF_CACHE(crbuff), out_buff + pos, once_read_len);
         pos += once_read_len;

@@ -43,6 +43,8 @@ EC_BOOL tasks_cfg_match_ip(const TASKS_CFG *tasks_cfg, const UINT32 srvipaddr, c
 
 EC_BOOL tasks_cfg_match_netcards(const TASKS_CFG *tasks_cfg, const CSET *cnetcard_set);
 
+EC_BOOL tasks_cfg_match_csrv(const TASKS_CFG *tasks_cfg, const UINT32 tcid, const UINT32 csrvport);
+
 /**
 *
 *   return EC_TRUE if tasks_cfg belong to the debug networks
@@ -133,6 +135,8 @@ TASKS_CFG *task_cfg_searchs(const TASK_CFG *task_cfg, const UINT32 tcid, const U
 TASKS_CFG *task_cfg_searchs_by_ip(const TASK_CFG *task_cfg, const UINT32 ipaddr, const UINT32 port);
 
 TASKS_CFG *task_cfg_searchs_by_netcards(const TASK_CFG *task_cfg, const CSET *cnetcard_set);
+
+TASKS_CFG *task_cfg_searchs_by_csrv(const TASK_CFG *task_cfg, const UINT32 tcid, const UINT32 csrvport);
 
 void task_cfg_print(LOG *log, const TASK_CFG *task_cfg);
 

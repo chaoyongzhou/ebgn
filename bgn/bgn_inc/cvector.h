@@ -49,8 +49,9 @@ typedef struct
     UINT32 (*data_free)(const UINT32 , void *);
 
     //int *__m_kind;
-
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)
     CMUTEX    cmutex;
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/
 }CVECTOR;
 
 typedef void *(*CVECTOR_DATA_MALLOC)();
@@ -76,11 +77,22 @@ typedef UINT32 (*CVECTOR_DATA_FREE)(const UINT32, void *);
 typedef EC_BOOL (*CVECTOR_RETVAL_CHECKER)(const void *);
 
 /*------------------ lock interface ----------------*/
-#define CVECTOR_INIT_LOCK(cvector, __location__)          cmutex_init((CMUTEX *)&((cvector)->cmutex), CMUTEX_PROCESS_PRIVATE, (__location__))
-#define CVECTOR_CLEAN_LOCK(cvector, __location__)         cmutex_clean((CMUTEX *)&((cvector)->cmutex), (__location__))
+#if (SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)
+#define CVECTOR_CMUTEX(cvector)                           ((CMUTEX *)&((cvector)->cmutex))
+#define CVECTOR_INIT_LOCK(cvector, __location__)          cmutex_init(CVECTOR_CMUTEX(cvector), CMUTEX_PROCESS_PRIVATE, (__location__))
+#define CVECTOR_CLEAN_LOCK(cvector, __location__)         cmutex_clean(CVECTOR_CMUTEX(cvector), (__location__))
 
-#define CVECTOR_LOCK(cvector, __location__)               cmutex_lock((CMUTEX *)&((cvector)->cmutex), (__location__))
-#define CVECTOR_UNLOCK(cvector, __location__)             cmutex_unlock((CMUTEX *)&((cvector)->cmutex), (__location__))
+#define CVECTOR_LOCK(cvector, __location__)               cmutex_lock(CVECTOR_CMUTEX(cvector), (__location__))
+#define CVECTOR_UNLOCK(cvector, __location__)             cmutex_unlock(CVECTOR_CMUTEX(cvector), (__location__))
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_CTHREAD_SWITCH)*/
+
+#if (SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)
+#define CVECTOR_INIT_LOCK(cvector, __location__)          do{}while(0)
+#define CVECTOR_CLEAN_LOCK(cvector, __location__)         do{}while(0)
+
+#define CVECTOR_LOCK(cvector, __location__)               do{}while(0)
+#define CVECTOR_UNLOCK(cvector, __location__)             do{}while(0)
+#endif/*(SWITCH_ON == CROUTINE_SUPPORT_COROUTINE_SWITCH)*/
 
 EC_BOOL cvector_checker_default(const void * retval);
 
@@ -101,6 +113,8 @@ EC_BOOL cvector_is_empty(const CVECTOR *cvector);
 EC_BOOL cvector_expand(CVECTOR *cvector);
 
 EC_BOOL cvector_cmp(const CVECTOR *cvector_1st, const CVECTOR *cvector_2nd, EC_BOOL (*cmp)(const void *, const void *));
+
+UINT32 cvector_add(CVECTOR *cvector, const void *data);
 
 UINT32 cvector_push(CVECTOR *cvector, const void *data);
 
@@ -186,6 +200,8 @@ void cvector_merge_with_clone(const CVECTOR *cvector_src, CVECTOR *cvector_des, 
 
 void cvector_merge_with_move(CVECTOR *cvector_src, CVECTOR *cvector_des, EC_BOOL (*cvector_data_cmp)(const void *, const void *));
 
+void cvector_merge_direct(CVECTOR *cvector_src, CVECTOR *cvector_des);
+
 UINT32 cvector_count(const CVECTOR *cvector, const void *data, EC_BOOL (*cmp)(const void *, const void *));
 
 void cvector_print(LOG *log, const CVECTOR *cvector, void (*handler)(LOG *, const void *));
@@ -214,6 +230,8 @@ void cvector_clone_with_post_filter_no_lock(const CVECTOR *cvector_src, CVECTOR 
 EC_BOOL cvector_expand_no_lock(CVECTOR *cvector);
 
 EC_BOOL cvector_cmp_no_lock(const CVECTOR *cvector_1st, const CVECTOR *cvector_2nd, EC_BOOL (*cmp)(const void *, const void *));
+
+UINT32 cvector_add_no_lock(CVECTOR *cvector, const void *data);
 
 UINT32 cvector_push_no_lock(CVECTOR *cvector, const void *data);
 
@@ -287,6 +305,8 @@ void cvector_merge_with_clone_no_lock(const CVECTOR *cvector_src, CVECTOR *cvect
 void cvector_merge_with_move_no_lock(CVECTOR *cvector_src, CVECTOR *cvector_des, EC_BOOL (*cvector_data_cmp)(const void *, const void *));
 
 UINT32 cvector_count_no_lock(const CVECTOR *cvector, const void *data, EC_BOOL (*cmp)(const void *, const void *));
+
+void cvector_merge_direct_no_lock(CVECTOR *cvector_src, CVECTOR *cvector_des);
 
 void cvector_print_no_lock(LOG *log, const CVECTOR *cvector, void (*handler)(LOG *, const void *));
 

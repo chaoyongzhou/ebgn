@@ -45,6 +45,10 @@ extern "C"{
 #include "cbytes.h"
 #include "csession.h"
 #include "cscore.h"
+#include "cmd5.h"
+#include "crfsbk.inc"
+#include "crfsdt.h"
+#include "cbuffer.h"
 
 UINT32 cmpi_encode_uint8(const UINT32 comm, const UINT8 num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
 UINT32 cmpi_encode_uint8_ptr(const UINT32 comm, const UINT8 *num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
@@ -63,6 +67,12 @@ UINT32 cmpi_encode_uint32_ptr(const UINT32 comm, const UINT32 *num, UINT8 *out_b
 UINT32 cmpi_decode_uint32(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, UINT32 *num);
 UINT32 cmpi_encode_uint32_size(const UINT32 comm, const UINT32 num, UINT32 *size);
 UINT32 cmpi_encode_uint32_ptr_size(const UINT32 comm, const UINT32 *num, UINT32 *size);
+
+UINT32 cmpi_encode_uint32_t(const UINT32 comm, const uint32_t num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_uint32_t_ptr(const UINT32 comm, const uint32_t *num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_uint32_t_size(const UINT32 comm, const uint32_t num, UINT32 *size);
+UINT32 cmpi_encode_uint32_t_ptr_size(const UINT32 comm, const uint32_t *num, UINT32 *size);
+UINT32 cmpi_decode_uint32_t(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, uint32_t *num);
 
 UINT32 cmpi_encode_uint64(const UINT32 comm, const uint64_t num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
 UINT32 cmpi_encode_uint64_ptr(const UINT32 comm, const uint64_t *num, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
@@ -354,6 +364,10 @@ UINT32 cmpi_encode_crfsnp_fnode(const UINT32 comm, const CRFSNP_FNODE *crfsnp_fn
 UINT32 cmpi_encode_crfsnp_fnode_size(const UINT32 comm, const CRFSNP_FNODE *crfsnp_fnode, UINT32 *size);
 UINT32 cmpi_decode_crfsnp_fnode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSNP_FNODE *crfsnp_fnode);
 
+UINT32 cmpi_encode_crfsnp_bnode(const UINT32 comm, const CRFSNP_BNODE *crfsnp_bnode, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_crfsnp_bnode_size(const UINT32 comm, const CRFSNP_BNODE *crfsnp_bnode, UINT32 *size);
+UINT32 cmpi_decode_crfsnp_bnode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSNP_BNODE *crfsnp_bnode);
+
 UINT32 cmpi_encode_crfsnp_item(const UINT32 comm, const CRFSNP_ITEM *crfsnp_item, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
 UINT32 cmpi_encode_crfsnp_item_size(const UINT32 comm, const CRFSNP_ITEM *crfsnp_item, UINT32 *size);
 UINT32 cmpi_decode_crfsnp_item(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSNP_ITEM *crfsnp_item);
@@ -370,7 +384,41 @@ UINT32 cmpi_encode_chfsnp_item(const UINT32 comm, const CHFSNP_ITEM *chfsnp_item
 UINT32 cmpi_encode_chfsnp_item_size(const UINT32 comm, const CHFSNP_ITEM *chfsnp_item, UINT32 *size);
 UINT32 cmpi_decode_chfsnp_item(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CHFSNP_ITEM *chfsnp_item);
 
+UINT32 cmpi_encode_cmd5_digest(const UINT32 comm, const CMD5_DIGEST *cmd5_digest, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_cmd5_digest_size(const UINT32 comm, const CMD5_DIGEST *cmd5_digest, UINT32 *size);
+UINT32 cmpi_decode_cmd5_digest(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CMD5_DIGEST *cmd5_digest);
 
+UINT32 cmpi_encode_crfsop(const UINT32 comm, const CRFSOP *crfsop, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_crfsop_size(const UINT32 comm, const CRFSOP *crfsop, UINT32 *size);
+UINT32 cmpi_decode_crfsop(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSOP *crfsop);
+
+UINT32 cmpi_encode_crfsconhash_rnode(const UINT32 comm, const CRFSCONHASH_RNODE *crfsconhash_rnode, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_crfsconhash_rnode_size(const UINT32 comm, const CRFSCONHASH_RNODE *crfsconhash_rnode, UINT32 *size);
+UINT32 cmpi_decode_crfsconhash_rnode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSCONHASH_RNODE *crfsconhash_rnode);
+
+UINT32 cmpi_encode_crfsconhash_vnode(const UINT32 comm, const CRFSCONHASH_VNODE *crfsconhash_vnode, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_crfsconhash_vnode_size(const UINT32 comm, const CRFSCONHASH_VNODE *crfsconhash_vnode, UINT32 *size);
+UINT32 cmpi_decode_crfsconhash_vnode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSCONHASH_VNODE *crfsconhash_vnode);
+
+UINT32 cmpi_encode_crfsconhash_rnode_vec(const UINT32 comm, const CVECTOR *rnode_vec, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_crfsconhash_rnode_vec_size(const UINT32 comm, const CVECTOR *rnode_vec, UINT32 *size);
+UINT32 cmpi_decode_crfsconhash_rnode_vec(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CVECTOR *rnode_vec);
+
+UINT32 cmpi_encode_crfsconhash_vnode_tree(const UINT32 comm, const CRB_TREE *vnode_tree, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_crfsconhash_vnode_tree_size(const UINT32 comm, const CRB_TREE *vnode_tree, UINT32 *size);
+UINT32 cmpi_decode_crfsconhash_vnode_tree(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRB_TREE *vnode_tree);
+
+UINT32 cmpi_encode_crfsconhash(const UINT32 comm, const CRFSCONHASH *crfsconhash, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_crfsconhash_size(const UINT32 comm, const CRFSCONHASH *crfsconhash, UINT32 *size);
+UINT32 cmpi_decode_crfsconhash(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSCONHASH *crfsconhash);
+
+UINT32 cmpi_encode_crfsdt_pnode(const UINT32 comm, const CRFSDT_PNODE *crfsdt_pnode, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_crfsdt_pnode_size(const UINT32 comm, const CRFSDT_PNODE *crfsdt_pnode, UINT32 *size);
+UINT32 cmpi_decode_crfsdt_pnode(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CRFSDT_PNODE *crfsdt_pnode);
+
+UINT32 cmpi_encode_cbuffer(const UINT32 comm, const CBUFFER *cbuffer, UINT8 *out_buff, const UINT32 out_buff_max_len, UINT32 *position);
+UINT32 cmpi_encode_cbuffer_size(const UINT32 comm, const CBUFFER *cbuffer, UINT32 *size);
+UINT32 cmpi_decode_cbuffer(const UINT32 comm, const UINT8 *in_buff, const UINT32 in_buff_max_len, UINT32 *position, CBUFFER *cbuffer);
 
 #endif/*_CMPIE_H*/
 

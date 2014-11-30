@@ -62,7 +62,7 @@ typedef struct
     uint32_t    rsvd2;
     uint16_t    free_head;/*unused CPGRB_TREE head*/
     uint16_t    node_num;    
-    CPGRB_NODE  rb_node[ CPGRB_POOL_MAX_SIZE ];  /*rb_nodes table*/
+    CPGRB_NODE  rb_node[ CPGRB_POOL_MAX_SIZE ];  /*128KB,rb_nodes table*/
 }CPGRB_POOL;
 
 #define CPGRB_POOL_FREE_HEAD(pool)         ((pool)->free_head)

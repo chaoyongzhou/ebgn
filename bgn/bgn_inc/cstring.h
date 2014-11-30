@@ -22,6 +22,7 @@ extern "C"{
 #define CSTRING_OVEC_COUNT   (3 * CSTRING_OVEC_SEGS)
 
 CSTRING *cstring_new(const UINT8 *str, const UINT32 location);
+CSTRING *cstring_new_0();
 
 void cstring_free(CSTRING *cstring);
 void cstring_free_1(CSTRING *cstring, const UINT32 location);
@@ -37,13 +38,25 @@ void cstring_reset(CSTRING *cstring);
 
 void cstring_clone(const CSTRING *cstring_src, CSTRING *cstring_des);
 
+EC_BOOL cstring_clone_0(const CSTRING *cstring_src, CSTRING *cstring_des);
+
 EC_BOOL cstring_empty(CSTRING *cstring);
 
 EC_BOOL cstring_is_empty(const CSTRING *cstring);
 
-EC_BOOL cstring_cmp(const CSTRING *cstring_src, const CSTRING *cstring_des);
+EC_BOOL cstring_is_str(const CSTRING *cstring_src, const UINT8 *str);
 
-EC_BOOL cstring_ncmp(const CSTRING *cstring_src, const CSTRING *cstring_des, const UINT32 n);
+EC_BOOL cstring_is_str_ignore_case(const CSTRING *cstring_src, const UINT8 *str);
+
+EC_BOOL cstring_is_equal(const CSTRING *cstring_src, const CSTRING *cstring_des);
+
+EC_BOOL cstring_is_equal_n(const CSTRING *cstring_src, const CSTRING *cstring_des, const UINT32 n);
+
+int cstring_cmp(const CSTRING *cstring_src, const CSTRING *cstring_des);
+
+int cstring_ocmp(const CSTRING *cstring_src, const CSTRING *cstring_des);
+
+int cstring_ncmp(const CSTRING *cstring_src, const CSTRING *cstring_des, const UINT32 n);
 
 EC_BOOL cstring_expand(CSTRING *cstring, const UINT32 location);
 
@@ -74,6 +87,8 @@ CBYTES *cstring_get_cbytes(const CSTRING *cstring);
 EC_BOOL cstring_get_cstr(const CSTRING *cstring_src, const UINT32 from, const UINT32 to, CSTRING *cstring_des);
 
 EC_BOOL cstring_set_chars(CSTRING *cstring, const UINT8 *pchs, const UINT32 len);
+
+CSTRING *cstring_make(const char *format, ...);
 
 CSTRING *cstring_make_by_word(const UINT32 num);
 
@@ -106,9 +121,9 @@ void cstring_format(CSTRING *cstring, const char *format, ...);
 
 void cstring_vformat(CSTRING *cstring, const char *format, va_list ap);
 
-CSTRING * cstring_load(int fd, UINT32 *offset);
+EC_BOOL cstring_load(CSTRING *cstring, int fd, UINT32 *offset);
 
-EC_BOOL cstring_flush(int fd, UINT32 *offset, const CSTRING *cstring);
+EC_BOOL cstring_flush(const CSTRING *cstring, int fd, UINT32 *offset);
 
 //EC_BOOL cstring_regex(const CSTRING *cstring, const CSTRING *pattern, CVECTOR *cvector_cstring);
 

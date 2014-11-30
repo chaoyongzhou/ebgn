@@ -88,7 +88,7 @@ UINT32 ganglia_free_module_static_mem(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_free_module_static_mem: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         /*note: here do not exit but return only*/
@@ -130,7 +130,7 @@ UINT32 ganglia_start(const UINT32 mcast_ipaddr, const UINT32 srv_port)
 
     if(EC_FALSE == csocket_start_udp_mcast_sender(mcast_ipaddr, srv_port, &udp_sender_sockfd))
     {
-        sys_log(LOGSTDOUT, "error:ganglia_start: start udp sender on %s:%ld failed\n",
+        dbg_log(SEC_0135_GANGLIA, 0)(LOGSTDOUT, "error:ganglia_start: start udp sender on %s:%ld failed\n",
                             c_word_to_ipv4(mcast_ipaddr), srv_port);
         cbc_md_free(MD_GANGLIA, ganglia_md_id);
         return (ERR_MODULE_ID);
@@ -182,8 +182,8 @@ UINT32 ganglia_start(const UINT32 mcast_ipaddr, const UINT32 srv_port)
     GANGLIA_MD_UDP_SENDER(ganglia_md)   = udp_sender_sockfd;
     clist_init(GANGLIA_MD_METRIC_LIST(ganglia_md), MM_IGNORE, LOC_GANGLIA_0001);
 
-    sys_log(LOGSTDOUT, "ganglia_start: start GANGLIA module #%ld\n", ganglia_md_id);
-    //sys_log(LOGSTDOUT, "========================= ganglia_start: GANGLIA table info:\n");
+    dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT, "ganglia_start: start GANGLIA module #%ld\n", ganglia_md_id);
+    //dbg_log(SEC_0135_GANGLIA, 3)(LOGSTDOUT, "========================= ganglia_start: GANGLIA table info:\n");
     //ganglia_print_module_status(ganglia_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -202,7 +202,7 @@ void ganglia_end(const UINT32 ganglia_md_id)
     ganglia_md = GANGLIA_MD_GET(ganglia_md_id);
     if(NULL_PTR == ganglia_md)
     {
-        sys_log(LOGSTDOUT,"error:ganglia_end: ganglia_md_id = %ld not exist.\n", ganglia_md_id);
+        dbg_log(SEC_0135_GANGLIA, 0)(LOGSTDOUT,"error:ganglia_end: ganglia_md_id = %ld not exist.\n", ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
     }
     /* if the module is occupied by others,then decrease counter only */
@@ -214,7 +214,7 @@ void ganglia_end(const UINT32 ganglia_md_id)
 
     if ( 0 == ganglia_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:ganglia_end: ganglia_md_id = %ld is not started.\n", ganglia_md_id);
+        dbg_log(SEC_0135_GANGLIA, 0)(LOGSTDOUT,"error:ganglia_end: ganglia_md_id = %ld is not started.\n", ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
     }
 
@@ -257,12 +257,12 @@ void ganglia_end(const UINT32 ganglia_md_id)
 
     ganglia_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "ganglia_end: stop GANGLIA module #%ld\n", ganglia_md_id);
+    dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT, "ganglia_end: stop GANGLIA module #%ld\n", ganglia_md_id);
     cbc_md_free(MD_GANGLIA, ganglia_md_id);
 
     breathing_static_mem();
 
-    //sys_log(LOGSTDOUT, "========================= ganglia_end: GANGLIA table info:\n");
+    //dbg_log(SEC_0135_GANGLIA, 3)(LOGSTDOUT, "========================= ganglia_end: GANGLIA table info:\n");
     //ganglia_print_module_status(ganglia_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -276,7 +276,7 @@ GANGLIA *ganglia_new(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_new: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -297,7 +297,7 @@ EC_BOOL ganglia_init(const UINT32 ganglia_md_id, GANGLIA *ganglia)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_new: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -313,7 +313,7 @@ EC_BOOL ganglia_clean(const UINT32 ganglia_md_id, GANGLIA *ganglia)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_clean: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -333,7 +333,7 @@ EC_BOOL ganglia_free(const UINT32 ganglia_md_id, GANGLIA *ganglia)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_free: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -380,7 +380,7 @@ EC_BOOL ganglia_send(const UINT32 ganglia_md_id, const GANGLIA *ganglia)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_send: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -389,13 +389,13 @@ EC_BOOL ganglia_send(const UINT32 ganglia_md_id, const GANGLIA *ganglia)
 
     if(EC_FALSE == ganglia_metadata_msg_send(ganglia_md_id, GANGLIA_FORMAT_MSG(ganglia)))
     {
-        sys_log(LOGSTDOUT, "error:ganglia_send:encode metadata msg failed\n");
+        dbg_log(SEC_0135_GANGLIA, 0)(LOGSTDOUT, "error:ganglia_send:encode metadata msg failed\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == ganglia_value_msg_send(ganglia_md_id, GANGLIA_VALUE_MSG(ganglia)))
     {
-        sys_log(LOGSTDOUT, "error:ganglia_send:encode value msg failed\n");
+        dbg_log(SEC_0135_GANGLIA, 0)(LOGSTDOUT, "error:ganglia_send:encode value msg failed\n");
         return (EC_FALSE);
     }
 
@@ -454,7 +454,7 @@ void ganglia_metadata_msg_print(LOG *log, const Ganglia_metadata_msg *metadata_m
         ganglia_metadatadef_print(log,GANGLIA_METADATA_MSG_DEF(metadata_msg));
         return;
     }
-    sys_log(LOGSTDOUT, "error:ganglia_metadata_msg_print: invalid metadata msg id %d\n", metadata_msg->id);
+    dbg_log(SEC_0135_GANGLIA, 0)(LOGSTDOUT, "error:ganglia_metadata_msg_print: invalid metadata msg id %d\n", metadata_msg->id);
     return ;
 }
 
@@ -535,7 +535,7 @@ EC_BOOL ganglia_metric_id_set(const UINT32 ganglia_md_id, Ganglia_metric_id *met
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_metric_id_set: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -553,7 +553,7 @@ EC_BOOL ganglia_metadata_add(const UINT32 ganglia_md_id, Ganglia_metadata *metad
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_metadata_add: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -616,7 +616,7 @@ EC_BOOL ganglia_metadata_message_set(const UINT32 ganglia_md_id, Ganglia_metadat
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_metadata_message_set: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -650,7 +650,7 @@ EC_BOOL ganglia_metadata_msg_set(const UINT32 ganglia_md_id, Ganglia_metadata_ms
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_metadata_msg_set: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -674,7 +674,7 @@ EC_BOOL ganglia_metadata_msg_clean(const UINT32 ganglia_md_id, Ganglia_metadata_
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_metadata_msg_clean: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -698,7 +698,7 @@ EC_BOOL ganglia_metadata_msg_send(const UINT32 ganglia_md_id, const Ganglia_meta
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_metadata_msg_send: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -710,7 +710,7 @@ EC_BOOL ganglia_metadata_msg_send(const UINT32 ganglia_md_id, const Ganglia_meta
     buf = (UINT8 *)SAFE_MALLOC(GANGLIA_MAX_MESSAGE_LEN, LOC_GANGLIA_0005);
     if(NULL_PTR == buf)
     {
-        sys_log(LOGSTDOUT, "error:ganglia_metadata_msg_send: alloc %d bytes failed\n", GANGLIA_MAX_MESSAGE_LEN);
+        dbg_log(SEC_0135_GANGLIA, 0)(LOGSTDOUT, "error:ganglia_metadata_msg_send: alloc %d bytes failed\n", GANGLIA_MAX_MESSAGE_LEN);
         return (EC_FALSE);
     }
 
@@ -718,7 +718,7 @@ EC_BOOL ganglia_metadata_msg_send(const UINT32 ganglia_md_id, const Ganglia_meta
 
     if(!xdr_Ganglia_metadata_msg(&xdr, (Ganglia_metadata_msg *)metadata_msg))
     {
-        sys_log(LOGSTDOUT, "error:ganglia_metadata_msg_send:encode metadata msg failed\n");
+        dbg_log(SEC_0135_GANGLIA, 0)(LOGSTDOUT, "error:ganglia_metadata_msg_send:encode metadata msg failed\n");
         SAFE_FREE(buf, LOC_GANGLIA_0006);
         return (EC_FALSE);
     }
@@ -731,7 +731,7 @@ EC_BOOL ganglia_metadata_msg_send(const UINT32 ganglia_md_id, const Ganglia_meta
                                         buf, len))
     {
         SAFE_FREE(buf, LOC_GANGLIA_0007);
-        sys_log(LOGSTDOUT, "error:ganglia_metadata_msg_send: send %d bytes to mcast %s:%ld on sockfd %d failed\n",
+        dbg_log(SEC_0135_GANGLIA, 0)(LOGSTDOUT, "error:ganglia_metadata_msg_send: send %d bytes to mcast %s:%ld on sockfd %d failed\n",
                             len,
                             c_word_to_ipv4(GANGLIA_MD_MCAST_IPADDR(ganglia_md)), GANGLIA_MD_SRV_PORT(ganglia_md),
                             GANGLIA_MD_UDP_SENDER(ganglia_md)
@@ -740,7 +740,7 @@ EC_BOOL ganglia_metadata_msg_send(const UINT32 ganglia_md_id, const Ganglia_meta
     }
 
     SAFE_FREE(buf, LOC_GANGLIA_0008);
-    sys_log(LOGSTDOUT, "[DEBUG] ganglia_metadata_msg_send: send %d bytes to mcast %s:%ld on sockfd %d successfully\n",
+    dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_metadata_msg_send: send %d bytes to mcast %s:%ld on sockfd %d successfully\n",
                         len,
                         c_word_to_ipv4(GANGLIA_MD_MCAST_IPADDR(ganglia_md)), GANGLIA_MD_SRV_PORT(ganglia_md),
                         GANGLIA_MD_UDP_SENDER(ganglia_md)
@@ -755,7 +755,7 @@ EC_BOOL ganglia_value_msg_set_ushort(const UINT32 ganglia_md_id, Ganglia_value_m
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_value_msg_set_ushort: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -777,7 +777,7 @@ EC_BOOL ganglia_value_msg_set_short(const UINT32 ganglia_md_id, Ganglia_value_ms
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_value_msg_set_short: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -799,7 +799,7 @@ EC_BOOL ganglia_value_msg_set_int(const UINT32 ganglia_md_id, Ganglia_value_msg 
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_value_msg_set_int: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -821,7 +821,7 @@ EC_BOOL ganglia_value_msg_set_uint(const UINT32 ganglia_md_id, Ganglia_value_msg
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_value_msg_set_uint: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -843,7 +843,7 @@ EC_BOOL ganglia_value_msg_set_string(const UINT32 ganglia_md_id, Ganglia_value_m
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_value_msg_set_string: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -865,7 +865,7 @@ EC_BOOL ganglia_value_msg_set_float(const UINT32 ganglia_md_id, Ganglia_value_ms
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_value_msg_set_float: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -887,7 +887,7 @@ EC_BOOL ganglia_value_msg_set_double(const UINT32 ganglia_md_id, Ganglia_value_m
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_value_msg_set_double: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -907,7 +907,7 @@ EC_BOOL ganglia_value_msg_clean(const UINT32 ganglia_md_id, Ganglia_value_msg *v
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_value_msg_clean: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -931,7 +931,7 @@ EC_BOOL ganglia_value_msg_send(const UINT32 ganglia_md_id, const Ganglia_value_m
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_value_msg_send: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -943,7 +943,7 @@ EC_BOOL ganglia_value_msg_send(const UINT32 ganglia_md_id, const Ganglia_value_m
     buf = (UINT8 *)SAFE_MALLOC(GANGLIA_MAX_MESSAGE_LEN, LOC_GANGLIA_0009);
     if(NULL_PTR == buf)
     {
-        sys_log(LOGSTDOUT, "error:ganglia_value_msg_send: alloc %d bytes failed\n", GANGLIA_MAX_MESSAGE_LEN);
+        dbg_log(SEC_0135_GANGLIA, 0)(LOGSTDOUT, "error:ganglia_value_msg_send: alloc %d bytes failed\n", GANGLIA_MAX_MESSAGE_LEN);
         return (EC_FALSE);
     }
 
@@ -951,7 +951,7 @@ EC_BOOL ganglia_value_msg_send(const UINT32 ganglia_md_id, const Ganglia_value_m
 
     if(!xdr_Ganglia_value_msg(&xdr, (Ganglia_value_msg *)value_msg))
     {
-        sys_log(LOGSTDOUT, "error:ganglia_value_msg_send:encode value msg failed\n");
+        dbg_log(SEC_0135_GANGLIA, 0)(LOGSTDOUT, "error:ganglia_value_msg_send:encode value msg failed\n");
         SAFE_FREE(buf, LOC_GANGLIA_0010);
         return (EC_FALSE);
     }
@@ -964,7 +964,7 @@ EC_BOOL ganglia_value_msg_send(const UINT32 ganglia_md_id, const Ganglia_value_m
                                         buf, len))
     {
         SAFE_FREE(buf, LOC_GANGLIA_0011);
-        sys_log(LOGSTDOUT, "error:ganglia_value_msg_send: send %d bytes to mcast %s:%ld on sockfd %d failed\n",
+        dbg_log(SEC_0135_GANGLIA, 0)(LOGSTDOUT, "error:ganglia_value_msg_send: send %d bytes to mcast %s:%ld on sockfd %d failed\n",
                             len,
                             c_word_to_ipv4(GANGLIA_MD_MCAST_IPADDR(ganglia_md)), GANGLIA_MD_SRV_PORT(ganglia_md),
                             GANGLIA_MD_UDP_SENDER(ganglia_md)
@@ -973,7 +973,7 @@ EC_BOOL ganglia_value_msg_send(const UINT32 ganglia_md_id, const Ganglia_value_m
     }
 
     SAFE_FREE(buf, LOC_GANGLIA_0012);
-    sys_log(LOGSTDOUT, "[DEBUG] ganglia_value_msg_send: send %d bytes to mcast %s:%ld on sockfd %d successfully\n",
+    dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_value_msg_send: send %d bytes to mcast %s:%ld on sockfd %d successfully\n",
                         len,
                         c_word_to_ipv4(GANGLIA_MD_MCAST_IPADDR(ganglia_md)), GANGLIA_MD_SRV_PORT(ganglia_md),
                         GANGLIA_MD_UDP_SENDER(ganglia_md)
@@ -988,7 +988,7 @@ EC_BOOL ganglia_report_cpus_load0(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_report_cpus_load: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -998,7 +998,7 @@ EC_BOOL ganglia_report_cpus_load0(const UINT32 ganglia_md_id)
     csys_cpu_stat_vec = csys_cpu_stat_vec_new();
     csys_cpu_stat_vec_get(csys_cpu_stat_vec);
 
-    sys_log(LOGSTDOUT, "[DEBUG] ganglia_report_cpus_load: cpus load\n");
+    dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_report_cpus_load: cpus load\n");
     csys_cpu_stat_vec_print(LOGSTDOUT, csys_cpu_stat_vec);
 
 #if 0
@@ -1061,7 +1061,7 @@ EC_BOOL ganglia_report_cpus_load(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_report_cpus_load: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -1070,7 +1070,7 @@ EC_BOOL ganglia_report_cpus_load(const UINT32 ganglia_md_id)
 
     ganglia_md = GANGLIA_MD_GET(ganglia_md_id);
     cmon_obj_vec_meas(GANGLIA_MD_CMON_MD_ID(ganglia_md), TASK_DEFAULT_LIVE, GANGLIA_MD_OBJ_CPU_VEC(ganglia_md));
-    //sys_log(LOGSTDOUT, "[DEBUG] ganglia_report_cpus_load: xxxx cpus load\n");
+    //dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_report_cpus_load: xxxx cpus load\n");
     cmon_obj_vec_print(GANGLIA_MD_CMON_MD_ID(ganglia_md), LOGSTDOUT, GANGLIA_MD_OBJ_CPU_VEC(ganglia_md));
 
     cmon_obj_num = cvector_size(CMON_OBJ_VEC(GANGLIA_MD_OBJ_CPU_VEC(ganglia_md)));
@@ -1093,7 +1093,7 @@ EC_BOOL ganglia_report_sys_mem_load0(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_report_sys_mem_load: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -1104,7 +1104,7 @@ EC_BOOL ganglia_report_sys_mem_load0(const UINT32 ganglia_md_id)
     csys_mem_stat_get(csys_mem_stat);
 
     mem_load = 100.0 *(1.0 * (CSYS_MEM_TOTAL(csys_mem_stat) - CSYS_MEM_FREE(csys_mem_stat)) / CSYS_MEM_TOTAL(csys_mem_stat));
-    sys_log(LOGSTDOUT, "[DEBUG] ganglia_report_sys_mem_load: (%ld - %ld) / %ld => %.1f\n",
+    dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_report_sys_mem_load: (%ld - %ld) / %ld => %.1f\n",
                         CSYS_MEM_TOTAL(csys_mem_stat),
                         CSYS_MEM_FREE(csys_mem_stat),
                         CSYS_MEM_TOTAL(csys_mem_stat),
@@ -1121,8 +1121,8 @@ EC_BOOL ganglia_report_sys_mem_load(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
-                "error:ganglia_report_cpus_load: ganglia module #0x%lx not started.\n",
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
+                "error:ganglia_report_sys_mem_load: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
     }
@@ -1130,7 +1130,7 @@ EC_BOOL ganglia_report_sys_mem_load(const UINT32 ganglia_md_id)
 
     ganglia_md = GANGLIA_MD_GET(ganglia_md_id);
     cmon_obj_vec_meas(GANGLIA_MD_CMON_MD_ID(ganglia_md), TASK_DEFAULT_LIVE, GANGLIA_MD_OBJ_SMM_VEC(ganglia_md));
-    //sys_log(LOGSTDOUT, "[DEBUG] ganglia_report_sys_mem_load: xxxx system mem load\n");
+    //dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_report_sys_mem_load: xxxx system mem load\n");
     cmon_obj_vec_print(GANGLIA_MD_CMON_MD_ID(ganglia_md), LOGSTDOUT, GANGLIA_MD_OBJ_SMM_VEC(ganglia_md));
 
     return (EC_TRUE);
@@ -1145,7 +1145,7 @@ EC_BOOL ganglia_report_proc_mem_load0(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_report_proc_mem_load: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -1157,7 +1157,7 @@ EC_BOOL ganglia_report_proc_mem_load0(const UINT32 ganglia_md_id)
     cproc_mem_stat_get(cproc_mem_stat);
 
     mem_load = CPROC_MEM_LOAD(cproc_mem_stat);
-    sys_log(LOGSTDOUT, "[DEBUG] ganglia_report_proc_mem_load: proc mem load = %.2f\n", mem_load);
+    dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_report_proc_mem_load: proc mem load = %.2f\n", mem_load);
 
     cproc_mem_stat_free(cproc_mem_stat);
 
@@ -1171,8 +1171,8 @@ EC_BOOL ganglia_report_proc_mem_load(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
-                "error:ganglia_report_cpus_load: ganglia module #0x%lx not started.\n",
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
+                "error:ganglia_report_proc_mem_load: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
     }
@@ -1180,7 +1180,7 @@ EC_BOOL ganglia_report_proc_mem_load(const UINT32 ganglia_md_id)
 
     ganglia_md = GANGLIA_MD_GET(ganglia_md_id);
     cmon_obj_vec_meas(GANGLIA_MD_CMON_MD_ID(ganglia_md), TASK_DEFAULT_LIVE, GANGLIA_MD_OBJ_PRO_VEC(ganglia_md));
-    //sys_log(LOGSTDOUT, "[DEBUG] ganglia_report_proc_mem_load: xxxx process mem load\n");
+    //dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_report_proc_mem_load: xxxx process mem load\n");
     cmon_obj_vec_print(GANGLIA_MD_CMON_MD_ID(ganglia_md), LOGSTDOUT, GANGLIA_MD_OBJ_PRO_VEC(ganglia_md));
 
     return (EC_TRUE);
@@ -1193,7 +1193,7 @@ EC_BOOL ganglia_report_crank_thread_stat0(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_report_crank_thread_stat: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
@@ -1202,7 +1202,7 @@ EC_BOOL ganglia_report_crank_thread_stat0(const UINT32 ganglia_md_id)
 
     crank_thread_stat_get(&crank_thread_stat);
 
-    sys_log(LOGSTDOUT, "[DEBUG] ganglia_report_crank_thread_stat: current rank thread stat\n");
+    dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_report_crank_thread_stat: current rank thread stat\n");
     crank_thread_stat_print(LOGSTDOUT, &crank_thread_stat);
 
     return (EC_TRUE);
@@ -1244,8 +1244,8 @@ EC_BOOL ganglia_report_crank_thread_stat(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
-                "error:ganglia_report_cpus_load: ganglia module #0x%lx not started.\n",
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
+                "error:ganglia_report_crank_thread_stat: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
     }
@@ -1253,7 +1253,7 @@ EC_BOOL ganglia_report_crank_thread_stat(const UINT32 ganglia_md_id)
 
     ganglia_md = GANGLIA_MD_GET(ganglia_md_id);
     cmon_obj_vec_meas(GANGLIA_MD_CMON_MD_ID(ganglia_md), TASK_DEFAULT_LIVE, GANGLIA_MD_OBJ_THR_VEC(ganglia_md));
-    //sys_log(LOGSTDOUT, "[DEBUG] ganglia_report_crank_thread_stat: xxxx rank level thread load\n");
+    //dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_report_crank_thread_stat: xxxx rank level thread load\n");
     cmon_obj_vec_print(GANGLIA_MD_CMON_MD_ID(ganglia_md), LOGSTDOUT, GANGLIA_MD_OBJ_THR_VEC(ganglia_md));
 
     cmon_obj_num = cmon_obj_vec_size(GANGLIA_MD_CMON_MD_ID(ganglia_md), GANGLIA_MD_OBJ_THR_VEC(ganglia_md));;
@@ -1275,8 +1275,8 @@ EC_BOOL ganglia_report_dsks_stat0(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
-                "error:ganglia_report_crank_thread_stat: ganglia module #0x%lx not started.\n",
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
+                "error:ganglia_report_dsks_stat0: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
     }
@@ -1285,7 +1285,7 @@ EC_BOOL ganglia_report_dsks_stat0(const UINT32 ganglia_md_id)
     csys_dsk_stat_vec = csys_dsk_stat_vec_new();
     csys_dsk_stat_vec_get(csys_dsk_stat_vec);
 
-    sys_log(LOGSTDOUT, "[DEBUG] ganglia_report_dsks_stat: disks stat\n");
+    dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_report_dsks_stat: disks stat\n");
     csys_dsk_stat_vec_print(LOGSTDOUT, csys_dsk_stat_vec);
 
 #if 0
@@ -1309,8 +1309,8 @@ EC_BOOL ganglia_report_dsks_stat(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
-                "error:ganglia_report_dsks_load: ganglia module #0x%lx not started.\n",
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
+                "error:ganglia_report_dsks_stat: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
     }
@@ -1318,7 +1318,7 @@ EC_BOOL ganglia_report_dsks_stat(const UINT32 ganglia_md_id)
 
     ganglia_md = GANGLIA_MD_GET(ganglia_md_id);
     cmon_obj_vec_meas(GANGLIA_MD_CMON_MD_ID(ganglia_md), TASK_DEFAULT_LIVE, GANGLIA_MD_OBJ_DSK_VEC(ganglia_md));
-    //sys_log(LOGSTDOUT, "[DEBUG] ganglia_report_dsks_load: xxxx dsks load\n");
+    //dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_report_dsks_load: xxxx dsks load\n");
     cmon_obj_vec_print(GANGLIA_MD_CMON_MD_ID(ganglia_md), LOGSTDOUT, GANGLIA_MD_OBJ_DSK_VEC(ganglia_md));
 
     return (EC_TRUE);
@@ -1331,8 +1331,8 @@ EC_BOOL ganglia_report_eths_stat0(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
-                "error:ganglia_report_crank_thread_stat: ganglia module #0x%lx not started.\n",
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
+                "error:ganglia_report_eths_stat0: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
     }
@@ -1341,7 +1341,7 @@ EC_BOOL ganglia_report_eths_stat0(const UINT32 ganglia_md_id)
     csys_eth_stat_vec = csys_eth_stat_vec_new();
     csys_eth_stat_vec_get(csys_eth_stat_vec);
 
-    sys_log(LOGSTDOUT, "[DEBUG] ganglia_report_dsks_stat: eths stat\n");
+    dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_report_eths_stat0: eths stat\n");
     csys_eth_stat_vec_print(LOGSTDOUT, csys_eth_stat_vec);
 
 #if 0
@@ -1365,8 +1365,8 @@ EC_BOOL ganglia_report_eths_stat(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
-                "error:ganglia_report_eths_load: ganglia module #0x%lx not started.\n",
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
+                "error:ganglia_report_eths_stat: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);
     }
@@ -1374,7 +1374,7 @@ EC_BOOL ganglia_report_eths_stat(const UINT32 ganglia_md_id)
 
     ganglia_md = GANGLIA_MD_GET(ganglia_md_id);
     cmon_obj_vec_meas(GANGLIA_MD_CMON_MD_ID(ganglia_md), TASK_DEFAULT_LIVE, GANGLIA_MD_OBJ_ETH_VEC(ganglia_md));
-    //sys_log(LOGSTDOUT, "[DEBUG] ganglia_report_eths_load: xxxx eths load\n");
+    //dbg_log(SEC_0135_GANGLIA, 9)(LOGSTDOUT, "[DEBUG] ganglia_report_eths_load: xxxx eths load\n");
     cmon_obj_vec_print(GANGLIA_MD_CMON_MD_ID(ganglia_md), LOGSTDOUT, GANGLIA_MD_OBJ_ETH_VEC(ganglia_md));
 
     return (EC_TRUE);
@@ -1387,7 +1387,7 @@ EC_BOOL ganglia_register_to_task_brd(const UINT32 ganglia_md_id)
 #if ( SWITCH_ON == GANGLIA_DEBUG_SWITCH )
     if ( GANGLIA_MD_ID_CHECK_INVALID(ganglia_md_id) )
     {
-        sys_log(LOGSTDOUT,
+        dbg_log(SEC_0135_GANGLIA, 5)(LOGSTDOUT,
                 "error:ganglia_register_to_task_brd: ganglia module #0x%lx not started.\n",
                 ganglia_md_id);
         dbg_exit(MD_GANGLIA, ganglia_md_id);

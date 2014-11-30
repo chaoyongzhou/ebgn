@@ -85,7 +85,7 @@ static CFUSE_MGR g_cfuse_mgr;
 
 #define CFUSE_COP_ASSERT(cfuse_cop, func_name) do{\
     if(NULL_PTR == (cfuse_cop)) {\
-        sys_log(LOGSTDOUT, "error:%s: cfuse_cop is null\n", (func_name));\
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:%s: cfuse_cop is null\n", (func_name));\
         return (-1);\
     }\
 }while(0)
@@ -219,7 +219,7 @@ EC_BOOL cfuse_node_set(CFUSE_NODE *cfuse_node, const char *path, const UINT32 ty
     CFUSE_NODE_DNAME(cfuse_node) = cstring_new((UINT8 *)path, LOC_CFUSE_0006);
     if(NULL_PTR == CFUSE_NODE_DNAME(cfuse_node))
     {
-        sys_log(LOGSTDOUT, "error:cfuse_node_set: set failed where path = %s, type = %ld\n", path, type);
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_node_set: set failed where path = %s, type = %ld\n", path, type);
         return (EC_FALSE);
     }
 
@@ -485,7 +485,7 @@ CFUSE_COP * cfuse_cop_fetch(struct fuse_file_info *fi)
     cfuse_cop = (CFUSE_COP *)(fi->fh);
     if(NULL_PTR == cfuse_cop)
     {
-        sys_log(LOGSTDOUT, "error:cfuse_cop_fetch: fi->fh is null\n");
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_cop_fetch: fi->fh is null\n");
         return (NULL_PTR);
     }
     return (cfuse_cop);
@@ -497,7 +497,7 @@ static int cfuse_getattr(const char *path, struct stat *stbuf)
     CFUSE_NODE *cfuse_node;
     CFUSE_NODE *cfuse_node_searched;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_getattr: input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_getattr: input path = %s\n", path);
 
     cfuse_node = cfuse_node_new();
     cfuse_node_set(cfuse_node, path, CDFSNP_ITEM_FILE_IS_ANY);
@@ -505,7 +505,7 @@ static int cfuse_getattr(const char *path, struct stat *stbuf)
     cfuse_node_searched = cfuse_mgr_search(cfuse_mgr_get(), cfuse_node);
     if(NULL_PTR != cfuse_node_searched)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cfuse_getattr: path %s ===> searched %s and type %ld\n",
+        dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_getattr: path %s ===> searched %s and type %ld\n",
                             path, (char *)CFUSE_NODE_DNAME_STR(cfuse_node_searched), CFUSE_NODE_TYPE(cfuse_node_searched));
         CONV_CFUSE_STAT_TO_OS_STAT(CFUSE_NODE_STAT(cfuse_node_searched), stbuf);
         cfuse_node_free(cfuse_node);
@@ -527,7 +527,7 @@ static int cfuse_getattr(const char *path, struct stat *stbuf)
     res = lstat(path, stbuf);
     if (res == -1)
         return -errno;
-    sys_log(LOGSTDOUT, "cfuse_getattr: st_ino = %lu, st_mode = %o\n", stbuf->st_ino, stbuf->st_mode);
+    dbg_log(SEC_0071_CFUSE, 5)(LOGSTDOUT, "cfuse_getattr: st_ino = %lu, st_mode = %o\n", stbuf->st_ino, stbuf->st_mode);
 
         //st.st_ino = d->entry->d_ino;
         //st.st_mode = d->entry->d_type << 12;
@@ -552,23 +552,23 @@ static int cfuse_fgetattr(const char *path, struct stat *stbuf, struct fuse_file
 #if 1
     CFUSE_COP *cfuse_cop;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_fgetattr: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_fgetattr: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
 
     cfuse_cop = cfuse_cop_fetch(fi);
     CFUSE_COP_ASSERT(cfuse_cop, "cfuse_fgetattr");
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cfuse_fgetattr: path %s, input stat:\n", path);
+    //dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_fgetattr: path %s, input stat:\n", path);
     //cfuse_os_stat_print(LOGSTDOUT, stbuf);
 
     stbuf->st_mode = CFUSE_COP_MODE(cfuse_cop);
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cfuse_fgetattr: path %s,  fi->fh => mode_t:\n", path);
+    //dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_fgetattr: path %s,  fi->fh => mode_t:\n", path);
     //cfuse_os_mode_print(LOGSTDOUT, stbuf->st_mode);
 
     return (0);
 #endif
 #if 0
-    sys_log(LOGSTDOUT, "error:cfuse_fgetattr: not implemented, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_fgetattr: not implemented, input path = %s\n", path);
     return -1;
 #endif
 }
@@ -578,7 +578,7 @@ static int cfuse_access(const char *path, int mask)
 #if 0
     int res;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_access: input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_access: input path = %s\n", path);
 
     res = access(path, mask);
     if (res == -1)
@@ -590,7 +590,7 @@ static int cfuse_access(const char *path, int mask)
     CFUSE_NODE *cfuse_node;
     CFUSE_NODE *cfuse_node_searched;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_access: input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_access: input path = %s\n", path);
 
     cfuse_node = cfuse_node_new();
     cfuse_node_set(cfuse_node, path, CDFSNP_ITEM_FILE_IS_ANY);
@@ -598,7 +598,7 @@ static int cfuse_access(const char *path, int mask)
     cfuse_node_searched = cfuse_mgr_search(cfuse_mgr_get(), cfuse_node);
     if(NULL_PTR != cfuse_node_searched)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cfuse_access: path %s ===> searched %s and type %ld\n",
+        dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_access: path %s ===> searched %s and type %ld\n",
                             path, (char *)CFUSE_NODE_DNAME_STR(cfuse_node_searched), CFUSE_NODE_TYPE(cfuse_node_searched));
 
         cfuse_node_free(cfuse_node);
@@ -607,20 +607,20 @@ static int cfuse_access(const char *path, int mask)
 
     if(EC_FALSE == cdfs_exists_npp(cfuse_get_cdfs_md_id(), CFUSE_NODE_DNAME(cfuse_node)))
     {
-        sys_log(LOGSTDOUT, "error:cfuse_access: access failed where path = %s\n", path);
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_access: access failed where path = %s\n", path);
         cfuse_node_free(cfuse_node);
         return (-ENOENT);
     }
 
     cfuse_node_free(cfuse_node);
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_access: exist path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_access: exist path = %s\n", path);
     return (0);
 #endif
 }
 
 static int cfuse_readlink(const char *path, char *buf, size_t size)
 {
-    sys_log(LOGSTDOUT, "error:cfuse_readlink: not implemented, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_readlink: not implemented, input path = %s\n", path);
     return -1;
 }
 
@@ -657,26 +657,26 @@ static int cfuse_opendir(const char *path, struct fuse_file_info *fi)
 
     CFUSE_COP *cfuse_cop;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_opendir: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_opendir: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
 
     file_path_cstr = cstring_new((UINT8 *)path, LOC_CFUSE_0015);
     if(NULL_PTR == file_path_cstr)
     {
-        sys_log(LOGSTDOUT, "error:cfuse_opendir: new file_path_cstr failed\n");
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_opendir: new file_path_cstr failed\n");
         return (-ENOMEM);
     }
 
     path_cstr_vec = cvector_new(0, MM_CSTRING, LOC_CFUSE_0016);
     if(NULL_PTR == path_cstr_vec)
     {
-        sys_log(LOGSTDOUT, "error:cfuse_opendir: new path_cstr_vec failed\n");
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_opendir: new path_cstr_vec failed\n");
         cstring_free(file_path_cstr);
         return (-ENOMEM);
     }
 
     if(EC_FALSE == cdfs_qlist_seg_npp(cfuse_get_cdfs_md_id(), file_path_cstr, path_cstr_vec))
     {
-        sys_log(LOGSTDOUT, "error:cfuse_opendir: access failed where path = %s\n", path);
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_opendir: access failed where path = %s\n", path);
         cstring_free(file_path_cstr);
         cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, LOC_CFUSE_0017);
         cvector_free(path_cstr_vec, LOC_CFUSE_0018);
@@ -688,7 +688,7 @@ static int cfuse_opendir(const char *path, struct fuse_file_info *fi)
     cfuse_cop = cfuse_cop_new();
     if(NULL_PTR == cfuse_cop)
     {
-        sys_log(LOGSTDOUT, "error:cfuse_opendir: new cfuse_cop failed\n");
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_opendir: new cfuse_cop failed\n");
         cvector_clean(path_cstr_vec, (CVECTOR_DATA_CLEANER)cstring_free, LOC_CFUSE_0019);
         cvector_free(path_cstr_vec, LOC_CFUSE_0020);
         return (-ENOMEM);
@@ -745,7 +745,7 @@ static int cfuse_readdir(const char *path, void *buf, fuse_fill_dir_t filler, of
     CVECTOR *path_cstr_vec;
     UINT32 pos;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_readdir: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_readdir: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
 
     cfuse_cop = cfuse_cop_fetch(fi);
     CFUSE_COP_ASSERT(cfuse_cop, "cfuse_readdir");
@@ -753,7 +753,7 @@ static int cfuse_readdir(const char *path, void *buf, fuse_fill_dir_t filler, of
     path_cstr_vec = (CVECTOR *)CFUSE_COP_VOID(cfuse_cop);
     if(NULL_PTR == path_cstr_vec)
     {
-        sys_log(LOGSTDOUT, "error:cfuse_readdir: CFUSE_COP_PVOID point to null path_cstr_vec\n");
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_readdir: CFUSE_COP_PVOID point to null path_cstr_vec\n");
         return (-EINVAL);
     }
 
@@ -767,7 +767,7 @@ static int cfuse_readdir(const char *path, void *buf, fuse_fill_dir_t filler, of
             continue;
         }
 
-        sys_log(LOGSTDOUT, "[DEBUG] cfuse_readdir: before filler: %ld # %s\n", pos, (char *)cstring_get_str(path_cstr));
+        dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_readdir: before filler: %ld # %s\n", pos, (char *)cstring_get_str(path_cstr));
     }
 
 
@@ -787,10 +787,10 @@ static int cfuse_readdir(const char *path, void *buf, fuse_fill_dir_t filler, of
             continue;
         }
 
-        sys_log(LOGSTDOUT, "[DEBUG] cfuse_readdir: %ld# path_cstr = %s\n", pos, (char *)cstring_get_str(path_cstr));
+        dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_readdir: %ld# path_cstr = %s\n", pos, (char *)cstring_get_str(path_cstr));
         if (filler(buf,(char *)cstring_get_str(path_cstr), &st, 0/*nextoff*/))
         {
-            sys_log(LOGSTDOUT, "[DEBUG] cfuse_readdir: break at pos %ld while path_cstr_vec size = %ld\n", pos, cvector_size(path_cstr_vec));
+            dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_readdir: break at pos %ld while path_cstr_vec size = %ld\n", pos, cvector_size(path_cstr_vec));
             break;
         }
     }
@@ -811,12 +811,12 @@ static int cfuse_releasedir(const char *path, struct fuse_file_info *fi)
     CFUSE_COP *cfuse_cop;
     CVECTOR *path_cstr_vec;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_releasedir: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_releasedir: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
 
     cfuse_cop = cfuse_cop_fetch(fi);
     CFUSE_COP_ASSERT(cfuse_cop, "cfuse_releasedir");
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_releasedir: input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_releasedir: input path = %s\n", path);
     path_cstr_vec = (CVECTOR *)CFUSE_COP_VOID(cfuse_cop);
     if(NULL_PTR == path_cstr_vec)
     {
@@ -846,7 +846,7 @@ static int cfuse_mknod(const char *path, mode_t mode, dev_t rdev)
 
     return 0;
 #endif
-    sys_log(LOGSTDOUT, "error:cfuse_mknod: not implemented, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_mknod: not implemented, input path = %s\n", path);
     return (0);
 }
 
@@ -864,7 +864,7 @@ static int cfuse_mkdir(const char *path, mode_t mode)
     CFUSE_NODE *cfuse_node;
     CFUSE_NODE *cfuse_node_searched;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_mkdir: input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_mkdir: input path = %s\n", path);
 
     cfuse_node = cfuse_node_new();
     cfuse_node_set(cfuse_node, path, CDFSNP_ITEM_FILE_IS_DIR);
@@ -872,7 +872,7 @@ static int cfuse_mkdir(const char *path, mode_t mode)
     cfuse_node_searched = cfuse_mgr_search(cfuse_mgr_get(), cfuse_node);
     if(NULL_PTR != cfuse_node_searched)
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cfuse_mkdir: path %s ===> searched %s and type %ld\n",
+        dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_mkdir: path %s ===> searched %s and type %ld\n",
                             path, (char *)CFUSE_NODE_DNAME_STR(cfuse_node_searched), CFUSE_NODE_TYPE(cfuse_node_searched));
         cfuse_node_free(cfuse_node);
         return (0);
@@ -880,7 +880,7 @@ static int cfuse_mkdir(const char *path, mode_t mode)
 
     if(EC_FALSE == cdfs_mkdir_npp(cfuse_get_cdfs_md_id(), CFUSE_NODE_DNAME(cfuse_node)))
     {
-        sys_log(LOGSTDOUT, "error:cfuse_mkdir: access failed where path = %s\n", path);
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_mkdir: access failed where path = %s\n", path);
         cfuse_node_free(cfuse_node);
         return (-ENOENT);
     }
@@ -900,7 +900,7 @@ static int cfuse_unlink(const char *path)
 
     return 0;
 #endif
-    sys_log(LOGSTDOUT, "error:cfuse_unlink: not implemented, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_unlink: not implemented, input path = %s\n", path);
     return (0);
 }
 
@@ -915,7 +915,7 @@ static int cfuse_rmdir(const char *path)
 
     return 0;
 #endif
-    sys_log(LOGSTDOUT, "error:cfuse_rmdir: not implemented, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_rmdir: not implemented, input path = %s\n", path);
     return -1;
 }
 
@@ -930,7 +930,7 @@ static int cfuse_symlink(const char *from, const char *to)
 
     return 0;
 #endif
-    sys_log(LOGSTDOUT, "error:cfuse_symlink: not implemented, input from = %s, to = %s\n", from, to);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_symlink: not implemented, input from = %s, to = %s\n", from, to);
     return -1;
 }
 
@@ -945,7 +945,7 @@ static int cfuse_rename(const char *from, const char *to)
 
     return 0;
 #endif
-    sys_log(LOGSTDOUT, "error:cfuse_rename: not implemented, input from = %s, to = %s\n", from, to);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_rename: not implemented, input from = %s, to = %s\n", from, to);
     return -1;
 }
 
@@ -960,7 +960,7 @@ static int cfuse_link(const char *from, const char *to)
 
     return 0;
 #endif
-    sys_log(LOGSTDOUT, "error:cfuse_link: not implemented, input from = %s, to = %s\n", from, to);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_link: not implemented, input from = %s, to = %s\n", from, to);
     return -1;
 }
 
@@ -975,7 +975,7 @@ static int cfuse_chmod(const char *path, mode_t mode)
 
     return 0;
 #endif
-    sys_log(LOGSTDOUT, "error:cfuse_chmod: not implemented, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_chmod: not implemented, input path = %s\n", path);
     return -1;
 }
 
@@ -990,7 +990,7 @@ static int cfuse_chown(const char *path, uid_t uid, gid_t gid)
 
     return 0;
 #endif
-    sys_log(LOGSTDOUT, "error:cfuse_chown: not implemented, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_chown: not implemented, input path = %s\n", path);
     return -1;
 }
 
@@ -1005,7 +1005,7 @@ static int cfuse_truncate(const char *path, off_t size)
 
     return 0;
 #endif
-    sys_log(LOGSTDOUT, "error:cfuse_truncate: not implemented, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_truncate: not implemented, input path = %s\n", path);
     return -1;
 }
 
@@ -1022,7 +1022,7 @@ static int cfuse_ftruncate(const char *path, off_t size, struct fuse_file_info *
 
     return 0;
 #endif
-    sys_log(LOGSTDOUT, "error:cfuse_ftruncate: not implemented, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_ftruncate: not implemented, input path = %s\n", path);
     return -1;
 }
 
@@ -1043,7 +1043,7 @@ static int cfuse_utimens(const char *path, const struct timespec ts[2])
 
     return 0;
 #endif
-    sys_log(LOGSTDOUT, "error:cfuse_utimens: not implemented, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_utimens: not implemented, input path = %s\n", path);
     return -1;
 }
 
@@ -1062,27 +1062,27 @@ static int cfuse_create(const char *path, mode_t mode, struct fuse_file_info *fi
 #if 1
     CFUSE_COP * cfuse_cop;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_create: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
-    //sys_log(LOGSTDOUT, "[DEBUG] cfuse_create: question: mode coming from where? --\n");
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_create: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
+    //dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_create: question: mode coming from where? --\n");
     //cfuse_os_mode_print(LOGSTDOUT, mode);
 
     if(S_ISDIR (mode))
     {
-        sys_log(LOGSTDOUT, "[DEBUG] error: cfuse_create: path %s is dir (mode = %o)\n", path, mode);
+        dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] error: cfuse_create: path %s is dir (mode = %o)\n", path, mode);
         return (-EISDIR);
     }
 
     if(!S_ISREG (mode))
     {
-        sys_log(LOGSTDOUT, "[DEBUG] error: cfuse_create: path %s not exist (mode = %o)\n", path, mode);
+        dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] error: cfuse_create: path %s not exist (mode = %o)\n", path, mode);
         return (-ENOENT);
     }
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_create: path %s SUCC\n", path);
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_create: path %s SUCC\n", path);
 
     cfuse_cop = cfuse_cop_new();
     if(NULL_PTR == cfuse_cop)
     {
-        sys_log(LOGSTDOUT, "error:cfuse_create: new cfuse_cop failed\n");
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_create: new cfuse_cop failed\n");
         return (-ENOMEM);
     }
 
@@ -1110,7 +1110,7 @@ static int cfuse_open(const char *path, struct fuse_file_info *fi)
 #if 1
     CFUSE_COP * cfuse_cop;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_open: empty stub, input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_open: empty stub, input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
 
     cfuse_cop = cfuse_cop_fetch(fi);
     if(NULL_PTR == cfuse_cop)
@@ -1118,7 +1118,7 @@ static int cfuse_open(const char *path, struct fuse_file_info *fi)
         cfuse_cop = cfuse_cop_new();
         if(NULL_PTR == cfuse_cop)
         {
-            sys_log(LOGSTDOUT, "error:cfuse_open: new cfuse_cop failed\n");
+            dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_open: new cfuse_cop failed\n");
             return (-ENOMEM);
         }
     }
@@ -1155,37 +1155,37 @@ static int cfuse_read(const char *path, char *buf, size_t size, off_t offset, st
     CBYTES *cbytes;
     char *src_buff;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_read: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_read: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
 
     cfuse_cop = cfuse_cop_fetch(fi);
     CFUSE_COP_ASSERT(cfuse_cop, "cfuse_read");
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_read: input path = %s, buf size = %ld, offset = %ld\n", path, size, offset);
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_read: input path = %s, buf size = %ld, offset = %ld\n", path, size, offset);
     file_path_cstr = cstring_new((UINT8 *)path, LOC_CFUSE_0023);
     if(NULL_PTR == file_path_cstr)
     {
-        sys_log(LOGSTDOUT, "error:cfuse_read: new file_path_cstr failed\n");
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_read: new file_path_cstr failed\n");
         return (-ENOMEM);
     }
 
     cbytes = cbytes_new(0);
     if(NULL_PTR == cbytes)
     {
-        sys_log(LOGSTDOUT, "error:cfuse_read: new cbytes failed\n");
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_read: new cbytes failed\n");
         cstring_free(file_path_cstr);
         return (-ENOMEM);
     }
 
     if(EC_FALSE == cdfs_read(cfuse_get_cdfs_md_id(), file_path_cstr, cbytes))
     {
-        sys_log(LOGSTDOUT, "error:cfuse_read: access failed where path = %s\n", path);
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_read: access failed where path = %s\n", path);
         cstring_free(file_path_cstr);
         cbytes_free(cbytes, LOC_CFUSE_0024);
 
         return (-EFAULT);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] cfuse_read: cbytes is ");
+    //dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_read: cbytes is ");
     //cbytes_print(cfuse_get_cdfs_md_id(),LOGSTDOUT, cbytes);
 
     cstring_free(file_path_cstr);
@@ -1225,26 +1225,26 @@ static int cfuse_write(const char *path, const char *buf, size_t size, off_t off
     UINT8 *des_buf;
     CFUSE_COP *cfuse_cop;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_write: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_write: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
 
     cfuse_cop = cfuse_cop_fetch(fi);
     CFUSE_COP_ASSERT(cfuse_cop, "cfuse_write");
 
     if(offset != CFUSE_COP_POS(cfuse_cop))/*debug*/
     {
-        sys_log(LOGSTDOUT, "error:cfuse_write:cfuse_cop pos = %ld, offset = %ld, size = %ld, path = %lx\n",
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_write:cfuse_cop pos = %ld, offset = %ld, size = %ld, path = %lx\n",
                             CFUSE_COP_POS(cfuse_cop), offset, size, path);
         return (-EFAULT);
     }
 
     if(offset + size >= CFUSE_COP_BUF_MAX_SIZE)
     {
-        sys_log(LOGSTDOUT, "error:cfuse_write:insufficient buf: cfuse_cop pos = %ld, offset = %ld, size = %ld, CFUSE_COP_BUF_MAX_SIZE = %ld, path = %lx\n",
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_write:insufficient buf: cfuse_cop pos = %ld, offset = %ld, size = %ld, CFUSE_COP_BUF_MAX_SIZE = %ld, path = %lx\n",
                             CFUSE_COP_POS(cfuse_cop), offset, size, CFUSE_COP_BUF_MAX_SIZE, path);
         return (-EFAULT);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_write:try to accept data: cfuse_cop pos = %ld, offset = %ld, size = %ld, path = %lx\n",
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_write:try to accept data: cfuse_cop pos = %ld, offset = %ld, size = %ld, path = %lx\n",
                         CFUSE_COP_POS(cfuse_cop), offset, size, path);
 
     src_buf = (UINT8 *)buf;
@@ -1267,14 +1267,14 @@ static int cfuse_write(const char *path, const char *buf, size_t size, off_t off
     CSTRING *file_path_cstr;
     CBYTES *cbytes;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_write: input path = %s, buf size = %ld, offset = %ld\n", path, size, offset);
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_write: input path = %s, buf size = %ld, offset = %ld\n", path, size, offset);
     file_path_cstr = cstring_new((UINT8 *)path, LOC_CFUSE_0026);
     cbytes = cbytes_new(0);
     cbytes_mount(cbytes, size, (UINT8 *)buf);
 
     if(EC_FALSE == cdfs_write(cfuse_get_cdfs_md_id(), file_path_cstr, cbytes, /*CDFS_REPLICA_MAX_NUM*/3))
     {
-        sys_log(LOGSTDOUT, "error:cfuse_write: access failed where path = %s\n", path);
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_write: access failed where path = %s\n", path);
         cstring_free(file_path_cstr);
 
         cbytes_umount(cbytes);
@@ -1301,7 +1301,7 @@ static int cfuse_statfs(const char *path, struct statvfs *stbuf)
 
     return 0;
 #endif
-    sys_log(LOGSTDOUT, "error:cfuse_statfs: not implemented, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_statfs: not implemented, input path = %s\n", path);
     return -1;
 }
 
@@ -1323,7 +1323,7 @@ static int cfuse_flush(const char *path, struct fuse_file_info *fi)
     return 0;
 #endif
 #if 0
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_flush: empty stub, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_flush: empty stub, input path = %s\n", path);
     fi->fh = 0;
     return 0;
 #endif
@@ -1333,30 +1333,30 @@ static int cfuse_flush(const char *path, struct fuse_file_info *fi)
     CBYTES *cbytes;
     CFUSE_COP *cfuse_cop;
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_flush: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_flush: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
 
     cfuse_cop = cfuse_cop_fetch(fi);
     CFUSE_COP_ASSERT(cfuse_cop, "cfuse_flush");
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_flush: input path = %s, cfuse_cop->pos = %ld\n", path, CFUSE_COP_POS(cfuse_cop));
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_flush: input path = %s, cfuse_cop->pos = %ld\n", path, CFUSE_COP_POS(cfuse_cop));
 
 
     if(CFUSE_OP_READ == CFUSE_COP_OP(cfuse_cop))
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cfuse_flush: give up flush path = %s due to READ operation\n", path);
+        dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_flush: give up flush path = %s due to READ operation\n", path);
         return (0);
     }
 #if 1
     if(0 == CFUSE_COP_POS(cfuse_cop))
     {
-        sys_log(LOGSTDOUT, "[DEBUG] cfuse_flush: give up flush path = %s due to CFUSE_COP_POS is zero\n", path);
+        dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_flush: give up flush path = %s due to CFUSE_COP_POS is zero\n", path);
         return (0);
     }
 #endif
     file_path_cstr = cstring_new((UINT8 *)path, LOC_CFUSE_0027);
     if(NULL_PTR == file_path_cstr)
     {
-        sys_log(LOGSTDOUT, "error:cfuse_flush: new file_path_cstr failed\n");
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_flush: new file_path_cstr failed\n");
         cfuse_cop_unbind(fi);
         return (-ENOMEM);
     }
@@ -1364,7 +1364,7 @@ static int cfuse_flush(const char *path, struct fuse_file_info *fi)
     cbytes = cbytes_new(0);
     if(NULL_PTR == cbytes)
     {
-        sys_log(LOGSTDOUT, "error:cfuse_flush: new cbytes failed\n");
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_flush: new cbytes failed\n");
         cstring_free(file_path_cstr);
 
         cfuse_cop_unbind(fi);
@@ -1375,7 +1375,7 @@ static int cfuse_flush(const char *path, struct fuse_file_info *fi)
 
     if(EC_FALSE == cdfs_write(cfuse_get_cdfs_md_id(), file_path_cstr, cbytes, /*CDFS_REPLICA_MAX_NUM*/3))
     {
-        sys_log(LOGSTDOUT, "error:cfuse_wcfuse_flushrite: access failed where path = %s\n", path);
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:cfuse_wcfuse_flushrite: access failed where path = %s\n", path);
         cstring_free(file_path_cstr);
 
         cbytes_umount(cbytes);
@@ -1404,9 +1404,9 @@ static int cfuse_release(const char *path, struct fuse_file_info *fi)
     return 0;
 #endif
 #if 1
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_release: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_release: input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
 
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_release: empty stub, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_release: empty stub, input path = %s\n", path);
 
     cfuse_cop_unbind(fi);
     return 0;
@@ -1433,7 +1433,7 @@ static int cfuse_fsync(const char *path, int isdatasync, struct fuse_file_info *
     return 0;
 #endif
 #if 1
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_fsync: empty stub, input path = %s\n", path);
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_fsync: empty stub, input path = %s\n", path);
     return 0;
 #endif
 }
@@ -1448,7 +1448,7 @@ static int cfuse_lock(const char *path, struct fuse_file_info *fi, int cmd, stru
                sizeof(fi->lock_owner));
 #endif
 #if 1
-    sys_log(LOGSTDOUT, "[DEBUG] cfuse_lock: empty stub, input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
+    dbg_log(SEC_0071_CFUSE, 9)(LOGSTDOUT, "[DEBUG] cfuse_lock: empty stub, input path = %s, fi = %lx, fi->flags = %x, fi->fh = %lx\n", path, fi, fi->flags, (UINT32)(fi->fh));
     return 0;
 #endif
 }
@@ -1625,7 +1625,7 @@ static CFUSE_MGR g_cfuse_mgr;
 
 #define CFUSE_COP_ASSERT(cfuse_cop, func_name) do{\
     if(NULL_PTR == (cfuse_cop)) {\
-        sys_log(LOGSTDOUT, "error:%s: cfuse_cop is null\n", (func_name));\
+        dbg_log(SEC_0071_CFUSE, 0)(LOGSTDOUT, "error:%s: cfuse_cop is null\n", (func_name));\
         return (-1);\
     }\
 }while(0)

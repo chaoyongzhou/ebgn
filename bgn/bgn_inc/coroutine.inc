@@ -20,7 +20,8 @@ extern "C"{
 
 #include "type.h"
 #include "log.h"
-#include "clist.h"
+//#include "clist.h"
+#include "cmisc.h"
 
 #define COROUTINE_MUTEX_IGNORE_FLAG     ((UINT32)0)
 #define COROUTINE_RWLOCK_IGNORE_FLAG    ((UINT32)0)
@@ -213,8 +214,8 @@ typedef ucontext_t COROUTINE_TASK;
 
 typedef struct
 {
-    UINT32         status;
-    CLIST_DATA    *routine_mounted;
+    UINT32          status;
+    CLIST_DATA     *routine_mounted;
     COROUTINE_TASK  routine_task;
     COROUTINE_COND  routine_cond;
 }COROUTINE_NODE;
@@ -242,11 +243,10 @@ typedef struct
 
 typedef struct
 {
-    CLIST           worker_idle_list;  /*idle coroutine_node list*/
-    CLIST           worker_busy_list;  /*busy coroutine_node list*/
-    CMUTEX          worker_cmutex;     /*cmutex of cthread_pool*/
+    CLIST            worker_idle_list;  /*idle coroutine_node list*/
+    CLIST            worker_busy_list;  /*busy coroutine_node list*/
 
-    UINT32          worker_max_num;    /*max supported number of coroutine_nodes*/
+    UINT32           worker_max_num;    /*max supported number of coroutine_nodes*/
     COROUTINE_NODE   master_owner;
 }COROUTINE_POOL;
 
@@ -255,6 +255,12 @@ typedef struct
 #define COROUTINE_POOL_WORKER_CMUTEX(coroutine_pool)        (&((coroutine_pool)->worker_cmutex))
 #define COROUTINE_POOL_WORKER_MAX_NUM(coroutine_pool)       ((coroutine_pool)->worker_max_num)
 #define COROUTINE_POOL_MASTER_OWNER(coroutine_pool)         (&((coroutine_pool)->master_owner))
+
+#define COROUTINE_POOL_WORKER_INIT_LOCK(coroutine_pool, location)   do{}while(0)
+#define COROUTINE_POOL_WORKER_CLEAN_LOCK(coroutine_pool, location)  do{}while(0)
+#define COROUTINE_POOL_WORKER_LOCK(coroutine_pool, location)        do{}while(0)
+#define COROUTINE_POOL_WORKER_UNLOCK(coroutine_pool, location)      do{}while(0)
+
 
 typedef struct
 {

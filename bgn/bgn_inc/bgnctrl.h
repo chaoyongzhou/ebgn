@@ -50,6 +50,15 @@ extern "C"{
 /*CRFS Package Debug Switch*/
 #define CRFS_DEBUG_SWITCH SWITCH_ON
 
+/*CXMPPC2S Package Debug Switch*/
+#define CXMPPC2S_DEBUG_SWITCH SWITCH_ON
+
+/*CRFSC Package Debug Switch*/
+#define CRFSC_DEBUG_SWITCH SWITCH_ON
+
+/*CCURL Package Debug Switch*/
+#define CCURL_DEBUG_SWITCH SWITCH_ON
+
 /*CHFS Package Debug Switch*/
 #define CHFS_DEBUG_SWITCH SWITCH_ON
 

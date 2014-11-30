@@ -56,7 +56,8 @@ static UINT32 g_crfs_cbytes_used_num = 11;
 
 #if (64 == WORDSIZE)
 /*scenario choice*/
-#define CRFS_TEST_SCENARIO_CHOICE    (CRFS_TEST_SCENARIO_4K_TO_1M)
+//#define CRFS_TEST_SCENARIO_CHOICE    (CRFS_TEST_SCENARIO_4K_TO_1M)
+#define CRFS_TEST_SCENARIO_CHOICE    (CRFS_TEST_SCENARIO_1K_TO_16K)
 
 /*common definition*/
 #define CRFS_NP_CACHED_MAX_NUM       ((UINT32)  16)/*num of hot np cached in memory*/
@@ -94,7 +95,8 @@ typedef struct
     UINT32 file_size;
 }DEMO_CRFS_FILE_CFG;
 
-#define DATA_FILES_ROOT_DIR "/home/ezhocha"
+//#define DATA_FILES_ROOT_DIR "/home/ezhocha"
+#define DATA_FILES_ROOT_DIR "../.."
 static   DEMO_CRFS_FILE_CFG g_crfs_file_cfg_tbl[] = {
 #if (CRFS_TEST_SCENARIO_1K_TO_16K == CRFS_TEST_SCENARIO_CHOICE)
         {(char *)DATA_FILES_ROOT_DIR"/data_files/1K.dat",     1 * 1024},
@@ -141,35 +143,6 @@ static   DEMO_CRFS_FILE_CFG g_crfs_file_cfg_tbl[] = {
         {(char *)DATA_FILES_ROOT_DIR"/data_files/4M.dat",     4 * 1024 * 1024},
 #endif/*(CRFS_TEST_SCENARIO_4K_TO_4M == CRFS_TEST_SCENARIO_CHOICE)*/
 };
-
-#define CBGT_TYPE_UNDEF                 ((UINT32) 0x00)
-#define CBGT_TYPE_ROOT_SERVER           ((UINT32) 0x01)
-#define CBGT_TYPE_META_SERVER           ((UINT32) 0x02)
-#define CBGT_TYPE_COLF_SERVER           ((UINT32) 0x04)
-#define CBGT_TYPE_USER_SERVER           ((UINT32) 0x08)
-#define CBGT_TYPE_USER_CLIENT           ((UINT32) 0x10)
-#define CBGT_TYPE_TABLE_SERVER          ((UINT32) 0x0F)/*cover root/meta/colf/user server*/
-
-#define CBGT_ERR_TABLE_ID           ((UINT32) -1)
-#define CBGT_ROOT_TABLE_ID          ((UINT32) 10)
-
-/*bitmap of open flags*/
-#define CBGT_O_UNDEF                ((UINT32) 0)
-#define CBGT_O_RDWR                 ((UINT32) 1)
-#define CBGT_O_CREAT                ((UINT32) 2)
-
-/*select from cached/all table*/
-#define CBGT_SELECT_FROM_CACHED_TABLE   ((UINT32)1)
-#define CBGT_SELECT_FROM_ALL_TABLE      ((UINT32)2)
-
-#define CBGT_TEST_ROW_NUM   (120 * 1024)
-//#define CBGT_TEST_ROW_NUM   (24)
-#define CBGT_TEST_COLF_NUM  3/*DO NOT CHANGE, table colf is colf-0/1/2*/
-//#define CBGT_TEST_COLQ_NUM  3
-#define CBGT_TEST_COLQ_NUM  32
-
-#define CBGT_STR_MAX_LEN    32
-#define CBGT_KV_VAL_LEN     128
 
 
 #endif /*_DEMO_HSRFS_H*/

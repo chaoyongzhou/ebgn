@@ -22,7 +22,7 @@ extern "C"{
 
 #define CHFSNPRB_ERR_POS        ((uint32_t)0x7FFFFFFF)/*31 bits*/
 
-#define CHFSNPRB_POOL_MAX_SIZE  ((uint32_t)(1 << 23))/* < 2^23, about 8,000,000*/
+#define CHFSNPRB_POOL_MAX_SIZE  ((uint32_t)(1 << 25))/* < 2^25, about 32,000,000*/
 
 typedef struct
 {

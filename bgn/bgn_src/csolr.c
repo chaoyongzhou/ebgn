@@ -49,7 +49,7 @@ extern "C"{
 #if 1
 #define PRINT_BUFF(info, buff, len) do{\
     UINT32 __pos__;\
-    sys_log(LOGSTDOUT, "%s: ", info);\
+    dbg_log(SEC_0059_CSOLR, 5)(LOGSTDOUT, "%s: ", info);\
     for(__pos__ = 0; __pos__ < len; __pos__ ++)\
     {\
         sys_print(LOGSTDOUT, "%x,", ((UINT8 *)buff)[ __pos__ ]);\
@@ -151,8 +151,8 @@ UINT32 csolr_start()
 
     CSOLR_MD_RSP_CCOND_INIT(csolr_md, LOC_CSOLR_0001);
 
-    sys_log(LOGSTDOUT, "csolr_start: start CSOLR module #%ld\n", csolr_md_id);
-    //sys_log(LOGSTDOUT, "========================= csolr_start: CSOLR table info:\n");
+    dbg_log(SEC_0059_CSOLR, 5)(LOGSTDOUT, "csolr_start: start CSOLR module #%ld\n", csolr_md_id);
+    //dbg_log(SEC_0059_CSOLR, 3)(LOGSTDOUT, "========================= csolr_start: CSOLR table info:\n");
     //csolr_print_module_status(csolr_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -171,7 +171,7 @@ void csolr_end(const UINT32 csolr_md_id)
     csolr_md = CSOLR_MD_GET(csolr_md_id);
     if(NULL_PTR == csolr_md)
     {
-        sys_log(LOGSTDOUT,"error:csolr_end: csolr_md_id = %ld not exist.\n", csolr_md_id);
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT,"error:csolr_end: csolr_md_id = %ld not exist.\n", csolr_md_id);
         dbg_exit(MD_CSOLR, csolr_md_id);
     }
     /* if the module is occupied by others,then decrease counter only */
@@ -183,7 +183,7 @@ void csolr_end(const UINT32 csolr_md_id)
 
     if ( 0 == csolr_md->usedcounter )
     {
-        sys_log(LOGSTDOUT,"error:csolr_end: csolr_md_id = %ld is not started.\n", csolr_md_id);
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT,"error:csolr_end: csolr_md_id = %ld is not started.\n", csolr_md_id);
         dbg_exit(MD_CSOLR, csolr_md_id);
     }
 
@@ -202,12 +202,12 @@ void csolr_end(const UINT32 csolr_md_id)
 
     csolr_md->usedcounter = 0;
 
-    sys_log(LOGSTDOUT, "csolr_end: stop CSOLR module #%ld\n", csolr_md_id);
+    dbg_log(SEC_0059_CSOLR, 5)(LOGSTDOUT, "csolr_end: stop CSOLR module #%ld\n", csolr_md_id);
     cbc_md_free(MD_CSOLR, csolr_md_id);
 
     breathing_static_mem();
 
-    //sys_log(LOGSTDOUT, "========================= csolr_end: CSOLR table info:\n");
+    //dbg_log(SEC_0059_CSOLR, 3)(LOGSTDOUT, "========================= csolr_end: CSOLR table info:\n");
     //csolr_print_module_status(csolr_md_id, LOGSTDOUT);
     //cbc_print();
 
@@ -238,15 +238,15 @@ UINT32 csolr_set_mod_mgr(const UINT32 csolr_md_id, const MOD_MGR * src_mod_mgr)
     csolr_md = CSOLR_MD_GET(csolr_md_id);
     des_mod_mgr = CSOLR_MD_MOD_MGR(csolr_md);
 
-    sys_log(LOGSTDOUT, "csolr_set_mod_mgr: md_id %d, input src_mod_mgr %lx\n", csolr_md_id, src_mod_mgr);
+    dbg_log(SEC_0059_CSOLR, 5)(LOGSTDOUT, "csolr_set_mod_mgr: md_id %d, input src_mod_mgr %lx\n", csolr_md_id, src_mod_mgr);
     mod_mgr_print(LOGSTDOUT, src_mod_mgr);
 
     /*figure out mod_nodes with tcid belong to set of csolrnp_tcid_vec and csolrnp_tcid_vec*/
     mod_mgr_limited_clone(csolr_md_id, src_mod_mgr, des_mod_mgr);
 
-    sys_log(LOGSTDOUT, "====================================csolr_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
+    dbg_log(SEC_0059_CSOLR, 5)(LOGSTDOUT, "====================================csolr_set_mod_mgr: des_mod_mgr %lx beg====================================\n", des_mod_mgr);
     mod_mgr_print(LOGSTDOUT, des_mod_mgr);
-    sys_log(LOGSTDOUT, "====================================csolr_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
+    dbg_log(SEC_0059_CSOLR, 5)(LOGSTDOUT, "====================================csolr_set_mod_mgr: des_mod_mgr %lx end====================================\n", des_mod_mgr);
 
     return (0);
 }
@@ -330,7 +330,7 @@ EC_BOOL csolr_del_csocket_cnode(const UINT32 csolr_md_id, CSOCKET_CNODE *csocket
     csolr_md = CSOLR_MD_GET(csolr_md_id);
     if(csocket_cnode != CSOLR_MD_CSOCKET_CNODE(csolr_md))
     {
-        sys_log(LOGSTDOUT, "error:csolr_del_csocket_cnode: mismatched csocket_cnode\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_del_csocket_cnode: mismatched csocket_cnode\n");
         return (EC_FALSE);
     }
     CSOLR_MD_CSOCKET_CNODE(csolr_md) = csocket_cnode;
@@ -356,14 +356,14 @@ EC_BOOL csolr_send_req(const UINT32 csolr_md_id, const CSTRING *solr_req)
     csocket_cnode =  CSOLR_MD_CSOCKET_CNODE(csolr_md);
     if(NULL_PTR == csocket_cnode)
     {
-        sys_log(LOGSTDOUT, "error:csolr_send_req: no solr connected\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_send_req: no solr connected\n");
         return (EC_FALSE);
     }
 
     /*send solr_req to solr via csocket_cnode and wait for solr_rsp*/
     if(EC_FALSE == csocket_send_cstring(CSOCKET_CNODE_SOCKFD(csocket_cnode), solr_req))
     {
-        sys_log(LOGSTDOUT, "error:csolr_send_req: send solr_req on sockfd %d failed\n", CSOCKET_CNODE_SOCKFD(csocket_cnode));
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_send_req: send solr_req on sockfd %d failed\n", CSOCKET_CNODE_SOCKFD(csocket_cnode));
         return (EC_FALSE);
     }
 
@@ -389,14 +389,14 @@ EC_BOOL csolr_recv_req(const UINT32 csolr_md_id, CSTRING *solr_req)
     csocket_cnode =  CSOLR_MD_CSOCKET_CNODE(csolr_md);
     if(NULL_PTR == csocket_cnode)
     {
-        sys_log(LOGSTDOUT, "error:csolr_recv_req: no solr connected\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_recv_req: no solr connected\n");
         return (EC_FALSE);
     }
 
     /*send solr_req to solr via csocket_cnode and wait for solr_rsp*/
     if(EC_FALSE == csocket_recv_cstring(CSOCKET_CNODE_SOCKFD(csocket_cnode), solr_req))
     {
-        sys_log(LOGSTDOUT, "error:csolr_recv_req: recv solr_req on sockfd %d failed\n", CSOCKET_CNODE_SOCKFD(csocket_cnode));
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_recv_req: recv solr_req on sockfd %d failed\n", CSOCKET_CNODE_SOCKFD(csocket_cnode));
         return (EC_FALSE);
     }
 
@@ -422,13 +422,13 @@ EC_BOOL csolr_send_rsp(const UINT32 csolr_md_id, const CSTRING *solr_rsp)
     csocket_cnode =  CSOLR_MD_CSOCKET_CNODE(csolr_md);
     if(NULL_PTR == csocket_cnode)
     {
-        sys_log(LOGSTDOUT, "error:csolr_send_rsp: no solr connected\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_send_rsp: no solr connected\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == csocket_send_cstring(CSOCKET_CNODE_SOCKFD(csocket_cnode), solr_rsp))
     {
-        sys_log(LOGSTDOUT, "error:csolr_send_rsp: send solr_rsp on sockfd %d failed\n", CSOCKET_CNODE_SOCKFD(csocket_cnode));
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_send_rsp: send solr_rsp on sockfd %d failed\n", CSOCKET_CNODE_SOCKFD(csocket_cnode));
         return (EC_FALSE);
     }
 
@@ -454,13 +454,13 @@ EC_BOOL csolr_recv_rsp(const UINT32 csolr_md_id, CSTRING *solr_rsp)
     csocket_cnode =  CSOLR_MD_CSOCKET_CNODE(csolr_md);
     if(NULL_PTR == csocket_cnode)
     {
-        sys_log(LOGSTDOUT, "error:csolr_recv_rsp: no solr connected\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_recv_rsp: no solr connected\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == csocket_recv_cstring(CSOCKET_CNODE_SOCKFD(csocket_cnode), solr_rsp))
     {
-        sys_log(LOGSTDOUT, "error:csolr_recv_rsp: recv solr_rsp on sockfd %d failed\n", CSOCKET_CNODE_SOCKFD(csocket_cnode));
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_recv_rsp: recv solr_rsp on sockfd %d failed\n", CSOCKET_CNODE_SOCKFD(csocket_cnode));
         return (EC_FALSE);
     }
 
@@ -487,7 +487,7 @@ EC_BOOL csolr_do_req(const UINT32 csolr_md_id, const CSTRING *solr_req, CSTRING 
     /*send solr_req to solr via csocket_cnode and wait for solr_rsp*/
     if(EC_FALSE == csolr_send_req(csolr_md_id, solr_req))
     {
-        sys_log(LOGSTDOUT, "error:csolr_do_req: send solr_req failed\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_do_req: send solr_req failed\n");
         return (EC_FALSE);
     }
 
@@ -498,11 +498,11 @@ EC_BOOL csolr_do_req(const UINT32 csolr_md_id, const CSTRING *solr_req, CSTRING 
 /*
     if(EC_FALSE == csolr_recv_rsp(csolr_md_id, solr_rsp))
     {
-        sys_log(LOGSTDOUT, "error:csolr_do_req: recv solr_rsp\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_do_req: recv solr_rsp\n");
         return (EC_FALSE);
     }
 */
-    sys_log(LOGSTDOUT, "[DEBUG] csolr_do_req: solr_rsp: %.*s\n", cstring_get_len(solr_rsp), (char *)cstring_get_str(solr_rsp));
+    dbg_log(SEC_0059_CSOLR, 9)(LOGSTDOUT, "[DEBUG] csolr_do_req: solr_rsp: %.*s\n", cstring_get_len(solr_rsp), (char *)cstring_get_str(solr_rsp));
 
     return (EC_TRUE);
 }
@@ -531,27 +531,27 @@ EC_BOOL csolr_srv_fwd_req(const UINT32 csolr_md_id, CSOCKET_CNODE *csocket_cnode
     solr_req = cstring_new(NULL_PTR, LOC_CSOLR_0005);
     if(NULL_PTR == solr_req)
     {
-        sys_log(LOGSTDOUT, "error:csolr_srv_fwd_req: new solr_req failed\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_srv_fwd_req: new solr_req failed\n");
         return (EC_FALSE);
     }
 
     solr_rsp = cstring_new(NULL_PTR, LOC_CSOLR_0006);
     if(NULL_PTR == solr_rsp)
     {
-        sys_log(LOGSTDOUT, "error:csolr_srv_fwd_req: new solr_rsp failed\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_srv_fwd_req: new solr_rsp failed\n");
         cstring_free(solr_req);
         return (EC_FALSE);
     }
 
     if(EC_FALSE == csolr_recv_req(csolr_md_id, solr_req))
     {
-        sys_log(LOGSTDOUT, "error:csolr_srv_fwd_req: recv solr_req failed\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_srv_fwd_req: recv solr_req failed\n");
         cstring_free(solr_req);
         cstring_free(solr_rsp);
         return (EC_FALSE);
     }
 
-    //sys_log(LOGSTDOUT, "[DEBUG] csolr_srv_fwd_req: recv solr_req: %.*s\n", cstring_get_len(solr_req), (char *)cstring_get_str(solr_req));
+    //dbg_log(SEC_0059_CSOLR, 9)(LOGSTDOUT, "[DEBUG] csolr_srv_fwd_req: recv solr_req: %.*s\n", cstring_get_len(solr_req), (char *)cstring_get_str(solr_req));
     PRINT_BUFF("[DEBUG] csolr_srv_fwd_req: recv solr_req", cstring_get_str(solr_req), cstring_get_len(solr_req));
 
     if(1)
@@ -575,7 +575,7 @@ EC_BOOL csolr_srv_fwd_req(const UINT32 csolr_md_id, CSOCKET_CNODE *csocket_cnode
     /*return solr rsp*/
     if(EC_FALSE == result)
     {
-        sys_log(LOGSTDOUT, "error:csolr_srv_fwd_req: csolr_do_req failed\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_srv_fwd_req: csolr_do_req failed\n");
         cstring_free(solr_req);
         cstring_free(solr_rsp);
         return (EC_FALSE);
@@ -585,13 +585,13 @@ EC_BOOL csolr_srv_fwd_req(const UINT32 csolr_md_id, CSOCKET_CNODE *csocket_cnode
 
     if(EC_FALSE == csolr_send_rsp(csolr_md_id, solr_rsp))
     {
-        sys_log(LOGSTDOUT, "error:csolr_srv_fwd_req: send solr_rsp failed\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_srv_fwd_req: send solr_rsp failed\n");
         cstring_free(solr_req);
         cstring_free(solr_rsp);
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] csolr_srv_fwd_req: send solr_rsp: done\n");
+    dbg_log(SEC_0059_CSOLR, 9)(LOGSTDOUT, "[DEBUG] csolr_srv_fwd_req: send solr_rsp: done\n");
 
     cstring_free(solr_req);
     cstring_free(solr_rsp);
@@ -618,17 +618,17 @@ EC_BOOL csolr_srv_hit_rsp(const UINT32 csolr_md_id, CSOCKET_CNODE *csocket_cnode
     solr_rsp = CSOLR_MD_WAITING_RSP(csolr_md);
     if(NULL_PTR == solr_rsp)
     {
-        sys_log(LOGSTDOUT, "error:csolr_srv_hit_rsp: no one waiting for solr_rsp\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_srv_hit_rsp: no one waiting for solr_rsp\n");
         return (EC_FALSE);
     }
 
     if(EC_FALSE == csolr_recv_rsp(csolr_md_id, solr_rsp))
     {
-        sys_log(LOGSTDOUT, "error:csolr_srv_hit_rsp: recv solr_req failed\n");
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_srv_hit_rsp: recv solr_req failed\n");
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] csolr_srv_hit_rsp: recv solr_rsp: %.*s\n", cstring_get_len(solr_rsp), (char *)cstring_get_str(solr_rsp));
+    dbg_log(SEC_0059_CSOLR, 9)(LOGSTDOUT, "[DEBUG] csolr_srv_hit_rsp: recv solr_rsp: %.*s\n", cstring_get_len(solr_rsp), (char *)cstring_get_str(solr_rsp));
     CSOLR_MD_RSP_CCOND_RELEASE(csolr_md, LOC_CSOLR_0007);
 
     return (EC_TRUE);
@@ -655,18 +655,18 @@ EC_BOOL csolr_srv_handle_once(const UINT32 csolr_md_id, CSOCKET_CNODE *csocket_c
 
     if(EC_FALSE == csocket_recv_uint8(CSOCKET_CNODE_SOCKFD(csocket_cnode), &op))
     {
-        sys_log(LOGSTDOUT, "error:csolr_srv_handle_once: recv op on sockfd %d failed\n", CSOCKET_CNODE_SOCKFD(csocket_cnode));
+        dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_srv_handle_once: recv op on sockfd %d failed\n", CSOCKET_CNODE_SOCKFD(csocket_cnode));
         return (EC_FALSE);
     }
 
-    sys_log(LOGSTDOUT, "[DEBUG] csolr_srv_handle_once: op = %d\n", op);
+    dbg_log(SEC_0059_CSOLR, 9)(LOGSTDOUT, "[DEBUG] csolr_srv_handle_once: op = %d\n", op);
 
     switch(op)
     {
         case CSOLR_OP_REQ:
             if(EC_FALSE == csolr_srv_fwd_req(csolr_md_id, csocket_cnode))
             {
-                sys_log(LOGSTDOUT, "error:csolr_srv_handle_once: write once failed\n");
+                dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_srv_handle_once: write once failed\n");
                 return (EC_FALSE);
             }
             break;
@@ -674,12 +674,12 @@ EC_BOOL csolr_srv_handle_once(const UINT32 csolr_md_id, CSOCKET_CNODE *csocket_c
         case CSOLR_OP_RSP:
             if(EC_FALSE == csolr_srv_hit_rsp(csolr_md_id, csocket_cnode))
             {
-                sys_log(LOGSTDOUT, "error:csolr_srv_handle_once: read once failed\n");
+                dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_srv_handle_once: read once failed\n");
                 return (EC_FALSE);
             }
             break;
         default:
-            sys_log(LOGSTDOUT, "error:csolr_srv_handle_once: unknow op %d\n", op);
+            dbg_log(SEC_0059_CSOLR, 0)(LOGSTDOUT, "error:csolr_srv_handle_once: unknow op %d\n", op);
             return (EC_FALSE);
     }
 
