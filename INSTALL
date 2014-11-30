@@ -1,0 +1,31 @@
+1. 编译
+==========
+1.1 依赖包：libxml2-devel, pcre-devel, expat-devel
+1.2 编译命令：make bgn -j
+
+2. 配置
+==========
+2.1 配置文件：config.xml
+2.2 配置目的：配置业务层网络，组网方式，进程和线程属性，日志级别
+
+3. 运行
+==========
+3.1 先在bin目录下创建RFS目录，目录名为固定格式：rfs[0-9][0-9]，数字部分从00开始依次增长。比如mkdir rfs00, mkdir rfs01
+3.2 启动RFS节点，比如./bgn -tcid 10.10.10.1 -d，对应的日志文件为rank_10.10.10.1_0.log
+3.3 启动CONSOLE口：./bgn -tcid 0.0.0.64，输入命令： script ../scripts/test_hsrfs_12.hs。该命令执行test_hsrfs_12.hs脚本，
+    创建两个rfs00和rfs01
+3.4 创建dirtab，比如通过CONSOLE口执行命令：
+    hsrfsc add dir /h1 10.10.10.1 on tcid 10.10.10.1 at console
+    hsrfsc rollback dt on tcid 10.10.10.1 at console
+    hsrfsc flush dt on tcid 10.10.10.1 at console
+    至此，RFS分布式文件系统可以提供对目录/h1的所有操作
+    
+4. 测试    
+==========
+4.1 启动写测试进程：./bgn -tcid 10.10.10.2
+4.2 启动读测试进程：./bgn -tcid 10.10.10.3
+4.3 打量测试工具： ./ab -n 1000 -c 30 -X 127.0.0.1:4091 http://192.168.137.130/getsmf/h1/0/0.dat
+    
+
+
+
